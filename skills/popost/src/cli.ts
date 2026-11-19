@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { guardBrokenPipe } from './broken-pipe';
-import { PROFILE_NAME, PROFILE_NAME_HINT } from './profile';
+import { PROFILE_NAME, profileNameHint } from './profile';
+import { msg, resolveLang, withLang } from './i18n';
 import { run } from './main';
 import { createNodeRuntime } from './node-runtime';
 
@@ -20,7 +21,8 @@ const args = process.argv.slice(2);
 const hasProfile = args[0] === '--profile';
 const profile = hasProfile ? args.splice(0, 2)[1] : undefined;
 if (hasProfile && !(profile && PROFILE_NAME.test(profile))) {
-  process.stderr.write(`popost: error: --profile needs a name. ${PROFILE_NAME_HINT}\n`);
+  const text = withLang(resolveLang(process.env), () => msg('--profile needs a name. ', '--profile 需要一个名称。') + profileNameHint());
+  process.stderr.write(`popost: error: ${text}\n`);
   process.exit(2);
 }
 run(args, createNodeRuntime(profile)).then(

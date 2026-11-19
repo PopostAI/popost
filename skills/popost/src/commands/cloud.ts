@@ -11,17 +11,18 @@ import { pushProject } from '../cloud/push';
 import { PopostClient } from '../providers/api';
 import { PopostApiError } from '../providers/errors';
 import { BrowserUnavailableError } from '../render/browser';
+import { msg } from '../i18n';
 import type { CommandMain } from '../runtime';
 import { failureText, isExpectedFailure } from '../workflow/errors';
 import { runSubcommand, type Subcommand } from '../workflow/subcommands';
 
-const push: Subcommand = {
+const push = (): Subcommand => ({
   spec: {
-    description: 'sync the project to your popost.ai account (needs a popost key); prints the web address',
+    description: msg('sync the project to your popost.ai account (needs a popost key); prints the web address', '把工程同步到你的 popost.ai 账号（需要 popost Key）；打印网页地址'),
     options: [
       { flag: '--dir', required: true },
-      { flag: '--force', kind: 'flag', help: 'overwrite the web copy even if it was edited on the web since the last sync' },
-      { flag: '--lang', choices: ['en', 'zh'], help: 'language of the web address (default: the account language)' },
+      { flag: '--force', kind: 'flag', help: msg('overwrite the web copy even if it was edited on the web since the last sync', '即使网页版在上次同步后被编辑过，也覆盖它') },
+      { flag: '--lang', choices: ['en', 'zh'], help: msg('language of the web address (default: the account language)', '网页地址的语言（默认：账号语言）') },
     ],
   },
   run: async (args, rt) => {
@@ -47,6 +48,6 @@ const push: Subcommand = {
       return fail(rt, failureText(error));
     }
   },
-};
+});
 
-export const main: CommandMain = (argv, rt) => runSubcommand('popost cloud', { push }, argv, rt);
+export const main: CommandMain = (argv, rt) => runSubcommand('popost cloud', { push: push() }, argv, rt);

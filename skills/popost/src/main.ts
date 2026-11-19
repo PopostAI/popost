@@ -4,6 +4,7 @@
  */
 import type { CommandMain, Runtime } from './runtime';
 import { errorText, printJson } from './core/util';
+import { msg, resolveLang, withLang } from './i18n';
 import { VERSION } from './version';
 
 type Loader = () => Promise<CommandMain>;
@@ -42,24 +43,47 @@ register(['deck'], async () => (await import('./commands/deck')).main, false);
 register(['ticket', 'validate', 'import'], async () => (await import('./commands/post-bundle')).main, true);
 
 const usage = () =>
-  [
-    `popost ${VERSION}: create, reproduce and edit social media image posts as editable HTML projects.`,
-    '',
-    'usage: popost <command> [options]   (popost <command> --help for its options)',
-    '',
-    'install:   install (the Skill into your coding agents), auth (the popost.ai API key: set, status, clear)',
-    'project:   setup, init, page, settings, plan, series, reference, design, template-profile, attach-template',
-    'images:    image (prepare, quote, run, complete, status, info), provider, concept, import-concept',
-    'fonts:     font',
-    'review:    render, sheet, review, build, doctor, export, package, unpack',
-    'editor:    present, serve, deck, cloud (push the project to your popost.ai account)',
-    'sources:   ticket, validate, import, attach-bundle, link, inspiration, template',
-    'account:   account (credit balance and plan), pricing (current link tariff; no charge)',
-    '',
-  ].join('\n');
+  msg(
+    [
+      `popost ${VERSION}: create, reproduce and edit social media image posts as editable HTML projects.`,
+      '',
+      'usage: popost <command> [options]   (popost <command> --help for its options)',
+      '',
+      'install:   install (the Skill into your coding agents), auth (the popost.ai API key: set, status, clear)',
+      'project:   setup, init, page, settings, plan, series, reference, design, template-profile, attach-template',
+      'images:    image (prepare, quote, run, complete, status, info), provider, concept, import-concept',
+      'fonts:     font',
+      'review:    render, sheet, review, build, doctor, export, package, unpack',
+      'editor:    present, serve, deck, cloud (push the project to your popost.ai account)',
+      'sources:   ticket, validate, import, attach-bundle, link, inspiration, template',
+      'account:   account (credit balance and plan), pricing (current link tariff; no charge)',
+      '',
+    ].join('\n'),
+    [
+      `popost ${VERSION}：把社媒图文帖做成可编辑的 HTML 工程，支持新建、复刻和编辑。`,
+      '',
+      'usage: popost <command> [options]   （popost <command> --help 查看该命令的选项）',
+      '',
+      '安装:      install（把 Skill 装进编程 Agent）、auth（popost.ai API Key：set、status、clear）',
+      '工程:      setup、init、page、settings、plan、series、reference、design、template-profile、attach-template',
+      '图片:      image（prepare、quote、run、complete、status、info）、provider、concept、import-concept',
+      '字体:      font',
+      '检查:      render、sheet、review、build、doctor、export、package、unpack',
+      '编辑器:    present、serve、deck、cloud（把工程推送到 popost.ai 账户）',
+      '素材来源:  ticket、validate、import、attach-bundle、link、inspiration、template',
+      '账户:      account（积分余额和套餐）、pricing（当前链接解析价格；不扣费）',
+      '',
+    ].join('\n'),
+  );
 
-/** Run one CLI invocation; returns the exit code. Never throws: an unexpected error is reported as JSON, exit 1. */
-export const run = async (argv: readonly string[], rt: Runtime): Promise<number> => {
+/**
+ * Run one CLI invocation; returns the exit code. Never throws: an unexpected error is reported as JSON, exit 1. Messages
+ * are in the language of `rt.env` (`i18n.ts`) for this invocation only.
+ */
+export const run = (argv: readonly string[], rt: Runtime): Promise<number> =>
+  withLang(resolveLang(rt.env), () => runCommand(argv, rt));
+
+const runCommand = async (argv: readonly string[], rt: Runtime): Promise<number> => {
   const [name, ...rest] = argv;
   if (!name || name === '-h' || name === '--help' || name === 'help') {
     rt.stdout(usage());
@@ -71,7 +95,7 @@ export const run = async (argv: readonly string[], rt: Runtime): Promise<number>
   }
   const group = GROUPS[name];
   if (!group) {
-    rt.stderr(`popost: error: unknown command '${name}'\n${usage()}`);
+    rt.stderr(`${msg(`popost: error: unknown command '${name}'`, `popost: error: 未知命令 '${name}'`)}\n${usage()}`);
     return 2;
   }
   try {

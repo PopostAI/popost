@@ -212,7 +212,7 @@ describe('key guidance in errors', () => {
   it('NO_API_KEY names the key page of the base URL in use and popost auth set', async () => {
     const custom = await failure(scene(), 'https://self.example/api/open/v1');
     expect(custom.code).toBe('NO_API_KEY');
-    for (const part of ['https://self.example/account/api-keys', 'popost auth login', 'POPOST_API_KEY', '未发出请求', '未扣费'])
+    for (const part of ['https://self.example/account/api-keys', 'popost auth login', 'POPOST_API_KEY', 'nothing was sent', 'nothing was charged'])
       expect(custom.message).toContain(part);
     expect((await failure(scene())).message).toContain('https://popost.ai/account/api-keys');
     expect((await failure(scene({ env: { POPOST_BASE_URL: 'http://127.0.0.1:3000/api/open/v1' } }))).message).toContain('http://127.0.0.1:3000/account/api-keys');

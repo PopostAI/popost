@@ -1,4 +1,5 @@
-/** File reads for paths the user typed: relative to the working directory, failing the way Python's `open()` did. */
+/** File reads for paths the user typed: relative to the working directory; a missing file is an `OsError` naming the path. */
+import { msg } from '../i18n';
 import type { Runtime } from '../runtime';
 import { OsError } from './errors';
 
@@ -18,8 +19,16 @@ export const readUserBytes = async (rt: Runtime, userPath: string): Promise<Uint
 export const readUserText = async (rt: Runtime, userPath: string): Promise<string> =>
   rt.fs.readText(await checked(rt, userPath));
 
-export const readUserJson = async (rt: Runtime, userPath: string): Promise<unknown> =>
-  JSON.parse(await readUserText(rt, userPath));
+/** A `SyntaxError` naming the file when it is not JSON. */
+export const readUserJson = async (rt: Runtime, userPath: string): Promise<unknown> => {
+  const text = await readUserText(rt, userPath);
+  try {
+    return JSON.parse(text);
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error);
+    throw new SyntaxError(msg(`${userPath} is not valid JSON (${detail})`, `${userPath} 不是合法的 JSON（${detail}）`));
+  }
+};
 
 /** Python `str.splitlines()`: the same line breaks, and no empty last line. */
 export const splitLines = (text: string): string[] => {

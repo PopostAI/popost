@@ -251,7 +251,7 @@ describe('image run for several quotes', () => {
     expect(r.data).toMatchObject({ ok: false, total: 3, succeeded: 2, failed: 1, ambiguous: 0 });
     expect(r.data.jobs.map((row: Json) => [row.id, row.outcome])).toEqual([['a', 'ok'], ['b', 'failed'], ['c', 'ok']]);
     expect(r.data.jobs[1]).toMatchObject({ ok: false, code: 1, charged: false, quoteId: quoted.quoteIds[1] });
-    expect(r.data.jobs[1].error).toContain('提交被拒绝');
+    expect(r.data.jobs[1].error).toContain('the submit was refused');
     expect(t.tracker.sent).toHaveLength(3); // one request per job, none repeated
     expect(await t.job('b')).toMatchObject({ status: 'quoted', quoteId: quoted.quoteIds[1] });
     expect((await t.job('b')).runAttempted).toBeUndefined(); // exactly what a single refused run leaves: nothing was charged, the job is open

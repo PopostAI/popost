@@ -113,7 +113,7 @@ describe('font install output', () => {
     await rt.fs.mkdir('/work/fx');
     expect((await runCli(rt, ['font', 'install', '--dir', 'fx', '--roles', 'serif-a'])).code).toBe(1);
     const error = String(rt.json().error);
-    expect(error).toContain('不是 v2 工程');
+    expect(error).toContain('not a v2 project');
     expect(error).toContain('popost setup');
     expect(error).not.toContain('\n');
   });

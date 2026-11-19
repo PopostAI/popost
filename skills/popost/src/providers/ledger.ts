@@ -13,6 +13,7 @@ import { stampWithOffset } from './time';
 import { LedgerError } from './errors';
 import { canonicalJson } from './canonical';
 import { isRecord, type JsonRecord } from './base';
+import { msg } from '../i18n';
 
 export type LedgerRow = JsonRecord & { quoteId?: string; state?: string };
 
@@ -79,7 +80,8 @@ export const reserve = (rt: Runtime, ledgerPath: string, quoteId: string, reques
   exclusive(ledgerPath, async () => {
     const { rows, text } = await load(rt, ledgerPath);
     const existing = latest(rows, quoteId);
-    if (existing) throw new LedgerError(`quote ${quoteId} 已处于 ${String(existing.state)}，禁止重复调用`);
+    if (existing)
+      throw new LedgerError(msg(`quote ${quoteId} is already ${String(existing.state)}; it must not be submitted again`, `quote ${quoteId} 已处于 ${String(existing.state)}，禁止重复调用`));
     const record: LedgerRow = { quoteId, state: 'reserved', requestHash, provider, reservedAt: stampWithOffset(rt.now()), meta };
     await append(rt, ledgerPath, text, record);
     return record;
@@ -90,7 +92,8 @@ export const settle = (rt: Runtime, ledgerPath: string, quoteId: string, state: 
   exclusive(ledgerPath, async () => {
     const { rows, text } = await load(rt, ledgerPath);
     const existing = latest(rows, quoteId);
-    if (!existing || existing.state !== 'reserved') throw new LedgerError(`quote ${quoteId} 无 reserved 记录，无法 settle`);
+    if (!existing || existing.state !== 'reserved')
+      throw new LedgerError(msg(`quote ${quoteId} has no reserved record, so it cannot be settled`, `quote ${quoteId} 无 reserved 记录，无法 settle`));
     const record: LedgerRow = { quoteId, state, requestHash: existing.requestHash, provider: existing.provider, settledAt: stampWithOffset(rt.now()), meta: extra };
     await append(rt, ledgerPath, text, record);
     return record;

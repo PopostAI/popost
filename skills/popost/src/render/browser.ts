@@ -6,6 +6,7 @@ import { existsSync, readdirSync } from 'node:fs';
 import { homedir } from 'node:os';
 import path from 'node:path';
 import { chromium, type Browser } from 'playwright-core';
+import { msg } from '../i18n';
 
 export class BrowserUnavailableError extends Error {
   override name = 'BrowserUnavailableError';
@@ -69,7 +70,10 @@ export const launchChromium = async (env: Readonly<Record<string, string | undef
   const executablePath = findChromium(env);
   if (!executablePath)
     throw new BrowserUnavailableError(
-      'No Chrome, Edge or Chromium found. Install Google Chrome, or set POPOST_CHROME to a Chromium executable.',
+      msg(
+        'No Chrome, Edge or Chromium found. Install Google Chrome, or set POPOST_CHROME to a Chromium executable.',
+        '没有找到 Chrome、Edge 或 Chromium。请安装 Google Chrome，或把 POPOST_CHROME 设为某个 Chromium 可执行文件。',
+      ),
     );
   return chromium.launch({ executablePath, headless: true, args: LAUNCH_ARGS });
 };

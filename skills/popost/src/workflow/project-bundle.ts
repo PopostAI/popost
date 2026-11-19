@@ -8,6 +8,7 @@ import { unzipSync, zipSync, type ZipOptions, type Zippable } from 'fflate';
 import { Project, MANIFEST_NAME } from '../core/project';
 import { pyUnquote } from '../core/pyjson';
 import { isFile, isInside, relPosix, sha256, walkFiles, writeAtomic } from '../core/util';
+import { msg } from '../i18n';
 import type { Runtime } from '../runtime';
 import { ValueError } from './errors';
 import { fromCwd } from './io';
@@ -15,18 +16,34 @@ import { assertSafeArchive, MAX_EXPANDED } from './zip-inspect';
 
 const FONT_EXTENSIONS = new Set(['.woff2', '.woff', '.ttf', '.otf']);
 const INTERNAL = ['reference/', 'production/'];
-const OPEN_TXT = [
-  'This is an editable Popost project.',
-  '',
-  'To keep editing it, install Node.js 20.19 or newer, then run in a terminal:',
-  '  npx popost unpack --file <this-zip-file> --dir <new-project-directory>',
-  '  npx popost present --dir <new-project-directory>',
-  '',
-  'Agents: add --host codex (or the name of your host) to `present` and open the returned URL in a side panel.',
-  'The project is plain files: pages/*.html are the layout, assets/ holds the images.',
-  'PNG export needs a local Chrome or Chromium (see `npx popost doctor --dir <new-project-directory>`).',
-  '',
-].join('\n');
+/** `OPEN.txt` in the ZIP: how to keep editing the project. */
+const openTxt = (): string =>
+  msg(
+    [
+      'This is an editable Popost project.',
+      '',
+      'To keep editing it, install Node.js 20.19 or newer, then run in a terminal:',
+      '  npx popost unpack --file <this-zip-file> --dir <new-project-directory>',
+      '  npx popost present --dir <new-project-directory>',
+      '',
+      'Agents: add --host codex (or the name of your host) to `present` and open the returned URL in a side panel.',
+      'The project is plain files: pages/*.html are the layout, assets/ holds the images.',
+      'PNG export needs a local Chrome or Chromium (see `npx popost doctor --dir <new-project-directory>`).',
+      '',
+    ].join('\n'),
+    [
+      '这是一个可编辑的 Popost 工程。',
+      '',
+      '要继续编辑，请安装 Node.js 20.19 或更新版本，然后在终端里运行：',
+      '  npx popost unpack --file <这个 ZIP 文件> --dir <新工程目录>',
+      '  npx popost present --dir <新工程目录>',
+      '',
+      'Agent：在 `present` 后加上 --host codex（或你的宿主名称），并在侧边栏打开返回的地址。',
+      '工程就是普通文件：pages/*.html 是版式，assets/ 里是图片。',
+      '导出 PNG 需要本机的 Chrome 或 Chromium（见 `npx popost doctor --dir <新工程目录>`）。',
+      '',
+    ].join('\n'),
+  );
 
 const links = (text: string): string[] => [
   ...[...text.matchAll(/(?:src|href)=['"]([^'"]+)/gi)].map((m) => m[1]!),
@@ -37,11 +54,11 @@ const links = (text: string): string[] => [
 const resolveLink = async (rt: Runtime, root: string, source: string, raw: string): Promise<string | null> => {
   const link = raw.trim();
   if (link.startsWith('data:') || link.startsWith('#')) return null;
-  if (link.includes('://') || link.startsWith('//')) throw new ValueError(`external dependency in project: ${link}`);
+  if (link.includes('://') || link.startsWith('//')) throw new ValueError(msg(`external dependency in project: ${link}`, `工程里有外部依赖：${link}`));
   const target = pyUnquote(link.split('?')[0]!.split('#')[0]!);
   const resource = rt.path.resolve(rt.path.dirname(source), target);
   if (!isInside(rt, root, resource) || !(await isFile(rt, resource)))
-    throw new ValueError(`missing or external local dependency: ${link}`);
+    throw new ValueError(msg(`missing or external local dependency: ${link}`, `本地依赖缺失或在工程之外：${link}`));
   return resource;
 };
 
@@ -51,7 +68,7 @@ const collectEntries = async (project: Project): Promise<Map<string, string>> =>
   const entries = new Map<string, string>([[MANIFEST_NAME, project.manifestPath]]);
   for (const page of project.manifest.pages) {
     const path = rt.path.resolve(project.pageHtmlPath(page.id));
-    if (!isInside(rt, root, path)) throw new ValueError('page outside project');
+    if (!isInside(rt, root, path)) throw new ValueError(msg('page outside project', '页面在工程目录之外'));
     entries.set(page.htmlPath, path);
   }
   const pending = [...entries].filter(([rel]) => rel.endsWith('.html')).map(([, path]) => path);
@@ -65,7 +82,10 @@ const collectEntries = async (project: Project): Promise<Map<string, string>> =>
       const rel = relPosix(rt, root, resource);
       if (INTERNAL.some((prefix) => rel.startsWith(prefix)))
         throw new ValueError(
-          `${relPosix(rt, root, source)} uses ${rel}, a working file that does not ship (${INTERNAL.join(' and ')} stay out of the package): copy the picture into assets/, point the page at the copy, then package again`,
+          msg(
+            `${relPosix(rt, root, source)} uses ${rel}, a working file that does not ship (${INTERNAL.join(' and ')} stay out of the package): copy the picture into assets/, point the page at the copy, then package again`,
+            `${relPosix(rt, root, source)} 用到了 ${rel}，这是不随工程打包的工作文件（${INTERNAL.join(' 和 ')} 不进入工程包）：请把图片复制到 assets/，让页面改用这份副本，然后重新打包`,
+          ),
         );
       entries.set(rel, resource);
       if (['.css', '.html'].includes(rt.path.extname(resource))) pending.push(resource);
@@ -138,11 +158,11 @@ export const exportProject = async (project: Project, out?: string): Promise<str
   zippable[MANIFEST_NAME] = payload(rt, MANIFEST_NAME, new TextEncoder().encode(JSON.stringify(manifest, null, 2)));
   for (const [rel, path] of entries) {
     if (rel === MANIFEST_NAME) continue;
-    if (!(await isFile(rt, path))) throw new ValueError(`missing resource: ${rel}`);
+    if (!(await isFile(rt, path))) throw new ValueError(msg(`missing resource: ${rel}`, `资源缺失：${rel}`));
     zippable[rel] = payload(rt, rel, await rt.fs.readFile(path));
   }
   for (const [rel, path] of await runtimeFiles(rt)) zippable[rel] = payload(rt, rel, await rt.fs.readFile(path));
-  zippable['OPEN.txt'] = payload(rt, 'OPEN.txt', new TextEncoder().encode(OPEN_TXT));
+  zippable['OPEN.txt'] = payload(rt, 'OPEN.txt', new TextEncoder().encode(openTxt()));
   await writeAtomic(rt, target, zipSync(zippable));
   return target;
 };
@@ -151,12 +171,12 @@ export const exportProject = async (project: Project, out?: string): Promise<str
 const verifyUnpacked = async (project: Project): Promise<void> => {
   const { rt, root } = project;
   for (const page of project.manifest.pages)
-    if (!(await isFile(rt, project.pageHtmlPath(page.id)))) throw new ValueError(`missing page ${page.id}`);
+    if (!(await isFile(rt, project.pageHtmlPath(page.id)))) throw new ValueError(msg(`missing page ${page.id}`, `缺少页面 ${page.id}`));
   for (const asset of project.manifest.assets) {
     const resource = rt.path.resolve(root, asset.path);
-    if (!isInside(rt, root, resource) || !(await isFile(rt, resource))) throw new ValueError('missing or unsafe asset');
+    if (!isInside(rt, root, resource) || !(await isFile(rt, resource))) throw new ValueError(msg('missing or unsafe asset', '资产缺失或路径不安全'));
     if (asset.sha256 && sha256(await rt.fs.readFile(resource)) !== asset.sha256)
-      throw new ValueError('asset checksum mismatch');
+      throw new ValueError(msg('asset checksum mismatch', '资产校验和不一致'));
   }
 };
 
@@ -167,15 +187,15 @@ const verifyUnpacked = async (project: Project): Promise<void> => {
  */
 export const importProject = async (rt: Runtime, data: Uint8Array, destination: string): Promise<Project> => {
   const dest = fromCwd(rt, destination);
-  if (await rt.fs.stat(dest)) throw new ValueError('destination already exists; choose a new project directory');
+  if (await rt.fs.stat(dest)) throw new ValueError(msg('destination already exists; choose a new project directory', '目标目录已存在；请选择一个新的工程目录'));
   assertSafeArchive(data, MANIFEST_NAME);
   const files = unzipSync(data, { filter: (file) => !file.name.endsWith('/') });
   // The sizes in the directory are the archive's own claim; check what actually came out as well.
-  if (Object.values(files).reduce((sum, bytes) => sum + bytes.length, 0) > MAX_EXPANDED) throw new ValueError('project archive too large');
+  if (Object.values(files).reduce((sum, bytes) => sum + bytes.length, 0) > MAX_EXPANDED) throw new ValueError(msg('project archive too large', '工程压缩包过大'));
   try {
     for (const [name, bytes] of Object.entries(files)) {
       const path = rt.path.resolve(dest, name);
-      if (!isInside(rt, dest, path)) throw new ValueError('unsafe archive path');
+      if (!isInside(rt, dest, path)) throw new ValueError(msg('unsafe archive path', '压缩包里有不安全的路径'));
       await rt.fs.writeFile(path, bytes);
     }
     const project = await Project.load(rt, dest);

@@ -4,6 +4,7 @@ import { makeProvider, resolveOutDir, type Ctx } from './cli-config';
 import { ImageProviderError } from './errors';
 import { availablePaidProviders } from './index';
 import { ManualProvider } from './manual-host';
+import { msg } from '../i18n';
 
 /** Reads an existing task id only; for the platform channel it reads the local task record and asks nobody. */
 export const cmdStatus = async (ctx: Ctx, name: string, taskId: string, raw: boolean): Promise<JsonRecord> => {
@@ -41,5 +42,6 @@ export const cmdCheck = async (ctx: Ctx, name: string): Promise<JsonRecord> => {
 /** The manual channel: registers files the user supplied (existence and sha256). No API, no cost. */
 export const cmdInventory = async (ctx: Ctx, files: readonly string[]): Promise<JsonRecord> => {
   const items = await new ManualProvider(ctx.rt, { config: {}, dryRun: false, mock: ctx.g.mock }).inventory(files);
-  return { ok: true, channel: 'manual', charged: false, items, note: '用户直接提供的素材，未发起任何 API、未计费' };
+  const note = msg('assets supplied by the user; no API was called and nothing was charged', '用户直接提供的素材，未发起任何 API、未计费');
+  return { ok: true, channel: 'manual', charged: false, items, note };
 };

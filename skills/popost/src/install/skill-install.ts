@@ -2,6 +2,7 @@
 import { createHash } from 'node:crypto';
 import type { Runtime } from '../runtime';
 import { listPayload, readManifest, type PackageManifest } from './payload';
+import { msg } from '../i18n';
 
 export const SKILL_DIR_NAME = 'popost';
 
@@ -56,10 +57,13 @@ export const installSkill = async (
   const root = rt.skillRoot;
   const manifest = await readManifest(rt, root);
   const files = await listPayload(rt, root, manifest.files);
-  if (!files.includes('SKILL.md')) throw new Error(`${rt.path.join(root, 'SKILL.md')} is missing: nothing to install`);
+  if (!files.includes('SKILL.md')) {
+    const skillMd = rt.path.join(root, 'SKILL.md');
+    throw new Error(msg(`${skillMd} is missing: nothing to install`, `${skillMd} 不存在：没有可安装的内容`));
+  }
   const skillDir = rt.path.join(skillsDir, SKILL_DIR_NAME);
   const stat = await rt.fs.stat(skillDir);
-  if (stat && !stat.isDirectory) throw new Error(`${skillDir} exists and is not a directory: move it away first`);
+  if (stat && !stat.isDirectory) throw new Error(msg(`${skillDir} exists and is not a directory: move it away first`, `${skillDir} 已存在且不是目录：请先把它移走`));
   const previous = stat ? await installedVersion(rt, skillDir) : null;
   const status = decide(stat !== null, previous, manifest, options.force, options.dryRun);
   const result: InstallResult = { skillDir, status, ...(stat ? { previousVersion: previous } : {}), files: files.length };

@@ -3,7 +3,9 @@
  * ordinary async function over `rt.fs` that a test can call without a socket (`server.ts` adapts Node's `http` to it).
  */
 import type { CloudService } from '../cloud/service';
+import { errorText } from '../core/error-text';
 import type { Project } from '../core/project';
+import { msg } from '../i18n';
 import type { Runtime } from '../runtime';
 
 export interface ApiRequest {
@@ -82,13 +84,19 @@ export const noStoreResponse = (body: Uint8Array | string, contentType: string, 
 export const isBadRequest = (error: unknown): boolean =>
   error instanceof SyntaxError || (error instanceof Error && error.name === 'ValueError');
 
-export const errorMessage = (error: unknown): string => (error instanceof Error ? error.message : String(error));
+/** What a failed request answers: the message alone, a file error as "file not found: <path>", a failed fetch by its host. */
+export const errorMessage = (error: unknown): string => errorText(error);
 
 /** Parse a JSON body that must be an object. */
 export const parseJsonObject = (req: ApiRequest): Record<string, unknown> => {
-  const value: unknown = JSON.parse(new TextDecoder().decode(req.body));
+  let value: unknown;
+  try {
+    value = JSON.parse(new TextDecoder().decode(req.body));
+  } catch {
+    throw new SyntaxError(msg('request body is not valid JSON', '请求体不是有效的 JSON'));
+  }
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
-    const error = new Error('request body must be a JSON object');
+    const error = new Error(msg('request body must be a JSON object', '请求体必须是 JSON 对象'));
     error.name = 'ValueError';
     throw error;
   }

@@ -18,7 +18,7 @@ describe('init and design', () => {
     expect(project.manifest.workflowVersion).toBe(3);
     const design = await rt.fs.readText(project.designMd);
     expect(design).toContain('two bars after gym');
-    expect(design).toContain('init: design.md 初稿来自 brief');
+    expect(design).toContain('init: the design.md draft comes from the brief');
   });
 
   it('honours --width / --height and refuses a non-empty directory', async () => {
@@ -126,7 +126,7 @@ describe('attach-template and attach-bundle', () => {
     await rt.fs.mkdir('/work/empty');
     const { code } = await runCli(rt, ['attach-template', '--dir', 'project', '--path', 'empty']);
     expect(code).toBe(2);
-    expect(String(rt.json().error)).toContain('SKILL.md 缺失');
+    expect(String(rt.json().error)).toContain('SKILL.md is missing');
   });
 
   it('refuses a bundle that validate would refuse, and attaches nothing', async () => {
@@ -185,7 +185,7 @@ describe('doctor and usage', () => {
     await rt.fs.mkdir('/work/nothing');
     const { code } = await runCli(rt, ['design', '--dir', 'nothing', '--note', 'n']);
     expect(code).toBe(1);
-    expect(String(rt.json().error)).toContain('不是 v2 工程');
+    expect(String(rt.json().error)).toContain('not a v2 project');
   });
 });
 
@@ -194,8 +194,8 @@ describe('page HTML used by build', () => {
     const rt = await newRuntime();
     const project = await newProject(rt);
     await project.writePageHtml('p1', '<html><body><div class="post"><h1>x</h1></div></body></html>');
-    expect((await buildProject(project, true)).blockers.join('')).not.toContain('缺 class');
+    expect((await buildProject(project, true)).blockers.join('')).not.toContain('no class');
     await project.writePageHtml('p1', '<html><head><style>.post{color:red}</style></head><body><div><h1>x</h1></div></body></html>');
-    expect((await buildProject(project, true)).blockers.some((b) => b.includes('缺 class'))).toBe(true);
+    expect((await buildProject(project, true)).blockers.some((b) => b.includes('no class'))).toBe(true);
   });
 });

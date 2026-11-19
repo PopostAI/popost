@@ -7,6 +7,7 @@ import type { PopostClient } from './api';
 import { isInt, isRecord, type JsonRecord } from './base';
 import { PopostApiError } from './errors';
 import { sleep } from './time';
+import { msg } from '../i18n';
 
 export const POLL_INTERVAL_MS = 2000;
 /** Consecutive failed polls (network, 5xx) after which waiting stops; the task may still finish on the platform. */
@@ -68,7 +69,8 @@ const rateLimitWaitMs = (error: PopostApiError): number | null => {
 /** `GET /links/parse?id=`; the task of the answer must be the one asked for. */
 export const fetchTask = async (client: PopostClient, id: string, timeoutSec?: number): Promise<LinkTask> => {
   const task = taskOf(await client.request('GET', '/links/parse', { query: { id }, timeoutSec }));
-  if (!task || task.id !== id) throw new PopostApiError('GET /links/parse 响应格式不符（缺少 task 或 id 不一致）', { code: 'BAD_RESPONSE' });
+  if (!task || task.id !== id)
+    throw new PopostApiError(msg('the GET /links/parse answer has an unexpected format (no task, or a different id)', 'GET /links/parse 响应格式不符（缺少 task 或 id 不一致）'), { code: 'BAD_RESPONSE' });
   return task;
 };
 

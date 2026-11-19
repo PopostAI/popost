@@ -6,8 +6,10 @@
  * there is no switch to allow external requests.
  */
 import type { Browser, Page } from 'playwright-core';
+import { errorText } from '../core/error-text';
 import { sniffImage } from '../core/image';
 import { isInside, isoNow, relPosix, sha256, writeAtomic, writeJson } from '../core/util';
+import { msg } from '../i18n';
 import type { Runtime } from '../runtime';
 import { AUDIT_SCRIPT } from './audit-script';
 import { callInPage, loadPage, openOfflineContext, withBrowser } from './offline';
@@ -71,16 +73,30 @@ const issue = (code: string, message: string, evidence?: unknown, severity: 'err
   ...(evidence === undefined ? {} : { evidence }),
 });
 
+/** The texts of the issues the in-page audit (`AUDIT_SCRIPT`) finds, by issue code. */
+export const auditMessages = (): Record<string, string> => ({
+  'global-scale': msg('the root element has a global transform: ', '根元素带整体 transform:'),
+  'out-of-bounds': msg('an element extends outside the root canvas', '元素越出根画布'),
+  'ellipsis-clipped': msg('text is cut off by a one-line ellipsis', '单行省略号截断文本'),
+  'line-clamped': msg('line-clamp hides the following lines', 'line-clamp 隐藏后续多行'),
+  'clipped-hidden': msg('overflow:hidden cuts off content', 'overflow:hidden 裁掉内容'),
+  'scroll-overflow': msg('some content can only be seen by scrolling', '需滚动才能看到内容'),
+  'broken-image': msg('broken image (naturalWidth=0)', '裂图（naturalWidth=0）'),
+  'font-unloaded': msg('an @font-face failed to load', '存在加载失败的 @font-face'),
+});
+
 /** Source-level rules that need no browser: no scripts, and external references are reported. */
 export const staticScan = (html: string): AuditIssue[] => {
   const issues: AuditIssue[] = [];
   const low = html.toLowerCase();
   if (low.includes('<script'))
-    issues.push(issue('script-present', '检测到 <script>：静态 HTML 产物不应依赖脚本', 'static scan'));
+    issues.push(issue('script-present', msg('<script> found: a static HTML result must not depend on scripts', '检测到 <script>：静态 HTML 产物不应依赖脚本'), 'static scan'));
   for (const match of low.matchAll(/(?:src|href)\s*=\s*["'](https?:\/\/[^"']+)/g))
-    issues.push(issue('external-ref', '静态外链引用（默认断网将被拦截）', match[1]!.slice(0, 120), 'warning'));
+    issues.push(
+      issue('external-ref', msg('a static external reference (blocked, since rendering is offline)', '静态外链引用（默认断网将被拦截）'), match[1]!.slice(0, 120), 'warning'),
+    );
   for (const _ of low.matchAll(/url\(\s*["']?https?:\/\//g))
-    issues.push(issue('external-ref', 'CSS url() 外链（默认断网将被拦截）', 'css url()', 'warning'));
+    issues.push(issue('external-ref', msg('an external CSS url() (blocked, since rendering is offline)', 'CSS url() 外链（默认断网将被拦截）'), 'css url()', 'warning'));
   return issues;
 };
 
@@ -103,12 +119,10 @@ const failed = (id: string, file: string, issues: AuditIssue[]): AuditPage => ({
   artifacts: {},
 });
 
-const errorOf = (error: unknown): AuditIssue =>
-  issue(
-    'render-exception',
-    `渲染异常: ${error instanceof Error ? error.name : 'Error'}`,
-    String(error instanceof Error ? error.message : error).slice(0, 300),
-  );
+const errorOf = (error: unknown): AuditIssue => {
+  const detail = errorText(error).slice(0, 200);
+  return issue('render-exception', msg(`render error: ${detail}`, `渲染异常: ${detail}`), String(error instanceof Error ? error.message : error).slice(0, 300));
+};
 
 interface AuditData {
   rootFound: boolean;
@@ -127,7 +141,7 @@ const auditRoot = async (
   usedIds: Set<string>,
 ): Promise<AuditOutcome> => {
   const { stem, count, selector, options, file } = ctx;
-  const audit = await callInPage<AuditData>(page, AUDIT_SCRIPT, { selector, index, fallback: '.page' });
+  const audit = await callInPage<AuditData>(page, AUDIT_SCRIPT, { selector, index, fallback: '.page', messages: auditMessages() });
   const res = failed(count === 1 ? stem : `${stem}#${index}`, file, [...(audit.issues ?? [])]);
   res.facts = { ...audit.facts };
   if (index === 0) {
@@ -135,7 +149,7 @@ const auditRoot = async (
     if (first.blocked.length) {
       res.facts.blockedExternal = [...first.blocked];
       for (const url of first.blocked)
-        res.issues.push(issue('external-request', '外部请求被断网策略拦截', url.slice(0, 120)));
+        res.issues.push(issue('external-request', msg('an external request was blocked by the offline policy', '外部请求被断网策略拦截'), url.slice(0, 120)));
     }
   }
   const lw = Math.round(audit.rootRect?.width ?? 0);
@@ -149,7 +163,10 @@ const auditRoot = async (
   });
   if (options.width && options.height && (Math.abs(lw - options.width) > 2 || Math.abs(lh - options.height) > 2))
     res.issues.push(
-      issue('size-mismatch', '根尺寸与声明画幅偏差>2px', { declared: [options.width, options.height], actual: [lw, lh] }),
+      issue('size-mismatch', msg('the root size differs from the declared canvas by more than 2px', '根尺寸与声明画幅偏差>2px'), {
+        declared: [options.width, options.height],
+        actual: [lw, lh],
+      }),
     );
   res.id = uniqueId(res, usedIds);
   if (res.issues.some((x) => x.severity === 'error')) return { page: res };
@@ -168,7 +185,9 @@ const uniqueId = (res: AuditPage, used: Set<string>): string => {
   while (used.has(`${base}__${k}`)) k++;
   const id = `${base}__${k}`;
   used.add(id);
-  res.issues.push(issue('page-id-collision', '页 id 重复（跨文件 basename 冲突），已拒绝并改名隔离', base));
+  res.issues.push(
+    issue('page-id-collision', msg('duplicate page id (files with the same basename); refused and renamed apart', '页 id 重复（跨文件 basename 冲突），已拒绝并改名隔离'), base),
+  );
   return id;
 };
 
@@ -182,7 +201,8 @@ const auditFile = async (
 ): Promise<AuditOutcome[]> => {
   const stem = rt.path.basename(file, rt.path.extname(file));
   const root = rt.path.resolve(rt.cwd, options.root ?? rt.path.dirname(file));
-  if (!isInside(rt, root, file)) return [{ page: failed(stem, file, [issue('render-exception', '文件不在可读目录内', file)]) }];
+  if (!isInside(rt, root, file))
+    return [{ page: failed(stem, file, [issue('render-exception', msg('the file is outside the readable folder', '文件不在可读目录内'), file)]) }];
   const html = await rt.fs.readText(file);
   const { context, blocked } = await openOfflineContext(rt, browser, root, { scale: options.scale ?? 2 });
   const outcomes: AuditOutcome[] = [];
@@ -195,7 +215,11 @@ const auditFile = async (
     const roots = await count(selector);
     if (roots === 0)
       return [
-        { page: failed(stem, file, [issue('no-root-page', '未找到根元素 .post（回退 .page 也无）', `selector=${wanted}`)]) },
+        {
+          page: failed(stem, file, [
+            issue('no-root-page', msg('no root element .post found (and no .page to fall back to)', '未找到根元素 .post（回退 .page 也无）'), `selector=${wanted}`),
+          ]),
+        },
       ];
     const first = { blocked, staticIssues: staticScan(html) };
     for (let i = 0; i < roots; i++)
@@ -269,8 +293,10 @@ const buildReport = (rt: Runtime, pages: AuditPage[]): AuditReport => {
     schemaVersion: 'render-audit.v1',
     // "accepted" is zero machine errors and a promoted PNG; strict replica / truth review is a person reading the PNG.
     acceptanceScope: 'render-audit-only',
-    renderOnlyNote:
+    renderOnlyNote: msg(
+      'render accepted only means zero machine-audit errors and a promoted PNG; it does not mean the three strict replica layers passed. The replica/truth layers need a person to read the image and bind the pngHash.',
       'render accepted 仅表示零机器审计 error、PNG 已晋升；不等于 strict 复刻三层通过。replica/truth 层须真人读图并绑 pngHash。',
+    ),
     generatedAt: isoNow(rt),
     summary: {
       total: pages.length,
@@ -278,7 +304,7 @@ const buildReport = (rt: Runtime, pages: AuditPage[]): AuditReport => {
       accepted: pages.length - failedCount,
       failed: failedCount,
       issuesByCode,
-      acceptedMeaning: 'render-audit-only：零机器 error，非 strict 三层通过',
+      acceptedMeaning: msg('render-audit-only: zero machine errors, not a pass of the three strict layers', 'render-audit-only：零机器 error，非 strict 三层通过'),
     },
     reviews: [],
     pages,
@@ -291,7 +317,7 @@ export const auditHtmlFiles = async (
   files: readonly string[],
   options: AuditOptions,
 ): Promise<AuditReport> => {
-  if (!files.length) throw new Error('no HTML files given');
+  if (!files.length) throw new Error(msg('no HTML files given', '没有给出 HTML 文件'));
   const pages: AuditPage[] = [];
   await withBrowser(rt, async (browser) => {
     const usedIds = new Set<string>();

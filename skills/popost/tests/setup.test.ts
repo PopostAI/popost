@@ -245,7 +245,7 @@ describe('the whole spec is checked first', () => {
       'settings.colour: unknown key',
       'references[0].file: file not found: inputs/nope.png',
       'references[0].page: "p9" is not a page of this project (pages: p1)',
-      "references[1].file: cannot identify image file 'inputs/notes.txt'",
+      'references[1].file: not a readable picture file: inputs/notes.txt',
       'references[2].role: "banner" is not one of',
       'references[3]: must be an object',
       'fonts: unknown font roles: latin-nope',
@@ -254,7 +254,7 @@ describe('the whole spec is checked first', () => {
       'images[0].aspect: "wide" must be W:H',
       'images[0].ref: "style": no style reference is registered',
       'images[1].ref: picture not found: inputs/missing.png',
-      "images[1].ref: cannot identify image file 'inputs/notes.txt'",
+      'images[1].ref: not a readable picture file: inputs/notes.txt',
       'images[2].id: "composition" is reserved for the composition job',
       'images[3].id: required',
       'images[4].extra: unknown key',
@@ -297,7 +297,7 @@ describe('the whole spec is checked first', () => {
     const w = await world();
     const missing = await runCli(w.rt, ['setup', '--dir', 'project', '--spec', 'nope.json']);
     expect(missing.code).toBe(2);
-    expect(JSON.parse(missing.stdout).error).toContain("No such file or directory: 'nope.json'");
+    expect(JSON.parse(missing.stdout).error).toContain('file not found: nope.json');
     await w.write('spec/broken.json', '{ "brief": ');
     const broken = await runCli(w.rt, ['setup', '--dir', 'project', '--spec', 'spec/broken.json']);
     expect(JSON.parse(broken.stdout).error).toMatch(/^spec\/broken\.json is not valid JSON/);

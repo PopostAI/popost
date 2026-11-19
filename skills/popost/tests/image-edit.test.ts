@@ -122,7 +122,7 @@ describe('popost image edit refusals', () => {
     expect(errorOf((await run('--out', 'out.png', '--quality', '0')).stdout)).toMatch(/1 to 100/);
     const missing = await runCli(rt, ['image', 'edit', '--file', 'nope.png', '--out', 'out.png']);
     expect(missing.code).toBe(2);
-    expect(errorOf(missing.stdout)).toMatch(/No such file/);
+    expect(errorOf(missing.stdout)).toBe('file not found: nope.png');
     expect(await rt.fs.stat(rt.path.resolve(rt.cwd, 'out.png'))).toBeNull();
   });
 });

@@ -6,6 +6,8 @@ import type { Project } from '../core/project';
 import { isDir } from '../core/util';
 import type { Runtime } from '../runtime';
 import { isOsError, JobError, loadJob, type Job } from './jobs';
+import { msg } from '../i18n';
+import { errorText } from '../core/error-text';
 
 /**
  * How many jobs go out at once unless told otherwise, and the most that may. The platform lets a user have four generations
@@ -45,27 +47,28 @@ export const readEntries = async (project: Project): Promise<Entry[]> => {
     try {
       entries.push({ id: name.slice(0, -'.json'.length), path, job: await loadJob(rt, path) });
     } catch (error) {
-      throw new JobError(`job file ${path} cannot be read (${error instanceof Error ? error.message : String(error)})`);
+      throw new JobError(msg(`job file ${path} cannot be read (${errorText(error)})`, `任务文件 ${path} 无法读取（${errorText(error)}）`));
     }
   }
   return entries;
 };
 
 /** `a=quote, b=quote` for the jobs that hold a quote, for the messages that tell the caller which quote ids exist. */
-export const boundQuotes = (entries: readonly Entry[]): string => entries.filter((entry) => entry.job.quoteId).map((entry) => `${entry.id}=${String(entry.job.quoteId)}`).join(', ') || 'none';
+export const boundQuotes = (entries: readonly Entry[]): string => entries.filter((entry) => entry.job.quoteId).map((entry) => `${entry.id}=${String(entry.job.quoteId)}`).join(', ') || msg('none', '无');
 
 /** `a,b,c` as a list of distinct ids; anything else about them is the caller's to check. */
 export const splitList = (value: string, what: string): string[] => {
   const items = value.split(',').map((item) => item.trim());
-  if (items.some((item) => !item)) throw new JobError(`${what} has an empty entry; separate several with single commas`);
+  if (items.some((item) => !item))
+    throw new JobError(msg(`${what} has an empty entry; separate several with single commas`, `${what} 里有空项；多个值之间用单个逗号分隔`));
   const duplicate = items.find((item, index) => items.indexOf(item) !== index);
-  if (duplicate) throw new JobError(`${what} names ${duplicate} twice`);
+  if (duplicate) throw new JobError(msg(`${what} names ${duplicate} twice`, `${what} 里 ${duplicate} 出现了两次`));
   return items;
 };
 
 /** The exit code and message of a job that failed with `error`: an input the caller can fix is 2, a bug is 1. */
 export const failureOf = (error: unknown): { code: number; message: string } => {
-  const message = error instanceof Error ? error.message : String(error);
+  const message = errorText(error);
   return { code: error instanceof JobError || isOsError(error) ? 2 : 1, message };
 };
 
@@ -94,5 +97,10 @@ export const worstCode = (codes: readonly number[]): number => codes.reduce((wor
 /** A batch has one billing service. Quote/run other services separately instead of adding their units. */
 export const requireSingleProvider = (entries: readonly Entry[]): void => {
   if (new Set(entries.map(entry => entry.job.provider.channel)).size > 1)
-    throw new JobError('A batch must use one billing service. Quote and run official, custom and host jobs separately; their costs and accounts cannot be combined.');
+    throw new JobError(
+      msg(
+        'A batch must use one billing service. Quote and run official, custom and host jobs separately; their costs and accounts cannot be combined.',
+        '一批任务只能用一种计费服务。official、custom 和 host 任务请分开报价和运行；它们的费用和账号不能合并。',
+      ),
+    );
 };

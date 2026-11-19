@@ -94,8 +94,8 @@ describe('install', () => {
     expect(r.out.next).toContain('https://popost.ai/account/api-keys');
     expect(r.out.next).toContain('companion CLI');
     expect(r.out.next).toContain('popost auth login');
-    expect(r.out.next).toContain('复刻图文：用 popost 复刻这个图文链接 XX，我的内容是 XX');
-    expect(r.out.next).toContain('自动检索模板库');
+    expect(r.out.next).toContain('Reproduce a post: "Use popost to reproduce this post link XX; my content is XX."');
+    expect(r.out.next).toContain('search the template library');
     expect(await rt.fs.readdir(`${HOME}/.claude/skills`)).toEqual(['popost']); // no staging leftovers
   });
 

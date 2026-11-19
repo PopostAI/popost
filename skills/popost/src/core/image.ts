@@ -2,6 +2,8 @@
  * Image header checks in place of Pillow's `Image.open(...).verify()`: the format and pixel size of a PNG, JPEG, WebP or
  * GIF, read from the bytes. A file that is not one of these, or is cut short, is rejected.
  */
+import { msg } from '../i18n';
+
 export type ImageFormat = 'png' | 'jpeg' | 'webp' | 'gif';
 
 export interface ImageInfo {
@@ -14,6 +16,12 @@ export interface ImageInfo {
 export class ImageError extends Error {
   override name = 'ImageError';
 }
+
+/** The message for bytes that are not a picture popost can read (or are a damaged one); `name` is the path the user typed. */
+export const notPictureText = (name?: string): string =>
+  name === undefined
+    ? msg('not a readable picture file', '不是可读取的图片文件')
+    : msg(`not a readable picture file: ${name}`, `不是可读取的图片文件：${name}`);
 
 const MIME: Record<ImageFormat, string> = {
   png: 'image/png',
@@ -75,12 +83,12 @@ const jpeg = (b: Uint8Array): ImageInfo | null => {
 
 /**
  * Format and size of an image, or an `ImageError` when the bytes are not a readable PNG, JPEG, WebP or GIF. `name` (the
- * path the user typed) is quoted in the message the way Pillow does: `cannot identify image file 'x.png'`.
+ * path the user typed) is named in the message: `not a readable picture file: x.png`.
  */
 export const sniffImage = (bytes: Uint8Array, name?: string): ImageInfo => {
   const info = png(bytes) ?? jpeg(bytes) ?? webp(bytes) ?? gif(bytes);
   if (!info || info.width < 1 || info.height < 1)
-    throw new ImageError(name === undefined ? 'cannot identify image file' : `cannot identify image file '${name}'`);
+    throw new ImageError(notPictureText(name));
   return info;
 };
 

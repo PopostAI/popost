@@ -12,6 +12,7 @@ import { mimeType } from '../render/mime';
 import type { Runtime } from '../runtime';
 import { readUserBytes } from '../workflow/io';
 import { backgroundOf, formatOf, planEdit, type EditRequest } from './edit-plan';
+import { msg } from '../i18n';
 
 const DEFAULT_QUALITY = 90;
 
@@ -28,7 +29,7 @@ const requestOf = (args: ParsedArgs): EditRequest => ({
 
 const qualityOf = (args: ParsedArgs): number => {
   const quality = args.number('quality') ?? DEFAULT_QUALITY;
-  if (!Number.isInteger(quality) || quality < 1 || quality > 100) throw new ValueError('--quality takes a whole number from 1 to 100');
+  if (!Number.isInteger(quality) || quality < 1 || quality > 100) throw new ValueError(msg('--quality takes a whole number from 1 to 100', '--quality 取 1 到 100 之间的整数'));
   return quality;
 };
 
@@ -40,7 +41,7 @@ export const editFile = async (rt: Runtime, args: ParsedArgs): Promise<Record<st
   const output = { format, quality: qualityOf(args), background: backgroundOf(format, args.string('background')) };
   const request = requestOf(args);
   const target = rt.path.resolve(rt.cwd, out);
-  if (target === rt.path.resolve(rt.cwd, file)) throw new ValueError('--out is the source file: write the result to a new file, the source stays as it is');
+  if (target === rt.path.resolve(rt.cwd, file)) throw new ValueError(msg('--out is the source file: write the result to a new file, the source stays as it is', '--out 就是源文件：请把结果写到新文件，源文件保持不变'));
   const data = await readUserBytes(rt, file);
   const info = describePicture(data, file);
   const mime = info.format === 'svg' ? 'image/svg+xml' : mimeType(`x.${info.format}`);
@@ -58,6 +59,6 @@ export const editFile = async (rt: Runtime, args: ParsedArgs): Promise<Record<st
     bytes: result.bytes.byteLength,
     source: { file, format: info.format, width: result.source.width, height: result.source.height },
     steps: result.plan.steps,
-    ...(result.plan.grid ? { grid: { step: result.plan.grid.step, unit: 'source px', note: 'a picture to look at, not an asset: read the box off the lines, then crop the source again without --grid' } } : {}),
+    ...(result.plan.grid ? { grid: { step: result.plan.grid.step, unit: 'source px', note: msg('a picture to look at, not an asset: read the box off the lines, then crop the source again without --grid', '这张图只用来看，不是素材：从网格线读出框选范围，再去掉 --grid 重新裁剪源图') } } : {}),
   };
 };

@@ -123,7 +123,7 @@ describe('sheet: arguments', () => {
     expect(usage.stderr).toContain('unrecognized arguments: --bogus');
     const missing = await runCli(rt, ['sheet', '--dir', 'nowhere']);
     expect(missing.code).toBe(1);
-    expect(String(rt.json().error)).toContain('ProjectError');
+    expect(String(rt.json().error)).toContain('not a v2 project');
   });
 });
 
@@ -312,9 +312,9 @@ describe('sheet --files: any pictures', () => {
     await rt.fs.writeFile('/work/notes.txt', 'not a picture');
     await rt.fs.mkdir('/work/folder');
     for (const [file, message] of [
-      ['gone.png', "No such file or directory: 'gone.png'"],
-      ['folder', "Is a directory: 'folder'"],
-      ['notes.txt', "cannot identify image file 'notes.txt'"],
+      ['gone.png', 'file not found: gone.png'],
+      ['folder', 'folder is a folder, not a file'],
+      ['notes.txt', 'not a readable picture file: notes.txt'],
     ] as const) {
       expect((await runCli(rt, ['sheet', '--files', file, '--out', 's.jpg'])).code).toBe(2);
       expect(String(rt.json().error)).toContain(message);

@@ -7,6 +7,7 @@ import type { CommandSpec, ParsedArgs } from '../args';
 import { Project } from '../core/project';
 import { truthy } from '../core/pyjson';
 import { fail, printJson, writeAtomic, writeJson } from '../core/util';
+import { msg } from '../i18n';
 import type { CommandMain, Runtime } from '../runtime';
 import { failureText, isExpectedFailure, ValueError } from '../workflow/errors';
 import { readUserBytes, readUserJson } from '../workflow/io';
@@ -43,17 +44,17 @@ const onProject = (spec: Spec, run: Run): Subcommand => ({
 const PROFILE_FILE = 'template-profile.json';
 
 /** A scene profile the agent wrote after reading the template: concrete rules, bound to the template's hash. */
-const templateProfile: Subcommand = onProject(
-  { description: 'bind the design rules read from a scene Skill', options: [{ flag: '--file', required: true }] },
+const templateProfile = (): Subcommand => onProject(
+  { description: msg('bind the design rules read from a scene Skill', '绑定从场景 Skill 读出的设计规则'), options: [{ flag: '--file', required: true }] },
   async (project, args, rt) => {
     const profile = (await readUserJson(rt, args.req('file'))) as Record<string, unknown>;
     for (const field of ['skillPath', 'rules', 'pageTypes'])
-      if (!truthy(profile[field])) throw new ValueError(`template profile missing ${field}`);
+      if (!truthy(profile[field])) throw new ValueError(msg(`template profile missing ${field}`, `template profile 缺少 ${field}`));
     const rules = profile.rules;
     if (!Array.isArray(rules) || !rules.every((rule) => typeof rule === 'string' && rule.trim()))
-      throw new ValueError('template rules must be concrete text decisions');
+      throw new ValueError(msg('template rules must be concrete text decisions', '模板规则必须是具体的文字决定'));
     const loc = await locateSkill(rt, profile.skillPath as string);
-    if (!loc.ok || !loc.resourcesPresent) throw new ValueError('template resources missing');
+    if (!loc.ok || !loc.resourcesPresent) throw new ValueError(msg('template resources missing', '模板资源缺失'));
     profile.sourceHash = loc.sha256;
     await writeJson(rt, project.abs(PROFILE_FILE), profile);
     project.manifest.sources = project.manifest.sources.filter((s) => s.kind !== 'template');
@@ -63,8 +64,14 @@ const templateProfile: Subcommand = onProject(
   },
 );
 
-const plan: Subcommand = onProject(
-  { description: 'attach the series plan (hook, per-page increments, swipe reasons, payoff, CTA)', options: [{ flag: '--file', required: true }] },
+const plan = (): Subcommand => onProject(
+  {
+    description: msg(
+      'attach the series plan (hook, per-page increments, swipe reasons, payoff, CTA)',
+      '登记整组规划（钩子、逐页增量、翻页理由、兑现、CTA）',
+    ),
+    options: [{ flag: '--file', required: true }],
+  },
   async (project, args, rt) => ({ path: await seriesPlan.save(project, await readUserJson(rt, args.req('file'))) }),
 );
 
@@ -72,19 +79,20 @@ const PROMPT_FILE = 'reference/composition-prompt.md';
 
 /** The sheet's ratio is what `image prepare` generates it at; `--aspect` designs the grid for a ratio the model supports. */
 const sheetFor = (project: Project, plan: seriesPlan.Plan | null, aspect: string | undefined) => {
-  if (aspect !== undefined && parseAspect(aspect) === null) throw new ValueError('--aspect must be W:H, for example 16:9 or 9:16');
+  if (aspect !== undefined && parseAspect(aspect) === null) throw new ValueError(msg('--aspect must be W:H, for example 16:9 or 9:16', '--aspect 必须是 W:H 格式，例如 16:9 或 9:16'));
   const planned = plan?.pages;
   return planSheet(project.manifest.pages, { count: Array.isArray(planned) ? planned.length : undefined, aspects: aspect === undefined ? undefined : [aspect] });
 };
 
-const series: Subcommand = onProject(
+const series = (): Subcommand => onProject(
   {
-    description: 'write the composition prompt; nothing is generated',
+    description: msg('write the composition prompt; nothing is generated', '写出整组构图提示词；不会生成任何图片'),
     positionals: [{ name: 'action', choices: ['prompt'] }],
-    options: [{ flag: '--aspect', help: 'design the grid for this sheet ratio (W:H) instead of the best fit' }],
+    options: [{ flag: '--aspect', help: msg('design the grid for this sheet ratio (W:H) instead of the best fit', '按这个参考图比例（W:H）设计网格，而不是自动选最合适的比例') }],
   },
   async (project, args) => {
-    if (project.manifest.mode === 'strict') throw new ValueError('reproduction uses supplied references, no composition generation');
+    if (project.manifest.mode === 'strict')
+      throw new ValueError(msg('reproduction uses supplied references, no composition generation', '复刻使用提供的参考图，不生成构图参考'));
     const current = await seriesPlan.load(project);
     const sheet = sheetFor(project, current, args.string('aspect'));
     const prompt = seriesPlan.compositionPrompt(current, sheet);
@@ -97,9 +105,9 @@ const series: Subcommand = onProject(
   },
 );
 
-const reference: Subcommand = onProject(
+const reference = (): Subcommand => onProject(
   {
-    description: 'register local reference images',
+    description: msg('register local reference images', '登记本地参考图'),
     options: [
       { flag: '--file', kind: 'list', required: true },
       { flag: '--role', default: 'layout', choices: ['layout', 'style', 'identity', 'content'] },
@@ -113,35 +121,35 @@ const reference: Subcommand = onProject(
   },
 );
 
-const review: Subcommand = onProject(
+const review = (): Subcommand => onProject(
   {
-    description: 'record real visual findings for a page, or for the whole sequence (--page series)',
+    description: msg('record real visual findings for a page, or for the whole sequence (--page series)', '记录单页或整组（--page series）的真实视觉评审结论'),
     options: [{ flag: '--page', required: true }, { flag: '--note', required: true }],
   },
   async (project, args) => {
     const note = args.req('note');
-    if (!note.trim()) throw new ValueError('actual visual findings are required');
+    if (!note.trim()) throw new ValueError(msg('actual visual findings are required', '必须填写实际的视觉评审结论'));
     const page = args.req('page');
     return page === 'series' ? await reviewSeries(project, note) : await reviewPage(project, page, note);
   },
 );
 
-const pack: Subcommand = onProject(
-  { description: 'write the portable project ZIP (default exports/project.popost.zip)', options: [{ flag: '--out' }] },
+const pack = (): Subcommand => onProject(
+  { description: msg('write the portable project ZIP (default exports/project.popost.zip)', '写出可移植的工程 ZIP（默认 exports/project.popost.zip）'), options: [{ flag: '--out' }] },
   async (project, args) => ({ zip: await exportProject(project, args.string('out')) }),
 );
 
-const unpack: Subcommand = {
-  spec: { description: 'restore a project from its ZIP into a new directory', options: [{ flag: '--file', required: true }, DIR] },
+const unpack = (): Subcommand => ({
+  spec: { description: msg('restore a project from its ZIP into a new directory', '把工程 ZIP 还原到一个新目录'), options: [{ flag: '--file', required: true }, DIR] },
   run: reporting(async (args, rt) => {
     const data = await readUserBytes(rt, args.req('file'));
     return { project: (await importProject(rt, data, args.req('dir'))).root };
   }),
-};
+});
 
-const settings: Subcommand = onProject(
+const settings = (): Subcommand => onProject(
   {
-    description: 'set platform, language and the image channel',
+    description: msg('set platform, language and the image channel', '设置平台、语言和生图渠道'),
     options: [
       { flag: '--channel', choices: CHANNELS },
       { flag: '--model' },
@@ -154,15 +162,15 @@ const settings: Subcommand = onProject(
   }),
 );
 
-const TABLE: Record<string, Subcommand> = {
-  'template-profile': templateProfile,
-  plan,
-  series,
-  reference,
-  review,
-  package: pack,
-  unpack,
-  settings,
-};
+const table = (): Record<string, Subcommand> => ({
+  'template-profile': templateProfile(),
+  plan: plan(),
+  series: series(),
+  reference: reference(),
+  review: review(),
+  package: pack(),
+  unpack: unpack(),
+  settings: settings(),
+});
 
-export const main: CommandMain = (argv, rt) => runSubcommand('popost', TABLE, argv, rt);
+export const main: CommandMain = (argv, rt) => runSubcommand('popost', table(), argv, rt);

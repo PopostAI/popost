@@ -35,8 +35,8 @@ describe('pending ticket', () => {
     expect((ticket.errors as string[])[0]).toContain('parse service pending');
     expect(ticket.missing).toEqual(['title', 'body', 'resources']);
     expect(ticket.createdAt).toBe('2026-11-05T00:00:00+00:00');
-    expect(() => bundles.makePendingTicket(rt, 'https://x.com', 'wechat')).toThrow("platform 必须是 tiktok/xiaohongshu/instagram/douyin/x 之一，收到 'wechat'");
-    expect(() => bundles.makePendingTicket(rt, '  ', 'x')).toThrow('sourceURL 不能为空');
+    expect(() => bundles.makePendingTicket(rt, 'https://x.com', 'wechat')).toThrow("platform must be one of tiktok/xiaohongshu/instagram/douyin/x, got 'wechat'");
+    expect(() => bundles.makePendingTicket(rt, '  ', 'x')).toThrow('sourceURL must not be empty');
   });
 
   it('writes the file with --out and prints the bundle', async () => {
@@ -76,7 +76,7 @@ describe('pending ticket', () => {
     expect((await runCli(rt, ['ticket', '--x'])).code).toBe(2);
     expect((await runCli(rt, ['ticket'])).stderr).toContain('--url, --platform');
     expect((await runCli(rt, ['ticket', '--url', ' ', '--platform', 'x'])).code).toBe(2);
-    expect(rt.json()).toEqual({ ok: false, error: { code: 'BAD_ARGS', msg: 'sourceURL 不能为空' } });
+    expect(rt.json()).toEqual({ ok: false, error: { code: 'BAD_ARGS', msg: 'sourceURL must not be empty' } });
   });
 });
 
@@ -85,8 +85,8 @@ describe('validate', () => {
     expect(bundles.validateBundle(readyBundle())).toEqual([true, []]);
     const [ok, errors] = bundles.validateBundle(readyBundle({ schema: 'nope' }));
     expect(ok).toBe(false);
-    expect(errors).toEqual(["schema 必须为 'postbundle.v1'"]);
-    expect(bundles.validateBundle([1])).toEqual([false, ['bundle 必须是 JSON object']]);
+    expect(errors).toEqual(["schema must be 'postbundle.v1'"]);
+    expect(bundles.validateBundle([1])).toEqual([false, ['the bundle must be a JSON object']]);
   });
 
   it('checks every field the way the Python module did', () => {
@@ -105,29 +105,29 @@ describe('validate', () => {
       missing: [1],
     });
     expect(bundles.validateBundle(bad)[1]).toEqual([
-      "platform 必须是 tiktok/xiaohongshu/instagram/douyin/x 之一，收到 'wechat'",
-      'sourceURL 必须是非空字符串',
-      'parseStatus 必须是 pending/ready/auth_failed/missing_resources/error 之一',
-      'title 必须是字符串',
-      'tags 必须是字符串数组',
-      'music 必须是 {title:str, url:str}',
-      'pageOrder 必须是正整数数组',
-      "ratio 必须是 'W:H' 字符串或 null",
-      'auth 必须是 {required:bool, authorized:bool, note:str}',
-      'resources[0] 必须是 object',
-      'resources[1].id 必须是非空字符串',
-      'resources[1].kind 必须是 image/video/music 之一',
-      "resources[3].id 重复: 'd'",
-      'errors 必须是字符串数组',
-      'missing 必须是字符串数组',
+      "platform must be one of tiktok/xiaohongshu/instagram/douyin/x, got 'wechat'",
+      'sourceURL must be a non-empty string',
+      'parseStatus must be one of pending/ready/auth_failed/missing_resources/error',
+      'title must be a string',
+      'tags must be an array of strings',
+      'music must be {title:str, url:str}',
+      'pageOrder must be an array of positive integers',
+      "ratio must be a 'W:H' string or null",
+      'auth must be {required:bool, authorized:bool, note:str}',
+      'resources[0] must be an object',
+      'resources[1].id must be a non-empty string',
+      'resources[1].kind must be one of image/video/music',
+      "resources[3].id is a duplicate: 'd'",
+      'errors must be an array of strings',
+      'missing must be an array of strings',
     ]);
-    expect(bundles.validateBundle(readyBundle({ resources: 'nope' }))[1]).toEqual(['resources 必须是数组']);
+    expect(bundles.validateBundle(readyBundle({ resources: 'nope' }))[1]).toEqual(['resources must be an array']);
     // absent optional fields are fine, an explicit null is not
     expect(bundles.validateBundle(readyBundle({ tags: undefined, music: undefined, errors: undefined }))[0]).toBe(true);
     expect(bundles.validateBundle(readyBundle({ tags: null, music: null, auth: null }))[1]).toEqual([
-      'tags 必须是字符串数组',
-      'music 必须是 {title:str, url:str}',
-      'auth 必须是 {required:bool, authorized:bool, note:str}',
+      'tags must be an array of strings',
+      'music must be {title:str, url:str}',
+      'auth must be {required:bool, authorized:bool, note:str}',
     ]);
   });
 
@@ -138,7 +138,7 @@ describe('validate', () => {
     expect(rt.json()).toEqual({ ok: true, valid: true, errors: [] });
     await put(rt, '/work/bad.json', readyBundle({ schema: 'x' }));
     expect((await runCli(rt, ['validate', '--file', 'bad.json'])).code).toBe(2);
-    expect(rt.json()).toMatchObject({ ok: false, valid: false, errors: ["schema 必须为 'postbundle.v1'"] });
+    expect(rt.json()).toMatchObject({ ok: false, valid: false, errors: ["schema must be 'postbundle.v1'"] });
   });
 });
 
@@ -153,26 +153,26 @@ describe('buildable gate', () => {
     const verdict = await bundles.evaluateBuildable(rt, bundles.makePendingTicket(rt, 'https://x.com/1', 'x'));
     expect(verdict.buildable).toBe(false);
     expect(verdict.blockers).toEqual([
-      "parseStatus='pending' 非 ready（解析服务未就绪，不伪 build）",
-      'auth.required 且 authorized=false（授权缺失，不得 build）',
-      'bundle 仍声明缺项: title',
-      'bundle 仍声明缺项: body',
-      'bundle 仍声明缺项: resources',
+      "parseStatus='pending' is not ready (the parse is not finished; a build would be fake)",
+      'auth.required is set and authorized=false (authorization is missing; do not build)',
+      'the bundle still declares a missing item: title',
+      'the bundle still declares a missing item: body',
+      'the bundle still declares a missing item: resources',
     ]);
   });
 
   it('blocks a missing authorization, a missing image and a url without a licence', async () => {
-    expect((await evaluate(readyBundle({}, ASSET, false))).blockers).toEqual(['auth.required 且 authorized=false（授权缺失，不得 build）']);
+    expect((await evaluate(readyBundle({}, ASSET, false))).blockers).toEqual(['auth.required is set and authorized=false (authorization is missing; do not build)']);
     const missing = await evaluate(readyBundle({}, '/nonexistent/missing.png'), FIXTURES);
-    expect(missing).toEqual({ buildable: false, blockers: ["resource r1 缺图：本地文件不存在 '/nonexistent/missing.png'"] });
+    expect(missing).toEqual({ buildable: false, blockers: ["resource r1 has no picture: the local file '/nonexistent/missing.png' does not exist"] });
     const resources = [
       { id: 'a', kind: 'image', url: 'http://x/y.png' },
       { id: 'b', kind: 'video', url: 'http://x/y', license: 'cc' },
       { id: 'c', kind: 'music' },
     ];
     expect((await evaluate(readyBundle({ resources }))).blockers).toEqual([
-      'resource a 仅给 url 但无 license/署名，缺授权',
-      'resource c 既无 path 也无 url，缺图阻断',
+      'resource a has only a url and no license or attribution: authorization is missing',
+      'resource c has neither a path nor a url: the picture is missing, which blocks the build',
     ]);
   });
 
@@ -183,7 +183,7 @@ describe('buildable gate', () => {
   });
 
   it('keeps the future parse service a placeholder: no endpoint, no client', () => {
-    expect(bundles.SERVICE_CONFIG).toMatchObject({ status: 'pending', endpoint: null, authEnv: null });
+    expect(bundles.serviceConfig()).toMatchObject({ status: 'pending', endpoint: null, authEnv: null });
   });
 });
 
@@ -208,7 +208,7 @@ describe('import', () => {
     const rt = await newRuntime();
     await put(rt, '/work/b.json', readyBundle({ schema: 'x' }));
     expect((await runCli(rt, ['import', '--file', 'b.json'])).code).toBe(2);
-    expect(rt.json()).toEqual({ ok: false, buildable: false, errors: ["schema 必须为 'postbundle.v1'"] });
+    expect(rt.json()).toEqual({ ok: false, buildable: false, errors: ["schema must be 'postbundle.v1'"] });
   });
 
   it('reports a missing file, a directory and malformed JSON as error codes, exit 2', async () => {
@@ -243,7 +243,7 @@ describe('a bundle attached to a project', () => {
   it('blocks build while the bundle is pending, unauthorized or missing images', async () => {
     const rt = await prepared();
     const pending = await attach(rt, bundles.makePendingTicket(rt, 'https://x.com/1', 'x'));
-    expect(pending).toContain("parseStatus='pending' 非 ready（解析服务未就绪，不伪 build）");
+    expect(pending).toContain("parseStatus='pending' is not ready (the parse is not finished; a build would be fake)");
   });
 
   it('lets a ready, authorized bundle through, and reports a deleted or invalid bundle file', async () => {
@@ -251,10 +251,10 @@ describe('a bundle attached to a project', () => {
     expect((await attach(rt, readyBundle({}, 'img.png'))).filter((b) => /parseStatus|auth|resource|bundle|schema/.test(b))).toEqual([]);
     await put(rt, '/work/bundle.json', { schema: 'x' });
     await runCli(rt, ['build', '--dir', 'project', '--concept-off']);
-    expect((rt.json().build as { blockers: string[] }).blockers).toContain("schema 必须为 'postbundle.v1'");
+    expect((rt.json().build as { blockers: string[] }).blockers).toContain("schema must be 'postbundle.v1'");
     await rt.fs.rm('/work/bundle.json');
     await runCli(rt, ['build', '--dir', 'project', '--concept-off']);
-    expect((rt.json().build as { blockers: string[] }).blockers).toContain('post_bundle 文件缺失');
+    expect((rt.json().build as { blockers: string[] }).blockers).toContain('the post_bundle file is missing');
   });
 
   it('does not let a pending URL block a ready local reference', async () => {

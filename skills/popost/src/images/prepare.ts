@@ -19,6 +19,8 @@ import { modelLimits, type ModelLimits } from './capabilities';
 import { JOB_ID, jobFile, jobState, JobError, loadJob, saveJob, type Job, type JobProvider } from './jobs';
 import { resolveRefs, usesRegistered } from './references';
 import { ledgerPathOf, refusedUncharged } from './retry';
+import { msg } from '../i18n';
+import { errorText } from '../core/error-text';
 
 export interface PrepareCall {
   readonly id: string;
@@ -39,8 +41,8 @@ export interface Prepared {
 }
 
 const compositionId = (project: Project): string => {
-  if (project.manifest.mode === 'strict') throw new JobError('supplied target is the reproduction reference');
-  if (project.manifest.sources.some((s) => s.kind === 'composition')) throw new JobError('reuse existing composition reference');
+  if (project.manifest.mode === 'strict') throw new JobError(msg('supplied target is the reproduction reference', 'strict 项目以提供的参考图为复刻目标，不需要 composition'));
+  if (project.manifest.sources.some((s) => s.kind === 'composition')) throw new JobError(msg('reuse existing composition reference', '已有 composition 参考图，请复用它'));
   return 'composition'; // one composition job per project, whatever id was asked for
 };
 
@@ -48,26 +50,50 @@ const compositionId = (project: Project): string => {
 const refusal = (project: Project, id: string, job: Job, spent: boolean): JobError => {
   const dir = project.root;
   const state = jobState(job);
-  if (state === 'completed') return new JobError(`job '${id}' is complete (its picture is registered as ${String((job.asset as { path?: string } | undefined)?.path ?? 'a project asset')}); reuse that asset instead of preparing the job again`);
-  if (state === 'submitted')
+  if (state === 'completed') {
+    const asset = (job.asset as { path?: string } | undefined)?.path ?? msg('a project asset', '项目素材');
     return new JobError(
-      `job '${id}' was already submitted, so it is never replaced or sent twice. ` +
-        (job.status === 'generated'
-          ? `Its picture is in production/results/${id}: register it with image complete --dir ${dir} --id ${id} --file <that picture> --note "<what you saw>".`
-          : `Look at it with image status --dir ${dir} --id ${id}. If its outcome is unknown, retry only with image quote --dir ${dir} --id ${id}, then image run --dir ${dir} --id ${id} --quote-id <new quote> --confirm (the original key is reused, the platform charges once).`),
+      msg(
+        `job '${id}' is complete (its picture is registered as ${asset}); reuse that asset instead of preparing the job again`,
+        `任务 '${id}' 已完成（图片已登记为 ${asset}）；请复用这份素材，不要重新准备任务`,
+      ),
     );
-  if (spent)
-    return new JobError(
-      `job '${id}' was quoted (quote ${String(job.quoteId)}) but its run was refused without a charge, so that quote cannot be run again; the job is not replaced: the quote was bound to its prompt, aspect and references. ` +
-        `Price it again with image quote --dir ${dir} --id ${id}, then image run --dir ${dir} --id ${id} --quote-id <new quote> --confirm. ` +
-        `To change the request instead, remove production/jobs/${id}.json (nothing was charged) and prepare again.`,
-    );
-  return new JobError(
-    `job '${id}' is already quoted (quote ${String(job.quoteId)}) and is not replaced: the quote is bound to its prompt, aspect and references. ` +
-      `Run it with image run --dir ${dir} --id ${id} --quote-id ${String(job.quoteId)} --confirm once the user authorized the cost, or re-price it unchanged with image quote --dir ${dir} --id ${id}. ` +
-      `To change the request instead, the quote must be discarded; that is safe only while production/ledger.jsonl has no record of quote ${String(job.quoteId)} (nothing was submitted): then remove production/jobs/${id}.json and prepare again.`,
-  );
+  }
+  if (state === 'submitted') return new JobError(submittedText(dir, id, job.status === 'generated'));
+  return new JobError(spent ? spentText(dir, id, String(job.quoteId)) : quotedText(dir, id, String(job.quoteId)));
 };
+
+const submittedText = (dir: string, id: string, generated: boolean): string =>
+  msg(
+    `job '${id}' was already submitted, so it is never replaced or sent twice. ` +
+      (generated
+        ? `Its picture is in production/results/${id}: register it with image complete --dir ${dir} --id ${id} --file <that picture> --note "<what you saw>".`
+        : `Look at it with image status --dir ${dir} --id ${id}. If its outcome is unknown, retry only with image quote --dir ${dir} --id ${id}, then image run --dir ${dir} --id ${id} --quote-id <new quote> --confirm (the original key is reused, the platform charges once).`),
+    `任务 '${id}' 已经提交过，因此永远不会被替换或重复发送。` +
+      (generated
+        ? `它的图片在 production/results/${id}：用 image complete --dir ${dir} --id ${id} --file <那张图片> --note "<你看到的内容>" 登记。`
+        : `用 image status --dir ${dir} --id ${id} 查看。结果不明时，只能先 image quote --dir ${dir} --id ${id}，再 image run --dir ${dir} --id ${id} --quote-id <新报价> --confirm 重试（沿用原来的幂等键，平台只扣一次费）。`),
+  );
+
+const spentText = (dir: string, id: string, quoteId: string): string =>
+  msg(
+    `job '${id}' was quoted (quote ${quoteId}) but its run was refused without a charge, so that quote cannot be run again; the job is not replaced: the quote was bound to its prompt, aspect and references. ` +
+      `Price it again with image quote --dir ${dir} --id ${id}, then image run --dir ${dir} --id ${id} --quote-id <new quote> --confirm. ` +
+      `To change the request instead, remove production/jobs/${id}.json (nothing was charged) and prepare again.`,
+    `任务 '${id}' 已报价（报价 ${quoteId}），但运行被拒绝且未扣费，所以这个报价不能再运行；任务不会被替换：报价绑定了它的 prompt、比例和参考图。` +
+      `请用 image quote --dir ${dir} --id ${id} 重新报价，再运行 image run --dir ${dir} --id ${id} --quote-id <新报价> --confirm。` +
+      `如果要改请求，删掉 production/jobs/${id}.json（未扣费）后重新 prepare。`,
+  );
+
+const quotedText = (dir: string, id: string, quoteId: string): string =>
+  msg(
+    `job '${id}' is already quoted (quote ${quoteId}) and is not replaced: the quote is bound to its prompt, aspect and references. ` +
+      `Run it with image run --dir ${dir} --id ${id} --quote-id ${quoteId} --confirm once the user authorized the cost, or re-price it unchanged with image quote --dir ${dir} --id ${id}. ` +
+      `To change the request instead, the quote must be discarded; that is safe only while production/ledger.jsonl has no record of quote ${quoteId} (nothing was submitted): then remove production/jobs/${id}.json and prepare again.`,
+    `任务 '${id}' 已报价（报价 ${quoteId}），不会被替换：报价绑定了它的 prompt、比例和参考图。` +
+      `用户授权费用后，用 image run --dir ${dir} --id ${id} --quote-id ${quoteId} --confirm 运行；或用 image quote --dir ${dir} --id ${id} 原样重新报价。` +
+      `如果要改请求，必须放弃这个报价；只有当 production/ledger.jsonl 里没有报价 ${quoteId} 的记录（未提交任何内容）时才安全：这时删掉 production/jobs/${id}.json 后重新 prepare。`,
+  );
 
 /** Whether `path` holds a draft job that this `prepare` replaces; throws for a job that already cost something. */
 const replacesDraft = async (project: Project, path: string, id: string): Promise<boolean> => {
@@ -76,7 +102,12 @@ const replacesDraft = async (project: Project, path: string, id: string): Promis
   try {
     job = await loadJob(project.rt, path);
   } catch (error) {
-    throw new JobError(`job '${id}' exists but ${path} cannot be read (${error instanceof Error ? error.message : String(error)}); fix or remove that file`);
+    throw new JobError(
+      msg(
+        `job '${id}' exists but ${path} cannot be read (${errorText(error)}); fix or remove that file`,
+        `任务 '${id}' 已存在，但 ${path} 无法读取（${errorText(error)}）；请修复或删除这个文件`,
+      ),
+    );
   }
   if (jobState(job) === 'prepared') return true;
   const attempt = job.quoteId ? await ledger.attempt(project.rt, ledgerPathOf(project), job.quoteId) : null;
@@ -91,6 +122,7 @@ const recordedGrid = (project: Project): Grid | undefined => {
 };
 
 const percent = (fill: number): string => `${Math.round(fill * 100)}%`;
+const gridText = (grid: { columns: number; rows: number }): string => `${grid.columns} 列 ${grid.rows} 行`;
 
 /** The picture ratio of the composition sheet: the one `series prompt` designed the grid for, or the closest the model makes. */
 const compositionAspect = (project: Project, limits: ModelLimits): { aspect: string; notes: string[] } => {
@@ -100,11 +132,24 @@ const compositionAspect = (project: Project, limits: ModelLimits): { aspect: str
   const plan = planSheet(pages, { aspects: limits.aspects, grid });
   const designedFits = designed !== undefined && (!limits.aspects || limits.aspects.includes(designed));
   const aspect = grid && designedFits ? designed : plan.aspect;
-  const notes = [`aspect ${aspect}: ${describeGrid(plan)} of ${plan.pageAspect} pages`];
-  if (grid && designed && !designedFits) notes.push(`the model makes ${(limits.aspects ?? []).join(', ')}, not the ${designed} the prompt was designed for; ${aspect} is the closest fit for that grid`);
+  const notes = [msg(`aspect ${aspect}: ${describeGrid(plan)} of ${plan.pageAspect} pages`, `比例 ${aspect}：${gridText(plan)}，每页 ${plan.pageAspect}`)];
+  if (grid && designed && !designedFits) {
+    const made = (limits.aspects ?? []).join(', ');
+    notes.push(
+      msg(
+        `the model makes ${made}, not the ${designed} the prompt was designed for; ${aspect} is the closest fit for that grid`,
+        `模型支持 ${made}，不支持 prompt 设计时用的 ${designed}；${aspect} 是最贴近这个网格的比例`,
+      ),
+    );
+  }
   const best = planSheet(pages, { aspects: limits.aspects });
   if (grid && (best.columns !== grid.columns || best.rows !== grid.rows) && best.fill - plan.fill >= 0.15)
-    notes.push(`for this model ${describeGrid(best)} at ${best.aspect} would show the pages larger (${percent(best.fill)} of the picture instead of ${percent(plan.fill)}): series prompt --dir ${project.root} --aspect ${best.aspect}, then prepare again`);
+    notes.push(
+      msg(
+        `for this model ${describeGrid(best)} at ${best.aspect} would show the pages larger (${percent(best.fill)} of the picture instead of ${percent(plan.fill)}): series prompt --dir ${project.root} --aspect ${best.aspect}, then prepare again`,
+        `对这个模型，${best.aspect} 下用${gridText(best)}能把页面显示得更大（占图片的 ${percent(best.fill)}，而不是 ${percent(plan.fill)}）：运行 series prompt --dir ${project.root} --aspect ${best.aspect}，再重新 prepare`,
+      ),
+    );
   return { aspect, notes };
 };
 
@@ -120,8 +165,8 @@ export interface JobTarget {
 }
 
 const jobTarget = (project: Project, call: PrepareCall): JobTarget => {
-  if (!JOB_ID.test(call.id)) throw new JobError('invalid job id');
-  if (call.purpose !== 'composition' && call.id === 'composition') throw new JobError('composition id is reserved');
+  if (!JOB_ID.test(call.id)) throw new JobError(msg(`invalid job id: ${call.id}`, `无效的任务 id：${call.id}`));
+  if (call.purpose !== 'composition' && call.id === 'composition') throw new JobError(msg('composition id is reserved', 'composition 这个 id 保留给 composition 任务'));
   const composition = call.purpose === 'composition';
   const id = composition ? compositionId(project) : call.id;
   return { id, path: jobFile(project, id), composition };
@@ -139,7 +184,15 @@ export const draftJob = async (project: Project, call: PrepareCall, target: JobT
   const shape = composition && !call.aspect ? compositionAspect(project, limits) : undefined;
   const job: Job = { id, purpose: call.purpose, count: 1, provider, prompt, refs: refs.files, status: 'prepared', aspect: call.aspect ?? shape?.aspect ?? '9:16', refHashes: {} };
   for (const file of job.refs) job.refHashes[rt.path.resolve(rt.cwd, file)] = await sha256File(rt, rt.path.resolve(rt.cwd, file));
-  const unavailable = limits.unavailable && asked ? [`the model's limits could not be read (${limits.unavailable}); used the common picture ratios, quote checks the request`] : [];
+  const unavailable =
+    limits.unavailable && asked
+      ? [
+          msg(
+            `the model's limits could not be read (${limits.unavailable}); used the common picture ratios, quote checks the request`,
+            `无法读取模型的限制（${limits.unavailable}）；已按常用图片比例处理，报价时会校验请求`,
+          ),
+        ]
+      : [];
   return { job, notes: [...refs.notes, ...(shape?.notes ?? []), ...unavailable] };
 };
 
@@ -162,5 +215,5 @@ export const prepareJob = async (project: Project, call: PrepareCall): Promise<P
   const replaced = await replacesDraft(project, target.path, target.id);
   const { job, notes } = await draftJob(project, call, target);
   await saveJob(project.rt, target.path, job);
-  return { path: target.path, job, replaced, notes: [...(replaced ? [`replaced the earlier prepared job '${target.id}' (it had no quote and no run)`] : []), ...notes] };
+  return { path: target.path, job, replaced, notes: [...(replaced ? [msg(`replaced the earlier prepared job '${target.id}' (it had no quote and no run)`, `已替换之前准备的任务 '${target.id}'（它没有报价，也没运行过）`)] : []), ...notes] };
 };

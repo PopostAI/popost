@@ -5,6 +5,7 @@ import { isFile, readJson, writeJson } from '../core/util';
 import { describeGrid, type SheetPlan } from './composition-grid';
 import { ValueError } from './errors';
 import { isObject, pyJson, pyStr, truthy } from '../core/pyjson';
+import { msg } from '../i18n';
 
 export const SCHEMA = 'popost-series.v1';
 export const PLAN_FILE = 'series-plan.json';
@@ -16,61 +17,79 @@ const getOr = (object: Record<string, unknown>, key: string, fallback: unknown):
   object[key] === undefined ? fallback : object[key];
 
 const validatePage = (page: unknown, index: number, last: boolean): string[] => {
-  if (!isObject(page)) return ['invalid page'];
+  if (!isObject(page)) return [msg(`pages[${index}] must be an object`, `pages[${index}] 必须是对象`)];
   const errors = ['id', 'role', 'message', 'visual', 'copy']
     .filter((field) => blank(page[field]))
-    .map((field) => `pages[${index}].${field} is required`);
-  if (!last && !truthy(page.swipeReason)) errors.push(`pages[${index}].swipeReason must name what the next page adds`);
+    .map((field) => msg(`pages[${index}].${field} is required`, `pages[${index}].${field} 必填`));
+  if (!last && !truthy(page.swipeReason))
+    errors.push(
+      msg(
+        `pages[${index}].swipeReason must name what the next page adds`,
+        `pages[${index}].swipeReason 要写明下一页带来什么新内容`,
+      ),
+    );
   return errors;
 };
 
-const validatePages = (pages: unknown[], pageIds?: readonly string[]): string[] => {
+/** `orderHint` is appended to the error when the plan's page ids or order differ from the project's. */
+const validatePages = (pages: unknown[], pageIds?: readonly string[], orderHint = ''): string[] => {
   const errors: string[] = [];
   const ids = pages.filter(isObject).map((page) => page.id);
-  if (ids.length !== pages.length || new Set(ids.map(pyStr)).size !== ids.length) errors.push('pages must have unique ids');
+  if (ids.length !== pages.length || new Set(ids.map(pyStr)).size !== ids.length)
+    errors.push(msg('pages must have unique ids', 'pages 的 id 不能重复'));
   if (pageIds && (ids.length !== pageIds.length || ids.some((id, i) => id !== pageIds[i])))
-    errors.push('plan page ids/order differ from project');
+    errors.push(msg('plan page ids/order differ from project', 'plan 的页 id 或顺序与项目不一致') + orderHint);
   pages.forEach((page, i) => errors.push(...validatePage(page, i, i === pages.length - 1)));
   return errors;
 };
 
 const validateHook = (hook: unknown): string[] =>
   !isObject(hook) || !truthy(hook.text) || !truthy(hook.mechanism)
-    ? ['hook needs text and a mechanism tied to the actual payoff']
+    ? [msg('hook needs text and a mechanism tied to the actual payoff', 'hook 需要 text，以及与实际 payoff 挂钩的 mechanism')]
     : [];
 
 const validateCta = (cta: unknown): string[] => {
-  if (!isObject(cta) || typeof cta.enabled !== 'boolean') return ['cta.enabled must explicitly be true or false'];
+  if (!isObject(cta) || typeof cta.enabled !== 'boolean')
+    return [msg('cta.enabled must explicitly be true or false', 'cta.enabled 必须明确写 true 或 false')];
   if (cta.enabled && (!truthy(cta.action) || !truthy(cta.reason)))
-    return ['enabled CTA needs action and audience benefit/reason'];
+    return [msg('enabled CTA needs action and audience benefit/reason', '启用的 CTA 需要 action，以及对受众的好处或理由（reason）')];
   return [];
 };
 
-const REASON_MISSING = 'concept: a disabled concept needs a reason (concept.reason)';
-const COUNT_WRONG = 'concept.imageCount must be 1 (or 0 when the concept is disabled with a reason)';
+const reasonMissing = (): string =>
+  msg('concept: a disabled concept needs a reason (concept.reason)', 'concept：停用 concept 时要写明理由（concept.reason）');
+const countWrong = (): string =>
+  msg(
+    'concept.imageCount must be 1 (or 0 when the concept is disabled with a reason)',
+    'concept.imageCount 必须为 1（concept 停用且写明理由时可为 0）',
+  );
 
 const validateConcept = (concept: unknown): string[] => {
-  if (!isObject(concept)) return ['concept must be an object'];
+  if (!isObject(concept)) return [msg('concept must be an object', 'concept 必须是对象')];
   const count = getOr(concept, 'imageCount', 1);
   const disabled = concept.enabled === false;
   const reasoned = disabled && truthy(concept.reason);
   if (reasoned ? count === 0 || count === 1 : count === 1) return [];
   // a disabled concept without a reason may have 0 or 1 once the reason is added: say that first, then the count if it is still wrong
-  if (disabled && !reasoned) return count === 0 || count === 1 ? [REASON_MISSING] : [REASON_MISSING, COUNT_WRONG];
-  return [COUNT_WRONG];
+  if (disabled && !reasoned) return count === 0 || count === 1 ? [reasonMissing()] : [reasonMissing(), countWrong()];
+  return [countWrong()];
 };
 
-/** Everything wrong with a plan, in the order the agent should fix it; `pageIds` binds it to the project's pages. */
-export const validate = (plan: unknown, pageIds?: readonly string[]): string[] => {
-  if (!isObject(plan) || plan.schema !== SCHEMA) return ['schema must be popost-series.v1'];
+/**
+ * Everything wrong with a plan, in the order the agent should fix it; `pageIds` binds it to the project's pages, and
+ * `orderHint` is added to the message when the plan's pages do not match them.
+ */
+export const validate = (plan: unknown, pageIds?: readonly string[], orderHint?: string): string[] => {
+  if (!isObject(plan) || plan.schema !== SCHEMA) return [msg(`schema must be ${SCHEMA}`, `schema 必须为 ${SCHEMA}`)];
   const errors = ['audience', 'promise', 'payoff', 'visualDirection']
     .filter((field) => blank(plan[field]))
-    .map((field) => `${field} must describe a concrete decision`);
+    .map((field) => msg(`${field} must describe a concrete decision`, `${field} 要写明一个具体的决定`));
   const pages = plan.pages;
-  if (!Array.isArray(pages) || !pages.length) return [...errors, 'pages must be a nonempty ordered array'];
+  if (!Array.isArray(pages) || !pages.length)
+    return [...errors, msg('pages must be a nonempty ordered array', 'pages 必须是非空的有序数组')];
   return [
     ...errors,
-    ...validatePages(pages, pageIds),
+    ...validatePages(pages, pageIds, orderHint),
     ...validateHook(getOr(plan, 'hook', {})),
     ...validateCta(getOr(plan, 'cta', {})),
     ...validateConcept(getOr(plan, 'concept', {})),

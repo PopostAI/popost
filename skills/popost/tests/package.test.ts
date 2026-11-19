@@ -217,7 +217,7 @@ describe('unpack', () => {
     expect((await runCli(rt, ['unpack', '--file', 'p.zip', '--dir', 'project'])).code).toBe(2);
     expect(rt.json().error).toBe('destination already exists; choose a new project directory');
     expect((await runCli(rt, ['unpack', '--file', 'nope.zip', '--dir', 'new'])).code).toBe(2);
-    expect(rt.json().error).toBe("[Errno 2] No such file or directory: 'nope.zip'");
+    expect(rt.json().error).toBe('file not found: nope.zip');
     await rt.fs.writeFile('/work/text.zip', 'hello');
     expect((await runCli(rt, ['unpack', '--file', 'text.zip', '--dir', 'new'])).code).toBe(1);
     expect(await rt.fs.stat('/work/new')).toBeNull();

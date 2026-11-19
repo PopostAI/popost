@@ -64,12 +64,12 @@ describe('render: arguments', () => {
     expect(help.stdout).toContain('--force');
   });
 
-  it('reports a directory that is not a project as a crash (exit 1), like the Python traceback', async () => {
+  it('reports a directory that is not a project as a crash (exit 1), like the Python traceback, without the class name', async () => {
     const { rt } = await setup();
     const result = await runCli(rt, ['render', '--dir', 'nowhere']);
     expect(result.code).toBe(1);
     expect(rt.json()).toMatchObject({ ok: false });
-    expect(String(rt.json().error)).toContain('ProjectError');
+    expect(String(rt.json().error)).toMatch(/^not a v2 project \(no social-studio-project\.json\): nowhere;/);
   });
 });
 
@@ -125,7 +125,7 @@ describe('render: the receipt cache', () => {
     await project.writePageHtml('p1', pageHtml('edited'));
     const result = await runCli(rt, ['render', '--dir', 'P', '--page', 'p1']);
     expect(result.code).toBe(2);
-    expect(rt.json()).toEqual({ ok: false, error: 'Error: no browser in this test' });
+    expect(rt.json()).toEqual({ ok: false, error: 'no browser in this test' });
     expect(launches.count).toBe(1);
   });
 
@@ -190,7 +190,7 @@ describe('render: a list of pages in one call', () => {
     const { rt } = await setup();
     await withThreePages(rt);
     expect((await runCli(rt, ['render', '--dir', 'P', '--page', 'p1,p9'])).code).toBe(2);
-    expect(rt.json().error).toBe('ProjectError: 页不存在: p9');
+    expect(rt.json().error).toBe('no such page: p9');
     expect((await runCli(rt, ['render', '--dir', 'P', '--page', ' , '])).code).toBe(2);
     expect(String(rt.json().error)).toContain('comma-separated list');
   });
@@ -208,7 +208,7 @@ describe('render: a list of pages in one call', () => {
     expect(selectPages(project, 'all')).toEqual(['p1', 'p2', 'p3']);
     expect(selectPages(project, 'p2')).toEqual(['p2']);
     expect(selectPages(project, 'p3,p1,p3')).toEqual(['p3', 'p1']);
-    expect(() => selectPages(project, 'p1,p9')).toThrow('页不存在: p9');
+    expect(() => selectPages(project, 'p1,p9')).toThrow('no such page: p9');
     expect(() => selectPages(project, ',')).toThrow('--page needs');
   });
 });
@@ -252,7 +252,7 @@ describe('export: errors', () => {
     const { rt } = await setup();
     await withCachedPage(rt);
     expect((await runCli(rt, ['export', '--dir', 'P', '--page', 'nope'])).code).toBe(2);
-    expect(rt.json().error).toBe('ProjectError: 页不存在: nope');
+    expect(rt.json().error).toBe('no such page: nope');
   });
 
   it('--final refuses while the delivery checks are pending, and records why in build-report.json', async () => {
@@ -260,7 +260,7 @@ describe('export: errors', () => {
     await withCachedPage(rt);
     const result = await runCli(rt, ['export', '--dir', 'P', '--page', 'all', '--final']);
     expect(result.code).toBe(2);
-    expect(rt.json()).toEqual({ ok: false, error: 'ValueError: final delivery checks pending; inspect build-report.json' });
+    expect(rt.json()).toEqual({ ok: false, error: 'final delivery checks pending; inspect build-report.json' });
     const report = JSON.parse(await rt.fs.readText('/work/P/build-report.json')) as { readyToDeliver: boolean };
     expect(report.readyToDeliver).toBe(false);
   });

@@ -14,6 +14,7 @@ import { quoteProblem } from '../images/run';
 import { decimalOf, type Decimal } from '../providers/decimal';
 import { jobIdOf, type QuoteRow, type SetupContext } from './context';
 import { StepFailure, projectOf, type StepResult } from './steps';
+import { msg } from '../i18n';
 
 type Row = Record<string, unknown>;
 
@@ -78,7 +79,7 @@ const sortJobs = async (project: Project, ctx: SetupContext): Promise<Sorted> =>
 const failureOf = (document: Row): string => {
   const rows = Array.isArray(document.jobs) ? (document.jobs as Row[]) : [];
   const failed = rows.filter((row) => !row.ok).map((row) => `${String(row.id)}: ${String(row.error)}`);
-  return [...failed, ...(typeof document.error === 'string' ? [document.error] : [])].join('; ') || 'quoting failed';
+  return [...failed, ...(typeof document.error === 'string' ? [document.error] : [])].join('; ') || msg('quoting failed', '报价失败');
 };
 
 export const quoteStep = async (ctx: SetupContext): Promise<StepResult> => {
@@ -103,13 +104,17 @@ export const quoteStep = async (ctx: SetupContext): Promise<StepResult> => {
   return summary(ctx, fresh, kept, left);
 };
 
+const ids = (rows: readonly QuoteRow[]): string => rows.map((row) => row.id).join(', ');
+const openQuotes = (rows: readonly QuoteRow[]): string => rows.map((row) => `${row.id} (${row.quoteId})`).join(', ');
+
 const summary = (ctx: SetupContext, fresh: readonly QuoteRow[], kept: readonly QuoteRow[], left: readonly string[]): StepResult => {
+  const host = ctx.outcome.hostJobs;
   const parts = [
-    fresh.length ? `quoted ${fresh.map((row) => row.id).join(', ')}` : '',
-    kept.length ? `quotes still open: ${kept.map((row) => `${row.id} (${row.quoteId})`).join(', ')}` : '',
-    left.length ? `left alone: ${left.join('; ')}` : '',
-    ctx.outcome.hostJobs.length ? `host channel, nothing to quote: ${ctx.outcome.hostJobs.join(', ')}` : '',
+    fresh.length ? msg(`quoted ${ids(fresh)}`, `已报价 ${ids(fresh)}`) : '',
+    kept.length ? msg(`quotes still open: ${openQuotes(kept)}`, `仍有效的报价：${openQuotes(kept)}`) : '',
+    left.length ? msg(`left alone: ${left.join('; ')}`, `未处理：${left.join('; ')}`) : '',
+    host.length ? msg(`host channel, nothing to quote: ${host.join(', ')}`, `宿主通道，无需报价：${host.join(', ')}`) : '',
   ].filter(Boolean);
-  const detail = parts.join('; ') || 'no job to quote';
+  const detail = parts.join(msg('; ', '；')) || msg('no job to quote', '没有要报价的任务');
   return fresh.length ? { status: 'done', detail } : { status: 'skipped', detail };
 };

@@ -12,6 +12,7 @@ import { deviceLocation, deviceTokenProvider, parseDeviceGrant } from './device-
 import { launchChromium } from './render/browser';
 import { readTerminalSecret } from './node-secret';
 import type { FileSystem, Runtime } from './runtime';
+import { msg } from './i18n';
 
 const missing = (error: unknown) => (error as NodeJS.ErrnoException)?.code === 'ENOENT';
 
@@ -61,7 +62,12 @@ const userHome = (): string | undefined => {
 /** `process.stdin` to the end; with a terminal on stdin it says what to type, since nothing else would. */
 const readStdin = async (): Promise<string> => {
   if (process.stdin.isTTY)
-    process.stderr.write('Paste the API key, then press Enter and Ctrl-D (Ctrl-Z, Enter on Windows):\n');
+    process.stderr.write(
+      msg(
+        'Paste the API key, then press Enter and Ctrl-D (Ctrl-Z, Enter on Windows):\n',
+        '粘贴 API Key，然后按 Enter 和 Ctrl-D（Windows 上按 Ctrl-Z 再按 Enter）：\n',
+      ),
+    );
   const chunks: Buffer[] = [];
   for await (const chunk of process.stdin) chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(String(chunk)));
   return Buffer.concat(chunks).toString('utf8');

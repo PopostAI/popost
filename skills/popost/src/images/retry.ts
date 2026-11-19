@@ -16,6 +16,7 @@ import { resolvePath } from '../providers/paths';
 import * as ledger from '../providers/ledger';
 import type { Project } from '../core/project';
 import { JobError, saveJob, type Job } from './jobs';
+import { msg } from '../i18n';
 
 /** What `image run` was given that decides whether this run may be a retry. */
 export interface RetryCall {
@@ -26,7 +27,8 @@ export interface RetryCall {
 /** The ledger the job's quotes and runs use (`image` passes it to the provider CLI as `--ledger`). */
 export const ledgerPathOf = (project: Project): string => resolvePath(project.rt, project.rt.path.join(project.root, 'production', 'ledger.jsonl'));
 
-const REFUSED = 'submission already attempted; query its quote/ledger before any retry';
+const refused = (): string =>
+  msg('submission already attempted; query its quote/ledger before any retry', '已经提交过；重试前请先查询它的报价/账本记录');
 
 /** The platform said no and nothing was charged: the ledger records it `ambiguous` all the same, with `charged: false`. */
 export const refusedUncharged = (attempt: ledger.Attempt): boolean => attempt.state === 'ambiguous' && attempt.charged === false;
@@ -40,13 +42,27 @@ export const refusedUncharged = (attempt: ledger.Attempt): boolean => attempt.st
 export const submissionKey = async (project: Project, job: Job, call: RetryCall): Promise<string | undefined> => {
   const prior = await heldBy(project, job);
   if (!prior) {
-    if (call.idempotencyKey) throw new JobError('--idempotency-key only applies to a retry of an ambiguous attempt; this job has none (it was not submitted, or its last attempt was refused without a charge)');
+    if (call.idempotencyKey)
+      throw new JobError(
+        msg(
+          '--idempotency-key only applies to a retry of an ambiguous attempt; this job has none (it was not submitted, or its last attempt was refused without a charge)',
+          '--idempotency-key 只用于重试结果不明（ambiguous）的那次提交；这个任务没有这样的提交（它没提交过，或上次提交被拒绝且未扣费）',
+        ),
+      );
     return undefined;
   }
-  if (prior.state !== 'ambiguous' || !prior.idempotencyKey) throw new JobError(REFUSED);
-  if (call.quoteId === job.attemptedQuoteId) throw new JobError('this quote was already submitted; quote the job again, then run it with the new quote id');
+  if (prior.state !== 'ambiguous' || !prior.idempotencyKey) throw new JobError(refused());
+  if (call.quoteId === job.attemptedQuoteId)
+    throw new JobError(
+      msg('this quote was already submitted; quote the job again, then run it with the new quote id', '这个报价已经提交过；请重新报价，再用新的报价 id 运行'),
+    );
   if (call.idempotencyKey && call.idempotencyKey !== prior.idempotencyKey)
-    throw new JobError(`this job's ambiguous attempt went out with idempotency key ${prior.idempotencyKey}; a retry must use it (or leave --idempotency-key out and it is used)`);
+    throw new JobError(
+      msg(
+        `this job's ambiguous attempt went out with idempotency key ${prior.idempotencyKey}; a retry must use it (or leave --idempotency-key out and it is used)`,
+        `这个任务结果不明的那次提交用的幂等键是 ${prior.idempotencyKey}；重试必须用它（或省略 --idempotency-key，会自动使用它）`,
+      ),
+    );
   return prior.idempotencyKey;
 };
 
@@ -56,7 +72,7 @@ export const submissionKey = async (project: Project, job: Job, call: RetryCall)
  */
 const heldBy = async (project: Project, job: Job): Promise<ledger.Attempt | null> => {
   if (!job.runAttempted) return null;
-  if (!job.attemptedQuoteId) throw new JobError(REFUSED);
+  if (!job.attemptedQuoteId) throw new JobError(refused());
   const prior = await ledger.attempt(project.rt, ledgerPathOf(project), job.attemptedQuoteId);
   return prior && !refusedUncharged(prior) ? prior : null;
 };

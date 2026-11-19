@@ -6,6 +6,7 @@
 import { ValueError } from '../core/errors';
 import { Project } from '../core/project';
 import { writeAtomic } from '../core/util';
+import { msg } from '../i18n';
 import type { Runtime } from '../runtime';
 import { chromeSession } from './engine';
 import { loadDeckPages } from './pages';
@@ -34,7 +35,7 @@ export interface ExportDeckResult {
 export const exportDeck = async (rt: Runtime, dir: string, options: ExportDeckOptions = {}): Promise<ExportDeckResult> => {
   const project = await Project.load(rt, dir);
   const pages = await loadDeckPages(project);
-  if (!pages.length) throw new ValueError('the project has no pages to export');
+  if (!pages.length) throw new ValueError(msg('the project has no pages to export', '工程里没有可导出的页面'));
   const session = options.session ?? chromeSession(rt, project.root);
   const html = await session((engine) => engine.compile(pages));
   const file = options.out ? rt.path.resolve(rt.cwd, options.out) : rt.path.join(project.exportsDir, 'deck.html');

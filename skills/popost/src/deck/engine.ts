@@ -12,6 +12,7 @@
 import type { Page, Route } from 'playwright-core';
 import { ValueError } from '../core/errors';
 import { openOfflineContext, PROJECT_ORIGIN, readProjectFile, callInPage, withBrowser } from '../render/offline';
+import { msg } from '../i18n';
 import type { Runtime } from '../runtime';
 import { DECK_BUNDLE } from './compile-bundle';
 import type { DeckEngine, DeckPage, DeckPreviousPage, DeckSession, DeckSize, DeckSplit } from './types';
@@ -51,7 +52,13 @@ const serveEngineFile = (route: Route): Promise<void> => {
 const readStylesheet = async (rt: Runtime, root: string, href: string): Promise<string> => {
   const url = new URL(href);
   const file = url.origin === PROJECT_ORIGIN ? await readProjectFile(rt, root, url.pathname) : null;
-  if (!file) throw new Error(`stylesheet not found in the project: ${url.pathname} (installed fonts are linked as ../css/<role>.css, listed in fonts-manifest.json)`);
+  if (!file)
+    throw new Error(
+      msg(
+        `stylesheet not found in the project: ${url.pathname} (installed fonts are linked as ../css/<role>.css, listed in fonts-manifest.json)`,
+        `工程里找不到样式表：${url.pathname}（已安装的字体以 ../css/<role>.css 链接，列在 fonts-manifest.json 里）`,
+      ),
+    );
   return new TextDecoder().decode(file.data);
 };
 

@@ -11,6 +11,7 @@ import { resolvePath } from './paths';
 import { PopostProvider, type PopostQuote } from './popost';
 import { atTime, stamp } from './time';
 import { createHash } from 'node:crypto';
+import { msg } from '../i18n';
 
 export interface QuoteArgs {
   promptFile?: string;
@@ -27,11 +28,11 @@ export interface QuoteArgs {
 export const readPrompt = async (ctx: Ctx, a: { promptFile?: string; prompt?: string }): Promise<string> => {
   if (a.promptFile) {
     const path = resolvePath(ctx.rt, a.promptFile);
-    if (!(await ctx.rt.fs.stat(path))?.isFile) throw new CliReject(2, `prompt 文件不存在: ${a.promptFile}`);
+    if (!(await ctx.rt.fs.stat(path))?.isFile) throw new CliReject(2, msg(`the prompt file does not exist: ${a.promptFile}`, `prompt 文件不存在: ${a.promptFile}`));
     return ctx.rt.fs.readText(path);
   }
   if (a.prompt) return a.prompt;
-  throw new CliReject(2, '必须提供 --prompt 或 --prompt-file');
+  throw new CliReject(2, msg('give --prompt or --prompt-file', '必须提供 --prompt 或 --prompt-file'));
 };
 
 /** Local references are bound by content (sha256), URL references by their order. */
@@ -39,11 +40,11 @@ export const buildRefs = async (ctx: Ctx, a: { ref: string[]; refUrl: string[] }
   const refs: Ref[] = [];
   for (const p of a.ref) {
     const abs = resolvePath(ctx.rt, p);
-    if (!(await ctx.rt.fs.stat(abs))?.isFile) throw new CliReject(2, `本地参考图不存在: ${p}`);
+    if (!(await ctx.rt.fs.stat(abs))?.isFile) throw new CliReject(2, msg(`the local reference image does not exist: ${p}`, `本地参考图不存在: ${p}`));
     refs.push({ kind: 'local', value: abs, sha256: await sha256File(ctx.rt, abs) });
   }
   for (const url of a.refUrl) {
-    if (!url.startsWith('https://')) throw new CliReject(2, `ref-url 仅支持 https://: ${url}`);
+    if (!url.startsWith('https://')) throw new CliReject(2, msg(`--ref-url takes https:// addresses only: ${url}`, `ref-url 仅支持 https://: ${url}`));
     refs.push({ kind: 'url', value: url, sha256: null });
   }
   return refs;
@@ -63,7 +64,8 @@ export const serverQuote = async (prov: PopostProvider, model: string | null | u
     quote = (await prov.quote({ model, aspect, count, refs, recheck })) as PopostQuote;
   } catch (error) {
     if (error instanceof CapabilityError) throw new CliReject(2, error.message);
-    if (error instanceof ImageProviderError) throw new CliReject(exitCodeOf(error), `${error.message}（未提交、未扣费）`);
+    if (error instanceof ImageProviderError)
+      throw new CliReject(exitCodeOf(error), msg(`${error.message} (nothing was submitted or charged)`, `${error.message}（未提交、未扣费）`));
     throw error;
   }
   const unit = parseCredits(quote.creditsPerImage, allowFree);
@@ -72,7 +74,10 @@ export const serverQuote = async (prov: PopostProvider, model: string | null | u
   if (quote.sufficient === false)
     throw new CliReject(
       1,
-      `积分不足：本次需要 ${total} 积分（每张 ${unit}），当前余额 ${quote.balance ?? '未知'}；这一步需要 popost 积分：可用 popost account 查看购买选项，或选择本地参考、自带 Key / Agent 生图（未提交、未扣费；popost account 可查余额和购买页面）`,
+      msg(
+        `Not enough credits: this needs ${total} credits (${unit} per image) and the balance is ${quote.balance ?? 'unknown'}. Nothing was submitted or charged. It is paid with popost credits: popost account shows the balance and where to buy more; or choose local references, your own API key or the agent's image tool`,
+        `积分不足：本次需要 ${total} 积分（每张 ${unit}），当前余额 ${quote.balance ?? '未知'}；这一步需要 popost 积分：可用 popost account 查看购买选项，或选择本地参考、自带 Key / Agent 生图（未提交、未扣费；popost account 可查余额和购买页面）`,
+      ),
       { billing: { model: quote.model, count, creditsPerImage: String(unit), totalCredits: String(total), balance: quote.balance, sufficient: false, charged: false } },
     );
   return { quote, unit, total };
@@ -100,12 +105,18 @@ const priceByoK = async (ctx: Ctx, name: string, pcfg: JsonRecord, a: QuoteArgs,
   const capabilities = isRecord(pcfg.capabilities) ? pcfg.capabilities : {};
   if (name === 'custom' && Array.isArray(capabilities.aspects)) prov.aspects = capabilities.aspects as string[];
   if (!prov.aspects.includes(a.aspectRatio))
-    throw new CliReject(2, `provider does not declare aspect ${a.aspectRatio}; choose an actually supported asset ratio and crop in HTML`);
+    throw new CliReject(
+      2,
+      msg(
+        `provider does not declare aspect ${a.aspectRatio}; choose an actually supported asset ratio and crop in HTML`,
+        `该 provider 未声明支持画幅 ${a.aspectRatio}；请选它实际支持的素材比例，再在 HTML 里裁切`,
+      ),
+    );
   const rows = await prov.models();
   let model = a.model || (pcfg.defaultModel as string | undefined) || (pcfg.model as string | undefined) || prov.defaultModel || rows[0]?.value;
-  if (!model) throw new CliReject(1, '模型清单为空，拒绝报价');
+  if (!model) throw new CliReject(1, msg('the model list is empty; no quote', '模型清单为空，拒绝报价'));
   let row = rows.find((r) => r.value === model);
-  if (!row) throw new CliReject(1, `模型 ${model} 不在实时清单，拒绝报价`);
+  if (!row) throw new CliReject(1, msg(`the model ${model} is not in the live list; no quote`, `模型 ${model} 不在实时清单，拒绝报价`));
   // The same allow-list / lock the submission applies, so a quote that passes cannot be refused at confirm time.
   try {
     model = (await prov.resolveQuotedModel(model)) ?? model;
@@ -129,7 +140,7 @@ const dryRunQuote = async (prov: PopostProvider, a: QuoteArgs, count: number, re
     if (error instanceof ImageProviderError) throw new CliReject(1, error.message);
     throw error;
   }
-  return { ok: true, dryRun: true, plan, charged: false, message: 'dry-run：未联网、未报价、未写报价记录' };
+  return { ok: true, dryRun: true, plan, charged: false, message: msg('dry run: nothing was sent, quoted or recorded', 'dry-run：未联网、未报价、未写报价记录') };
 };
 
 // ---------------- the quote record ----------------
@@ -169,7 +180,10 @@ const buildRecord = (ctx: Ctx, name: string, a: QuoteArgs, p: Priced, prompt: st
     status: 'quoted',
     confirmRequired: true,
     mock: ctx.g.mock,
-    note: `本记录仅为报价，未提交未扣费；须宿主先展示并取得用户明确费用授权，方可 generate --quote-id ${qid} --confirm`,
+    note: msg(
+      `This record is only a quote: nothing was submitted or charged. The host must show it and get the user's explicit authorization of the cost before generate --quote-id ${qid} --confirm`,
+      `本记录仅为报价，未提交未扣费；须宿主先展示并取得用户明确费用授权，方可 generate --quote-id ${qid} --confirm`,
+    ),
   };
   record.recordHash = recordIntegrityHash(record);
   return record;
@@ -177,7 +191,13 @@ const buildRecord = (ctx: Ctx, name: string, a: QuoteArgs, p: Priced, prompt: st
 
 export const cmdQuote = async (ctx: Ctx, name: string, a: QuoteArgs): Promise<JsonRecord> => {
   if (!availablePaidProviders().includes(name))
-    throw new CliReject(1, `provider ${name} 非生成通道或未知（付费可选 ${availablePaidProviders().join('/')}；manual/host 无需报价）`);
+    throw new CliReject(
+      1,
+      msg(
+        `provider ${name} is unknown or does not generate (paid choices: ${availablePaidProviders().join('/')}; manual/host need no quote)`,
+        `provider ${name} 非生成通道或未知（付费可选 ${availablePaidProviders().join('/')}；manual/host 无需报价）`,
+      ),
+    );
   const prompt = await readPrompt(ctx, a);
   const refs = await buildRefs(ctx, a);
   const count = Math.max(1, Math.trunc(Number(a.count || 1)));
@@ -186,7 +206,11 @@ export const cmdQuote = async (ctx: Ctx, name: string, a: QuoteArgs): Promise<Js
   if (prov instanceof PopostProvider && ctx.g.dryRun) return dryRunQuote(prov, a, count, refs);
   const priced = prov instanceof PopostProvider ? await priceOnPlatform(ctx, prov, pcfg, a, count, refs) : await priceByoK(ctx, name, pcfg, a, count);
   const cap = creditCap(ctx.cfg, name, pcfg);
-  if (priced.total && priced.unit && cap && priced.total.compare(cap) > 0) throw new CliReject(1, `单请求总积分 ${priced.total} = ${priced.unit}×${count} 超过硬顶 ${cap}，拒绝`);
+  if (priced.total && priced.unit && cap && priced.total.compare(cap) > 0)
+    throw new CliReject(
+      1,
+      msg(`the request total of ${priced.total} = ${priced.unit}×${count} credits is above the hard cap of ${cap}; refused`, `单请求总积分 ${priced.total} = ${priced.unit}×${count} 超过硬顶 ${cap}，拒绝`),
+    );
   const record = buildRecord(ctx, name, a, priced, prompt, refs, count, pcfg);
   const path = ctx.rt.path.join(quoteDirOf(ctx), `${String(record.quoteId)}.json`);
   await writeAtomic(ctx.rt, path, JSON.stringify(record, null, 2));

@@ -101,7 +101,7 @@ describe('openai-compatible', () => {
       const q = (await t.pcli('quote', ...FLAGS, '--prompt', 'a cat', '--aspect-ratio', '1:1')).data;
       const { code, data } = await t.pcli('generate', '--quote-id', q.quote.quoteId, '--confirm', ...FLAGS, '--out-dir', '/work/out');
       expect(code).toBe(1);
-      expect(data.error).toContain(status === 400 ? '未建单' : '受理状态不确定');
+      expect(data.error).toContain(status === 400 ? 'no order was created' : 'whether the order was accepted is unknown');
       const last = (await t.ledger()).at(-1);
       expect(last.state).toBe('ambiguous');
       expect(last.meta.charged).toBe(charged);
@@ -156,7 +156,7 @@ describe('a host that restricts the network', () => {
     const { code, data } = await skip.pcli('generate', '--quote-id', q.quote.quoteId, '--confirm', ...FLAGS, '--out-dir', '/work/out');
     expect(code).toBe(1);
     expect(data).toMatchObject({ ok: false, code: 1 });
-    expect(data.error).toContain('不允许访问');
+    expect(data.error).toContain('does not allow connections');
     expect(data.error).not.toContain(SECRET);
     const last = (await skip.ledger()).at(-1);
     expect([last.state, last.meta.charged]).toEqual(['ambiguous', false]); // refused before anything was sent
@@ -165,7 +165,7 @@ describe('a host that restricts the network', () => {
     const discover = await setup(openai, { handler: restricted });
     const refused = await discover.pcli('quote', ...FLAGS, '--prompt', 'a cat');
     expect(refused.code).toBe(1);
-    expect(refused.data.error).toContain('不可达');
+    expect(refused.data.error).toContain('GET /v1/models failed');
     const check = await discover.pcli('check');
     expect(check.code).toBe(0);
     expect(check.data.checks.custom.ok).toBe(false);

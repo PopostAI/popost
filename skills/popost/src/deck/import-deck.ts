@@ -15,6 +15,7 @@ import { ValueError } from '../core/errors';
 import { MAX_CANVAS, Project, type PageEntry } from '../core/project';
 import { writeAtomic } from '../core/util';
 import { sanitizeHtml } from '../editor/sanitize';
+import { msg } from '../i18n';
 import type { Runtime } from '../runtime';
 import { chromeSession } from './engine';
 import { loadDeckPage } from './pages';
@@ -40,7 +41,7 @@ interface Diff {
   removed: string[];
 }
 
-const NO_SLIDE = 'the document has no .slide page: nothing to import';
+const noSlide = (): string => msg('the document has no .slide page: nothing to import', '文档里没有 .slide 页面：没有可导入的内容');
 const FALLBACK_SIZE: DeckSize = { width: 1080, height: 1350 };
 
 /** Size of a page that carries none: the project's own (its first page), else what `page add` uses. */
@@ -54,7 +55,7 @@ const validSize = (n: number): boolean => Number.isInteger(n) && n >= 1 && n <= 
 const checkSizes = (pages: readonly DeckSplitPage[]): void => {
   for (const page of pages)
     if (!validSize(page.width) || !validSize(page.height))
-      throw new ValueError(`page ${page.id}: canvas size must be whole pixels within 1..${MAX_CANVAS}`);
+      throw new ValueError(msg(`page ${page.id}: canvas size must be whole pixels within 1..${MAX_CANVAS}`, `页面 ${page.id}：画布尺寸必须是 1..${MAX_CANVAS} 之间的整数像素`));
 };
 
 /** The project pages the document still has, read for the comparison; one that cannot be read counts as changed. */
@@ -163,7 +164,7 @@ export const importDeck = async (
   options: ImportDeckOptions = {},
 ): Promise<ImportDeckResult> => {
   // No "slide" anywhere means no `.slide` element: say so without starting a browser.
-  if (!/slide/i.test(html)) throw new ValueError(NO_SLIDE);
+  if (!/slide/i.test(html)) throw new ValueError(noSlide());
   const project = await Project.load(rt, dir);
   const previous = project.manifest.pages;
   const session = options.session ?? chromeSession(rt, project.root);

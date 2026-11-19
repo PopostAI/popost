@@ -11,17 +11,18 @@ import { errorMessage, fileResponse, jsonResponse, noStoreResponse, type ApiResp
 import { localProjectAssets, localReferenceImage, localReferenceImages } from './project-tools';
 import { hostAllowed } from './request-security';
 import { runSubcommand } from './subcommand';
+import { msg } from '../i18n';
 
 export const PREVIEW_TTL_MS = 600_000;
 
-const notFound = (ctx: Ctx, error = 'not found'): ApiResponse => jsonResponse(ctx.req, 404, { ok: false, error });
+const notFound = (ctx: Ctx, error = msg('not found', '未找到')): ApiResponse => jsonResponse(ctx.req, 404, { ok: false, error });
 
 const editorDir = (ctx: Ctx): string => ctx.rt.path.join(ctx.rt.skillRoot, 'assets', 'canvas');
 
 const preview = (ctx: Ctx): ApiResponse => {
   const entry = ctx.state.previews.get(ctx.req.path);
   if (!entry || ctx.rt.now().getTime() - entry.at > PREVIEW_TTL_MS)
-    return jsonResponse(ctx.req, 404, { ok: false, error: 'preview expired; reopen the document' });
+    return jsonResponse(ctx.req, 404, { ok: false, error: msg('preview expired; reopen the document', '预览已过期；请重新打开文档') });
   return noStoreResponse(entry.body, 'text/html; charset=utf-8', { 'Content-Security-Policy': entry.csp });
 };
 
@@ -48,7 +49,7 @@ const projectBundle = async (ctx: Ctx): Promise<ApiResponse> => {
   const result = await runSubcommand(ctx.rt, ['package', '--dir', project.root]);
   const zip = result.json?.zip;
   if (result.code !== 0 || typeof zip !== 'string')
-    return jsonResponse(ctx.req, 400, { ok: false, error: String(result.json?.error ?? 'package failed') });
+    return jsonResponse(ctx.req, 400, { ok: false, error: String(result.json?.error ?? msg('package failed', '打包失败')) });
   return fileResponse(await ctx.rt.fs.readFile(zip), 'application/zip', ctx.rt.path.basename(zip));
 };
 
@@ -89,15 +90,15 @@ const EXACT: Record<string, (ctx: Ctx) => Promise<ApiResponse> | ApiResponse> = 
 };
 
 export const handleGet = async (ctx: Ctx): Promise<ApiResponse> => {
-  if (!hostAllowed(ctx.req.headers.host, ctx.req.port)) return jsonResponse(ctx.req, 403, { ok: false, error: 'host rejected' });
+  if (!hostAllowed(ctx.req.headers.host, ctx.req.port)) return jsonResponse(ctx.req, 403, { ok: false, error: msg('host rejected', 'Host 被拒绝') });
   const { path } = ctx.req;
   const exact = EXACT[path];
   if (exact) return exact(ctx);
   if (path.startsWith('/api/comparison/')) return localReferenceImage(ctx);
   if (path.startsWith('/_preview/')) return preview(ctx);
   if (path.startsWith('/_editor/'))
-    return staticFile(ctx, editorDir(ctx), path.slice('/_editor/'.length), 'editor resource not found');
-  const response = await staticFile(ctx, ctx.state.root, path, 'not found');
+    return staticFile(ctx, editorDir(ctx), path.slice('/_editor/'.length), msg('editor resource not found', '未找到编辑器资源'));
+  const response = await staticFile(ctx, ctx.state.root, path, msg('not found', '未找到'));
   // User files never share the editor's script privileges, even when opened directly.
   response.headers['Content-Security-Policy'] = "sandbox; default-src 'none'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; font-src 'self'; form-action 'none'; base-uri 'none'";
   response.headers['X-Content-Type-Options'] = 'nosniff';

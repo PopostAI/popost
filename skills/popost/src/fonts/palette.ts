@@ -5,6 +5,7 @@
  */
 import type { Runtime } from '../runtime';
 import { isFile, sha256 } from '../core/util';
+import { msg } from '../i18n';
 
 export interface FontRole {
   id: string;
@@ -48,10 +49,10 @@ export class UnknownRoleError extends FontError {
 export const loadLibrary = async (rt: Runtime): Promise<FontLibrary> => {
   const dir = rt.path.join(rt.skillRoot, 'assets', 'fonts');
   const file = rt.path.join(dir, 'palette.json');
-  if (!(await isFile(rt, file))) throw new FontError(`font palette not found: ${file}`);
+  if (!(await isFile(rt, file))) throw new FontError(msg(`font palette not found: ${file}`, `找不到字库清单：${file}`));
   const bytes = await rt.fs.readFile(file);
   const palette = JSON.parse(new TextDecoder().decode(bytes)) as Palette;
-  if (!Array.isArray(palette.roles)) throw new FontError(`font palette is malformed: ${file}`);
+  if (!Array.isArray(palette.roles)) throw new FontError(msg(`font palette is malformed: ${file}`, `字库清单格式错误：${file}`));
   return { palette, digest: sha256(bytes).slice(0, 12), dir };
 };
 

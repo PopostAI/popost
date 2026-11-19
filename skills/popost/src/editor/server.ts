@@ -9,6 +9,7 @@ import type { IncomingMessage, Server, ServerResponse } from 'node:http';
 import { CloudService, type CloudOptions } from '../cloud/service';
 import { Project } from '../core/project';
 import { errorText, printJson } from '../core/util';
+import { msg } from '../i18n';
 import type { Runtime } from '../runtime';
 import {
   errorMessage,
@@ -109,7 +110,7 @@ const dispatch = async (rt: Runtime, state: ServiceState, lock: Ctx['locked'], r
   const ctx = createCtx(rt, state, lock, req);
   if (req.method === 'GET') return handleGet(ctx);
   if (req.method === 'POST') return handlePost(ctx);
-  return jsonResponse(req, 501, { ok: false, error: `unsupported method ${req.method}` });
+  return jsonResponse(req, 501, { ok: false, error: msg(`unsupported method ${req.method}`, `不支持的请求方法 ${req.method}`) });
 };
 
 const handle = async (
@@ -122,12 +123,12 @@ const handle = async (
 ): Promise<void> => {
   try {
     if (!hostAllowed(req.headers.host, port())) {
-      return send(res, jsonResponse(toRequest(req, new Uint8Array(), port()), 403, { ok: false, error: 'host rejected' }));
+      return send(res, jsonResponse(toRequest(req, new Uint8Array(), port()), 403, { ok: false, error: msg('host rejected', 'Host 被拒绝') }));
     }
     const body = await readBody(req, MAX_BODY_BYTES);
     if (body === null) {
       const stub = toRequest(req, new Uint8Array(), port());
-      return send(res, jsonResponse(stub, 413, { ok: false, error: 'request body is too large' }));
+      return send(res, jsonResponse(stub, 413, { ok: false, error: msg('request body is too large', '请求体过大') }));
     }
     send(res, await dispatch(rt, state, lock, toRequest(req, body, port())));
   } catch (error) {
@@ -153,7 +154,7 @@ const listen = (server: Server, port: number): Promise<number> =>
 export const serveProject = async (rt: Runtime, project: Project, port: number, cloud: CloudOptions = {}): Promise<number> => {
   const processes = rt.processes;
   if (!processes) {
-    printJson(rt, { ok: false, error: 'serve is not available in this host: it cannot open a network port' });
+    printJson(rt, { ok: false, error: msg('serve is not available in this host: it cannot open a network port', '当前宿主不支持 serve：它无法打开网络端口') });
     return 2;
   }
   const state: ServiceState = createServiceState(rt, project.root, cloud);

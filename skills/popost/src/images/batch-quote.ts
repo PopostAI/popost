@@ -9,14 +9,17 @@ import { Decimal, decimalOf } from '../providers/decimal';
 import { failureOf, readEntries, runPool, worstCode, type BatchCall, type BatchResult, type Entry } from './batch-jobs';
 import { JOB_ID, JobError, jobState, type Job } from './jobs';
 import { quoteOrRun, type JobCall } from './run';
+import { msg } from '../i18n';
 
 /** Why `--all` leaves a job out; `null` for a job that is quoted. */
 const skipReason = (job: Job): string | null => {
-  if (job.provider.channel === 'host') return 'host channel: generate it with the host image tool, then image complete';
+  if (job.provider.channel === 'host')
+    return msg('host channel: generate it with the host image tool, then image complete', 'host 通道：用宿主的图片工具生成，再运行 image complete');
   const state = jobState(job);
-  if (state === 'completed') return 'complete';
-  if (job.status === 'generated') return 'already generated';
-  if (state === 'submitted') return 'already submitted (outcome unknown or charged); retry only by naming it with --id';
+  if (state === 'completed') return msg('complete', '已完成');
+  if (job.status === 'generated') return msg('already generated', '已生成');
+  if (state === 'submitted')
+    return msg('already submitted (outcome unknown or charged); retry only by naming it with --id', '已提交（结果不明或已扣费）；只能用 --id 点名重试');
   return null;
 };
 
@@ -33,9 +36,12 @@ const selectAll = (entries: readonly Entry[]): { chosen: Entry[]; skipped: { id:
 
 const selectNamed = (entries: readonly Entry[], ids: readonly string[]): Entry[] =>
   ids.map((id) => {
-    if (!JOB_ID.test(id)) throw new JobError(`invalid job id: ${id}`);
+    if (!JOB_ID.test(id)) throw new JobError(msg(`invalid job id: ${id}`, `无效的任务 id：${id}`));
     const entry = entries.find((candidate) => candidate.id === id);
-    if (!entry) throw new JobError(`no job '${id}' to quote (prepared jobs: ${entries.map((e) => e.id).join(', ') || 'none'})`);
+    if (!entry) {
+      const prepared = entries.map((e) => e.id).join(', ') || msg('none', '无');
+      throw new JobError(msg(`no job '${id}' to quote (prepared jobs: ${prepared})`, `没有可报价的任务 '${id}'（已准备的任务：${prepared}）`));
+    }
     return entry;
   });
 
@@ -47,7 +53,13 @@ const refuseTwins = (project: Project, chosen: readonly Entry[]): void => {
     const refs = job.refs.map((file) => job.refHashes[rt.path.resolve(rt.cwd, file)] ?? file);
     const key = JSON.stringify([normalizePrompt(job.prompt), job.aspect, job.provider.model ?? null, refs]);
     const twin = seen.get(key);
-    if (twin) throw new JobError(`jobs '${twin}' and '${id}' ask for the same picture (same prompt, aspect and references); keep one, or change the prompt of the other`);
+    if (twin)
+      throw new JobError(
+        msg(
+          `jobs '${twin}' and '${id}' ask for the same picture (same prompt, aspect and references); keep one, or change the prompt of the other`,
+          `任务 '${twin}' 和 '${id}' 要的是同一张图（prompt、比例和参考图都相同）；保留一个，或改掉另一个的 prompt`,
+        ),
+      );
     seen.set(key, id);
   }
 };
@@ -96,7 +108,12 @@ const sumCredits = (rows: readonly Row[]): Decimal | null => {
   return total;
 };
 
-const SHORT = 'not enough credits for all of these quotes at once';
+/** The balance does not cover all the quotes together. */
+const shortText = (total: string, balance: string): string =>
+  msg(
+    `not enough credits for all of these quotes at once: they total ${total} credits and the balance is ${balance}; run fewer of them (image run --quote-id with some of quoteIds) or top up first`,
+    `积分不足以一次运行全部这些报价：合计 ${total} 积分，余额 ${balance}；请少运行几个（image run --quote-id 只带 quoteIds 中的一部分），或先充值`,
+  );
 
 /** The batch's answer: every quote, the total to authorize, and whether the balance covers all of them together. */
 const summary = (dir: string, quoted: readonly Quoted[], skipped: readonly { id: string; reason: string }[], concurrency: number): BatchResult => {
@@ -123,7 +140,7 @@ const summary = (dir: string, quoted: readonly Quoted[], skipped: readonly { id:
     concurrency,
     quoteIds: good.map((row) => row.quoteId),
     jobs: rows,
-    ...(short ? { error: `${SHORT}: they total ${String(total)} credits and the balance is ${String(balance)}; run fewer of them (image run --quote-id with some of quoteIds) or top up first` } : {}),
+    ...(short ? { error: shortText(String(total), String(balance)) } : {}),
     ...(skipped.length ? { skipped } : {}),
     ...(good.length && !short ? { next: `image run --dir ${dir} --quote-id ${good.map((row) => String(row.quoteId)).join(',')} --confirm` } : {}),
   };
@@ -133,7 +150,14 @@ const summary = (dir: string, quoted: readonly Quoted[], skipped: readonly { id:
 const select = async (project: Project, target: readonly string[] | 'all'): Promise<{ chosen: Entry[]; skipped: { id: string; reason: string }[] }> => {
   const entries = await readEntries(project);
   const { chosen, skipped } = target === 'all' ? selectAll(entries) : { chosen: selectNamed(entries, target), skipped: [] };
-  if (!chosen.length) throw new JobError(`no job to quote${skipped.length ? ` (${skipped.map((s) => `${s.id}: ${s.reason}`).join('; ')})` : '; prepare jobs first with image prepare'}`);
+  if (!chosen.length) {
+    const why = skipped.map((s) => `${s.id}: ${s.reason}`).join('; ');
+    throw new JobError(
+      why
+        ? msg(`no job to quote (${why})`, `没有要报价的任务（${why}）`)
+        : msg('no job to quote; prepare jobs first with image prepare', '没有要报价的任务；请先用 image prepare 准备任务'),
+    );
+  }
   return { chosen, skipped };
 };
 
@@ -147,7 +171,7 @@ export const quoteBatch = async (project: Project, dir: string, target: readonly
     chosen,
     call.concurrency,
     (entry) => quoteOne(project, entry, jobCall),
-    (entry): Quoted => ({ row: { id: entry.id, ok: false, code: 1, error: 'cancelled before this job was quoted; nothing was sent' }, balance: null }),
+    (entry): Quoted => ({ row: { id: entry.id, ok: false, code: 1, error: msg('cancelled before this job was quoted; nothing was sent', '这个任务报价前已取消；未发送任何内容') }, balance: null }),
   );
   return summary(dir, quoted, skipped, call.concurrency);
 };

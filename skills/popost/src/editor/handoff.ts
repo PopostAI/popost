@@ -10,6 +10,7 @@ import { readJson, sha256, writeJson } from '../core/util';
 import { DEFAULT_KEY_ENV, PopostClient } from '../providers/api';
 import { isRecord } from '../providers/base';
 import { PopostApiError } from '../providers/errors';
+import { msg } from '../i18n';
 import type { Runtime } from '../runtime';
 import { STATE_DIR } from './canvas-state';
 
@@ -149,7 +150,7 @@ const readLog = async (rt: Runtime, log: string, info: Record<string, unknown>):
       continue; // not a JSON line
     }
     if (!entry || typeof entry !== 'object') continue;
-    if (entry.ok === false) return { error: String(entry.error ?? 'unknown error') };
+    if (entry.ok === false) return { error: String(entry.error ?? msg('unknown error', '未知错误')) };
     if (isLoopbackOrigin(entry.listening) && (await probe(rt, entry.listening, info))) return { url: entry.listening };
   }
   return {};
@@ -179,7 +180,7 @@ export const presentLocal = async (
   fallback?: CloudHandoff['error'],
 ): Promise<Record<string, unknown>> => {
   const processes = rt.processes;
-  if (!processes) throw new Error('the local editor service is not available in this host');
+  if (!processes) throw new Error(msg('the local editor service is not available in this host', '当前宿主不支持本地编辑器服务'));
   const info = editorInfo(project);
   const dir = rt.path.join(project.root, STATE_DIR);
   await rt.fs.mkdir(dir);
@@ -201,14 +202,14 @@ export const presentLocal = async (
   const deadline = rt.now().getTime() + READY_TIMEOUT_MS;
   while (rt.now().getTime() < deadline) {
     const { url, error } = await readLog(rt, log, info);
-    if (error) throw new Error(`editor service did not start: ${error}; inspect ${log}`);
+    if (error) throw new Error(msg(`editor service did not start: ${error}; inspect ${log}`, `编辑器服务没有启动：${error}；请查看 ${log}`));
     if (url) {
       await writeJson(rt, state, { url, pid, version: EDITOR_VERSION });
       return localHandoff(url, false, await reportedCloud(rt, url));
     }
     await sleep(50);
   }
-  throw new Error(`editor service readiness timed out; inspect ${log}`);
+  throw new Error(msg(`editor service readiness timed out; inspect ${log}`, `等待编辑器服务就绪超时；请查看 ${log}`));
 };
 
 /** Use the authenticated account to keep cached links separate when users switch keys or API endpoints. */
@@ -216,7 +217,7 @@ const presentCloud = async (rt: Runtime, project: Project, host: string): Promis
   const client = new PopostClient(rt);
   const account = await client.request('GET', '/me', { timeoutSec: 10 });
   const user = isRecord(account) && isRecord(account.user) ? account.user : null;
-  if (typeof user?.id !== 'string' || !user.id) throw new CloudError('BAD_RESPONSE', 'The Popost account has no user ID.');
+  if (typeof user?.id !== 'string' || !user.id) throw new CloudError('BAD_RESPONSE', msg('The Popost account has no user ID.', 'Popost 账号没有用户 ID。'));
   const accountScope = sha256(JSON.stringify([client.baseUrl, user.id]));
   const locale = project.manifest.language?.toLowerCase().startsWith('zh') ? 'zh' : undefined;
   const { deckId, webUrl } = await pushProject(rt, { dir: project.root, client, accountScope, locale });
@@ -240,13 +241,24 @@ export const present = async (
 ): Promise<Record<string, unknown>> => {
   const own = rt.editorHost;
   if (host === WEB_HOST && !own)
-    throw new Error('--host web needs a host that shows projects itself (the popost.ai workbench); this one has none');
+    throw new Error(
+      msg(
+        '--host web needs a host that shows projects itself (the popost.ai workbench); this one has none',
+        '--host web 需要一个能自己展示工程的宿主（popost.ai 工作台）；当前宿主没有',
+      ),
+    );
   if (own && (host === WEB_HOST || host === 'auto' || host === own.id)) return own.present(project.root);
   if (!rt.processes)
     throw new Error(
       own
-        ? `host "${host}" is not available here: the project is shown by the host's own editor (--host ${WEB_HOST} or auto)`
-        : 'present is not available in this host: it has no local editor service and no editor of its own',
+        ? msg(
+            `host "${host}" is not available here: the project is shown by the host's own editor (--host ${WEB_HOST} or auto)`,
+            `这里不能用宿主 "${host}"：工程由宿主自带的编辑器展示（--host ${WEB_HOST} 或 auto）`,
+          )
+        : msg(
+            'present is not available in this host: it has no local editor service and no editor of its own',
+            '当前宿主不支持 present：它既没有本地编辑器服务，也没有自带的编辑器',
+          ),
     );
   if (cloud && (rt.deviceAccess || rt.env[DEFAULT_KEY_ENV]?.trim())) {
     let result: Record<string, unknown>;
@@ -255,8 +267,11 @@ export const present = async (
     } catch (error) {
       const code = error instanceof PopostApiError || error instanceof CloudError ? error.code ?? 'ERROR' : 'ERROR';
       const message = code === 'DECK_CONFLICT'
-        ? 'The Popost web project has newer edits. Use the local editor for your local changes.'
-        : 'Could not open the Popost web workbench. Use Save to Cloud from the local editor to sign in and try again.';
+        ? msg('The Popost web project has newer edits. Use the local editor for your local changes.', 'Popost 网页版工程有更新的编辑。本地改动请在本地编辑器里处理。')
+        : msg(
+            'Could not open the Popost web workbench. Use Save to Cloud from the local editor to sign in and try again.',
+            '无法打开 Popost 网页工作台。请在本地编辑器里用“保存到云端”登录后重试。',
+          );
       return presentLocal(rt, project, host, port, cloud, { code, message });
     }
     if (!project.manifest.sources.some((source) => source.role === 'layout')) return saveHandoff(rt, project, result);

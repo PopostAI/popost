@@ -3,6 +3,7 @@
  * package.json), minus what is useless in a skills directory, plus `package.json` itself (the installed version).
  */
 import type { Runtime } from '../runtime';
+import { msg } from '../i18n';
 
 /**
  * Not copied: `dist/` imports the package's npm dependencies (fflate, htmlparser2, playwright-core), which a skills
@@ -38,7 +39,12 @@ export interface PackageManifest {
 export const readManifest = async (rt: Runtime, root: string): Promise<PackageManifest> => {
   const data = JSON.parse(await rt.fs.readText(rt.path.join(root, 'package.json'))) as { version?: unknown; files?: unknown };
   if (typeof data.version !== 'string' || !Array.isArray(data.files))
-    throw new Error(`${rt.path.join(root, 'package.json')} has no version or files list: this is not the popost package`);
+    throw new Error(
+      msg(
+        `${rt.path.join(root, 'package.json')} has no version or files list: this is not the popost package`,
+        `${rt.path.join(root, 'package.json')} 没有 version 或 files 列表：这不是 popost 包`,
+      ),
+    );
   return { version: data.version, files: data.files.filter((f): f is string => typeof f === 'string') };
 };
 

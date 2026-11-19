@@ -6,6 +6,7 @@
 import type { Project } from '../core/project';
 import type { Runtime } from '../runtime';
 import { installProject, type InstallResult, type InstalledRole } from './install';
+import { msg } from '../i18n';
 
 /** A previously injected font stylesheet link (self-closed or not). */
 export const FONT_LINK = /<link rel="stylesheet" href="\.\.\/css\/[^"]*"\s*\/?>/g;
@@ -99,7 +100,10 @@ export const cjkFontWarnings = (project: Project, roleIds: readonly string[]): s
     .filter((id) => id.startsWith('cjk-'))
     .map(
       (id) =>
-        `${id} is a Chinese font role, but this project's copy language is ${language}: its stylesheet is large and the export repeats it on every page; install it only if the copy has Chinese text.`,
+        msg(
+          `${id} is a Chinese font role, but this project's copy language is ${language}: its stylesheet is large and the export repeats it on every page; install it only if the copy has Chinese text.`,
+          `${id} 是中文字体角色，但本项目的文案语言是 ${language}：它的样式表很大，导出时每一页都会重复一份；只有文案含中文时才安装它。`,
+        ),
     );
 };
 

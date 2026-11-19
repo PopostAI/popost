@@ -7,6 +7,7 @@
  */
 import { formatHelp, parseArgs, UsageError, type CommandSpec, type OptionSpec, type ParsedArgs } from '../args';
 import { printJson } from '../core/util';
+import { msg } from '../i18n';
 import type { CommandMain, Runtime } from '../runtime';
 import type { JsonRecord } from './base';
 import { cmdCheck, cmdDownload, cmdInventory, cmdModels, cmdStatus } from './cli-commands';
@@ -69,7 +70,7 @@ export const executeCli = async (rt: Runtime, invocation: CliInvocation): Promis
   try {
     cfg = await loadConfig(rt, invocation.config);
     const name = invocation.provider || (cfg.defaultProvider as string | undefined) || OFFICIAL_PROVIDER;
-    if (!allProviderKinds().includes(name)) throw new CliReject(2, `未知 provider ${name}`);
+    if (!allProviderKinds().includes(name)) throw new CliReject(2, msg(`unknown provider ${name}`, `未知 provider ${name}`));
     const result = await dispatch({ rt, cfg, g: invocation.globals }, name, invocation.command);
     return { code: 0, result: scrub(result, secretValues(rt, cfg)) };
   } catch (error) {
@@ -86,30 +87,41 @@ const refusalOf = (error: unknown): { code: number; message: string; details?: R
 };
 
 // ---------------- argv ----------------
-const COMMON: readonly OptionSpec[] = [
-  { flag: '--mock', kind: 'flag', help: '本地模拟，不联网不扣费（结果必须标注 mock）' },
-  { flag: '--dry-run', kind: 'flag', help: '构建请求不提交' },
+const common = (): readonly OptionSpec[] => [
+  { flag: '--mock', kind: 'flag', help: msg('local simulation: offline, no charge (results must be labelled mock)', '本地模拟，不联网不扣费（结果必须标注 mock）') },
+  { flag: '--dry-run', kind: 'flag', help: msg('build the request without submitting it', '构建请求不提交') },
   { flag: '--mock-dir' },
   { flag: '--quote-dir' },
   { flag: '--ledger' },
-  { flag: '--task-dir', help: '同步通道（popost）本地任务记录目录；默认报价目录同级 tasks/' },
-  { flag: '--accept-unknown-cost', kind: 'flag', help: 'BYOK only: explicitly acknowledge unknown provider billing' },
+  {
+    flag: '--task-dir',
+    help: msg('folder of the local task records of the synchronous channel (popost); default tasks/ next to the quote folder', '同步通道（popost）本地任务记录目录；默认报价目录同级 tasks/'),
+  },
+  { flag: '--accept-unknown-cost', kind: 'flag', help: msg('BYOK only: explicitly acknowledge unknown provider billing', '仅限自带 Key：明确接受供应商未知的计费') },
   { flag: '--json', kind: 'flag' },
 ];
 
 const REFS: readonly OptionSpec[] = [{ flag: '--ref', kind: 'append' }, { flag: '--ref-url', kind: 'append' }];
 const PROMPT: readonly OptionSpec[] = [{ flag: '--prompt-file' }, { flag: '--prompt' }];
 
-const SPECS: Record<CliCommand['name'], Omit<CommandSpec, 'prog'>> = {
+const specs = (): Record<CliCommand['name'], Omit<CommandSpec, 'prog'>> => ({
   quote: {
-    description: '只报价，不提交不扣费',
-    options: [...PROMPT, { flag: '--aspect-ratio', default: '1:1', help: 'W:H；须为所选模型实际支持的比例' }, { flag: '--model' }, ...REFS, { flag: '--count', kind: 'int', default: 1 }, { flag: '--valid-sec', kind: 'int', default: 600 }, ...COMMON],
+    description: msg('a quote only: nothing is submitted or charged', '只报价，不提交不扣费'),
+    options: [
+      ...PROMPT,
+      { flag: '--aspect-ratio', default: '1:1', help: msg('W:H; a ratio the chosen model really supports', 'W:H；须为所选模型实际支持的比例') },
+      { flag: '--model' },
+      ...REFS,
+      { flag: '--count', kind: 'int', default: 1 },
+      { flag: '--valid-sec', kind: 'int', default: 600 },
+      ...common(),
+    ],
   },
   generate: {
-    description: '确认后提交（须 --quote-id + --confirm）',
+    description: msg('submit after confirmation (needs --quote-id and --confirm)', '确认后提交（须 --quote-id + --confirm）'),
     options: [
       { flag: '--quote-id', required: true },
-      { flag: '--confirm', kind: 'flag', help: '用户已明确确认的令牌（非自动确认）' },
+      { flag: '--confirm', kind: 'flag', help: msg('the token of an explicit confirmation by the user (never automatic)', '用户已明确确认的令牌（非自动确认）') },
       ...PROMPT,
       { flag: '--aspect-ratio' },
       { flag: '--model' },
@@ -118,16 +130,25 @@ const SPECS: Record<CliCommand['name'], Omit<CommandSpec, 'prog'>> = {
       { flag: '--out-dir' },
       { flag: '--poll-interval', kind: 'number' },
       { flag: '--poll-timeout', kind: 'number' },
-      { flag: '--idempotency-key', help: 'popost：人工安全重试时复用 ambiguous 记录里的同一幂等键（平台不重复扣费）' },
-      ...COMMON,
+      {
+        flag: '--idempotency-key',
+        help: msg(
+          'popost: for a safe manual retry, reuse the idempotency key of the ambiguous record (the platform never charges twice)',
+          'popost：人工安全重试时复用 ambiguous 记录里的同一幂等键（平台不重复扣费）',
+        ),
+      },
+      ...common(),
     ],
   },
-  status: { description: '只读查询已有 taskId', options: [{ flag: '--task-id', required: true }, { flag: '--raw', kind: 'flag' }, ...COMMON] },
-  download: { description: 'completed 后下载', options: [{ flag: '--task-id', required: true }, { flag: '--out-dir', required: true }, ...COMMON] },
-  models: { description: '实时模型/价格清单', options: [...COMMON] },
-  check: { description: '能力 preflight（不输出凭据）', options: [...COMMON] },
-  inventory: { description: 'manual 通道登记用户直接提供的本地素材', options: [{ flag: '--file', kind: 'append', required: true }, ...COMMON] },
-};
+  status: { description: msg('read-only query of an existing taskId', '只读查询已有 taskId'), options: [{ flag: '--task-id', required: true }, { flag: '--raw', kind: 'flag' }, ...common()] },
+  download: { description: msg('download once completed', 'completed 后下载'), options: [{ flag: '--task-id', required: true }, { flag: '--out-dir', required: true }, ...common()] },
+  models: { description: msg('live list of models and prices', '实时模型/价格清单'), options: [...common()] },
+  check: { description: msg('capability preflight (prints no credentials)', '能力 preflight（不输出凭据）'), options: [...common()] },
+  inventory: {
+    description: msg('register local assets the user supplied directly (manual channel)', 'manual 通道登记用户直接提供的本地素材'),
+    options: [{ flag: '--file', kind: 'append', required: true }, ...common()],
+  },
+});
 
 const globalsOf = (a: ParsedArgs): Globals => ({
   mock: a.flag('mock'),
@@ -173,8 +194,18 @@ const commandOf = (name: CliCommand['name'], a: ParsedArgs): CliCommand => {
   }
 };
 
-const TOP: CommandSpec = { prog: 'popost provider cli', options: [{ flag: '--provider', help: '付费默认 popost（popost.ai 平台）；custom=自带 Key；manual/host 非生成' }, { flag: '--config' }] };
-const NAMES = Object.keys(SPECS) as CliCommand['name'][];
+const PROG = 'popost provider cli';
+const top = (): CommandSpec => ({
+  prog: PROG,
+  options: [
+    {
+      flag: '--provider',
+      help: msg('paid default: popost (the popost.ai platform); custom = your own key; manual/host do not generate', '付费默认 popost（popost.ai 平台）；custom=自带 Key；manual/host 非生成'),
+    },
+    { flag: '--config' },
+  ],
+});
+const NAMES: readonly CliCommand['name'][] = ['quote', 'generate', 'status', 'download', 'models', 'check', 'inventory'];
 
 /** Global options come before the sub-command (`--provider P --config F quote …`), as in argparse. */
 const splitGlobals = (argv: readonly string[]): { head: string[]; name: string | undefined; rest: string[] } => {
@@ -189,7 +220,7 @@ const splitGlobals = (argv: readonly string[]): { head: string[]; name: string |
 };
 
 const usageError = (rt: Runtime, message: string): number => {
-  rt.stderr(`usage: ${TOP.prog} [-h] [--provider PROVIDER] [--config CONFIG] {${NAMES.join(',')}} ...\n${TOP.prog}: error: ${message}\n`);
+  rt.stderr(`usage: ${PROG} [-h] [--provider PROVIDER] [--config CONFIG] {${NAMES.join(',')}} ...\n${PROG}: error: ${message}\n`);
   return 2;
 };
 
@@ -201,22 +232,22 @@ const print = (rt: Runtime, outcome: CliOutcome): number => {
 /** `popost provider cli [--provider P] [--config F] <command> [options]`. */
 export const main: CommandMain = async (argv, rt) => {
   const { head, name, rest } = splitGlobals(argv);
-  let top: ParsedArgs;
+  let globals: ParsedArgs;
   try {
-    top = parseArgs(head, TOP);
+    globals = parseArgs(head, top());
   } catch (error) {
     if (!(error instanceof UsageError)) throw error;
     return usageError(rt, error.message);
   }
-  if (top.help) {
-    rt.stdout(`${formatHelp(TOP)}\ncommands: ${NAMES.join(', ')}\n`);
+  if (globals.help) {
+    rt.stdout(`${formatHelp(top())}\ncommands: ${NAMES.join(', ')}\n`);
     return 0;
   }
   if (name === undefined) return usageError(rt, 'the following arguments are required: cmd');
   const command = NAMES.find((n) => n === name);
   if (!command) return usageError(rt, `argument cmd: invalid choice: '${name}' (choose from ${NAMES.map((n) => `'${n}'`).join(', ')})`);
-  const spec: CommandSpec = { prog: `${TOP.prog} ${command}`, ...SPECS[command] };
+  const spec: CommandSpec = { prog: `${PROG} ${command}`, ...specs()[command] };
   return withProviderArgs(rest, spec, rt, async (a) =>
-    print(rt, await executeCli(rt, { provider: top.string('provider'), config: top.string('config'), globals: globalsOf(a), command: commandOf(command, a) })),
+    print(rt, await executeCli(rt, { provider: globals.string('provider'), config: globals.string('config'), globals: globalsOf(a), command: commandOf(command, a) })),
   );
 };

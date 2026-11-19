@@ -6,11 +6,12 @@
 import type { Project } from '../core/project';
 import { pageFingerprint } from '../core/fingerprint';
 import { isFile, readJson, sha256File } from '../core/util';
+import { msg } from '../i18n';
 import { KeyError, ValueError } from './errors';
 import * as seriesPlan from './series-plan';
 
-const need = (data: Record<string, unknown>, key: string): unknown => {
-  if (!(key in data)) throw new KeyError(key);
+const need = (data: Record<string, unknown>, key: string, file: string): unknown => {
+  if (!(key in data)) throw new KeyError(key, file);
   return data[key];
 };
 
@@ -20,10 +21,11 @@ export const reviewPage = async (project: Project, pid: string, note: string) =>
   project.page(pid);
   const png = rt.path.join(project.exportsDir, `${pid}.png`);
   const receipt = rt.path.join(project.exportsDir, `${pid}.render.json`);
-  if (!(await isFile(rt, png)) || !(await isFile(rt, receipt))) throw new ValueError('render this page before reviewing it');
+  if (!(await isFile(rt, png)) || !(await isFile(rt, receipt))) throw new ValueError(msg('render this page before reviewing it', '请先渲染这一页再评审'));
   const data = await readJson<Record<string, unknown>>(rt, receipt);
-  if (need(data, 'fingerprint') !== (await pageFingerprint(project, pid)) || need(data, 'pngHash') !== (await sha256File(rt, png)))
-    throw new ValueError('render is stale; rerender before actual visual review');
+  const file = `exports/${pid}.render.json`;
+  if (need(data, 'fingerprint', file) !== (await pageFingerprint(project, pid)) || need(data, 'pngHash', file) !== (await sha256File(rt, png)))
+    throw new ValueError(msg('render is stale; rerender before actual visual review', '渲染结果已过期；请重新渲染后再做实际的视觉评审'));
   const result = { reviewer: 'agent', note, fingerprint: data.fingerprint, pngHash: data.pngHash };
   project.manifest.reviews[pid] = result;
   await project.saveManifest();
@@ -33,7 +35,7 @@ export const reviewPage = async (project: Project, pid: string, note: string) =>
 /** Record the findings of the whole sequence, bound to the plan and to every page's current fingerprint. */
 export const reviewSeries = async (project: Project, note: string) => {
   const plan = await seriesPlan.load(project);
-  if (!plan || !Object.keys(plan).length) throw new ValueError('attach a series plan before reviewing the sequence');
+  if (!plan || !Object.keys(plan).length) throw new ValueError(msg('attach a series plan before reviewing the sequence', '请先登记整组规划，再评审整组'));
   const pages: Record<string, string> = {};
   for (const { id } of project.manifest.pages) pages[id] = await pageFingerprint(project, id);
   const review = { reviewer: 'agent', note, planHash: seriesPlan.digest(plan), pages };
