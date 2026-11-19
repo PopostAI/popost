@@ -1,7 +1,7 @@
 ---
 name: popost
 metadata:
-  version: "4.6.0"
+  version: "4.6.1"
 description: 创作、复刻和编辑社媒单图与多图文，适用于小红书、抖音、TikTok、Instagram（ins）和 X。可将这五个平台的帖子链接保存到用户账号的「我的灵感」。根据文字需求、本地图片、截图或指定场景 skill，制作可继续改文字、图片和布局的 HTML 图文，交付宿主侧栏中的 popost 多页画布、PNG 与完整工程 ZIP。帖子链接可交给 popost.ai 解析（需连接账户），否则使用本地参考。
 ---
 

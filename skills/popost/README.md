@@ -1,4 +1,4 @@
-# Popost Skill 4.6.0
+# Popost Skill 4.6.1
 
 Create, reproduce and edit social image posts as editable HTML projects. The Agent entrypoint is [SKILL.md](SKILL.md); first-use and spending rules are in [onboarding](references/onboarding.md).
 
