@@ -73,7 +73,8 @@ describe('GET routes', () => {
       expect(html).toContain(`file=pages%2F${project.manifest.projectId}.html&popost=1`);
       expect(html).toContain('lang=en');
     }
-    expect(bodyText(await get(rt, state, '/'))).toContain('lang=zh');
+    // no language in the URL: none is forced, the editor follows the browser
+    expect(bodyText(await get(rt, state, '/'))).not.toContain('lang=');
     const script = await get(rt, state, '/_editor/assets/app.js');
     expect(script.status).toBe(200);
     expect(script.headers['Content-Type']).toBe('text/javascript; charset=utf-8');

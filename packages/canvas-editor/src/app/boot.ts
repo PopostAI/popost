@@ -50,13 +50,35 @@ function storageSet(key: string, value: string): void {
   }
 }
 
-/** `lang` from the query, else the remembered choice (ours, then the legacy key), else `zh`; remembers the result. */
-export function resolveLang(query: string): 'zh' | 'en' {
-  const fromQuery = new URLSearchParams(query).get('lang');
-  const raw = fromQuery || storageGet(LANG_KEY) || storageGet(LEGACY_LANG_KEY);
-  const lang = raw === 'en' ? 'en' : 'zh';
-  storageSet(LANG_KEY, lang);
-  return lang;
+type Lang = 'zh' | 'en';
+
+const langOf = (value: string | null): Lang | null => (value === 'en' || value === 'zh' ? value : null);
+
+function navigatorLanguages(): readonly string[] {
+  try {
+    return navigator.languages?.length ? navigator.languages : [navigator.language];
+  } catch {
+    return [];
+  }
+}
+
+/** The browser's first preferred language: Chinese for any `zh` tag, English for anything else. */
+export function browserLang(languages: readonly string[] = navigatorLanguages()): Lang {
+  return (languages.find(Boolean) ?? '').toLowerCase().startsWith('zh') ? 'zh' : 'en';
+}
+
+/**
+ * `lang` from the query (a host such as popost.ai always passes it) and remembered, else the remembered choice (ours,
+ * then the legacy key), else the browser's language. The browser fallback is not remembered, so it keeps following the
+ * browser. A local `popost serve` used to force `lang=zh`, so every English user got a Chinese editor (2026-11-19).
+ */
+export function resolveLang(query: string, languages?: readonly string[]): Lang {
+  const fromQuery = langOf(new URLSearchParams(query).get('lang'));
+  if (fromQuery) {
+    storageSet(LANG_KEY, fromQuery);
+    return fromQuery;
+  }
+  return langOf(storageGet(LANG_KEY)) ?? langOf(storageGet(LEGACY_LANG_KEY)) ?? browserLang(languages);
 }
 
 export function documentTitle(name: string, dirty: boolean): string {

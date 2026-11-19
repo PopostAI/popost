@@ -25,7 +25,7 @@ to `location.origin`.
 - `file`: the project id plus `.html`; it is echoed as `id` in every message.
 - `name`: title fallback when the host does not send one.
 - `tools=1`: enables the optional host asset and export integrations below. Hosts that do not implement them can omit it.
-- `lang`, `theme`: editor UI language and colour scheme.
+- `lang`, `theme`: editor UI language and colour scheme. Without `lang` the editor uses the language last passed in the URL on this origin, else the browser's language (Chinese for any `zh` tag, otherwise English).
 - `store`: `host` makes the embedding page the storage (below). Without it the editor uses the browser's IndexedDB
   (`popost-workspace-v24`), which only suits a host that shares that database.
 - `imageOrigins`: host mode only (`store=host`; ignored otherwise and in local mode). Comma separated extra image

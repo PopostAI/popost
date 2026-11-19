@@ -129,7 +129,7 @@ export const editorHtml = (project: Project, source: string, query = '', cloud: 
   const params: Record<string, string> = {};
   for (const [key, value] of new URLSearchParams(query)) if (value && !(key in params)) params[key] = value;
   Object.assign(params, { file: `pages/${projectId}.html`, popost: '1' });
-  params.lang ??= 'zh';
+  // No default language: the editor follows the browser unless the URL names one (canvas-editor boot.ts resolveLang).
   const script =
     `<base href="/_editor/"><script>window.__POPOST_LOCAL__=${scriptJson(config)};` +
     `window.__POPOST_PARAMS__=${scriptJson(new URLSearchParams(params).toString())};</script>`;

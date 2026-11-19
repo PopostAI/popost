@@ -4,16 +4,23 @@ import { documentTitle, LANG_KEY, LOCAL_BASE_HREF, previewBaseHref, resolveLang 
 describe('resolveLang', () => {
   beforeEach(() => localStorage.clear());
 
-  it('prefers the query, then our key, then the legacy key, else zh; remembers the result', () => {
-    expect(resolveLang('?lang=en')).toBe('en');
+  it('prefers the query (remembered), then our key, then the legacy key', () => {
+    expect(resolveLang('?lang=en', ['zh-CN'])).toBe('en');
     expect(localStorage.getItem(LANG_KEY)).toBe('en');
-    expect(resolveLang('')).toBe('en');
+    expect(resolveLang('', ['zh-CN'])).toBe('en');
     localStorage.clear();
-    localStorage.setItem('gs9_editor_lang', 'en');
-    expect(resolveLang('?file=a.html')).toBe('en');
-    localStorage.clear();
-    expect(resolveLang('')).toBe('zh');
-    expect(resolveLang('?lang=vi')).toBe('zh');
+    localStorage.setItem('gs9_editor_lang', 'zh');
+    expect(resolveLang('?file=a.html', ['en-US'])).toBe('zh');
+  });
+
+  it('otherwise follows the browser language without pinning it', () => {
+    expect(resolveLang('', ['zh-CN', 'en'])).toBe('zh');
+    expect(resolveLang('', ['zh-Hant-TW'])).toBe('zh');
+    expect(resolveLang('', ['en-GB', 'zh-CN'])).toBe('en');
+    expect(resolveLang('', ['fr-FR'])).toBe('en');
+    expect(resolveLang('', [])).toBe('en');
+    expect(resolveLang('?lang=vi', ['en-US'])).toBe('en'); // an unknown query value is no choice
+    expect(localStorage.getItem(LANG_KEY)).toBeNull();
   });
 });
 
