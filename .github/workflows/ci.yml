@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  editor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dependencies come from the official npm registry
+        run: |
+          test ! -e .npmrc || { echo "Do not commit .npmrc; configure a mirror in your own ~/.npmrc"; exit 1; }
+          if grep -n '"resolved": "' package-lock.json | grep -v '"resolved": "https://registry.npmjs.org/'; then
+            echo "package-lock.json must resolve from https://registry.npmjs.org/"; exit 1
+          fi
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - run: npm ci
+      # editor typecheck + eslint + tests
+      - run: npm run check
+      # builds the editor and publishes it to skills/popost/assets/canvas
+      - run: npm run build
+      - name: Committed editor build is up to date
+        run: git diff --exit-code -- skills/popost/assets/canvas
+
+  skill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - run: npm ci
+      - name: Source manifest
+        working-directory: skills/popost
+        run: sha256sum -c --quiet SOURCE-MANIFEST.sha256
+      # The Skill's typecheck, ESLint and vitest suite (render tests use the runner's Google Chrome, found automatically;
+      # platform calls go to an in-memory fake, no network, no key) already run in the editor job's `npm run check`.
+      # What that does not cover is the shipped artifact: the popost CLI must build (esbuild bundle + type declarations)
+      # and start from dist/.
+      - run: npm run build:skill
+      - run: node skills/popost/dist/cli.js --help

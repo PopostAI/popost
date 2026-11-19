@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-two-choice-gift-recommendation",
+  "platform": "tiktok",
+  "categories": [
+    "automotive-motorcycle",
+    "baby-maternity",
+    "beauty-personal-care",
+    "books-magazines-audio",
+    "collectibles",
+    "computers-office-equipment",
+    "fashion-accessories",
+    "food-beverages",
+    "furniture",
+    "health",
+    "home-improvement",
+    "home-supplies",
+    "household-appliances",
+    "jewelry-accessories",
+    "kids-fashion",
+    "kitchenware",
+    "luggage-bags",
+    "menswear-underwear",
+    "modest-fashion",
+    "pet-supplies",
+    "phones-electronics",
+    "shoes",
+    "sports-outdoor",
+    "textiles-soft-furnishings",
+    "tools-hardware",
+    "toys-hobbies",
+    "womenswear-underwear"
+  ],
+  "copy": {
+    "zh": {
+      "name": "双路选择趣味推荐",
+      "summary": "用两路选择的趣味反差，引出更贴合需求的商品。",
+      "useWhen": "各品类的决策或送礼比较，比较的是选择动机，不编造两款商品性能高低。",
+      "instructions": "上传清晰产品图并说明需求，按本模板组织钩子与商品回应。",
+      "output": "可编辑的同款模板风格多页图文。"
+    },
+    "en": {
+      "name": "Two-Choice Product Recommendation",
+      "summary": "Create a TikTok photo carousel using two-choice product recommendation.",
+      "useWhen": "Use a two-choice product recommendation structure with supported product facts.",
+      "instructions": "Upload product photos and describe your request.",
+      "output": "An editable TikTok photo carousel."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-two-choice-gift-recommendation/page-01-bfd3b82f450c.webp",
+    "https://static.popost.ai/templates/tiktok-two-choice-gift-recommendation/page-02-fab0b33b5a97.webp"
+  ],
+  "match": {
+    "goals": [
+      "二选一",
+      "送礼选择",
+      "决策反差",
+      "two choices",
+      "gift decision"
+    ],
+    "imageCues": [
+      "分叉路径",
+      "左右标牌",
+      "两扇门",
+      "推荐实物"
+    ],
+    "exclusions": [
+      "实验数据对比",
+      "虚构销量",
+      "laboratory comparison"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/e2ddc815fc01f99c37fd08a6282c9ae0497a14fab3c99dae977a7a544fa37f5d.webp"
+}

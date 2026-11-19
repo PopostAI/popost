@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 2,
+  "id": "minimal-feedback-loop",
+  "platform": "xiaohongshu",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "极简风 · 方法改进",
+      "summary": "先看完整循环，再分步讲清怎么执行、检查和调整，让方法越用越顺。",
+      "useWhen": "学习方法、创作复盘、训练和习惯改进。",
+      "instructions": "提供目标、完整步骤、检验方法、反馈以及下一轮的调整条件。",
+      "output": "一组可编辑的小红书图文，默认 3 页。"
+    },
+    "en": {
+      "name": "Minimal Feedback Loop",
+      "summary": "Show what to do, how to check it, and how the results change the next attempt.",
+      "useWhen": "Learning methods, creative practice, and habit improvement.",
+      "instructions": "Provide the goal, steps, feedback signal, and what changes on the next pass.",
+      "output": "An editable Xiaohongshu carousel, typically three pages."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/minimal-feedback-loop/page-01-fca2f99e0597.webp",
+    "https://static.popost.ai/templates/minimal-feedback-loop/page-02-4ff4c40ac215.webp",
+    "https://static.popost.ai/templates/minimal-feedback-loop/page-03-797040778775.webp"
+  ],
+  "match": {
+    "goals": [
+      "方法改进",
+      "复习方法",
+      "反馈闭环",
+      "下班学习",
+      "learning loop"
+    ],
+    "imageCues": [
+      "循环箭头",
+      "编号步骤",
+      "feedback arrows"
+    ],
+    "exclusions": [
+      "双人分工",
+      "工作交接",
+      "只做一次"
+    ]
+  },
+  "animatedCover": true
+}

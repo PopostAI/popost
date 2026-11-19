@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 2,
+  "id": "magazine-life-profile",
+  "platform": "xiaohongshu",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "杂志风 · 人物生平",
+      "summary": "中央肖像串起人生阶段，详情分别展开经历、作品与影响。",
+      "useWhen": "需要解释一个人物跨阶段的经历和代表成果。",
+      "instructions": "上传相关图片和事实资料，说明主题。",
+      "output": "一组可继续编辑的杂志风图文。"
+    },
+    "en": {
+      "name": "Editorial Life Profile",
+      "summary": "Build a portrait-led overview with separate pages for milestones, work and impact.",
+      "useWhen": "You have documented milestones and a clear subject.",
+      "instructions": "Add your photos and verified notes, then describe the topic.",
+      "output": "An editable magazine-style photo post."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/magazine-life-profile/page-01-d1ebc11c0a85.webp"
+  ],
+  "match": {
+    "goals": [
+      "人物生平",
+      "代表作品",
+      "职业轨迹",
+      "biography",
+      "life profile"
+    ],
+    "imageCues": [
+      "中央肖像",
+      "不同阶段照片",
+      "archival portrait"
+    ],
+    "exclusions": [
+      "单一项目",
+      "行程规划",
+      "travel itinerary"
+    ]
+  },
+  "animatedCover": true,
+  "legacyId": "editorial-life-profile"
+}

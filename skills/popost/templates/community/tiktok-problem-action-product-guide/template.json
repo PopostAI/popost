@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-problem-action-product-guide",
+  "platform": "tiktok",
+  "categories": [
+    "home-supplies",
+    "household-appliances",
+    "home-improvement",
+    "kitchenware",
+    "tools-hardware",
+    "sports-outdoor",
+    "phones-electronics",
+    "computers-office-equipment",
+    "automotive-motorcycle",
+    "pet-supplies",
+    "baby-maternity",
+    "health",
+    "beauty-personal-care"
+  ],
+  "copy": {
+    "zh": {
+      "name": "场景问题操作解答",
+      "summary": "从真实生活问题开始，用连续动作逐页说明商品如何应对。",
+      "useWhen": "可跨家居、电器、工具、厨房、户外等能展示操作的品类。",
+      "instructions": "上传清晰产品图并说明需求，按本模板组织钩子与商品回应。",
+      "output": "可编辑的同款模板风格多页图文。"
+    },
+    "en": {
+      "name": "Problem-to-Action Product Guide",
+      "summary": "Create a TikTok photo carousel using problem-to-action product guide.",
+      "useWhen": "Use a problem-to-action product guide structure with supported product facts.",
+      "instructions": "Upload product photos and describe your request.",
+      "output": "An editable TikTok photo carousel."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-problem-action-product-guide/page-01-2c0483835cc1.webp",
+    "https://static.popost.ai/templates/tiktok-problem-action-product-guide/page-02-36cc9a912428.webp",
+    "https://static.popost.ai/templates/tiktok-problem-action-product-guide/page-03-ac2a469e9578.webp",
+    "https://static.popost.ai/templates/tiktok-problem-action-product-guide/page-04-da961a6bade6.webp"
+  ],
+  "match": {
+    "goals": [
+      "问题解决",
+      "操作解答",
+      "使用步骤",
+      "problem solution",
+      "product action"
+    ],
+    "imageCues": [
+      "问题现场",
+      "连续手部操作",
+      "部件与状态",
+      "场景结果"
+    ],
+    "exclusions": [
+      "纯情绪两页",
+      "无使用资料",
+      "mood-only reveal"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/1021c512874880882e71c227c94e39a4dbee895e364d84a1e470e56a46eac158.webp"
+}

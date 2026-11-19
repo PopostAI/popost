@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-outdoor-gear-packing-capacity",
+  "platform": "tiktok",
+  "categories": [
+    "sports-outdoor"
+  ],
+  "copy": {
+    "zh": {
+      "name": "户外装备容量实装展示",
+      "summary": "用真实装入物展示户外装备的容量。",
+      "useWhen": "适合户外背包、储物箱等需要实测装载的装备。",
+      "instructions": "上传装备、装载物和实装照，填写卖点。",
+      "output": "装载步骤和容量图。"
+    },
+    "en": {
+      "name": "Packing Outdoor Equipment to Show Capacity",
+      "summary": "Turn your product photos into a TikTok Shop carousel about packing Outdoor Equipment to Show Capacity.",
+      "useWhen": "For hiking packs and storage bins whose capacity can be demonstrated.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with packing Outdoor Equipment to Show Capacity."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-outdoor-gear-packing-capacity/page-01-61bf99f9ada6.webp",
+    "https://static.popost.ai/templates/tiktok-outdoor-gear-packing-capacity/page-02-f04e8c747410.webp",
+    "https://static.popost.ai/templates/tiktok-outdoor-gear-packing-capacity/page-03-7d871a549a07.webp",
+    "https://static.popost.ai/templates/tiktok-outdoor-gear-packing-capacity/page-04-84eaa970bf5e.webp",
+    "https://static.popost.ai/templates/tiktok-outdoor-gear-packing-capacity/page-05-8ce2c80075cb.webp"
+  ],
+  "match": {
+    "goals": [
+      "户外装备容量实装展示",
+      "户外装备实测型",
+      "运动与户外",
+      "Packing Outdoor Equipment to Show Capacity",
+      "Sports & Outdoor"
+    ],
+    "imageCues": [
+      "车尾完整装载",
+      "饮料容量近景",
+      "独立干区",
+      "闭合后出行场景",
+      "回到产品与选择提示"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-outdoor-gear-packing-capacity/cover-bdc96a990eea.webp",
+  "legacyId": "tiktok-tt-019"
+}

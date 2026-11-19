@@ -1,0 +1,30 @@
+{
+  "source": "https://www.tiktok.com/@c.ooli/photo/7702879473946938637",
+  "kind": "native-post-image",
+  "images": [
+    {
+      "file": "page-01-b64192ee4c87.jpg",
+      "width": 1090,
+      "height": 756,
+      "sha256": "b64192ee4c87a2b58716806f852275a12f1ed30a998c0e8375e0a99cb9ed0c2e"
+    },
+    {
+      "file": "page-02-14f1aa50476f.jpg",
+      "width": 2160,
+      "height": 2880,
+      "sha256": "14f1aa50476f221d74c06578bcb4aaecb92443a56099aff4908debf2a452fc7a"
+    },
+    {
+      "file": "page-03-dd3b1b89d712.jpg",
+      "width": 2160,
+      "height": 2880,
+      "sha256": "dd3b1b89d71230567883096e4beb6c19d1df881623114ba4411ba44e5552307d"
+    },
+    {
+      "file": "page-04-f5fba9daa5b1.jpg",
+      "width": 2160,
+      "height": 2880,
+      "sha256": "f5fba9daa5b1cc74717ea6d31bb8f1d404123d9f4f85a91cc81a991cffa8aefc"
+    }
+  ]
+}

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<!--
+  步骤模板 · step-guide（adaptive）
+  - 原生 HTML + CSS Grid/Flex + 内联 SVG；无脚本、无 CDN、无远程字体。
+  - 默认竖版 1080×1440；宽幅可把 .chain 改横向时间轴，序号方向仍与阅读顺序一致。
+  - 编号即先后；每步动作→结果→衔接；安全提示在步骤旁；完成检查点必须出现。
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>步骤模板 · 替换标题</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --canvas-w:1080px; --canvas-h:1440px;
+    --safe-top:120px; --safe-bottom:170px; --safe-side:60px;
+    --paper:#f3f5f2; --ink:#262a27; --muted:#6f7771; --line:#d5ddd6;
+    --accent:#5c8a63; --accent-soft:#e6efe7; --warn:#a06a35; --warn-soft:#f5ead9;
+    --fs-hero:62px; --fs-title:38px; --fs-body:28px; --fs-note:21px; --fs-tag:19px;
+    --ff-sans:"PingFang SC","Microsoft YaHei","Noto Sans CJK SC",sans-serif;
+  }
+  body{background:#e2e6e1;font-family:var(--ff-sans);color:var(--ink)}
+  .post{width:var(--canvas-w);height:var(--canvas-h);background:var(--paper);
+    padding:var(--safe-top) var(--safe-side) var(--safe-bottom);
+    display:flex;flex-direction:column;overflow:hidden}
+  .hook{font-size:var(--fs-hero);font-weight:800;line-height:1.2;margin-bottom:18px}
+  .prep{background:#fff;border:1px solid var(--line);border-radius:20px;padding:22px 26px;
+    font-size:var(--fs-body);line-height:1.7;margin-bottom:26px}
+  .prep b{color:var(--accent)}
+  .chain{display:flex;flex-direction:column;gap:20px;flex:1}
+  .step{display:grid;grid-template-columns:84px 1fr;gap:20px;align-items:start;
+    background:#fff;border:1px solid var(--line);border-radius:20px;padding:24px}
+  .step .num{width:84px;height:84px;border-radius:50%;background:var(--accent);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-size:38px;font-weight:800}
+  .step h3{font-size:var(--fs-title);margin-bottom:6px}
+  .step p{font-size:var(--fs-body);color:var(--muted);line-height:1.55}
+  .step .next{display:block;margin-top:8px;font-size:var(--fs-note);color:var(--accent)}
+  .safety{background:var(--warn-soft);border-left:6px solid var(--warn);border-radius:12px;
+    padding:16px 20px;font-size:var(--fs-note);color:var(--warn);margin:6px 0}
+  .check{margin-top:24px;border-top:2px solid var(--line);padding-top:22px}
+  .check h3{font-size:var(--fs-title);margin-bottom:12px}
+  .check ul{list-style:none;display:flex;flex-direction:column;gap:10px}
+  .check li{font-size:var(--fs-body);line-height:1.5;padding-left:38px;position:relative}
+  .check li::before{content:"✓";position:absolute;left:0;color:var(--accent);font-weight:800}
+  .foot{position:absolute;left:var(--safe-side);right:var(--safe-side);bottom:56px;
+    display:flex;justify-content:space-between;font-size:var(--fs-tag);color:var(--muted)}
+</style>
+</head>
+<body>
+
+<!-- 页 1 · 准备 + 前几步；安全提示就近放置 -->
+<section class="post">
+  <h1 class="hook">强 hook：跟着做，完成一件具体的事</h1>
+  <div class="prep"><b>准备：</b>材料/工具/环境条件列在这里（替换）。</div>
+  <div class="chain">
+    <div class="step">
+      <div class="num">1</div>
+      <div><h3>第一步动作</h3><p>预期结果是什么。</p><span class="next">接着：进入第二步。</span></div>
+    </div>
+    <div class="safety">安全提示（断电/防烫/受力等）：放在本步旁，不后置。</div>
+    <div class="step">
+      <div class="num">2</div>
+      <div><h3>第二步动作</h3><p>预期结果是什么。</p><span class="next">接着：进入第三步。</span></div>
+    </div>
+  </div>
+  <div class="foot"><span>01 / N</span><span>通用流程示例 · 非品牌官方教程</span></div>
+</section>
+
+<!-- 页 2 · 完成检查与常见失误（验收页） -->
+<section class="post">
+  <h1 class="hook" style="font-size:52px">做完了吗？对照检查</h1>
+  <div class="chain">
+    <div class="step">
+      <div class="num">3</div>
+      <div><h3>第三步动作</h3><p>预期结果；衔接整套完成。</p></div>
+    </div>
+  </div>
+  <div class="check">
+    <h3>完成检查点</h3>
+    <ul>
+      <li>每步完成标志一（替换）。</li>
+      <li>整套做完的标志（替换）。</li>
+      <li>常见失误一 / 失误二（替换）。</li>
+    </ul>
+  </div>
+  <div class="foot"><span>02 / N</span><span>通用流程示例 · 效果数值无证据不写</span></div>
+</section>
+
+</body>
+</html>

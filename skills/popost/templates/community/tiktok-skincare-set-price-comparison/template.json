@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-skincare-set-price-comparison",
+  "platform": "tiktok",
+  "categories": [
+    "beauty-personal-care"
+  ],
+  "copy": {
+    "zh": {
+      "name": "护肤套装逐件介绍与比价",
+      "summary": "逐件介绍护肤套装并列出已核实价格。",
+      "useWhen": "适合组合装、节日礼盒或有公开价差的护肤套装。",
+      "instructions": "上传套装图、单品图和实际价格，填写卖点。",
+      "output": "护肤套装清单和比价图。"
+    },
+    "en": {
+      "name": "Skincare Set Breakdown and Price Comparison",
+      "summary": "Turn your product photos into a TikTok Shop carousel about skincare Set Breakdown and Price Comparison.",
+      "useWhen": "For skincare bundles, gift sets, or verified price comparisons.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with skincare Set Breakdown and Price Comparison."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-skincare-set-price-comparison/page-01-56554bb6523c.webp",
+    "https://static.popost.ai/templates/tiktok-skincare-set-price-comparison/page-02-8d10d5d08da8.webp",
+    "https://static.popost.ai/templates/tiktok-skincare-set-price-comparison/page-03-857fd1538554.webp",
+    "https://static.popost.ai/templates/tiktok-skincare-set-price-comparison/page-04-4aca86e0c6b8.webp",
+    "https://static.popost.ai/templates/tiktok-skincare-set-price-comparison/page-05-1e973696341e.webp",
+    "https://static.popost.ai/templates/tiktok-skincare-set-price-comparison/page-06-d53a8f06f491.webp",
+    "https://static.popost.ai/templates/tiktok-skincare-set-price-comparison/page-07-241d950de2d1.webp",
+    "https://static.popost.ai/templates/tiktok-skincare-set-price-comparison/page-08-b69d1da691a4.webp"
+  ],
+  "match": {
+    "goals": [
+      "护肤套装逐件介绍与比价",
+      "护肤套装单品逐件比价",
+      "美妆与个护",
+      "Skincare Set Breakdown and Price Comparison",
+      "Beauty & Personal Care"
+    ],
+    "imageCues": [
+      "人物反应设问",
+      "卸妆单品1",
+      "洁面单品2",
+      "化妆水单品3",
+      "两件护理品并列",
+      "眼部护理单品6"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-skincare-set-price-comparison/cover-871cb36d6503.webp",
+  "legacyId": "tiktok-tt-008"
+}

@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-selfie-product-discovery",
+  "platform": "tiktok",
+  "categories": [
+    "automotive-motorcycle",
+    "baby-maternity",
+    "beauty-personal-care",
+    "books-magazines-audio",
+    "collectibles",
+    "computers-office-equipment",
+    "fashion-accessories",
+    "food-beverages",
+    "furniture",
+    "health",
+    "home-improvement",
+    "home-supplies",
+    "household-appliances",
+    "jewelry-accessories",
+    "kids-fashion",
+    "kitchenware",
+    "luggage-bags",
+    "menswear-underwear",
+    "modest-fashion",
+    "pet-supplies",
+    "phones-electronics",
+    "shoes",
+    "sports-outdoor",
+    "textiles-soft-furnishings",
+    "tools-hardware",
+    "toys-hobbies",
+    "womenswear-underwear"
+  ],
+  "copy": {
+    "zh": {
+      "name": "自拍心情好物分享",
+      "summary": "用随手自拍表达心情，再揭晓让人心动的商品。",
+      "useWhen": "各品类可用的随拍情绪入口，适合轻松分享与送礼犹豫。",
+      "instructions": "上传清晰产品图并说明需求，按本模板组织钩子与商品回应。",
+      "output": "可编辑的同款模板风格多页图文。"
+    },
+    "en": {
+      "name": "Selfie Mood Product Discovery",
+      "summary": "Create a TikTok photo carousel using selfie mood product discovery.",
+      "useWhen": "Use a selfie mood product discovery structure with supported product facts.",
+      "instructions": "Upload product photos and describe your request.",
+      "output": "An editable TikTok photo carousel."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-selfie-product-discovery/page-01-c89d6a2dc859.webp",
+    "https://static.popost.ai/templates/tiktok-selfie-product-discovery/page-02-56bff9aec683.webp"
+  ],
+  "match": {
+    "goals": [
+      "自拍分享",
+      "心情好物",
+      "生活随拍",
+      "selfie mood",
+      "product discovery"
+    ],
+    "imageCues": [
+      "近脸自拍",
+      "低机位",
+      "黄色短句",
+      "生活商品"
+    ],
+    "exclusions": [
+      "无人物风景",
+      "动画角色",
+      "landscape only"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/990a6191103abb78e608726b7165d3e885c7240671621277637303266575a90b.webp"
+}

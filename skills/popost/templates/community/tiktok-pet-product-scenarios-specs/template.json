@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-pet-product-scenarios-specs",
+  "platform": "tiktok",
+  "categories": [
+    "pet-supplies"
+  ],
+  "copy": {
+    "zh": {
+      "name": "宠物用品场景与参数展示",
+      "summary": "用宠物实拍说明产品的适用场景和规格。",
+      "useWhen": "适合需要同时说明宠物使用场景和尺寸的用品。",
+      "instructions": "上传宠物使用图、产品图和真实规格，填写卖点。",
+      "output": "宠物用品场景图和规格卡。"
+    },
+    "en": {
+      "name": "Pet Products in Scenes with Specifications",
+      "summary": "Turn your product photos into a TikTok Shop carousel about pet Products in Scenes with Specifications.",
+      "useWhen": "For pet supplies with a use case and size to clarify.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with pet Products in Scenes with Specifications."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-pet-product-scenarios-specs/page-01-f5dd240f8a16.webp",
+    "https://static.popost.ai/templates/tiktok-pet-product-scenarios-specs/page-02-678d2c0fda04.webp",
+    "https://static.popost.ai/templates/tiktok-pet-product-scenarios-specs/page-03-2d9966921393.webp",
+    "https://static.popost.ai/templates/tiktok-pet-product-scenarios-specs/page-04-b655b4fb2dd9.webp",
+    "https://static.popost.ai/templates/tiktok-pet-product-scenarios-specs/page-05-cf2155faffc3.webp",
+    "https://static.popost.ai/templates/tiktok-pet-product-scenarios-specs/page-06-d7d3d9dc8f02.webp",
+    "https://static.popost.ai/templates/tiktok-pet-product-scenarios-specs/page-07-0bb883328f92.webp",
+    "https://static.popost.ai/templates/tiktok-pet-product-scenarios-specs/page-08-fa39012d717c.webp"
+  ],
+  "match": {
+    "goals": [
+      "宠物用品场景与参数展示",
+      "宠物用品+参数展示",
+      "宠物用品",
+      "Pet Products in Scenes with Specifications",
+      "Pet Supplies"
+    ],
+    "imageCues": [
+      "宠物与整机",
+      "入口和空间",
+      "抽屉与维护",
+      "资料支持的监控功能",
+      "安全结构示意",
+      "内衬与清理细节"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-pet-product-scenarios-specs/cover-dbdca949ff15.webp",
+  "legacyId": "tiktok-tt-074"
+}

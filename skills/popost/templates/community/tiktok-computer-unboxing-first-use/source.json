@@ -1,0 +1,36 @@
+{
+  "source": "https://www.tiktok.com/@joyele42/photo/7674892004177825054",
+  "kind": "native-post-image",
+  "images": [
+    {
+      "file": "page-01-9268f82a9f57.jpg",
+      "width": 1178,
+      "height": 2096,
+      "sha256": "9268f82a9f579eedc7f4ca14826d0b8933df27e820b50aa13cc3dc9fe69c1f83"
+    },
+    {
+      "file": "page-02-4e7607c94800.jpg",
+      "width": 1178,
+      "height": 2096,
+      "sha256": "4e7607c948002eff9c29c088219361476c09dbd5ae96991dc2eb12d1bcd88c5f"
+    },
+    {
+      "file": "page-03-ac52b5162916.jpg",
+      "width": 1178,
+      "height": 2096,
+      "sha256": "ac52b516291650e45071c09dffd435fd7f1cecbf54981efd59d29347f6372057"
+    },
+    {
+      "file": "page-04-9b745bff26da.jpg",
+      "width": 1178,
+      "height": 2096,
+      "sha256": "9b745bff26da8eb5c3ecc003e1f0217ba54dea7167ea29e780294d2a69e76a30"
+    },
+    {
+      "file": "page-05-93c0e9224670.jpg",
+      "width": 1178,
+      "height": 2096,
+      "sha256": "93c0e92246704d8ed319ae1d8bfe669d95af14bf027f231d19a124a40f1a71d1"
+    }
+  ]
+}

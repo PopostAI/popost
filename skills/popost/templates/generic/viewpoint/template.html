@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<!--
+  观点模板 · viewpoint（adaptive）
+  - 原生 HTML + CSS Grid/Flex + 内联 SVG；无脚本、无 CDN、无远程字体。
+  - 默认 Instagram 4:5 = 1080×1350；英文/中文均可，切换只改令牌不改结构。
+  - 主张块最高层级；证据块回指观点；反方块在场同级；结论限定条件，无绝对化词。
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Viewpoint template · replace</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --canvas-w:1080px; --canvas-h:1350px;
+    --safe-top:95px; --safe-bottom:160px; --safe-side:64px;
+    --paper:#f2f4f1; --ink:#252925; --muted:#6f776f; --line:#d6ddd6;
+    --claim:#3d5a45; --claim-soft:#e4ece6; --counter:#7a5a44; --counter-soft:#f0e7df;
+    --fs-hero:62px; --fs-title:34px; --fs-body:27px; --fs-note:21px; --fs-tag:19px;
+    --ff-sans:"Helvetica Neue",Arial,"PingFang SC","Microsoft YaHei",sans-serif;
+  }
+  body{background:#dfe3de;font-family:var(--ff-sans);color:var(--ink)}
+  .post{width:var(--canvas-w);height:var(--canvas-h);background:var(--paper);
+    padding:var(--safe-top) var(--safe-side) var(--safe-bottom);
+    display:flex;flex-direction:column;overflow:hidden}
+  .claim{background:var(--claim-soft);border-left:10px solid var(--claim);
+    border-radius:18px;padding:30px 32px;margin-bottom:30px}
+  .claim .kicker{font-size:var(--fs-tag);letter-spacing:3px;color:var(--claim);
+    text-transform:uppercase;margin-bottom:12px}
+  .claim h1{font-size:var(--fs-hero);line-height:1.2;font-weight:800}
+  .ev{display:flex;flex-direction:column;gap:18px;flex:1}
+  .card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:24px 28px}
+  .card h3{font-size:var(--fs-title);margin-bottom:8px}
+  .card p{font-size:var(--fs-body);line-height:1.55;color:var(--muted)}
+  .card .layer{display:inline-block;margin-top:10px;font-size:var(--fs-note);
+    color:var(--claim);background:var(--claim-soft);border-radius:999px;padding:6px 16px}
+  .counter{background:var(--counter-soft);border-left:10px solid var(--counter);
+    border-radius:18px;padding:24px 28px;margin-top:22px}
+  .counter h3{font-size:var(--fs-title);color:var(--counter);margin-bottom:8px}
+  .counter p{font-size:var(--fs-body);line-height:1.55}
+  .conclude{margin-top:24px;border-top:2px solid var(--line);padding-top:20px;
+    font-size:var(--fs-body);line-height:1.6;color:var(--ink)}
+  .foot{position:absolute;left:var(--safe-side);right:var(--safe-side);bottom:56px;
+    display:flex;justify-content:space-between;font-size:var(--fs-tag);color:var(--muted)}
+</style>
+</head>
+<body>
+
+<!-- 页 1 · 主张 + 支持证据 -->
+<section class="post">
+  <div class="claim">
+    <div class="kicker">My take · replace</div>
+    <h1>One-sentence stance: the claim stands alone here.</h1>
+  </div>
+  <div class="ev">
+    <div class="card">
+      <h3>Reason 1 (replace)</h3>
+      <p>Why this supports the claim; tie it back, don't pile unrelated facts.</p>
+      <span class="layer">evidence layer: illustrative / sourced / personal-observation</span>
+    </div>
+    <div class="card">
+      <h3>Reason 2 (replace)</h3>
+      <p>Why this supports the claim; no invented studies, stats or experts.</p>
+      <span class="layer">evidence layer: illustrative / sourced / personal-observation</span>
+    </div>
+  </div>
+  <div class="foot"><span>01 / N</span><span>Design example · not research</span></div>
+</section>
+
+<!-- 页 2 · 反方 + 限定结论 -->
+<section class="post">
+  <h1 style="font-size:48px;font-weight:800;margin-bottom:24px">The other side, fairly</h1>
+  <div class="counter">
+    <h3>Counter / boundary (replace)</h3>
+    <p>At least one real opposing reason or missing precondition; keep it readable, don't shrink to a footnote.</p>
+  </div>
+  <p class="conclude">Limited conclusion: this holds under which conditions; avoid all/never/100%. CTA optional: save / comment your take.</p>
+  <div class="foot"><span>02 / N</span><span>Design example · not research</span></div>
+</section>
+
+</body>
+</html>

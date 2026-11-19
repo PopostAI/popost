@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-modest-fashion-try-on-details",
+  "platform": "tiktok",
+  "categories": [
+    "modest-fashion"
+  ],
+  "copy": {
+    "zh": {
+      "name": "服装上身与正背挂拍细节",
+      "summary": "对照上身、正面挂拍和背面细节。",
+      "useWhen": "适合需要说明长度、覆盖范围和面料的端庄穿搭。",
+      "instructions": "上传上身照、正背面挂拍和细节，填写卖点。",
+      "output": "服装上身和正背细节图。"
+    },
+    "en": {
+      "name": "Modest Clothing Try-ons and Hanging Details",
+      "summary": "Turn your product photos into a TikTok Shop carousel about modest Clothing Try-ons and Hanging Details.",
+      "useWhen": "For modest apparel where length, coverage, and fabric matter.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with modest Clothing Try-ons and Hanging Details."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-modest-fashion-try-on-details/page-01-4c80bb7cec60.webp",
+    "https://static.popost.ai/templates/tiktok-modest-fashion-try-on-details/page-02-7ecaf89a8fbb.webp",
+    "https://static.popost.ai/templates/tiktok-modest-fashion-try-on-details/page-03-a230a52b369e.webp",
+    "https://static.popost.ai/templates/tiktok-modest-fashion-try-on-details/page-04-a2045c87b75f.webp",
+    "https://static.popost.ai/templates/tiktok-modest-fashion-try-on-details/page-05-f35998f3dbcd.webp",
+    "https://static.popost.ai/templates/tiktok-modest-fashion-try-on-details/page-06-880c75b7e080.webp",
+    "https://static.popost.ai/templates/tiktok-modest-fashion-try-on-details/page-07-884f858113a1.webp",
+    "https://static.popost.ai/templates/tiktok-modest-fashion-try-on-details/page-08-eb596c29dd8d.webp"
+  ],
+  "match": {
+    "goals": [
+      "服装上身与正背挂拍细节",
+      "女装上衣实拍挂拍细节",
+      "穆斯林时尚",
+      "Modest Clothing Try-ons and Hanging Details",
+      "Modest Fashion"
+    ],
+    "imageCues": [
+      "正面上身",
+      "背面上身",
+      "正面近景",
+      "正面挂拍",
+      "背面挂拍"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-modest-fashion-try-on-details/cover-4bf3ed4a9e8c.webp",
+  "legacyId": "tiktok-tt-079"
+}

@@ -1,0 +1,33 @@
+{
+  "schema": "template-meta.v1",
+  "id": "commerce-sell",
+  "title": "带货 · 情境动作价值路径",
+  "tags": [
+    "带货",
+    "商品使用",
+    "种草",
+    "commerce",
+    "product-use",
+    "shoppable"
+  ],
+  "aliases": [
+    "带货",
+    "商品使用",
+    "种草",
+    "commerce",
+    "product-use",
+    "shoppable"
+  ],
+  "scenario_md": "scenario.md",
+  "html": "template.html",
+  "assets": [],
+  "mode": "original",
+  "version": "platform-module/1.0",
+  "license": "internal-original",
+  "origin": {
+    "module": "platform-module",
+    "originalMode": "adaptive",
+    "originalManifest": "source.manifest.json",
+    "note": "adaptive=结构固定、仅靠 CSS 令牌切换平台画幅；非杂志美学"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "source": "https://www.tiktok.com/@promocodepal/photo/7667668416534285582",
+  "kind": "native-post-image",
+  "images": [
+    {
+      "file": "page-01-fef83a027d53.jpg",
+      "width": 2156,
+      "height": 3836,
+      "sha256": "fef83a027d5332f2b627a5beef7bba8cc8dfd6db2bca3d08e6ae0150025d232a"
+    },
+    {
+      "file": "page-02-23772cae172b.jpg",
+      "width": 2156,
+      "height": 3836,
+      "sha256": "23772cae172b25d73f08674c53e380f5403418b0458d67c881fa2da336afdbd1"
+    },
+    {
+      "file": "page-03-2e659fc261d2.jpg",
+      "width": 2156,
+      "height": 3836,
+      "sha256": "2e659fc261d25e165a905079f8401c1caf84cbab7bec7ec6227bfb60d704e4c6"
+    },
+    {
+      "file": "page-04-7f82f63fc05c.jpg",
+      "width": 2156,
+      "height": 3836,
+      "sha256": "7f82f63fc05cdac7a2fac3877219b8415520b8f1a78335e0d061501dc546a32a"
+    },
+    {
+      "file": "page-05-c42771c13583.jpg",
+      "width": 2156,
+      "height": 3836,
+      "sha256": "c42771c135832b3430d8fabc632c5ded616e7b9f6e524de9ac0781a801bd7ef4"
+    }
+  ]
+}

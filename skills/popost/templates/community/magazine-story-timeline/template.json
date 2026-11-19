@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 2,
+  "id": "magazine-story-timeline",
+  "platform": "xiaohongshu",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "杂志风 · 时序故事",
+      "summary": "先用时间轴概览，再按关键节点展开经过。",
+      "useWhen": "一段真实经历或项目有连续的事件和照片。",
+      "instructions": "上传相关图片和事实资料，说明主题。",
+      "output": "一组可继续编辑的杂志风图文。"
+    },
+    "en": {
+      "name": "Editorial Story Timeline",
+      "summary": "Give the reader a timeline and then develop the turning points.",
+      "useWhen": "One experience or project has a sequence of documented events.",
+      "instructions": "Add your photos and verified notes, then describe the topic.",
+      "output": "An editable magazine-style photo post."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/magazine-story-timeline/page-01-fe793850613f.webp"
+  ],
+  "match": {
+    "goals": [
+      "时序故事",
+      "项目复盘",
+      "成长经历",
+      "story timeline",
+      "project retrospective"
+    ],
+    "imageCues": [
+      "不同阶段场景照",
+      "同一主体的过程照片",
+      "milestone photo sequence"
+    ],
+    "exclusions": [
+      "未来路线",
+      "人物全传",
+      "daily itinerary"
+    ]
+  },
+  "animatedCover": true,
+  "legacyId": "editorial-story-timeline"
+}

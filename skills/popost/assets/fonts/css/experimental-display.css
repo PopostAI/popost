@@ -1,0 +1,8 @@
+/* Unbounded Variable — self-hosted, OFL 1.1 */
+@font-face {
+  font-family: 'Unbounded Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 900;
+  src: url('../experimental-display/unbounded-latin-wght-normal.woff2') format('woff2-variations');
+}

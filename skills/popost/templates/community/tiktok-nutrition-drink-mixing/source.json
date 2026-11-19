@@ -1,0 +1,18 @@
+{
+  "source": "https://www.tiktok.com/@imaddictedtoshopping2/photo/7703697232784084238",
+  "kind": "native-post-image",
+  "images": [
+    {
+      "file": "page-01-750bc4e00a22.jpg",
+      "width": 1205,
+      "height": 2140,
+      "sha256": "750bc4e00a2215d2b6f064c6cc61dec5d9e94cb1153247501caaf57488a224ae"
+    },
+    {
+      "file": "page-02-020c8f58d4fd.jpg",
+      "width": 1206,
+      "height": 1610,
+      "sha256": "020c8f58d4fdd1b485f7910d05008299ad86747bdeac7f07c61028e8c6e365ed"
+    }
+  ]
+}

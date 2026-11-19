@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-electronics-unboxing-accessories",
+  "platform": "tiktok",
+  "categories": [
+    "phones-electronics"
+  ],
+  "copy": {
+    "zh": {
+      "name": "数码开箱与配件平铺",
+      "summary": "按拆盒顺序展示数码产品和随机配件。",
+      "useWhen": "适合新款数码产品和配件较多的套装。",
+      "instructions": "上传包装照、开箱照和配件平铺图，填写卖点。",
+      "output": "数码开箱图和配件清单。"
+    },
+    "en": {
+      "name": "Electronics Unboxing and Accessory Layout",
+      "summary": "Turn your product photos into a TikTok Shop carousel about electronics Unboxing and Accessory Layout.",
+      "useWhen": "For electronics launches and bundles with several accessories.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with electronics Unboxing and Accessory Layout."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-electronics-unboxing-accessories/page-01-e302d70c4a0a.webp",
+    "https://static.popost.ai/templates/tiktok-electronics-unboxing-accessories/page-02-0e25f520ebbd.webp",
+    "https://static.popost.ai/templates/tiktok-electronics-unboxing-accessories/page-03-066e296baa01.webp"
+  ],
+  "match": {
+    "goals": [
+      "数码开箱与配件平铺",
+      "数码开箱平铺图",
+      "手机与数码",
+      "Electronics Unboxing and Accessory Layout",
+      "Phones & Electronics"
+    ],
+    "imageCues": [
+      "开箱清单全貌",
+      "主机与随附或另购配件",
+      "包装及购买理由"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-electronics-unboxing-accessories/cover-250e3a4caced.webp",
+  "legacyId": "tiktok-tt-035"
+}

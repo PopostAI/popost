@@ -1,0 +1,24 @@
+{
+  "source": "https://www.tiktok.com/@user8814827982972/photo/7693846869516078349",
+  "kind": "native-post-image",
+  "images": [
+    {
+      "file": "page-01-8b7ddf9bd6c6.jpg",
+      "width": 823,
+      "height": 823,
+      "sha256": "8b7ddf9bd6c64612122f8c073984c9d7f316f59050477e1ae2eb38a0fa97cd0a"
+    },
+    {
+      "file": "page-02-0706db0c5313.jpg",
+      "width": 823,
+      "height": 823,
+      "sha256": "0706db0c53130a193b89d93f664e9e49668204a81c3b732682ec1ade4606039e"
+    },
+    {
+      "file": "page-03-366ec66e734d.jpg",
+      "width": 614,
+      "height": 614,
+      "sha256": "366ec66e734d898804f324179515b7e07cb3e5bebce956567fd06a0bd4b0c8b5"
+    }
+  ]
+}

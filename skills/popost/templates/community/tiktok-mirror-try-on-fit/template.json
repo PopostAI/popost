@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-mirror-try-on-fit",
+  "platform": "tiktok",
+  "categories": [
+    "womenswear-underwear"
+  ],
+  "copy": {
+    "zh": {
+      "name": "镜前试穿与效果对比",
+      "summary": "用镜前试穿照展示实际穿着效果。",
+      "useWhen": "适合连衣裙、裤装等需要看实际版型的服装。",
+      "instructions": "上传镜前全身照和局部细节，填写卖点。",
+      "output": "试穿对比和版型图。"
+    },
+    "en": {
+      "name": "Mirror Try-on and Fit Comparison",
+      "summary": "Turn your product photos into a TikTok Shop carousel about mirror Try-on and Fit Comparison.",
+      "useWhen": "For dresses, trousers, and other pieces shoppers want to see on.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with mirror Try-on and Fit Comparison."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-mirror-try-on-fit/page-01-dc15e0179018.webp",
+    "https://static.popost.ai/templates/tiktok-mirror-try-on-fit/page-02-bd14f08ac0cb.webp",
+    "https://static.popost.ai/templates/tiktok-mirror-try-on-fit/page-03-3f630c3bbe9e.webp",
+    "https://static.popost.ai/templates/tiktok-mirror-try-on-fit/page-04-d793fbf501db.webp",
+    "https://static.popost.ai/templates/tiktok-mirror-try-on-fit/page-05-703cb4186e9d.webp",
+    "https://static.popost.ai/templates/tiktok-mirror-try-on-fit/page-06-0d8288f24cff.webp",
+    "https://static.popost.ai/templates/tiktok-mirror-try-on-fit/page-07-85afa3e1da27.webp"
+  ],
+  "match": {
+    "goals": [
+      "镜前试穿与效果对比",
+      "镜前上身+对比展示",
+      "女装与内衣",
+      "Mirror Try-on and Fit Comparison",
+      "Womenswear & Underwear"
+    ],
+    "imageCues": [
+      "镜前提出覆盖困扰",
+      "同人目标款改善",
+      "腋下覆盖近景",
+      "对照款背面问题",
+      "目标款背面回应",
+      "背扣实物并排"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-mirror-try-on-fit/cover-a5e81e3956fe.webp",
+  "legacyId": "tiktok-tt-004"
+}

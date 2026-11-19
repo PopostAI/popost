@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-car-appearance-upgrade",
+  "platform": "tiktok",
+  "categories": [
+    "automotive-motorcycle"
+  ],
+  "copy": {
+    "zh": {
+      "name": "汽车外观升级前后对比",
+      "summary": "对比同一辆车外观升级前后的样子。",
+      "useWhen": "适合车贴、内饰件等安装前后变化明显的改装配件。",
+      "instructions": "上传同角度车身前后照和配件图，填写卖点。",
+      "output": "车辆外观前后对比图。"
+    },
+    "en": {
+      "name": "Vehicle Appearance Before and After",
+      "summary": "Turn your product photos into a TikTok Shop carousel about vehicle Appearance Before and After.",
+      "useWhen": "For vehicle accessories with a visible before-and-after change.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with vehicle Appearance Before and After."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-car-appearance-upgrade/page-01-3f97fe3faee3.webp",
+    "https://static.popost.ai/templates/tiktok-car-appearance-upgrade/page-02-ce81babbaa37.webp",
+    "https://static.popost.ai/templates/tiktok-car-appearance-upgrade/page-03-20264dfd9026.webp",
+    "https://static.popost.ai/templates/tiktok-car-appearance-upgrade/page-04-5c055f8eac44.webp"
+  ],
+  "match": {
+    "goals": [
+      "汽车外观升级前后对比",
+      "汽配前后对比图",
+      "汽车与摩托",
+      "Vehicle Appearance Before and After",
+      "Automotive & Motorcycle"
+    ],
+    "imageCues": [
+      "同机位前后对比",
+      "升级后外观",
+      "实际安装部位",
+      "整车夜景收尾"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-car-appearance-upgrade/cover-b3c8c26c1367.webp",
+  "legacyId": "tiktok-tt-054"
+}

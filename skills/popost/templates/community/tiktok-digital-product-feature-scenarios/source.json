@@ -1,0 +1,54 @@
+{
+  "source": "https://www.tiktok.com/@2026lulugogo/photo/7670024292263841038",
+  "kind": "native-post-image",
+  "images": [
+    {
+      "file": "page-01-88757b7a0328.jpg",
+      "width": 800,
+      "height": 800,
+      "sha256": "88757b7a03284e1168fcce829a71ec7abdf0fa8835337e802214373df745adc4"
+    },
+    {
+      "file": "page-02-38546e16ab9c.jpg",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "38546e16ab9c290c0aab21d4e240d377b61088a04e905eeb22fdcf70cea45061"
+    },
+    {
+      "file": "page-03-50796bb9d2cc.jpg",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "50796bb9d2cc72518484032d08f5374c012d5d7c6bd191aaa37f0e31badc39d6"
+    },
+    {
+      "file": "page-04-347bd51c7953.jpg",
+      "width": 2048,
+      "height": 2048,
+      "sha256": "347bd51c79531867036a713fbdddaf2bb8120887b41bcaa3671d8b38f1311edd"
+    },
+    {
+      "file": "page-05-38530ebaebda.jpg",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "38530ebaebda701d044bfc0f43863b919ca8ba1ada597251b7290e2efddd2136"
+    },
+    {
+      "file": "page-06-1397c3aff9e3.jpg",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "1397c3aff9e3ea83f0949cdf0d77e236b107425e82ac10bd1571695f3ccec54b"
+    },
+    {
+      "file": "page-07-66b145bbdead.jpg",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "66b145bbdead51688648af3036a0d9b2af49728c7dd9d2a61946fb0d9c6fbfd5"
+    },
+    {
+      "file": "page-08-a503e53b0a92.jpg",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "a503e53b0a9202a612e65f40792223c706ec3c0d07484475d06ae1f6f1d2fea4"
+    }
+  ]
+}

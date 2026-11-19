@@ -1,0 +1,48 @@
+{
+  "source": "https://www.tiktok.com/@dealswithty/photo/7663517668443557150",
+  "kind": "native-post-image",
+  "images": [
+    {
+      "file": "page-01-4c741a94a045.jpg",
+      "width": 1320,
+      "height": 1760,
+      "sha256": "4c741a94a045ad58660efe8450ab42857af6bcec4276ef5f336b2e81002d6697"
+    },
+    {
+      "file": "page-02-bf5f1a258d8a.jpg",
+      "width": 2160,
+      "height": 2880,
+      "sha256": "bf5f1a258d8aa986f55ead2b0285efdd6b46ded51e9c8b72ebee7ff08acfb203"
+    },
+    {
+      "file": "page-03-93af76768fd9.jpg",
+      "width": 2160,
+      "height": 2880,
+      "sha256": "93af76768fd957ab37d2aa13a28dbc8232d80eee6863bff7c0b27aa2037b9bca"
+    },
+    {
+      "file": "page-04-bf0d1c07bf43.jpg",
+      "width": 2160,
+      "height": 2880,
+      "sha256": "bf0d1c07bf43151663d6afd28e18401701e5e981bdc87bb8d56526786542528e"
+    },
+    {
+      "file": "page-05-f740d68d5932.jpg",
+      "width": 2160,
+      "height": 2880,
+      "sha256": "f740d68d5932e7c150a1c9ae61b11b17eb8c62e36efa45f8a7496eb1ba7c878e"
+    },
+    {
+      "file": "page-06-453641453aae.jpg",
+      "width": 2160,
+      "height": 2880,
+      "sha256": "453641453aaed85902db0fd8660a9e7b8ce2e0a43aa7debd81fc27337d9a3787"
+    },
+    {
+      "file": "page-07-2d60d5d3e2f4.jpg",
+      "width": 2160,
+      "height": 2880,
+      "sha256": "2d60d5d3e2f4523be066c7e525ad7f9bac7da1a8161ad8b4a69c84bafed7698e"
+    }
+  ]
+}

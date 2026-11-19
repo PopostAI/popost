@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-bedding-setup-fabric",
+  "platform": "tiktok",
+  "categories": [
+    "textiles-soft-furnishings"
+  ],
+  "copy": {
+    "zh": {
+      "name": "床品铺床与面料细节展示",
+      "summary": "先看铺床后的整体效果，再看床品面料。",
+      "useWhen": "适合床单、被套和强调织物质感的床品。",
+      "instructions": "上传铺床场景照和床品细节，填写卖点。",
+      "output": "床品展示组图和面料近景。"
+    },
+    "en": {
+      "name": "Bedding Setup and Fabric Details",
+      "summary": "Turn your product photos into a TikTok Shop carousel about bedding Setup and Fabric Details.",
+      "useWhen": "For sheets, duvet covers, and bedding with a distinctive fabric.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with bedding Setup and Fabric Details."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-bedding-setup-fabric/page-01-c67affdda22e.webp",
+    "https://static.popost.ai/templates/tiktok-bedding-setup-fabric/page-02-d20da10b3c40.webp",
+    "https://static.popost.ai/templates/tiktok-bedding-setup-fabric/page-03-d94c3eda8371.webp",
+    "https://static.popost.ai/templates/tiktok-bedding-setup-fabric/page-04-d952b951f2db.webp",
+    "https://static.popost.ai/templates/tiktok-bedding-setup-fabric/page-05-f82daa1413a2.webp",
+    "https://static.popost.ai/templates/tiktok-bedding-setup-fabric/page-06-52ef811b3687.webp"
+  ],
+  "match": {
+    "goals": [
+      "床品铺床与面料细节展示",
+      "家纺铺床+面料细节展示",
+      "纺织与软装",
+      "Bedding Setup and Fabric Details",
+      "Textiles & Soft Furnishings"
+    ],
+    "imageCues": [
+      "整床秋冬氛围",
+      "全套铺陈",
+      "手捏被面",
+      "标签或内页放在面料上",
+      "面料近景",
+      "回到整床"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-bedding-setup-fabric/cover-434c951c46d3.webp",
+  "legacyId": "tiktok-tt-042"
+}

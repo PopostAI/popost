@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<!--
+  清单模板 · curated-list（adaptive）
+  - 原生 HTML + CSS Grid/Flex + 内联 SVG；无脚本、无 CDN、无远程字体。
+  - 默认竖版 1080×1440；宽幅可把 .cards 改 2 列网格，平行关系不变。
+  - 标准先于条目；每条三段（名称/入选理由/注意或依据）；无虚构评分排名。
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>清单模板 · 替换标题</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --canvas-w:1080px; --canvas-h:1440px;
+    --safe-top:120px; --safe-bottom:170px; --safe-side:60px;
+    --paper:#f7f4ee; --ink:#2c2925; --muted:#7c7468; --line:#ddd2c0;
+    --accent:#b07d48; --accent-soft:#f1e6d6; --card:#fff;
+    --fs-hero:60px; --fs-title:36px; --fs-body:27px; --fs-note:21px; --fs-tag:19px;
+    --ff-sans:"PingFang SC","Microsoft YaHei","Noto Sans CJK SC",sans-serif;
+  }
+  body{background:#e6dfd2;font-family:var(--ff-sans);color:var(--ink)}
+  .post{width:var(--canvas-w);height:var(--canvas-h);background:var(--paper);
+    padding:var(--safe-top) var(--safe-side) var(--safe-bottom);
+    display:flex;flex-direction:column;overflow:hidden}
+  .hook{font-size:var(--fs-hero);font-weight:800;line-height:1.2;margin-bottom:16px}
+  .standard{background:var(--accent-soft);border-radius:18px;padding:20px 26px;
+    font-size:var(--fs-body);line-height:1.6;margin-bottom:28px}
+  .standard b{color:var(--accent)}
+  .cards{display:flex;flex-direction:column;gap:18px;flex:1}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:20px;
+    padding:24px 26px;display:grid;grid-template-columns:72px 1fr;gap:18px;align-items:start}
+  .card .idx{width:72px;height:72px;border-radius:16px;background:var(--accent);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:800}
+  .card h3{font-size:var(--fs-title);margin-bottom:6px}
+  .card .why{font-size:var(--fs-body);line-height:1.55}
+  .card .note{display:block;margin-top:8px;font-size:var(--fs-note);color:var(--muted)}
+  .pick{margin-top:24px;border-top:2px solid var(--line);padding-top:20px;
+    font-size:var(--fs-body);color:var(--muted);line-height:1.6}
+  .foot{position:absolute;left:var(--safe-side);right:var(--safe-side);bottom:56px;
+    display:flex;justify-content:space-between;font-size:var(--fs-tag);color:var(--muted)}
+</style>
+</head>
+<body>
+
+<!-- 页 1 · 标准 + 前半条目 -->
+<section class="post">
+  <h1 class="hook">清单标题：4 个方向 / 一份候选池</h1>
+  <div class="standard"><b>入选标准：</b>先说凭什么收录（替换；主观偏好与客观依据分层标）。</div>
+  <div class="cards">
+    <div class="card"><div class="idx">1</div><div>
+      <h3>方向/条目一（替换）</h3>
+      <p class="why">为什么入选：对应标准的哪一条。</p>
+      <span class="note">注意/依据：使用注意或可核实依据。</span>
+    </div></div>
+    <div class="card"><div class="idx">2</div><div>
+      <h3>方向/条目二（替换）</h3>
+      <p class="why">为什么入选：对应标准的哪一条。</p>
+      <span class="note">注意/依据：使用注意或可核实依据。</span>
+    </div></div>
+  </div>
+  <div class="foot"><span>01 / N</span><span>抽象方向示例 · 无虚构品牌评分</span></div>
+</section>
+
+<!-- 页 2 · 剩余条目 + 挑选小结 -->
+<section class="post">
+  <h1 class="hook" style="font-size:48px">接着看剩下两条</h1>
+  <div class="cards">
+    <div class="card"><div class="idx">3</div><div>
+      <h3>方向/条目三（替换）</h3>
+      <p class="why">为什么入选：对应标准的哪一条。</p>
+      <span class="note">注意/依据：使用注意或可核实依据。</span>
+    </div></div>
+    <div class="card"><div class="idx">4</div><div>
+      <h3>方向/条目四（替换）</h3>
+      <p class="why">为什么入选：对应标准的哪一条。</p>
+      <span class="note">注意/依据：使用注意或可核实依据。</span>
+    </div></div>
+  </div>
+  <p class="pick">挑选方式：从哪条开始、按什么需要选；不写「最好/第一/必买」。</p>
+  <div class="foot"><span>02 / N</span><span>抽象方向示例 · 无虚构品牌评分</span></div>
+</section>
+
+</body>
+</html>

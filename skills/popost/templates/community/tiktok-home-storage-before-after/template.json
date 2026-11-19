@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-home-storage-before-after",
+  "platform": "tiktok",
+  "categories": [
+    "home-supplies"
+  ],
+  "copy": {
+    "zh": {
+      "name": "家居收纳前后与细节展示",
+      "summary": "先看杂乱空间，再展示整理效果。",
+      "useWhen": "适合收纳盒、层架和整理后变化明显的产品。",
+      "instructions": "上传整理前后照和收纳用品细节，填写卖点。",
+      "output": "家居收纳对比图和细节页。"
+    },
+    "en": {
+      "name": "Storage Changes and Product Details",
+      "summary": "Turn your product photos into a TikTok Shop carousel about storage Changes and Product Details.",
+      "useWhen": "For bins, shelves, and other products with a clear organizing result.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with storage Changes and Product Details."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-home-storage-before-after/page-01-83cc23b6add0.webp",
+    "https://static.popost.ai/templates/tiktok-home-storage-before-after/page-02-f4e65dde9606.webp",
+    "https://static.popost.ai/templates/tiktok-home-storage-before-after/page-03-b0bad6e22a50.webp",
+    "https://static.popost.ai/templates/tiktok-home-storage-before-after/page-04-50c6022bc4c6.webp",
+    "https://static.popost.ai/templates/tiktok-home-storage-before-after/page-05-1d18ea8e1e1e.webp",
+    "https://static.popost.ai/templates/tiktok-home-storage-before-after/page-06-e8cd5c39c343.webp"
+  ],
+  "match": {
+    "goals": [
+      "家居收纳前后与细节展示",
+      "家居卖点拆解展示",
+      "居家用品",
+      "Storage Changes and Product Details",
+      "Home Supplies"
+    ],
+    "imageCues": [
+      "收纳盒全貌",
+      "卧室摆放",
+      "杂乱与整理后",
+      "防尘盖及材料",
+      "尺寸与内部格位",
+      "装满的俯视结果"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-home-storage-before-after/cover-985ff3535741.webp",
+  "legacyId": "tiktok-tt-025"
+}

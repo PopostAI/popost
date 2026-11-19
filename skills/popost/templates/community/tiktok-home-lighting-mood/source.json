@@ -1,0 +1,24 @@
+{
+  "source": "https://www.tiktok.com/@alexcozys/photo/7677232546865876255",
+  "kind": "native-post-image",
+  "images": [
+    {
+      "file": "page-01-e24a1e6d30fc.jpg",
+      "width": 1284,
+      "height": 1582,
+      "sha256": "e24a1e6d30fcfe79d6df030117ad1e56e5a629c926d39f592032a08f1434c649"
+    },
+    {
+      "file": "page-02-5ff9e7e7f670.jpg",
+      "width": 1284,
+      "height": 1568,
+      "sha256": "5ff9e7e7f6700d01757828fbc3983d7918ccaf3b43aad77bb62bf2c4684fa903"
+    },
+    {
+      "file": "page-03-3449734e8fa8.jpg",
+      "width": 1284,
+      "height": 1572,
+      "sha256": "3449734e8fa8cdd82f4cb0de233e0d9c9880990a9ccca6a778d48d58c7924141"
+    }
+  ]
+}

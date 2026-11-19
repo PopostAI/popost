@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-appliance-spec-use-guide",
+  "platform": "tiktok",
+  "categories": [
+    "household-appliances"
+  ],
+  "copy": {
+    "zh": {
+      "name": "家电参数与使用场景图解",
+      "summary": "用场景图解释家电参数实际有什么用。",
+      "useWhen": "适合功率、容量或模式容易混淆的小家电。",
+      "instructions": "上传家电照、官方参数和实际场景，填写卖点。",
+      "output": "家电参数卡和场景图。"
+    },
+    "en": {
+      "name": "Appliance Specs and Use Scenarios",
+      "summary": "Turn your product photos into a TikTok Shop carousel about appliance Specs and Use Scenarios.",
+      "useWhen": "For appliances with power, capacity, or modes to explain.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with appliance Specs and Use Scenarios."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-appliance-spec-use-guide/page-01-e235f2b6a780.webp",
+    "https://static.popost.ai/templates/tiktok-appliance-spec-use-guide/page-02-7739dd02a863.webp",
+    "https://static.popost.ai/templates/tiktok-appliance-spec-use-guide/page-03-d7cd1e11b534.webp",
+    "https://static.popost.ai/templates/tiktok-appliance-spec-use-guide/page-04-c2d74336a967.webp",
+    "https://static.popost.ai/templates/tiktok-appliance-spec-use-guide/page-05-d4c7b7d05e14.webp",
+    "https://static.popost.ai/templates/tiktok-appliance-spec-use-guide/page-06-e97fbf679aa4.webp"
+  ],
+  "match": {
+    "goals": [
+      "家电参数与使用场景图解",
+      "家电参数拆解卡",
+      "家用电器",
+      "Appliance Specs and Use Scenarios",
+      "Household Appliances"
+    ],
+    "imageCues": [
+      "整机与产出定位",
+      "保温结构剖面",
+      "面板和部件",
+      "清洁操作",
+      "实际尺寸",
+      "不同使用场景"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-appliance-spec-use-guide/cover-e48ef56074e5.webp",
+  "legacyId": "tiktok-tt-034"
+}

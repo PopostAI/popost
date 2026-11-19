@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-food-unpacking-texture",
+  "platform": "tiktok",
+  "categories": [
+    "food-beverages"
+  ],
+  "copy": {
+    "zh": {
+      "name": "美食开包与质地特写",
+      "summary": "从打开包装到食物近景，突出真实质地。",
+      "useWhen": "适合开封后能展示切面、质地或真实份量的食品。",
+      "instructions": "上传食品开包照和实物特写，填写卖点。",
+      "output": "开包图和食物质地近景。"
+    },
+    "en": {
+      "name": "Food Unpacking and Texture Close-ups",
+      "summary": "Turn your product photos into a TikTok Shop carousel about food Unpacking and Texture Close-ups.",
+      "useWhen": "For foods with a cut surface, texture, or portion to show after opening.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with food Unpacking and Texture Close-ups."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-food-unpacking-texture/page-01-2ef43368f7b2.webp",
+    "https://static.popost.ai/templates/tiktok-food-unpacking-texture/page-02-c3f75e3f80e8.webp"
+  ],
+  "match": {
+    "goals": [
+      "美食开包与质地特写",
+      "美食场景细节展示",
+      "食品与饮料",
+      "Food Unpacking and Texture Close-ups",
+      "Food & Beverages"
+    ],
+    "imageCues": [
+      "开罐成品及质地",
+      "同款包装与可核实制作信息"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-food-unpacking-texture/cover-85218927862e.webp",
+  "legacyId": "tiktok-tt-071"
+}

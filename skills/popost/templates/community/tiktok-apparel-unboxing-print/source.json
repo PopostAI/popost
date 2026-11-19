@@ -1,0 +1,30 @@
+{
+  "source": "https://www.tiktok.com/@werenotreallystrangers/photo/7667018941289549070",
+  "kind": "native-post-image",
+  "images": [
+    {
+      "file": "page-01-22d112ec0fe6.jpg",
+      "width": 1080,
+      "height": 1440,
+      "sha256": "22d112ec0fe63327313e70370add0a65baafbdaec3be4f12f6ccea3907a4c9b0"
+    },
+    {
+      "file": "page-02-813743a20278.jpg",
+      "width": 1620,
+      "height": 2880,
+      "sha256": "813743a20278eaad275ba98dd5070d100658569569c4a0a4de61e65e3abc47d9"
+    },
+    {
+      "file": "page-03-1d56562620dc.jpg",
+      "width": 1152,
+      "height": 2048,
+      "sha256": "1d56562620dcc281da9e59dba5c4bc34de8bce31f0ba706cbdc16b67ecc9c9d0"
+    },
+    {
+      "file": "page-04-8decbe08129b.jpg",
+      "width": 2160,
+      "height": 2880,
+      "sha256": "8decbe08129bd423e2d66cf7726dc71f84af81fa4fa69bc3d8c6f3a3251f9662"
+    }
+  ]
+}

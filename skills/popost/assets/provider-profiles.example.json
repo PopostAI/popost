@@ -1,0 +1,38 @@
+{
+  "defaultProvider": "popost",
+  "maxCreditsPerRequest": 200,
+  "popost": {
+    "baseUrl": "https://popost.ai/api/open/v1",
+    "auth": {
+      "envVar": "POPOST_API_KEY"
+    },
+    "providerOverrides": []
+  },
+  "custom": {
+    "mode": "openai-compatible",
+    "baseUrl": "https://your-image-service.example",
+    "model": "YOUR_MODEL",
+    "skipModelDiscovery": true,
+    "auth": {
+      "envVar": "POPOST_IMAGE_API_KEY"
+    },
+    "capabilities": {
+      "referenceImages": false,
+      "aspects": [
+        "1:1",
+        "16:9",
+        "9:16"
+      ]
+    },
+    "referenceTransport": "data-uri",
+    "billing": {
+      "unit": "USD",
+      "source": "provider-usage"
+    },
+    "sizeMap": {
+      "1:1": "1024x1024",
+      "9:16": "1024x1536",
+      "16:9": "1536x1024"
+    }
+  }
+}

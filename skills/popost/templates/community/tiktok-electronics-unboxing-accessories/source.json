@@ -1,0 +1,24 @@
+{
+  "source": "https://www.tiktok.com/@skytech_finds/photo/7675217906648616223",
+  "kind": "native-post-image",
+  "images": [
+    {
+      "file": "page-01-6531876a88d0.jpg",
+      "width": 1206,
+      "height": 1586,
+      "sha256": "6531876a88d0be3d39c53edeb168618ca5d2e00993a9d3ef454f02cf29479b4b"
+    },
+    {
+      "file": "page-02-9df4311cd017.jpg",
+      "width": 1206,
+      "height": 1592,
+      "sha256": "9df4311cd017b90026c5664511e78f4b48c4066c9fb7d9dc12e13767543408e4"
+    },
+    {
+      "file": "page-03-a89100166500.jpg",
+      "width": 1206,
+      "height": 1590,
+      "sha256": "a89100166500febe791e071dbc7bc13c94a08a238e1fbe90c860b38a7157db28"
+    }
+  ]
+}

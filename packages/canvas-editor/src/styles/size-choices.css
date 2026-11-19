@@ -1,0 +1,15 @@
+.pp-size-picker { display: grid; grid-template-columns: 90px minmax(0, 1fr); gap: 12px; padding: 10px; text-align: left; }
+.pp-size-tabs { display: flex; flex-direction: column; gap: 4px; border-radius: 12px; background: var(--pc-surface-2, var(--surface-subtle)); padding: 5px; }
+.pp-size-picker button { color: inherit; border: 0; border-radius: 9px; background: transparent; padding: 8px; cursor: pointer; }
+.pp-size-picker button:is(:hover, [aria-selected=true], [aria-pressed=true]) { background: var(--pc-surface-3, var(--surface-muted, #80808020)); }
+.pp-size-picker button:disabled { opacity: .48; cursor: default; }
+.pp-size-tabs button { text-align: left; }
+.pp-size-inputs { display: flex; align-items: stretch; gap: 8px; margin-bottom: 8px; }
+.pp-size-inputs label { display: flex; flex: 1; min-width: 0; align-items: center; gap: 6px; padding: 5px 7px; border: 1px solid var(--pc-border, var(--border)); border-radius: 9px; }
+.pp-size-inputs input { width: 100%; min-width: 0; color: inherit; background: transparent; border: 0; font: inherit; }
+.pp-size-presets { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; }
+.pp-size-presets button { display: flex; align-items: center; gap: 10px; text-align: left; min-height: 50px; }
+.pp-size-presets i { display: block; border: 1px solid currentColor; flex: none; }
+.pp-size-presets small { display: block; opacity: .62; font-size: 11px; }
+.pp-smart-size { display: block; width: 100%; text-align: left; margin-bottom: 4px; }
+@media (max-width: 460px) { .pp-size-picker { grid-template-columns: 76px minmax(0, 1fr); gap: 6px; padding: 4px; } }

@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 2,
+  "id": "minimal-concept-starter",
+  "platform": "xiaohongshu",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "极简风 · 概念入门",
+      "summary": "把相关概念整理成整齐的小格，用简短定义和例子帮助读者快速入门。",
+      "useWhen": "新手科普、行话解释与课程预习。",
+      "instructions": "给出同一场景下的 4–8 个概念，以及适合新手的例子。",
+      "output": "一组可编辑的小红书图文，默认 3 页。"
+    },
+    "en": {
+      "name": "Minimal Concept Starter",
+      "summary": "Learn a related set of terms through a consistent grid, short definitions, and familiar examples.",
+      "useWhen": "Beginner guides, jargon, and lesson previews.",
+      "instructions": "Provide four to eight related terms and examples for beginners.",
+      "output": "An editable Xiaohongshu carousel, typically three pages."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/minimal-concept-starter/page-01-5d15b73f9c19.webp",
+    "https://static.popost.ai/templates/minimal-concept-starter/page-02-3695c8c39698.webp",
+    "https://static.popost.ai/templates/minimal-concept-starter/page-03-dab82e4c351e.webp"
+  ],
+  "match": {
+    "goals": [
+      "概念入门",
+      "手冲咖啡",
+      "菜单术语",
+      "新手科普",
+      "glossary"
+    ],
+    "imageCues": [
+      "六格词典",
+      "短释义",
+      "concept grid"
+    ],
+    "exclusions": [
+      "依赖分层",
+      "系统结构",
+      "单句解读",
+      "复杂的概念",
+      "复杂概念",
+      "develop an argument"
+    ]
+  },
+  "animatedCover": true
+}

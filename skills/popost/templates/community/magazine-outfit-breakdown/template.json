@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 2,
+  "id": "magazine-outfit-breakdown",
+  "platform": "xiaohongshu",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "杂志风 · 穿搭思路",
+      "summary": "先看多套组合，再用全身图和单品注释拆解造型。",
+      "useWhen": "有一套或多套造型实拍，希望解释搭配思路。",
+      "instructions": "上传相关图片和事实资料，说明主题。",
+      "output": "一组可继续编辑的杂志风图文。"
+    },
+    "en": {
+      "name": "Editorial Outfit Breakdown",
+      "summary": "Compare complete looks and then annotate individual pieces.",
+      "useWhen": "You have full-look photographs and want to explain the styling.",
+      "instructions": "Add your photos and verified notes, then describe the topic.",
+      "output": "An editable magazine-style photo post."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/magazine-outfit-breakdown/page-01-f18721f2f864.webp"
+  ],
+  "match": {
+    "goals": [
+      "穿搭思路",
+      "穿搭拆解",
+      "造型解析",
+      "outfit breakdown",
+      "styling ideas"
+    ],
+    "imageCues": [
+      "全身造型",
+      "服装单品",
+      "outfit cutout"
+    ],
+    "exclusions": [
+      "旅游攻略",
+      "行业资讯",
+      "news digest"
+    ]
+  },
+  "animatedCover": true,
+  "legacyId": "editorial-outfit-breakdown"
+}

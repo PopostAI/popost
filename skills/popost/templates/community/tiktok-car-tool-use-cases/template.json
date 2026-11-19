@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-car-tool-use-cases",
+  "platform": "tiktok",
+  "categories": [
+    "automotive-motorcycle"
+  ],
+  "copy": {
+    "zh": {
+      "name": "车载工具多场景功能展示",
+      "summary": "用几种车载场景展示工具实际怎么用。",
+      "useWhen": "适合补胎、洗车、养护等有具体操作场景的工具。",
+      "instructions": "上传工具照、使用照片和操作说明，填写卖点。",
+      "output": "车载工具多场景演示图。"
+    },
+    "en": {
+      "name": "Car Tools in Multiple Use Cases",
+      "summary": "Turn your product photos into a TikTok Shop carousel about car Tools in Multiple Use Cases.",
+      "useWhen": "For car repair, washing, or maintenance tools with practical uses.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with car Tools in Multiple Use Cases."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-car-tool-use-cases/page-01-ba918f758c7a.webp",
+    "https://static.popost.ai/templates/tiktok-car-tool-use-cases/page-02-60b3934ee37b.webp",
+    "https://static.popost.ai/templates/tiktok-car-tool-use-cases/page-03-27c36211ef43.webp",
+    "https://static.popost.ai/templates/tiktok-car-tool-use-cases/page-04-96c824d321b6.webp",
+    "https://static.popost.ai/templates/tiktok-car-tool-use-cases/page-05-752478a760f6.webp",
+    "https://static.popost.ai/templates/tiktok-car-tool-use-cases/page-06-3f4eb1bfce3c.webp",
+    "https://static.popost.ai/templates/tiktok-car-tool-use-cases/page-07-71abf7d2270b.webp",
+    "https://static.popost.ai/templates/tiktok-car-tool-use-cases/page-08-07d575515354.webp",
+    "https://static.popost.ai/templates/tiktok-car-tool-use-cases/page-09-2ee7af9b7e04.webp"
+  ],
+  "match": {
+    "goals": [
+      "车载工具多场景功能展示",
+      "车品多场景功能图",
+      "汽车与摩托",
+      "Car Tools in Multiple Use Cases",
+      "Automotive & Motorcycle"
+    ],
+    "imageCues": [
+      "整套工具",
+      "车辆启动情境",
+      "轮胎充气情境",
+      "为设备供电",
+      "照明模式",
+      "适用对象与边界"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-car-tool-use-cases/cover-0f56b91668dd.webp",
+  "legacyId": "tiktok-tt-056"
+}

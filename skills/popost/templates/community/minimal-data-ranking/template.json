@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 2,
+  "id": "minimal-data-ranking",
+  "platform": "xiaohongshu",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "极简风 · 数据排行",
+      "summary": "按同一标准排列数据，用长短条形展示差距，再解释值得关注的结果。",
+      "useWhen": "内容表现、使用频次和同类对象的量化比较。",
+      "instructions": "提供对象、可比数值、统计周期、单位和排序方式。",
+      "output": "一组可编辑的小红书图文，默认 3 页。"
+    },
+    "en": {
+      "name": "Minimal Data Ranking",
+      "summary": "Rank comparable values with proportional bars and explain the result.",
+      "useWhen": "Usage counts, audience results, and comparisons with a shared measure.",
+      "instructions": "Provide comparable values, measurement units, period, and sort direction.",
+      "output": "An editable Xiaohongshu carousel, typically three pages."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/minimal-data-ranking/page-01-07ccef5c87e8.webp",
+    "https://static.popost.ai/templates/minimal-data-ranking/page-02-d1361b2b3047.webp",
+    "https://static.popost.ai/templates/minimal-data-ranking/page-03-8cb9ec544ffc.webp"
+  ],
+  "match": {
+    "goals": [
+      "数据排行",
+      "通勤好物",
+      "使用频次",
+      "横向条形图",
+      "ranked data"
+    ],
+    "imageCues": [
+      "横条排序",
+      "差距对比",
+      "proportional bars"
+    ],
+    "exclusions": [
+      "无数据推荐",
+      "来自不同口径",
+      "固定 SKU 比价"
+    ]
+  },
+  "animatedCover": true
+}

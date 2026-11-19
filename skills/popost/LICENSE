@@ -1,0 +1,12 @@
+Popost skill
+Copyright © 2026 CLIPCAT AI LTD
+
+The Popost skill (this folder, including scripts/, references/, templates/, tools/,
+tests/ and SKILL.md) is part of Popost and is licensed under the Popost license in the
+repository root (../../LICENSE): a modified Apache License 2.0. If you distribute this
+folder on its own, include a copy of that license.
+
+Third-party components in this folder keep their own licenses; see THIRD_PARTY_NOTICES:
+- assets/fonts/<role>/*.woff2: SIL Open Font License 1.1 (each family's LICENSE file).
+- assets/canvas/: npm packages bundled into the canvas editor build, listed in
+  assets/canvas/THIRD_PARTY_LICENSES.txt.

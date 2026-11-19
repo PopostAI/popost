@@ -1,0 +1,9 @@
+{
+  "id": "comparison",
+  "title": "比较 · 同口径并列与条件指向",
+  "tags": ["对比", "横评", "区别", "vs", "comparison", "二选一"],
+  "scenario_md": "platform-module/templates/comparison/scenario.md",
+  "html": "platform-module/templates/comparison/template.html",
+  "assets": [],
+  "mode": "adaptive"
+}

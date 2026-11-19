@@ -1,0 +1,36 @@
+{
+  "source": "https://www.tiktok.com/@natesdealss/photo/7659553219412086047",
+  "kind": "native-post-image",
+  "images": [
+    {
+      "file": "page-01-65927267814f.jpg",
+      "width": 1147,
+      "height": 2048,
+      "sha256": "65927267814fb5da36fa5656a1997356b0d16d1d67ca76c8f79a26e036a8d7e9"
+    },
+    {
+      "file": "page-02-08b1b5c970b4.jpg",
+      "width": 1147,
+      "height": 2048,
+      "sha256": "08b1b5c970b4148ceff368c55b94098eefcd70d3f25b842a84629013f96a6e27"
+    },
+    {
+      "file": "page-03-fe3c2c210f3e.jpg",
+      "width": 1147,
+      "height": 2048,
+      "sha256": "fe3c2c210f3eb0196e227323ef8a796582d51dbd28971f65febd885ffd89000f"
+    },
+    {
+      "file": "page-04-cb2cb9eb6698.jpg",
+      "width": 1147,
+      "height": 2048,
+      "sha256": "cb2cb9eb6698bbdf7bd667cf0668e9c10952de09d66b4db68693d5ec7fb1bb22"
+    },
+    {
+      "file": "page-05-440a073120d6.jpg",
+      "width": 1147,
+      "height": 2048,
+      "sha256": "440a073120d622f5edcb43e526f62edd0dd09487888a00ef57c8533062c67618"
+    }
+  ]
+}

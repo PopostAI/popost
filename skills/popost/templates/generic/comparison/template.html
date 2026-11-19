@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<!--
+  比较模板 · comparison（adaptive）
+  - 原生 HTML + CSS Grid/Flex + 内联 SVG；无脚本、无 CDN、无远程字体。
+  - 默认 X 横卡设计预设 1200×675；切换竖版只改 :root 令牌与堆叠方向，不改口径。
+  - 同口径、等宽对等；结论是条件指向，无伪星级/伪排名。发布前核验平台规格。
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>比较模板 · 替换标题</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --canvas-w:1200px; --canvas-h:675px;
+    --safe-top:56px; --safe-bottom:56px; --safe-side:56px;
+    --paper:#f4f5f3; --ink:#23272a; --muted:#6d7478; --line:#d4d9d6;
+    --a:#3f6f8f; --b:#8f6f3f; --soft-a:#e6eef3; --soft-b:#f3ece2;
+    --fs-title:44px; --fs-head:30px; --fs-body:24px; --fs-note:19px;
+    --ff-sans:"Helvetica Neue",Arial,"PingFang SC","Microsoft YaHei",sans-serif;
+  }
+  body{background:#dfe3e1;font-family:var(--ff-sans);color:var(--ink)}
+  .post{width:var(--canvas-w);height:var(--canvas-h);background:var(--paper);
+    padding:var(--safe-top) var(--safe-side) var(--safe-bottom);
+    display:flex;flex-direction:column;overflow:hidden}
+  h1{font-size:var(--fs-title);font-weight:800;margin-bottom:6px}
+  .lead{font-size:var(--fs-body);color:var(--muted);margin-bottom:26px}
+  .matrix{display:grid;grid-template-columns:220px 1fr 1fr;gap:0;flex:1}
+  .dim{display:flex;align-items:center;font-size:var(--fs-head);font-weight:700;
+    border-top:1px solid var(--line);padding:18px 18px 18px 0}
+  .col{padding:0 22px;border-top:1px solid var(--line);display:flex;flex-direction:column;justify-content:center}
+  .col.a{background:var(--soft-a)} .col.b{background:var(--soft-b)}
+  .col .obj{font-size:var(--fs-head);font-weight:800;margin-bottom:10px}
+  .col.a .obj{color:var(--a)} .col.b .obj{color:var(--b)}
+  .col .cell{font-size:var(--fs-body);line-height:1.5;color:var(--ink)}
+  .col .cell.unk{color:var(--muted);font-style:italic}
+  .verdict{margin-top:22px;border-radius:18px;background:#fff;border:1px solid var(--line);
+    padding:22px 26px;font-size:var(--fs-body);line-height:1.6}
+  .verdict b{color:var(--ink)}
+  .foot{margin-top:14px;font-size:var(--fs-note);color:var(--muted)}
+</style>
+</head>
+<body>
+
+<!-- 页 1 · 同口径对照（双卡等宽）；结论条只给条件指向 -->
+<section class="post">
+  <h1>比较标题：两个对象 + 约定维度</h1>
+  <p class="lead">先说明对比口径（哪些维度、同一标准），再并列；参数以规格为准。</p>
+  <div class="matrix">
+    <div class="dim">维度一（同口径）</div>
+    <div class="col a"><div class="obj">对象 A</div><div class="cell">同一口径下的可核实描述；缺参数写「以规格为准」。</div></div>
+    <div class="col b"><div class="obj">对象 B</div><div class="cell">同一口径，与 A 可比；不踩一捧一。</div></div>
+
+    <div class="dim">维度二（同口径）</div>
+    <div class="col a"><div class="cell">可核实值 / 描述。</div></div>
+    <div class="col b"><div class="cell">可核实值 / 描述；未知标「待补证据」。</div></div>
+
+    <div class="dim">维度三（同口径）</div>
+    <div class="col a"><div class="cell">可核实值 / 描述。</div></div>
+    <div class="col b"><div class="cell unk">未知 · 待补证据（不脑补）。</div></div>
+  </div>
+  <div class="verdict">
+    <b>条件指向：</b>条件一 → 偏向 A；条件二 → 偏向 B；不写「绝对更好」，不打伪星级。
+  </div>
+  <p class="foot">参数仅引用可核实资料；价格/销量/评分无来源不写 · 发布前核验平台规格</p>
+</section>
+
+</body>
+</html>

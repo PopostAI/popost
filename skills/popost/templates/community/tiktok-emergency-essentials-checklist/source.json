@@ -1,0 +1,48 @@
+{
+  "source": "https://www.tiktok.com/@goatedkosty/photo/7704100575142513951",
+  "kind": "native-post-image",
+  "images": [
+    {
+      "file": "page-01-6f4f21af2370.jpg",
+      "width": 1290,
+      "height": 2292,
+      "sha256": "6f4f21af2370a91c8cc3f1ba717605cbb4fa8e3435f8bfee6b0bcf88d66526ed"
+    },
+    {
+      "file": "page-02-3a1020159021.jpg",
+      "width": 1290,
+      "height": 2292,
+      "sha256": "3a102015902184242ef52ca4a8a9038a3e5790da9bee77816b2d7d4510f5b5ee"
+    },
+    {
+      "file": "page-03-5ec0c307b1c7.jpg",
+      "width": 1290,
+      "height": 2292,
+      "sha256": "5ec0c307b1c75626b4de983794a2cc919e01b4bb1413a0a7bf23653dd6bb8687"
+    },
+    {
+      "file": "page-04-6cad74fc3707.jpg",
+      "width": 1290,
+      "height": 2292,
+      "sha256": "6cad74fc3707f8de1c7ca3ffe172931d6a7f2665f985046c13e350a20417dc72"
+    },
+    {
+      "file": "page-05-d541aeeeabec.jpg",
+      "width": 1290,
+      "height": 2292,
+      "sha256": "d541aeeeabec2bec58f3909ea9968a1e5a33203381ce11cbea11a9e7015a53ac"
+    },
+    {
+      "file": "page-06-698fb3669301.jpg",
+      "width": 1290,
+      "height": 2292,
+      "sha256": "698fb3669301f2700daaf31f81dfd1a3cdbb339b1f56536fd493d3537d8f797c"
+    },
+    {
+      "file": "page-07-ff6538d05dfa.jpg",
+      "width": 1290,
+      "height": 2292,
+      "sha256": "ff6538d05dfa6f596768d094a6a04513e4c6600c7b1c4b36dcb30ede056dccca"
+    }
+  ]
+}

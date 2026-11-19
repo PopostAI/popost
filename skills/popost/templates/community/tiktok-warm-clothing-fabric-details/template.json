@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-warm-clothing-fabric-details",
+  "platform": "tiktok",
+  "categories": [
+    "menswear-underwear"
+  ],
+  "copy": {
+    "zh": {
+      "name": "服装面料与保暖细节展示",
+      "summary": "用面料、内里和缝线近景展示保暖设计。",
+      "useWhen": "适合保暖外套、抓绒和夹层结构明显的冬装。",
+      "instructions": "上传面料、内里和服装特写，填写卖点。",
+      "output": "保暖结构与做工细节图。"
+    },
+    "en": {
+      "name": "Fabric Construction and Warmth Details",
+      "summary": "Turn your product photos into a TikTok Shop carousel about fabric Construction and Warmth Details.",
+      "useWhen": "For winter coats, fleece, and visibly layered garments.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with fabric Construction and Warmth Details."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-warm-clothing-fabric-details/page-01-1e032d20a976.webp",
+    "https://static.popost.ai/templates/tiktok-warm-clothing-fabric-details/page-02-b4748e1c411b.webp",
+    "https://static.popost.ai/templates/tiktok-warm-clothing-fabric-details/page-03-06fad4401bd5.webp",
+    "https://static.popost.ai/templates/tiktok-warm-clothing-fabric-details/page-04-b252629f8013.webp",
+    "https://static.popost.ai/templates/tiktok-warm-clothing-fabric-details/page-05-03f395dc5528.webp"
+  ],
+  "match": {
+    "goals": [
+      "服装面料与保暖细节展示",
+      "男装平铺细节功能展示",
+      "男装与内衣",
+      "Fabric Construction and Warmth Details",
+      "Menswear & Underwear"
+    ],
+    "imageCues": [
+      "整件外套定位",
+      "三色全貌",
+      "外层内衬拉链",
+      "帽兜内部",
+      "四格细节"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-warm-clothing-fabric-details/cover-eda019f69802.webp",
+  "legacyId": "tiktok-tt-017"
+}

@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-computer-unboxing-first-use",
+  "platform": "tiktok",
+  "categories": [
+    "computers-office-equipment"
+  ],
+  "copy": {
+    "zh": {
+      "name": "数码设备开箱与上手流程",
+      "summary": "按拆箱、连接和上手顺序介绍设备。",
+      "useWhen": "适合电脑、显示器和想展示初次上手过程的设备。",
+      "instructions": "上传开箱照、设备配件和上手照片，填写卖点。",
+      "output": "电脑开箱和上手步骤图。"
+    },
+    "en": {
+      "name": "Computer Unboxing and First-use Steps",
+      "summary": "Turn your product photos into a TikTok Shop carousel about computer Unboxing and First-use Steps.",
+      "useWhen": "For computers and displays with an unboxing and first-use sequence.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with computer Unboxing and First-use Steps."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-computer-unboxing-first-use/page-01-9ced18560e75.webp",
+    "https://static.popost.ai/templates/tiktok-computer-unboxing-first-use/page-02-7930cee2d1ed.webp",
+    "https://static.popost.ai/templates/tiktok-computer-unboxing-first-use/page-03-07f3adf7e4e5.webp",
+    "https://static.popost.ai/templates/tiktok-computer-unboxing-first-use/page-04-f851e66779fd.webp",
+    "https://static.popost.ai/templates/tiktok-computer-unboxing-first-use/page-05-d1d7524a422b.webp"
+  ],
+  "match": {
+    "goals": [
+      "数码设备开箱与上手流程",
+      "数码开箱流程展示",
+      "电脑与办公",
+      "Computer Unboxing and First-use Steps",
+      "Computers & Office Equipment"
+    ],
+    "imageCues": [
+      "到手设备",
+      "耗材清点",
+      "装料设置",
+      "制作中的成品",
+      "同一批首次输出与控制面板"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-computer-unboxing-first-use/cover-dd1996fab6e4.webp",
+  "legacyId": "tiktok-tt-076"
+}

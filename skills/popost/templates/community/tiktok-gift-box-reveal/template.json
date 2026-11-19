@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-gift-box-reveal",
+  "platform": "tiktok",
+  "categories": [
+    "fashion-accessories"
+  ],
+  "copy": {
+    "zh": {
+      "name": "送礼话题与开盒展示",
+      "summary": "从送礼场景切入，逐步展示盒内礼物。",
+      "useWhen": "适合节日礼盒、组合礼品和需要展示开箱体验的商品。",
+      "instructions": "上传礼盒、开盒过程和礼物照片，填写卖点。",
+      "output": "送礼封面和开盒图组。"
+    },
+    "en": {
+      "name": "Gift Conversations and Box Reveals",
+      "summary": "Turn your product photos into a TikTok Shop carousel about gift Conversations and Box Reveals.",
+      "useWhen": "For holiday gift boxes and sets where the reveal is part of the appeal.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with gift Conversations and Box Reveals."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-gift-box-reveal/page-01-65680962f0a4.webp",
+    "https://static.popost.ai/templates/tiktok-gift-box-reveal/page-02-decb10851522.webp"
+  ],
+  "match": {
+    "goals": [
+      "送礼话题与开盒展示",
+      "社媒话题+实物展示",
+      "时尚配饰",
+      "Gift Conversations and Box Reveals",
+      "Fashion Accessories"
+    ],
+    "imageCues": [
+      "原创送礼话题卡",
+      "打开礼盒的实物特写"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-gift-box-reveal/cover-0b364d3060ce.webp",
+  "legacyId": "tiktok-tt-058"
+}

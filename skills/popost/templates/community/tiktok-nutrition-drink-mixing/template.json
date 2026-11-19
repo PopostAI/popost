@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-nutrition-drink-mixing",
+  "platform": "tiktok",
+  "categories": [
+    "health"
+  ],
+  "copy": {
+    "zh": {
+      "name": "营养饮品冲调与场景实拍",
+      "summary": "用实拍说明营养饮品怎么冲调。",
+      "useWhen": "适合蛋白粉、冲饮和可以拍摄调配过程的饮品。",
+      "instructions": "上传冲调过程、成品和包装照，填写卖点。",
+      "output": "冲调步骤和饮用场景图。"
+    },
+    "en": {
+      "name": "Nutrition Drinks, Mixing and Daily Scenes",
+      "summary": "Turn your product photos into a TikTok Shop carousel about nutrition Drinks, Mixing and Daily Scenes.",
+      "useWhen": "For protein powders and drink mixes with a preparation process to show.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with nutrition Drinks, Mixing and Daily Scenes."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-nutrition-drink-mixing/page-01-04600476499d.webp",
+    "https://static.popost.ai/templates/tiktok-nutrition-drink-mixing/page-02-efc47c362fb2.webp"
+  ],
+  "match": {
+    "goals": [
+      "营养饮品冲调与场景实拍",
+      "运动营养场景实拍展示",
+      "健康保健",
+      "Nutrition Drinks, Mixing and Daily Scenes",
+      "Health"
+    ],
+    "imageCues": [
+      "饮品场景引子",
+      "同杯与包装及标签信息"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-nutrition-drink-mixing/cover-26fa49fc036f.webp",
+  "legacyId": "tiktok-tt-053"
+}

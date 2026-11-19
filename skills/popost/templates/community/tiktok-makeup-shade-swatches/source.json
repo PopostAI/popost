@@ -1,0 +1,42 @@
+{
+  "source": "https://www.tiktok.com/@kulfi.beauty/photo/7672808742991170830",
+  "kind": "native-post-image",
+  "images": [
+    {
+      "file": "page-01-34ef82d14952.jpg",
+      "width": 1750,
+      "height": 1750,
+      "sha256": "34ef82d14952ca28f7bc1341a22d3d486159b85d7cefda14b7f8765f4c121837"
+    },
+    {
+      "file": "page-02-c57d55b82f9d.jpg",
+      "width": 1750,
+      "height": 1750,
+      "sha256": "c57d55b82f9d66084bad0bf670f28a1f5da21c47a0c2801092d64fdfbba5144e"
+    },
+    {
+      "file": "page-03-86feed539d6a.jpg",
+      "width": 1750,
+      "height": 1750,
+      "sha256": "86feed539d6a29b1bc6df3ee19ebf3b280923c1fbdcc047ee98daf34e73c403a"
+    },
+    {
+      "file": "page-04-382550ec61b8.jpg",
+      "width": 1750,
+      "height": 1750,
+      "sha256": "382550ec61b8daa2adf35dae6b086fec5bf20c4dacd6cee9143527c3c15de09f"
+    },
+    {
+      "file": "page-05-4d429a63e301.jpg",
+      "width": 1750,
+      "height": 1750,
+      "sha256": "4d429a63e301a6bb87bd107659fa8f8f84402624ce82d186b59bec4a8e1af014"
+    },
+    {
+      "file": "page-06-a39f95729180.jpg",
+      "width": 1750,
+      "height": 1750,
+      "sha256": "a39f95729180d5c751793d37980bacf65b4e5a8ce36593ae94408fd97f79f326"
+    }
+  ]
+}

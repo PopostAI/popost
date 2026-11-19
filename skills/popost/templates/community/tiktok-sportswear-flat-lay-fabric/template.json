@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-sportswear-flat-lay-fabric",
+  "platform": "tiktok",
+  "categories": [
+    "sports-outdoor"
+  ],
+  "copy": {
+    "zh": {
+      "name": "运动套装平铺与面料特写",
+      "summary": "平铺看运动套装，再拉近看面料。",
+      "useWhen": "适合健身套装、瑜伽服和强调面料的运动服。",
+      "instructions": "上传运动套装平铺和面料特写，填写卖点。",
+      "output": "套装展示和面料近景图。"
+    },
+    "en": {
+      "name": "Sportswear Flat Lays and Fabric Close-ups",
+      "summary": "Turn your product photos into a TikTok Shop carousel about sportswear Flat Lays and Fabric Close-ups.",
+      "useWhen": "For activewear sets, yoga apparel, and fabric-focused sportswear.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with sportswear Flat Lays and Fabric Close-ups."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-sportswear-flat-lay-fabric/page-01-7d3b1b6d57c6.webp",
+    "https://static.popost.ai/templates/tiktok-sportswear-flat-lay-fabric/page-02-45f6474657b3.webp",
+    "https://static.popost.ai/templates/tiktok-sportswear-flat-lay-fabric/page-03-27090fa8fc64.webp",
+    "https://static.popost.ai/templates/tiktok-sportswear-flat-lay-fabric/page-04-dff25c42c3c1.webp",
+    "https://static.popost.ai/templates/tiktok-sportswear-flat-lay-fabric/page-05-46b49f10bdbd.webp"
+  ],
+  "match": {
+    "goals": [
+      "运动套装平铺与面料特写",
+      "运动套装平铺特写",
+      "运动与户外",
+      "Sportswear Flat Lays and Fabric Close-ups",
+      "Sports & Outdoor"
+    ],
+    "imageCues": [
+      "套装平铺",
+      "手指拉伸上衣",
+      "整套版型",
+      "标签与里侧",
+      "面料及边缘手持"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-sportswear-flat-lay-fabric/cover-74b055409ffd.webp",
+  "legacyId": "tiktok-tt-020"
+}

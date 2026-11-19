@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-travel-product-problem-solution",
+  "platform": "tiktok",
+  "categories": [
+    "sports-outdoor"
+  ],
+  "copy": {
+    "zh": {
+      "name": "出行痛点与功能对比图",
+      "summary": "用旅行中的具体麻烦带出商品功能。",
+      "useWhen": "适合能解决打包、收纳或旅途携带问题的商品。",
+      "instructions": "上传出行场景照、商品图和功能实拍，填写卖点。",
+      "output": "痛点、解决方式和使用图。"
+    },
+    "en": {
+      "name": "Travel Problems and Feature Comparisons",
+      "summary": "Turn your product photos into a TikTok Shop carousel about travel Problems and Feature Comparisons.",
+      "useWhen": "For products that make packing, storage, or travel easier.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with travel Problems and Feature Comparisons."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-travel-product-problem-solution/page-01-43c57934018c.webp",
+    "https://static.popost.ai/templates/tiktok-travel-product-problem-solution/page-02-7acfd1ebfbc0.webp",
+    "https://static.popost.ai/templates/tiktok-travel-product-problem-solution/page-03-c26f39220b34.webp",
+    "https://static.popost.ai/templates/tiktok-travel-product-problem-solution/page-04-6a6b07d9e6fe.webp",
+    "https://static.popost.ai/templates/tiktok-travel-product-problem-solution/page-05-957cec0c50c5.webp",
+    "https://static.popost.ai/templates/tiktok-travel-product-problem-solution/page-06-d7561dfb0c90.webp"
+  ],
+  "match": {
+    "goals": [
+      "出行痛点与功能对比图",
+      "出行痛点对比图",
+      "运动与户外",
+      "Travel Problems and Feature Comparisons",
+      "Sports & Outdoor"
+    ],
+    "imageCues": [
+      "行车记录有无对比",
+      "导航操作对比",
+      "防盗与续航查询",
+      "减震舒适对比",
+      "爬坡动力对比",
+      "整车汇总"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-travel-product-problem-solution/cover-c75f0c94e385.webp",
+  "legacyId": "tiktok-tt-021"
+}

@@ -1,0 +1,48 @@
+{
+  "source": "https://www.tiktok.com/@dantayspicks/photo/7677753637879303437",
+  "kind": "native-post-image",
+  "images": [
+    {
+      "file": "page-01-5efdacf2edcc.jpg",
+      "width": 1206,
+      "height": 1608,
+      "sha256": "5efdacf2edccfad3dd9c1beaa79f1f3488363bdde91d55f4cae8dd0df2c13ddd"
+    },
+    {
+      "file": "page-02-c9bb2a9b8f09.jpg",
+      "width": 2160,
+      "height": 2880,
+      "sha256": "c9bb2a9b8f0975883d13a13d9d9cc1fff024663c30441667df46a7fac25d3a99"
+    },
+    {
+      "file": "page-03-6ab2c3f447da.jpg",
+      "width": 2160,
+      "height": 2880,
+      "sha256": "6ab2c3f447da42686443e38a736340eaacee29b97a2c065bc35af5eead063309"
+    },
+    {
+      "file": "page-04-f37827aae14e.jpg",
+      "width": 2160,
+      "height": 2880,
+      "sha256": "f37827aae14e987202f71f58d7396bd88674028381df486ca7ffe877d9423ceb"
+    },
+    {
+      "file": "page-05-e0a0a493fe44.jpg",
+      "width": 2160,
+      "height": 2880,
+      "sha256": "e0a0a493fe440d0b8f35f7205082ff887b3d9b7e7c679ca38589fe3150cd2559"
+    },
+    {
+      "file": "page-06-fc3650e4e603.jpg",
+      "width": 2160,
+      "height": 2880,
+      "sha256": "fc3650e4e60348ed9f5f618e0a40aa6621c74689c32b4fe047e2153cff1d4a41"
+    },
+    {
+      "file": "page-07-9eb31943f8a0.jpg",
+      "width": 2160,
+      "height": 2880,
+      "sha256": "9eb31943f8a0bbd2f2b42ba30a7e25d46c2abace7398cc77449fc0f37e9298b7"
+    }
+  ]
+}

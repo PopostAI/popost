@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-footwear-on-foot-outfits",
+  "platform": "tiktok",
+  "categories": [
+    "shoes"
+  ],
+  "copy": {
+    "zh": {
+      "name": "真人穿搭与上脚展示",
+      "summary": "把鞋放进整套穿搭，并展示上脚细节。",
+      "useWhen": "适合运动鞋、靴子等需要配合全身穿搭展示的鞋款。",
+      "instructions": "上传全身穿搭照和上脚近景，填写卖点。",
+      "output": "上脚效果和鞋履搭配图。"
+    },
+    "en": {
+      "name": "Complete Outfit and On-foot Views",
+      "summary": "Turn your product photos into a TikTok Shop carousel about complete Outfit and On-foot Views.",
+      "useWhen": "For sneakers and boots that are easier to picture in a full outfit.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with complete Outfit and On-foot Views."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-footwear-on-foot-outfits/page-01-e643c1a0e464.webp",
+    "https://static.popost.ai/templates/tiktok-footwear-on-foot-outfits/page-02-947943f132cd.webp",
+    "https://static.popost.ai/templates/tiktok-footwear-on-foot-outfits/page-03-6f6c3d131d90.webp",
+    "https://static.popost.ai/templates/tiktok-footwear-on-foot-outfits/page-04-a3aed1d8f8aa.webp"
+  ],
+  "match": {
+    "goals": [
+      "真人穿搭与上脚展示",
+      "穿搭上脚展示型",
+      "鞋靴",
+      "Complete Outfit and On-foot Views",
+      "Shoes"
+    ],
+    "imageCues": [
+      "全身穿搭比例",
+      "材质与扣带",
+      "站姿看鞋筒",
+      "靴面与鞋跟近景"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-footwear-on-foot-outfits/cover-2aee5a8d7c03.webp",
+  "legacyId": "tiktok-tt-027"
+}

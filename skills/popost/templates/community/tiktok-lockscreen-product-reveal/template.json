@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-lockscreen-product-reveal",
+  "platform": "tiktok",
+  "categories": [
+    "automotive-motorcycle",
+    "baby-maternity",
+    "beauty-personal-care",
+    "books-magazines-audio",
+    "collectibles",
+    "computers-office-equipment",
+    "fashion-accessories",
+    "food-beverages",
+    "furniture",
+    "health",
+    "home-improvement",
+    "home-supplies",
+    "household-appliances",
+    "jewelry-accessories",
+    "kids-fashion",
+    "kitchenware",
+    "luggage-bags",
+    "menswear-underwear",
+    "modest-fashion",
+    "pet-supplies",
+    "phones-electronics",
+    "shoes",
+    "sports-outdoor",
+    "textiles-soft-furnishings",
+    "tools-hardware",
+    "toys-hobbies",
+    "womenswear-underwear"
+  ],
+  "copy": {
+    "zh": {
+      "name": "锁屏通知商品揭晓",
+      "summary": "用锁屏通知留下悬念，再翻页展示对应商品。",
+      "useWhen": "跨品类使用：家居、数码、美妆、食品、服饰和礼物均可。",
+      "instructions": "上传清晰产品图并说明需求，按本模板组织钩子与商品回应。",
+      "output": "可编辑的同款模板风格多页图文。"
+    },
+    "en": {
+      "name": "Lock Screen Notification Reveal",
+      "summary": "Create a TikTok photo carousel using lock screen notification reveal.",
+      "useWhen": "Use a lock screen notification reveal structure with supported product facts.",
+      "instructions": "Upload product photos and describe your request.",
+      "output": "An editable TikTok photo carousel."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-lockscreen-product-reveal/page-01-a13b63724c35.webp",
+    "https://static.popost.ai/templates/tiktok-lockscreen-product-reveal/page-02-ea49bd19f9d2.webp"
+  ],
+  "match": {
+    "goals": [
+      "锁屏通知",
+      "通知悬念",
+      "提醒揭晓",
+      "lock screen",
+      "notification reveal"
+    ],
+    "imageCues": [
+      "超大时间",
+      "半透明通知",
+      "壁纸",
+      "商品回应"
+    ],
+    "exclusions": [
+      "完整聊天记录",
+      "多段参数说明",
+      "chat history"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/e3489d0a94dfa957736da06fa659d77d386dcf24455da4eaa8848133d0e50996.webp"
+}

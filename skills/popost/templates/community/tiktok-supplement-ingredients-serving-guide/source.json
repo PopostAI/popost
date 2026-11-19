@@ -1,0 +1,42 @@
+{
+  "source": "https://www.tiktok.com/@bloom/photo/7699387269475601678",
+  "kind": "native-post-image",
+  "images": [
+    {
+      "file": "page-01-0aaf86d6528c.jpg",
+      "width": 2200,
+      "height": 2200,
+      "sha256": "0aaf86d6528ce66769eba7f711d6b55a47e09d40ebdbcd6b5f7148247ca94c9b"
+    },
+    {
+      "file": "page-02-3f4748131176.jpg",
+      "width": 2200,
+      "height": 2200,
+      "sha256": "3f4748131176a6173f2c2b9951504f7c2dd845719e45e78bf521af389757f2b6"
+    },
+    {
+      "file": "page-03-c1b67732b593.jpg",
+      "width": 2200,
+      "height": 2200,
+      "sha256": "c1b67732b59318fe9b000a1d32791fc064a22c611e582aa9a5d86495ce34a4aa"
+    },
+    {
+      "file": "page-04-c93231004500.jpg",
+      "width": 2200,
+      "height": 2200,
+      "sha256": "c932310045009df6591b752041454693604a03c9cd33654c56365c10ce447a06"
+    },
+    {
+      "file": "page-05-f28e94629e46.jpg",
+      "width": 2200,
+      "height": 2200,
+      "sha256": "f28e94629e46199a7ea6023c2d1c2ba8c479b15e7666c813c072aed6bfdce42c"
+    },
+    {
+      "file": "page-06-a3a5b1ccabb8.jpg",
+      "width": 2200,
+      "height": 2200,
+      "sha256": "a3a5b1ccabb8cb009d6e0d8a73b13db3b304331927b53945f9af53ccb2e60811"
+    }
+  ]
+}

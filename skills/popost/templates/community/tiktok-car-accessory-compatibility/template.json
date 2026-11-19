@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-car-accessory-compatibility",
+  "platform": "tiktok",
+  "categories": [
+    "automotive-motorcycle"
+  ],
+  "copy": {
+    "zh": {
+      "name": "汽车配件功能与适配图解",
+      "summary": "用适配资料和装车照讲清配件用途。",
+      "useWhen": "适合需要按车型、尺寸或安装位置确认适配的配件。",
+      "instructions": "上传配件照、装车照和车型适配表，填写卖点。",
+      "output": "配件功能图和适配说明。"
+    },
+    "en": {
+      "name": "Car Accessories, Features and Compatibility",
+      "summary": "Turn your product photos into a TikTok Shop carousel about car Accessories, Features and Compatibility.",
+      "useWhen": "For car accessories with model, size, or installation compatibility to explain.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with car Accessories, Features and Compatibility."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-car-accessory-compatibility/page-01-3a882565ac10.webp",
+    "https://static.popost.ai/templates/tiktok-car-accessory-compatibility/page-02-0ed339065031.webp",
+    "https://static.popost.ai/templates/tiktok-car-accessory-compatibility/page-03-d9b29d116a1c.webp",
+    "https://static.popost.ai/templates/tiktok-car-accessory-compatibility/page-04-23464e088108.webp",
+    "https://static.popost.ai/templates/tiktok-car-accessory-compatibility/page-05-24b5fb17b8ec.webp",
+    "https://static.popost.ai/templates/tiktok-car-accessory-compatibility/page-06-9479e620982d.webp",
+    "https://static.popost.ai/templates/tiktok-car-accessory-compatibility/page-07-6b7b26da53cb.webp",
+    "https://static.popost.ai/templates/tiktok-car-accessory-compatibility/page-08-71e0d3de1fa2.webp"
+  ],
+  "match": {
+    "goals": [
+      "汽车配件功能与适配图解",
+      "汽车配件+功能图解",
+      "汽车与摩托",
+      "Car Accessories, Features and Compatibility",
+      "Automotive & Motorcycle"
+    ],
+    "imageCues": [
+      "装车及细节",
+      "适配场景",
+      "座位结构和预留口",
+      "材料拆分",
+      "纹理近景",
+      "尺寸与适配范围"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-car-accessory-compatibility/cover-d5b116460f75.webp",
+  "legacyId": "tiktok-tt-055"
+}

@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-drinkware-on-the-go",
+  "platform": "tiktok",
+  "categories": [
+    "kitchenware"
+  ],
+  "copy": {
+    "zh": {
+      "name": "杯具手持与随行场景",
+      "summary": "用手持和随行场景展示杯具的实际大小。",
+      "useWhen": "适合水杯、保温杯等需要展示随身携带的杯具。",
+      "instructions": "上传杯具手持照和随行场景照，填写卖点。",
+      "output": "随行杯场景和细节图。"
+    },
+    "en": {
+      "name": "Handheld Drinkware and Travel Scenes",
+      "summary": "Turn your product photos into a TikTok Shop carousel about handheld Drinkware and Travel Scenes.",
+      "useWhen": "For water bottles and travel mugs used on the go.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with handheld Drinkware and Travel Scenes."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-drinkware-on-the-go/page-01-91e5044844c8.webp",
+    "https://static.popost.ai/templates/tiktok-drinkware-on-the-go/page-02-136c37b67e52.webp",
+    "https://static.popost.ai/templates/tiktok-drinkware-on-the-go/page-03-286cb16ca0af.webp",
+    "https://static.popost.ai/templates/tiktok-drinkware-on-the-go/page-04-be1dc1c3a9fd.webp",
+    "https://static.popost.ai/templates/tiktok-drinkware-on-the-go/page-05-d33a057cdf34.webp"
+  ],
+  "match": {
+    "goals": [
+      "杯具手持与随行场景",
+      "杯具手持场景型",
+      "厨房用品",
+      "Handheld Drinkware and Travel Scenes",
+      "Kitchenware"
+    ],
+    "imageCues": [
+      "手持配色开场",
+      "翻盖与携带",
+      "车内杯架",
+      "两杯组合",
+      "手持收尾"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-drinkware-on-the-go/cover-914ee3b8b9b3.webp",
+  "legacyId": "tiktok-tt-063"
+}

@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-handheld-product-features",
+  "platform": "tiktok",
+  "categories": [
+    "automotive-motorcycle",
+    "baby-maternity",
+    "beauty-personal-care",
+    "books-magazines-audio",
+    "collectibles",
+    "computers-office-equipment",
+    "fashion-accessories",
+    "food-beverages",
+    "furniture",
+    "health",
+    "home-improvement",
+    "home-supplies",
+    "household-appliances",
+    "jewelry-accessories",
+    "kids-fashion",
+    "kitchenware",
+    "luggage-bags",
+    "menswear-underwear",
+    "modest-fashion",
+    "pet-supplies",
+    "phones-electronics",
+    "shoes",
+    "sports-outdoor",
+    "textiles-soft-furnishings",
+    "tools-hardware",
+    "toys-hobbies",
+    "womenswear-underwear"
+  ],
+  "copy": {
+    "zh": {
+      "name": "手持实物功能展开",
+      "summary": "先看手持实物，再用部件和状态变化展开功能。",
+      "useWhen": "适用于能通过手持、拆装、展开、连接或状态解释的各品类商品。",
+      "instructions": "上传清晰产品图并说明需求，按本模板组织钩子与商品回应。",
+      "output": "可编辑的同款模板风格多页图文。"
+    },
+    "en": {
+      "name": "Handheld Product Feature Walkthrough",
+      "summary": "Create a TikTok photo carousel using handheld product feature walkthrough.",
+      "useWhen": "Use a handheld product feature walkthrough structure with supported product facts.",
+      "instructions": "Upload product photos and describe your request.",
+      "output": "An editable TikTok photo carousel."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-handheld-product-features/page-01-52bb828f018f.webp",
+    "https://static.popost.ai/templates/tiktok-handheld-product-features/page-02-217c6996329e.webp",
+    "https://static.popost.ai/templates/tiktok-handheld-product-features/page-03-cacb82fcb97b.webp",
+    "https://static.popost.ai/templates/tiktok-handheld-product-features/page-04-fdbbf7cc9bb7.webp"
+  ],
+  "match": {
+    "goals": [
+      "手持展示",
+      "部件展开",
+      "结构功能",
+      "handheld details",
+      "feature walkthrough"
+    ],
+    "imageCues": [
+      "手部尺度",
+      "拆装或展开",
+      "同一场景",
+      "状态变化"
+    ],
+    "exclusions": [
+      "纯参数表",
+      "未证实功效",
+      "specification-only"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/6efa38f9e04ee64f80d9bdd0aeddfa0256c4c910f13361be1f5e9a18032a5b79.webp"
+}

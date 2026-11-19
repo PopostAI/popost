@@ -1,0 +1,168 @@
+Popost shared font library — original OFL-1.1 fonts
+Retain the original copyright and license in each family directory.
+Font files may not be sold by themselves. Reserved Font Names apply to modifications.
+Artwork does not inherit the font license. See https://openfontlicense.org/ofl-faq/
+
+editorial-serif — Fraunces Variable
+@fontsource-variable/fraunces@5.3.0
+License: editorial-serif/LICENSE (OFL-1.1)
+
+luxury-serif — Bodoni Moda Variable
+@fontsource-variable/bodoni-moda@5.3.0
+License: luxury-serif/LICENSE (OFL-1.1)
+
+clean-sans — Instrument Sans Variable
+@fontsource-variable/instrument-sans@5.3.0
+License: clean-sans/LICENSE (OFL-1.1)
+
+geometric-sans — Space Grotesk Variable
+@fontsource-variable/space-grotesk@5.3.0
+License: geometric-sans/LICENSE (OFL-1.1)
+
+condensed-sans — Roboto Condensed Variable
+@fontsource-variable/roboto-condensed@5.3.0
+License: condensed-sans/LICENSE (OFL-1.1)
+
+experimental-display — Unbounded Variable
+@fontsource-variable/unbounded@5.3.0
+License: experimental-display/LICENSE (OFL-1.1)
+
+cjk-sans — Noto Sans SC Variable
+@fontsource-variable/noto-sans-sc@5.3.0
+License: cjk-sans/LICENSE (OFL-1.1)
+
+cjk-serif — Noto Serif SC Variable
+@fontsource-variable/noto-serif-sc@5.3.0
+License: cjk-serif/LICENSE (OFL-1.1)
+
+cjk-calligraphy — Ma Shan Zheng
+@fontsource/ma-shan-zheng@5.3.1
+License: cjk-calligraphy/LICENSE (OFL-1.1)
+
+cjk-display — ZCOOL XiaoWei
+@fontsource/zcool-xiaowei@5.3.0
+License: cjk-display/LICENSE (OFL-1.1)
+
+cjk-sans-tc — Noto Sans TC Variable
+@fontsource-variable/noto-sans-tc@5.3.1
+License: cjk-sans-tc/LICENSE (OFL-1.1)
+
+cjk-serif-tc — Noto Serif TC Variable
+@fontsource-variable/noto-serif-tc@5.3.1
+License: cjk-serif-tc/LICENSE (OFL-1.1)
+
+cjk-wenkai — LXGW WenKai
+@fontsource/lxgw-wenkai@5.3.0
+License: cjk-wenkai/LICENSE (OFL-1.1)
+
+cjk-wenkai-tc — LXGW WenKai TC
+@fontsource/lxgw-wenkai-tc@5.3.1
+License: cjk-wenkai-tc/LICENSE (OFL-1.1)
+
+cjk-rounded — ZCOOL KuaiLe
+@fontsource/zcool-kuaile@5.3.0
+License: cjk-rounded/LICENSE (OFL-1.1)
+
+cjk-title — ZCOOL QingKe HuangYou
+@fontsource/zcool-qingke-huangyou@5.3.0
+License: cjk-title/LICENSE (OFL-1.1)
+
+cjk-brush — Liu Jian Mao Cao
+@fontsource/liu-jian-mao-cao@5.3.0
+License: cjk-brush/LICENSE (OFL-1.1)
+
+cjk-cursive — Zhi Mang Xing
+@fontsource/zhi-mang-xing@5.3.0
+License: cjk-cursive/LICENSE (OFL-1.1)
+
+latin-inter — Inter Variable
+@fontsource-variable/inter@5.3.0
+License: latin-inter/LICENSE (OFL-1.1)
+
+latin-inter-tight — Inter Tight Variable
+@fontsource-variable/inter-tight@5.3.0
+License: latin-inter-tight/LICENSE (OFL-1.1)
+
+latin-roboto — Roboto Variable
+@fontsource-variable/roboto@5.3.0
+License: latin-roboto/LICENSE (OFL-1.1)
+
+latin-open-sans — Open Sans Variable
+@fontsource-variable/open-sans@5.3.0
+License: latin-open-sans/LICENSE (OFL-1.1)
+
+latin-montserrat — Montserrat Variable
+@fontsource-variable/montserrat@5.3.0
+License: latin-montserrat/LICENSE (OFL-1.1)
+
+latin-lexend — Lexend Variable
+@fontsource-variable/lexend@5.3.0
+License: latin-lexend/LICENSE (OFL-1.1)
+
+latin-manrope — Manrope Variable
+@fontsource-variable/manrope@5.3.0
+License: latin-manrope/LICENSE (OFL-1.1)
+
+latin-dm-sans — DM Sans Variable
+@fontsource-variable/dm-sans@5.3.0
+License: latin-dm-sans/LICENSE (OFL-1.1)
+
+latin-poppins — Poppins
+@fontsource/poppins@5.3.0
+License: latin-poppins/LICENSE (OFL-1.1)
+
+latin-be-vietnam-pro — Be Vietnam Pro
+@fontsource/be-vietnam-pro@5.3.0
+License: latin-be-vietnam-pro/LICENSE (OFL-1.1)
+
+latin-oswald — Oswald Variable
+@fontsource-variable/oswald@5.3.0
+License: latin-oswald/LICENSE (OFL-1.1)
+
+latin-anton — Anton
+@fontsource/anton@5.3.0
+License: latin-anton/LICENSE (OFL-1.1)
+
+latin-bebas-neue — Bebas Neue
+@fontsource/bebas-neue@5.3.0
+License: latin-bebas-neue/LICENSE (OFL-1.1)
+
+latin-playfair-display — Playfair Display Variable
+@fontsource-variable/playfair-display@5.3.0
+License: latin-playfair-display/LICENSE (OFL-1.1)
+
+latin-lora — Lora Variable
+@fontsource-variable/lora@5.3.0
+License: latin-lora/LICENSE (OFL-1.1)
+
+latin-libre-baskerville — Libre Baskerville Variable
+@fontsource-variable/libre-baskerville@5.3.0
+License: latin-libre-baskerville/LICENSE (OFL-1.1)
+
+latin-cormorant-garamond — Cormorant Garamond Variable
+@fontsource-variable/cormorant-garamond@5.3.0
+License: latin-cormorant-garamond/LICENSE (OFL-1.1)
+
+latin-source-serif-4 — Source Serif 4 Variable
+@fontsource-variable/source-serif-4@5.3.1
+License: latin-source-serif-4/LICENSE (OFL-1.1)
+
+latin-jetbrains-mono — JetBrains Mono Variable
+@fontsource-variable/jetbrains-mono@5.3.0
+License: latin-jetbrains-mono/LICENSE (OFL-1.1)
+
+latin-ibm-plex-mono — IBM Plex Mono
+@fontsource/ibm-plex-mono@5.3.0
+License: latin-ibm-plex-mono/LICENSE (OFL-1.1)
+
+latin-caveat — Caveat Variable
+@fontsource-variable/caveat@5.3.0
+License: latin-caveat/LICENSE (OFL-1.1)
+
+latin-pacifico — Pacifico
+@fontsource/pacifico@5.3.0
+License: latin-pacifico/LICENSE (OFL-1.1)
+
+latin-dancing-script — Dancing Script Variable
+@fontsource-variable/dancing-script@5.3.0
+License: latin-dancing-script/LICENSE (OFL-1.1)

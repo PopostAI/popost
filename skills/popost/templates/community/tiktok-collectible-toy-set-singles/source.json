@@ -1,0 +1,36 @@
+{
+  "source": "https://www.tiktok.com/@popmart.uslocalshop/photo/7702249924116729101",
+  "kind": "native-post-image",
+  "images": [
+    {
+      "file": "page-01-f46f33b7599d.jpg",
+      "width": 1080,
+      "height": 1350,
+      "sha256": "f46f33b7599d14467a9c837da57d35a5c82c36fe1b8c342ff370b551b0bae8d7"
+    },
+    {
+      "file": "page-02-e473ed8d095c.jpg",
+      "width": 1080,
+      "height": 1350,
+      "sha256": "e473ed8d095c468b817eb1d5700904877fcfc3943cd9c233285d64f53f23fa97"
+    },
+    {
+      "file": "page-03-9e1efb1fe8c0.jpg",
+      "width": 1080,
+      "height": 1350,
+      "sha256": "9e1efb1fe8c0413fa408dd5fb65c8f225f91a9248f67f625a4750e95bf2243a7"
+    },
+    {
+      "file": "page-04-04376d0d7c6a.jpg",
+      "width": 1080,
+      "height": 1350,
+      "sha256": "04376d0d7c6a28d20b5d256e44e9987df4a30615662959ee76a446f3920a9ac4"
+    },
+    {
+      "file": "page-05-4bd4d4cccf9b.jpg",
+      "width": 1080,
+      "height": 1350,
+      "sha256": "4bd4d4cccf9b10487d4a5efd264cca9e1ec11348026458756e6d069276b6b710"
+    }
+  ]
+}

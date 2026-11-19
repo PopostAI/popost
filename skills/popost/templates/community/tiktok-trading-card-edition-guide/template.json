@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-trading-card-edition-guide",
+  "platform": "tiktok",
+  "categories": [
+    "collectibles"
+  ],
+  "copy": {
+    "zh": {
+      "name": "卡牌系列与版本图解",
+      "summary": "用实物卡牌对照整理系列和版本差异。",
+      "useWhen": "适合版本、稀有度或卡面细节容易混淆的卡牌。",
+      "instructions": "上传卡牌正反面照和官方版本信息，填写卖点。",
+      "output": "卡牌系列和版本对照图。"
+    },
+    "en": {
+      "name": "Trading Card Series and Edition Guides",
+      "summary": "Turn your product photos into a TikTok Shop carousel about trading Card Series and Edition Guides.",
+      "useWhen": "For trading cards with editions, rarity, or artwork details to clarify.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with trading Card Series and Edition Guides."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-trading-card-edition-guide/page-01-37ad346cff06.webp",
+    "https://static.popost.ai/templates/tiktok-trading-card-edition-guide/page-02-b9ba8ef84c27.webp",
+    "https://static.popost.ai/templates/tiktok-trading-card-edition-guide/page-03-22283b198e1c.webp",
+    "https://static.popost.ai/templates/tiktok-trading-card-edition-guide/page-04-c7b0ccf4ca25.webp",
+    "https://static.popost.ai/templates/tiktok-trading-card-edition-guide/page-05-9d2a302b0bdf.webp"
+  ],
+  "match": {
+    "goals": [
+      "卡牌系列与版本图解",
+      "卡牌概率图解型",
+      "收藏品",
+      "Trading Card Series and Edition Guides",
+      "Collectibles"
+    ],
+    "imageCues": [
+      "系列与封包",
+      "真实版本或数量说明",
+      "第一组卡面",
+      "第二组卡面",
+      "重点卡面与选择提示"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-trading-card-edition-guide/cover-be48338273de.webp",
+  "legacyId": "tiktok-tt-080"
+}

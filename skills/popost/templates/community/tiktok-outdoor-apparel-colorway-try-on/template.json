@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-outdoor-apparel-colorway-try-on",
+  "platform": "tiktok",
+  "categories": [
+    "sports-outdoor"
+  ],
+  "copy": {
+    "zh": {
+      "name": "户外穿戴多色与上身展示",
+      "summary": "在户外场景里对比同款配色。",
+      "useWhen": "适合户外夹克、帽衫等多色户外服装。",
+      "instructions": "上传同款配色照片和户外上身照，填写卖点。",
+      "output": "户外穿搭和配色对比图。"
+    },
+    "en": {
+      "name": "Outdoor Apparel Colorways and Try-ons",
+      "summary": "Turn your product photos into a TikTok Shop carousel about outdoor Apparel Colorways and Try-ons.",
+      "useWhen": "For outdoor jackets, hoodies, and other apparel in multiple colors.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with outdoor Apparel Colorways and Try-ons."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-outdoor-apparel-colorway-try-on/page-01-c90850d19d3f.webp",
+    "https://static.popost.ai/templates/tiktok-outdoor-apparel-colorway-try-on/page-02-8cde593da6af.webp",
+    "https://static.popost.ai/templates/tiktok-outdoor-apparel-colorway-try-on/page-03-898cfb433497.webp",
+    "https://static.popost.ai/templates/tiktok-outdoor-apparel-colorway-try-on/page-04-6da72c4b526d.webp"
+  ],
+  "match": {
+    "goals": [
+      "户外穿戴多色与上身展示",
+      "户外生活化多色产品展",
+      "运动与户外",
+      "Outdoor Apparel Colorways and Try-ons",
+      "Sports & Outdoor"
+    ],
+    "imageCues": [
+      "酒红平铺",
+      "米色平铺",
+      "黑色户外上身",
+      "灰色海报收尾"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-outdoor-apparel-colorway-try-on/cover-6b55b290a235.webp",
+  "legacyId": "tiktok-tt-022"
+}

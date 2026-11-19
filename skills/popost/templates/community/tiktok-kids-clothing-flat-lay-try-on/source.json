@@ -1,0 +1,24 @@
+{
+  "source": "https://www.tiktok.com/@jonatjbidhn/photo/7694669119471275294",
+  "kind": "native-post-image",
+  "images": [
+    {
+      "file": "page-01-a7269c948a3c.jpg",
+      "width": 1438,
+      "height": 2556,
+      "sha256": "a7269c948a3c302381b876dabcc775902a90a5a59e095233f504c8d267b32fcc"
+    },
+    {
+      "file": "page-02-df276651754d.jpg",
+      "width": 1438,
+      "height": 2556,
+      "sha256": "df276651754d4cf68e068349d7f8d82d0992f861de9f4a9990caa053f6500d8f"
+    },
+    {
+      "file": "page-03-c62af1dd6000.jpg",
+      "width": 1438,
+      "height": 2556,
+      "sha256": "c62af1dd60000ddd63d43b126bb9f94607950d9d7e313ab75a9c4289cec99a58"
+    }
+  ]
+}

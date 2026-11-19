@@ -1,0 +1,60 @@
+{
+  "source": "https://www.tiktok.com/@dealsbyjwil/photo/7667256576213847326",
+  "kind": "native-post-image",
+  "images": [
+    {
+      "file": "page-01-2324b47c3dea.jpg",
+      "width": 2160,
+      "height": 2880,
+      "sha256": "2324b47c3deab5b5849a5a922085c449c1f03a420a3e26d66c66b4ad17f2824a"
+    },
+    {
+      "file": "page-02-673bdc3fec58.jpg",
+      "width": 2160,
+      "height": 2880,
+      "sha256": "673bdc3fec5826743a359154ead2edc2dd907a3d2f63a0140967b04963786b94"
+    },
+    {
+      "file": "page-03-d646c6b77834.jpg",
+      "width": 2160,
+      "height": 2880,
+      "sha256": "d646c6b77834837745ee5087bd6774e4f01bc374f70a6f190a3cbf950845c2d9"
+    },
+    {
+      "file": "page-04-88778ac9f0db.jpg",
+      "width": 2160,
+      "height": 2880,
+      "sha256": "88778ac9f0dbad730c9b98e847a1b2dc7cbcab73529072578e972d901a6b5a98"
+    },
+    {
+      "file": "page-05-954c7f6c17e5.jpg",
+      "width": 2160,
+      "height": 2880,
+      "sha256": "954c7f6c17e50e35c947fcf4efc06ec499ee87e6e5bf57a26516134075d88285"
+    },
+    {
+      "file": "page-06-8a757a040745.jpg",
+      "width": 2160,
+      "height": 2880,
+      "sha256": "8a757a040745cb332f183e9d51813e553a4a82915f1dc115bf7059683bd1b7af"
+    },
+    {
+      "file": "page-07-3ffeb834b0d8.jpg",
+      "width": 2160,
+      "height": 2880,
+      "sha256": "3ffeb834b0d80d64edf6440f9f835ec5e96097f783defae20c3fc75f02b9f251"
+    },
+    {
+      "file": "page-08-24fb206dd69b.jpg",
+      "width": 2160,
+      "height": 2880,
+      "sha256": "24fb206dd69b56528f6689ff3d910145b90e4f5e4448f640f047ec00a3a8b9e8"
+    },
+    {
+      "file": "page-09-ccc9c53ae691.jpg",
+      "width": 2160,
+      "height": 2880,
+      "sha256": "ccc9c53ae691ffa24ee5e01db00c1fd3b8ec50ab02549ad0be5b28c7504407eb"
+    }
+  ]
+}

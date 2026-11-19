@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-bag-on-body-size-guide",
+  "platform": "tiktok",
+  "categories": [
+    "luggage-bags"
+  ],
+  "copy": {
+    "zh": {
+      "name": "包袋上身比例与尺寸展示",
+      "summary": "把包袋上身比例和实际尺寸一起说明。",
+      "useWhen": "适合挎包、双肩包和需要说明上身比例的箱包。",
+      "instructions": "上传包袋上身照和真实尺寸，填写卖点。",
+      "output": "包袋上身图和尺寸说明。"
+    },
+    "en": {
+      "name": "Bags on the Body and Size Guides",
+      "summary": "Turn your product photos into a TikTok Shop carousel about bags on the Body and Size Guides.",
+      "useWhen": "For crossbody bags and backpacks where on-body scale matters.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with bags on the Body and Size Guides."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-bag-on-body-size-guide/page-01-717738e93d5d.webp",
+    "https://static.popost.ai/templates/tiktok-bag-on-body-size-guide/page-02-ca88a3a2918a.webp",
+    "https://static.popost.ai/templates/tiktok-bag-on-body-size-guide/page-03-ffc7ceb0c7e8.webp",
+    "https://static.popost.ai/templates/tiktok-bag-on-body-size-guide/page-04-3e271e24c347.webp",
+    "https://static.popost.ai/templates/tiktok-bag-on-body-size-guide/page-05-f44d2c300643.webp",
+    "https://static.popost.ai/templates/tiktok-bag-on-body-size-guide/page-06-4a7eb239d582.webp",
+    "https://static.popost.ai/templates/tiktok-bag-on-body-size-guide/page-07-958a04783100.webp",
+    "https://static.popost.ai/templates/tiktok-bag-on-body-size-guide/page-08-5e6e23ffbd17.webp"
+  ],
+  "match": {
+    "goals": [
+      "包袋上身比例与尺寸展示",
+      "女包穿搭实拍尺寸演示",
+      "箱包",
+      "Bags on the Body and Size Guides",
+      "Luggage & Bags"
+    ],
+    "imageCues": [
+      "肩背侧面比例",
+      "靠近看包型",
+      "桌面完整包",
+      "正面上身",
+      "包体尺寸",
+      "另一颜色棚拍"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-bag-on-body-size-guide/cover-8dbc708f76c5.webp",
+  "legacyId": "tiktok-tt-065"
+}

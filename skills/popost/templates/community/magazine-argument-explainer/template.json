@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 2,
+  "id": "magazine-argument-explainer",
+  "platform": "xiaohongshu",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "杂志风 · 观点解读",
+      "summary": "从议题到结论，用四种版式组织论点、例子与边界。",
+      "useWhen": "需要论证一个观点，或把一个概念讲清楚。",
+      "instructions": "上传相关图片和事实资料，说明主题。",
+      "output": "一组可继续编辑的杂志风图文。"
+    },
+    "en": {
+      "name": "Editorial Argument and Explainer",
+      "summary": "Develop an argument or mechanism across four coordinated layouts.",
+      "useWhen": "You have an idea to explain with reasoning and evidence.",
+      "instructions": "Add your photos and verified notes, then describe the topic.",
+      "output": "An editable magazine-style photo post."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/magazine-argument-explainer/page-01-38920b537a2c.webp"
+  ],
+  "match": {
+    "goals": [
+      "观点解读",
+      "知识科普",
+      "机制解释",
+      "opinion explainer",
+      "how it works"
+    ],
+    "imageCues": [
+      "概念拼贴",
+      "三联证据图",
+      "concept diagram"
+    ],
+    "exclusions": [
+      "新闻合集",
+      "旅行路线",
+      "news roundup"
+    ]
+  },
+  "animatedCover": true,
+  "legacyId": "editorial-argument-explainer"
+}

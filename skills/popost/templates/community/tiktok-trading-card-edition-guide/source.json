@@ -1,0 +1,36 @@
+{
+  "source": "https://www.tiktok.com/@premecollectibles/photo/7670844041965178142",
+  "kind": "native-post-image",
+  "images": [
+    {
+      "file": "page-01-6f87f8522a4b.jpg",
+      "width": 1440,
+      "height": 1920,
+      "sha256": "6f87f8522a4b6bbcf48053bd5353c99710b60028540e3ea787ddc65f139c63a6"
+    },
+    {
+      "file": "page-02-0686c831d69d.jpg",
+      "width": 1440,
+      "height": 1920,
+      "sha256": "0686c831d69d47c759fbd470fe5167596b5326a933760a83163e1d43f59901e0"
+    },
+    {
+      "file": "page-03-f4fa1d1b910f.jpg",
+      "width": 1440,
+      "height": 1920,
+      "sha256": "f4fa1d1b910feec1a65e3586fd4ea402e833864f96346525d7a6f152d34757db"
+    },
+    {
+      "file": "page-04-15bb9cf99839.jpg",
+      "width": 1440,
+      "height": 1920,
+      "sha256": "15bb9cf9983927863f589147e6c0b1a0087b37de3a61fa386fcb61105f2784fe"
+    },
+    {
+      "file": "page-05-a74547600bde.jpg",
+      "width": 1440,
+      "height": 1920,
+      "sha256": "a74547600bde9a75850d963e88b9b5836f313a0ad4b3495b3e59dde7f8d78c86"
+    }
+  ]
+}

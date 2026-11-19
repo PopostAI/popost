@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-emergency-essentials-checklist",
+  "platform": "tiktok",
+  "categories": [
+    "home-improvement"
+  ],
+  "copy": {
+    "zh": {
+      "name": "应急场景清单与好物穿插",
+      "summary": "按应急场景列出用品及其用途。",
+      "useWhen": "适合应急包、便携工具和有明确备用场景的商品。",
+      "instructions": "上传应急用品照片和使用说明，填写卖点。",
+      "output": "应急清单和好物推荐图。"
+    },
+    "en": {
+      "name": "Emergency Checklists with Practical Products",
+      "summary": "Turn your product photos into a TikTok Shop carousel about emergency Checklists with Practical Products.",
+      "useWhen": "For emergency kits, portable tools, and backup essentials.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with emergency Checklists with Practical Products."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-emergency-essentials-checklist/page-01-a011c150fb14.webp",
+    "https://static.popost.ai/templates/tiktok-emergency-essentials-checklist/page-02-13a17db3b27a.webp",
+    "https://static.popost.ai/templates/tiktok-emergency-essentials-checklist/page-03-da1afd5b947a.webp",
+    "https://static.popost.ai/templates/tiktok-emergency-essentials-checklist/page-04-6b04ea96d8c4.webp",
+    "https://static.popost.ai/templates/tiktok-emergency-essentials-checklist/page-05-5a25c6c5fe99.webp",
+    "https://static.popost.ai/templates/tiktok-emergency-essentials-checklist/page-06-3e621cf67d2d.webp",
+    "https://static.popost.ai/templates/tiktok-emergency-essentials-checklist/page-07-a63923b6e546.webp"
+  ],
+  "match": {
+    "goals": [
+      "应急场景清单与好物穿插",
+      "应急灯+生存场景攻略",
+      "家装建材",
+      "Emergency Checklists with Practical Products",
+      "Home Improvement"
+    ],
+    "imageCues": [
+      "暗场景提出准备问题",
+      "用水准备示意",
+      "应急灯所在步骤",
+      "日常设备或储备注意",
+      "充电设备准备",
+      "其他经核实准备项"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-emergency-essentials-checklist/cover-61c1cc2da9c5.webp",
+  "legacyId": "tiktok-tt-040"
+}

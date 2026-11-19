@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-makeup-unboxing-closeups",
+  "platform": "tiktok",
+  "categories": [
+    "beauty-personal-care"
+  ],
+  "copy": {
+    "zh": {
+      "name": "彩妆开箱与手持特写",
+      "summary": "用拆盒、手持和近景展示彩妆。",
+      "useWhen": "适合有外包装、质地或颜色亮点的彩妆新品。",
+      "instructions": "上传包装、手持照和产品特写，填写卖点。",
+      "output": "彩妆开箱和质地细节图。"
+    },
+    "en": {
+      "name": "Makeup Unboxing and Handheld Details",
+      "summary": "Turn your product photos into a TikTok Shop carousel about makeup Unboxing and Handheld Details.",
+      "useWhen": "For makeup launches with distinctive packaging, texture, or color.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with makeup Unboxing and Handheld Details."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-makeup-unboxing-closeups/page-01-0db8948eeee1.webp",
+    "https://static.popost.ai/templates/tiktok-makeup-unboxing-closeups/page-02-faad165f32d2.webp",
+    "https://static.popost.ai/templates/tiktok-makeup-unboxing-closeups/page-03-a97289de6bbe.webp",
+    "https://static.popost.ai/templates/tiktok-makeup-unboxing-closeups/page-04-859404083142.webp",
+    "https://static.popost.ai/templates/tiktok-makeup-unboxing-closeups/page-05-83f42f3f1e1d.webp"
+  ],
+  "match": {
+    "goals": [
+      "彩妆开箱与手持特写",
+      "彩妆开箱手持特写型",
+      "美妆与个护",
+      "Makeup Unboxing and Handheld Details",
+      "Beauty & Personal Care"
+    ],
+    "imageCues": [
+      "整套制造惊喜",
+      "眼影盘展开",
+      "唇颊油手持",
+      "唇油单件近景",
+      "睫毛膏收尾"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-makeup-unboxing-closeups/cover-7c60e66496e5.webp",
+  "legacyId": "tiktok-tt-007"
+}

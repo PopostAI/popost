@@ -1,0 +1,24 @@
+{
+  "source": "https://www.tiktok.com/@igetdeals/photo/7696969584045346078",
+  "kind": "native-post-image",
+  "images": [
+    {
+      "file": "page-01-71283167abc2.jpg",
+      "width": 1320,
+      "height": 618,
+      "sha256": "71283167abc2f7d884895c6e9f05d15fe822e457a35ed6f342f7291e5d2d7636"
+    },
+    {
+      "file": "page-02-fd6550f2cb88.jpg",
+      "width": 1084,
+      "height": 1450,
+      "sha256": "fd6550f2cb887f3fb5d17d8d58a276540fea1fcce1bedf7047a60b98846f6217"
+    },
+    {
+      "file": "page-03-b30602a7fd8b.jpg",
+      "width": 1320,
+      "height": 1760,
+      "sha256": "b30602a7fd8bc2cc292aba1971030e7f70fe9783d9fcbbb59a4040a47f05a480"
+    }
+  ]
+}

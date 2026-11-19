@@ -1,0 +1,9 @@
+{
+  "id": "curated-list",
+  "title": "清单 · 标准下的平行收录",
+  "tags": ["合集", "盘点", "清单", "榜单", "推荐列表", "curated-list"],
+  "scenario_md": "platform-module/templates/curated-list/scenario.md",
+  "html": "platform-module/templates/curated-list/template.html",
+  "assets": [],
+  "mode": "adaptive"
+}

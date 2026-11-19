@@ -1,0 +1,36 @@
+{
+  "source": "https://www.tiktok.com/@kid.shops/photo/7663266315456531742",
+  "kind": "native-post-image",
+  "images": [
+    {
+      "file": "page-01-e39f30cd15bc.jpg",
+      "width": 1792,
+      "height": 2400,
+      "sha256": "e39f30cd15bc03c0a82fae585b003e66afe41f40000e1a9f3add314bfb6c4263"
+    },
+    {
+      "file": "page-02-dec6231f7b80.jpg",
+      "width": 2160,
+      "height": 2880,
+      "sha256": "dec6231f7b80b155b874e192d87044d2c6ce03c7f21c10bc5795bf817871249a"
+    },
+    {
+      "file": "page-03-ada7e13d3197.jpg",
+      "width": 2160,
+      "height": 2880,
+      "sha256": "ada7e13d3197118a5167d445521bb7d03ddff70bc487518fa7f7c6aa97464657"
+    },
+    {
+      "file": "page-04-c4bcbe2be99d.jpg",
+      "width": 2160,
+      "height": 2880,
+      "sha256": "c4bcbe2be99d7a2676838e34b194caea61e50cd79041668b61c18f728b6e63f1"
+    },
+    {
+      "file": "page-05-b4e5f547fe8b.jpg",
+      "width": 2160,
+      "height": 2880,
+      "sha256": "b4e5f547fe8bc9202e3f37e1ed68ca792910940197c7b85d3bfa3e29c2723872"
+    }
+  ]
+}

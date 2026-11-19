@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-kitchen-tool-step-demo",
+  "platform": "tiktok",
+  "categories": [
+    "kitchenware"
+  ],
+  "copy": {
+    "zh": {
+      "name": "厨房好物步骤演示",
+      "summary": "按操作顺序展示厨房工具怎么用。",
+      "useWhen": "适合切配、烘焙或需要分步骤说明的厨具。",
+      "instructions": "上传工具照、关键步骤和成品图，填写卖点。",
+      "output": "厨房好物步骤演示图。"
+    },
+    "en": {
+      "name": "Kitchen Tools in Step-by-step Use",
+      "summary": "Turn your product photos into a TikTok Shop carousel about kitchen Tools in Step-by-step Use.",
+      "useWhen": "For kitchen tools that are easiest to show step by step.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with kitchen Tools in Step-by-step Use."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-kitchen-tool-step-demo/page-01-2568b9309d30.webp",
+    "https://static.popost.ai/templates/tiktok-kitchen-tool-step-demo/page-02-459af10388ac.webp",
+    "https://static.popost.ai/templates/tiktok-kitchen-tool-step-demo/page-03-b65512c30eef.webp",
+    "https://static.popost.ai/templates/tiktok-kitchen-tool-step-demo/page-04-a3e4a6dc542d.webp",
+    "https://static.popost.ai/templates/tiktok-kitchen-tool-step-demo/page-05-ab692ad1b414.webp",
+    "https://static.popost.ai/templates/tiktok-kitchen-tool-step-demo/page-06-7d9315412134.webp",
+    "https://static.popost.ai/templates/tiktok-kitchen-tool-step-demo/page-07-5a30e1a3d41e.webp",
+    "https://static.popost.ai/templates/tiktok-kitchen-tool-step-demo/page-08-a1a8bc496fa1.webp",
+    "https://static.popost.ai/templates/tiktok-kitchen-tool-step-demo/page-09-ea81c9722fab.webp"
+  ],
+  "match": {
+    "goals": [
+      "厨房好物步骤演示",
+      "厨房好物步骤演示型",
+      "厨房用品",
+      "Kitchen Tools in Step-by-step Use",
+      "Kitchenware"
+    ],
+    "imageCues": [
+      "目标收纳结果",
+      "原包装问题",
+      "潮湿风险可见证据",
+      "用户确认的处理步骤",
+      "沥水动作",
+      "收纳盒关键作用"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-kitchen-tool-step-demo/cover-0d485e47b72d.webp",
+  "legacyId": "tiktok-tt-062"
+}

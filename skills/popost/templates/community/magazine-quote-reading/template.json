@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 2,
+  "id": "magazine-quote-reading",
+  "platform": "xiaohongshu",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "杂志风 · 金句解读",
+      "summary": "用大字突出一句原文，再展开出处、含义和应用，让好句子有理解、有启发。",
+      "useWhen": "阅读笔记、访谈金句、演讲和文章精读。",
+      "instructions": "提供逐字原句、出处、相关背景和希望展开的应用方向。",
+      "output": "一组可编辑的小红书图文，默认 3 页。"
+    },
+    "en": {
+      "name": "Editorial Quote Reading",
+      "summary": "Lead with a sourced quote, develop its meaning, then demonstrate a small practical use.",
+      "useWhen": "Book notes, interviews, talks, and close reading.",
+      "instructions": "Provide the exact quote, source, context, and what you wish to apply.",
+      "output": "An editable Xiaohongshu carousel, typically three pages."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/magazine-quote-reading/page-01-3917c664eef3.webp",
+    "https://static.popost.ai/templates/magazine-quote-reading/page-02-1fb6c86851f5.webp",
+    "https://static.popost.ai/templates/magazine-quote-reading/page-03-e9bb3aff2d20.webp"
+  ],
+  "match": {
+    "goals": [
+      "金句解读",
+      "读书笔记",
+      "引语",
+      "原文批注",
+      "close reading"
+    ],
+    "imageCues": [
+      "大字号引文",
+      "边注",
+      "editorial quotation"
+    ],
+    "exclusions": [
+      "无原句",
+      "新闻资讯",
+      "单纯推荐清单"
+    ]
+  },
+  "animatedCover": true
+}

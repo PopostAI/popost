@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-collectible-toy-set-singles",
+  "platform": "tiktok",
+  "categories": [
+    "toys-hobbies"
+  ],
+  "copy": {
+    "zh": {
+      "name": "潮玩全套与单款组合展示",
+      "summary": "先展示整套潮玩，再让每款单独露出。",
+      "useWhen": "适合盲盒、手办和需要区分整套与单款的收藏品。",
+      "instructions": "上传整套合照和单款照片，填写卖点。",
+      "output": "潮玩系列图和单款展示页。"
+    },
+    "en": {
+      "name": "Collectible Toys, Full Sets and Singles",
+      "summary": "Turn your product photos into a TikTok Shop carousel about collectible Toys, Full Sets and Singles.",
+      "useWhen": "For blind boxes and collectibles sold as a set or individually.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with collectible Toys, Full Sets and Singles."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-collectible-toy-set-singles/page-01-1ee0423b47b0.webp",
+    "https://static.popost.ai/templates/tiktok-collectible-toy-set-singles/page-02-e454b74ae070.webp",
+    "https://static.popost.ai/templates/tiktok-collectible-toy-set-singles/page-03-a66c841066ec.webp",
+    "https://static.popost.ai/templates/tiktok-collectible-toy-set-singles/page-04-3aedb53ca4c3.webp",
+    "https://static.popost.ai/templates/tiktok-collectible-toy-set-singles/page-05-e073aaec8bac.webp"
+  ],
+  "match": {
+    "goals": [
+      "潮玩全套与单款组合展示",
+      "潮玩摆件多图组合展示",
+      "玩具与爱好",
+      "Collectible Toys, Full Sets and Singles",
+      "Toys & Hobbies"
+    ],
+    "imageCues": [
+      "全系列与盒装",
+      "第一组角色",
+      "第二组角色",
+      "第三组角色",
+      "第四组角色"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-collectible-toy-set-singles/cover-4ccc4343c47d.webp",
+  "legacyId": "tiktok-tt-061"
+}

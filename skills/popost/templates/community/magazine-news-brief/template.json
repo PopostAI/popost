@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 2,
+  "id": "magazine-news-brief",
+  "platform": "xiaohongshu",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "杂志风 · 新闻资讯",
+      "summary": "报头、主新闻和次新闻网格，保留完整资讯层级。",
+      "useWhen": "有带日期和来源的新闻原稿或主题资讯。",
+      "instructions": "上传相关图片和事实资料，说明主题。",
+      "output": "一组可继续编辑的杂志风图文。"
+    },
+    "en": {
+      "name": "Editorial News Brief",
+      "summary": "Lead with a headline story and organize related reports below.",
+      "useWhen": "You have dated, sourced reporting or several updates on one topic.",
+      "instructions": "Add your photos and verified notes, then describe the topic.",
+      "output": "An editable magazine-style photo post."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/magazine-news-brief/page-01-cdac6607ed37.webp"
+  ],
+  "match": {
+    "goals": [
+      "新闻资讯",
+      "资讯简报",
+      "主新闻",
+      "news roundup",
+      "press digest"
+    ],
+    "imageCues": [
+      "现场照片",
+      "每条独立配图",
+      "event photography"
+    ],
+    "exclusions": [
+      "人物生平",
+      "旅行路线",
+      "biography"
+    ]
+  },
+  "animatedCover": true,
+  "legacyId": "editorial-news-brief"
+}

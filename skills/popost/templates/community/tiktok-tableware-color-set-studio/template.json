@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-tableware-color-set-studio",
+  "platform": "tiktok",
+  "categories": [
+    "kitchenware"
+  ],
+  "copy": {
+    "zh": {
+      "name": "餐具多色套装棚拍展示",
+      "summary": "用统一棚拍对比不同配色餐具套装。",
+      "useWhen": "适合多色餐盘、杯碟和成套售卖的餐具。",
+      "instructions": "上传同机位的套装照和颜色信息，填写卖点。",
+      "output": "餐具套装和配色对比图。"
+    },
+    "en": {
+      "name": "Tableware Color Sets in Studio Scenes",
+      "summary": "Turn your product photos into a TikTok Shop carousel about tableware Color Sets in Studio Scenes.",
+      "useWhen": "For tableware sold in coordinated sets or several colors.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with tableware Color Sets in Studio Scenes."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-tableware-color-set-studio/page-01-e99b1bdc8888.webp",
+    "https://static.popost.ai/templates/tiktok-tableware-color-set-studio/page-02-10213cb929b5.webp",
+    "https://static.popost.ai/templates/tiktok-tableware-color-set-studio/page-03-4d08bd4cc950.webp"
+  ],
+  "match": {
+    "goals": [
+      "餐具多色套装棚拍展示",
+      "餐具棚拍+多色套装展示",
+      "厨房用品",
+      "Tableware Color Sets in Studio Scenes",
+      "Kitchenware"
+    ],
+    "imageCues": [
+      "浅绿套装主图",
+      "蓝色及多色选项",
+      "红色餐具实际摆用"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-tableware-color-set-studio/cover-ff341d57f40e.webp",
+  "legacyId": "tiktok-tt-064"
+}

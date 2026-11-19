@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-interest-mood-product-match",
+  "platform": "tiktok",
+  "categories": [
+    "automotive-motorcycle",
+    "baby-maternity",
+    "beauty-personal-care",
+    "books-magazines-audio",
+    "collectibles",
+    "computers-office-equipment",
+    "fashion-accessories",
+    "food-beverages",
+    "furniture",
+    "health",
+    "home-improvement",
+    "home-supplies",
+    "household-appliances",
+    "jewelry-accessories",
+    "kids-fashion",
+    "kitchenware",
+    "luggage-bags",
+    "menswear-underwear",
+    "modest-fashion",
+    "pet-supplies",
+    "phones-electronics",
+    "shoes",
+    "sports-outdoor",
+    "textiles-soft-furnishings",
+    "tools-hardware",
+    "toys-hobbies",
+    "womenswear-underwear"
+  ],
+  "copy": {
+    "zh": {
+      "name": "兴趣氛围同款呼应",
+      "summary": "用兴趣符号建立认同，再展示能回应该符号的商品细节。",
+      "useWhen": "适用于有实际兴趣符号、主题色、图案或用途关联的商品，可跨服饰、配饰、家居、图书与玩具。",
+      "instructions": "上传清晰产品图并说明需求，按本模板组织钩子与商品回应。",
+      "output": "可编辑的同款模板风格多页图文。"
+    },
+    "en": {
+      "name": "Interest Mood Product Match",
+      "summary": "Create a TikTok photo carousel using interest mood product match.",
+      "useWhen": "Use a interest mood product match structure with supported product facts.",
+      "instructions": "Upload product photos and describe your request.",
+      "output": "An editable TikTok photo carousel."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-interest-mood-product-match/page-01-5e93d3ee29da.webp",
+    "https://static.popost.ai/templates/tiktok-interest-mood-product-match/page-02-113331922080.webp"
+  ],
+  "match": {
+    "goals": [
+      "兴趣认同",
+      "主题商品",
+      "爱好周边",
+      "interest mood",
+      "themed product"
+    ],
+    "imageCues": [
+      "主题拼贴",
+      "符号呼应",
+      "正背面细节",
+      "兴趣场景"
+    ],
+    "exclusions": [
+      "无主题联系",
+      "凭空联名",
+      "unrelated mood"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/ae97c061fe74c1bfd2f1d20cd5362112ba6a4e2abac20a8c12fb8834298c5fb0.webp"
+}

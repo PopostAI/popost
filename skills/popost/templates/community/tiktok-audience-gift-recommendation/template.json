@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-audience-gift-recommendation",
+  "platform": "tiktok",
+  "categories": [
+    "automotive-motorcycle",
+    "baby-maternity",
+    "beauty-personal-care",
+    "books-magazines-audio",
+    "collectibles",
+    "computers-office-equipment",
+    "fashion-accessories",
+    "food-beverages",
+    "furniture",
+    "health",
+    "home-improvement",
+    "home-supplies",
+    "household-appliances",
+    "jewelry-accessories",
+    "kids-fashion",
+    "kitchenware",
+    "luggage-bags",
+    "menswear-underwear",
+    "modest-fashion",
+    "pet-supplies",
+    "phones-electronics",
+    "shoes",
+    "sports-outdoor",
+    "textiles-soft-furnishings",
+    "tools-hardware",
+    "toys-hobbies",
+    "womenswear-underwear"
+  ],
+  "copy": {
+    "zh": {
+      "name": "人群点名礼物推荐",
+      "summary": "首屏点名收礼人并露出商品，再补充套装或选款理由。",
+      "useWhen": "跨品类的礼物和人群推荐。",
+      "instructions": "上传清晰产品图并说明需求，按本模板组织钩子与商品回应。",
+      "output": "可编辑的同款模板风格多页图文。"
+    },
+    "en": {
+      "name": "Audience Callout Gift Recommendation",
+      "summary": "Create a TikTok photo carousel using audience callout gift recommendation.",
+      "useWhen": "Use a audience callout gift recommendation structure with supported product facts.",
+      "instructions": "Upload product photos and describe your request.",
+      "output": "An editable TikTok photo carousel."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-audience-gift-recommendation/page-01-00ce39c49821.webp",
+    "https://static.popost.ai/templates/tiktok-audience-gift-recommendation/page-02-80e385710e3e.webp"
+  ],
+  "match": {
+    "goals": [
+      "点名人群",
+      "礼物推荐",
+      "套装送礼",
+      "audience callout",
+      "gift set"
+    ],
+    "imageCues": [
+      "商品首屏露出",
+      "台面礼盒",
+      "白底短段",
+      "内容展开"
+    ],
+    "exclusions": [
+      "先藏商品",
+      "技术教程",
+      "hidden product hook",
+      "开箱过程",
+      "填写内页",
+      "unboxing",
+      "opening",
+      "fill-in",
+      "album"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/c38f5432e0b69f022e59ed0896999eea61bc29651cf39717d4fbb59a1daffd56.webp"
+}

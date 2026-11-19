@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-cleaning-appliance-feature-demo",
+  "platform": "tiktok",
+  "categories": [
+    "household-appliances"
+  ],
+  "copy": {
+    "zh": {
+      "name": "清洁家电实拍与功能拆解",
+      "summary": "用实拍演示清洁家电的主要功能。",
+      "useWhen": "适合洗地机、蒸汽清洁机等多功能清洁设备。",
+      "instructions": "上传清洁过程、配件图和官方功能，填写卖点。",
+      "output": "清洁家电功能图和操作展示。"
+    },
+    "en": {
+      "name": "Cleaning Appliances and Feature Breakdown",
+      "summary": "Turn your product photos into a TikTok Shop carousel about cleaning Appliances and Feature Breakdown.",
+      "useWhen": "For floor washers, steam cleaners, and other multi-function appliances.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with cleaning Appliances and Feature Breakdown."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-cleaning-appliance-feature-demo/page-01-1239057a3502.webp",
+    "https://static.popost.ai/templates/tiktok-cleaning-appliance-feature-demo/page-02-b2e0f4efefdd.webp",
+    "https://static.popost.ai/templates/tiktok-cleaning-appliance-feature-demo/page-03-82535688071c.webp",
+    "https://static.popost.ai/templates/tiktok-cleaning-appliance-feature-demo/page-04-42ca5b183ea1.webp",
+    "https://static.popost.ai/templates/tiktok-cleaning-appliance-feature-demo/page-05-06abf993c443.webp",
+    "https://static.popost.ai/templates/tiktok-cleaning-appliance-feature-demo/page-06-3b1e3f31dc11.webp",
+    "https://static.popost.ai/templates/tiktok-cleaning-appliance-feature-demo/page-07-28342d21c3cf.webp"
+  ],
+  "match": {
+    "goals": [
+      "清洁家电实拍与功能拆解",
+      "扫地机实拍+功能拆解",
+      "家用电器",
+      "Cleaning Appliances and Feature Breakdown",
+      "Household Appliances"
+    ],
+    "imageCues": [
+      "清洁路线开头",
+      "底部刷头与拖布",
+      "集尘仓",
+      "路径功能资料",
+      "边角功能资料",
+      "实物与控制功能"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-cleaning-appliance-feature-demo/cover-25f9a37e8f59.webp",
+  "legacyId": "tiktok-tt-032"
+}

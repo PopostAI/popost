@@ -1,0 +1,24 @@
+{
+  "source": "https://www.tiktok.com/@micfavefinds/photo/7658860363638672653",
+  "kind": "native-post-image",
+  "images": [
+    {
+      "file": "page-01-ea39c8d82066.jpg",
+      "width": 1080,
+      "height": 1440,
+      "sha256": "ea39c8d820668e3fb47e185d95169643fdf5eba55396863da160fcc8e8e09df6"
+    },
+    {
+      "file": "page-02-b2db7aa74a2d.jpg",
+      "width": 1080,
+      "height": 1440,
+      "sha256": "b2db7aa74a2dc31ea3177921ba26dd3442b0efa7d02efe546984d77445148cc5"
+    },
+    {
+      "file": "page-03-f01d4e28c8f0.jpg",
+      "width": 1080,
+      "height": 1440,
+      "sha256": "f01d4e28c8f048b025b04fe908dc50ebf40e9baf3c04b9dfe4830d4b362f3072"
+    }
+  ]
+}

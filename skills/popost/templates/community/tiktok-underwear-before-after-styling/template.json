@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-underwear-before-after-styling",
+  "platform": "tiktok",
+  "categories": [
+    "womenswear-underwear"
+  ],
+  "copy": {
+    "zh": {
+      "name": "内衣穿搭前后对比",
+      "summary": "把同一套搭配的穿前穿后放在一起。",
+      "useWhen": "适合想说明内衣如何改变整套穿搭效果的商品。",
+      "instructions": "上传同角度的穿搭前后照，填写卖点。",
+      "output": "内衣穿搭对比和细节页。"
+    },
+    "en": {
+      "name": "Underwear Styling Before and After",
+      "summary": "Turn your product photos into a TikTok Shop carousel about underwear Styling Before and After.",
+      "useWhen": "For showing how an undergarment changes the look of an outfit.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with underwear Styling Before and After."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-underwear-before-after-styling/page-01-ada09645a5e1.webp",
+    "https://static.popost.ai/templates/tiktok-underwear-before-after-styling/page-02-bddd033d3d95.webp",
+    "https://static.popost.ai/templates/tiktok-underwear-before-after-styling/page-03-727e070904e8.webp",
+    "https://static.popost.ai/templates/tiktok-underwear-before-after-styling/page-04-5f51e54f0d6e.webp",
+    "https://static.popost.ai/templates/tiktok-underwear-before-after-styling/page-05-f1712fc76044.webp",
+    "https://static.popost.ai/templates/tiktok-underwear-before-after-styling/page-06-486291aabb39.webp"
+  ],
+  "match": {
+    "goals": [
+      "内衣穿搭前后对比",
+      "内衣痛点对比型",
+      "女装与内衣",
+      "Underwear Styling Before and After",
+      "Womenswear & Underwear"
+    ],
+    "imageCues": [
+      "先展示肩带外露",
+      "同位展示低背改善",
+      "单独亮出目标款",
+      "展示绕颈系法",
+      "正面支撑结构",
+      "同人穿搭收尾"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-underwear-before-after-styling/cover-3a86464612e7.webp",
+  "legacyId": "tiktok-tt-003"
+}

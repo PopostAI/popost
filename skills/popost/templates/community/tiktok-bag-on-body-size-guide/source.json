@@ -1,0 +1,54 @@
+{
+  "source": "https://www.tiktok.com/@kikilovebag/photo/7693416679493078286",
+  "kind": "native-post-image",
+  "images": [
+    {
+      "file": "page-01-328e1913a114.jpg",
+      "width": 3072,
+      "height": 4096,
+      "sha256": "328e1913a11490eb6401aff781f12a63e7c7708c440dc71a7204f138e162866f"
+    },
+    {
+      "file": "page-02-52c3ed2b3a55.jpg",
+      "width": 3072,
+      "height": 4096,
+      "sha256": "52c3ed2b3a55a5390a362949a2a8cda128117e8ae041c15560c8cf978f64e413"
+    },
+    {
+      "file": "page-03-4a2eb51ea9ae.jpg",
+      "width": 2048,
+      "height": 2048,
+      "sha256": "4a2eb51ea9aed1a108f3f294ab1b27ae283f5553b212f2a055817750d0384518"
+    },
+    {
+      "file": "page-04-21b896426465.jpg",
+      "width": 2412,
+      "height": 3154,
+      "sha256": "21b89642646514fee14f6cd6cc20f755e33b103d1b8b72f3fca4a484f4698108"
+    },
+    {
+      "file": "page-05-c21848d9ecc7.jpg",
+      "width": 2388,
+      "height": 3184,
+      "sha256": "c21848d9ecc733966128f8b40cf083fadd9d1abcec71079da2a446c310259f12"
+    },
+    {
+      "file": "page-06-33b8a8fcbb75.jpg",
+      "width": 2388,
+      "height": 3184,
+      "sha256": "33b8a8fcbb75de0df9427a7136505e07176e90c2d2fb61dc8acc974e04ffcd01"
+    },
+    {
+      "file": "page-07-b5dc010cb446.jpg",
+      "width": 2412,
+      "height": 3142,
+      "sha256": "b5dc010cb446762abf4ca50fe089288dcdb00d360d659ac0838c98d40b66a6b8"
+    },
+    {
+      "file": "page-08-e39f59f6ddaf.jpg",
+      "width": 2388,
+      "height": 3184,
+      "sha256": "e39f59f6ddaf1dd0392481024b3e7fbefee508062d8035c7b68b2dbfa9684b1e"
+    }
+  ]
+}

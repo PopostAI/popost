@@ -1,0 +1,42 @@
+{
+  "source": "https://www.tiktok.com/@gobuygobike/photo/7674850905254055182",
+  "kind": "native-post-image",
+  "images": [
+    {
+      "file": "page-01-3c0ee115d202.jpg",
+      "width": 1152,
+      "height": 1536,
+      "sha256": "3c0ee115d2021c3a4cba584b2170cc6b198decd1ab79345fa554bbc25628ea3b"
+    },
+    {
+      "file": "page-02-9ae50e3e5cba.jpg",
+      "width": 1152,
+      "height": 1536,
+      "sha256": "9ae50e3e5cbaf6a4735138c5d9a24da42835957ef8ce6fd87c50dbde69ac375d"
+    },
+    {
+      "file": "page-03-e39b72eedf91.jpg",
+      "width": 1152,
+      "height": 1536,
+      "sha256": "e39b72eedf9148d7c11b869c3ee0325a631a50588480b7ebd57f5b1014b38b98"
+    },
+    {
+      "file": "page-04-cf829671c84e.jpg",
+      "width": 1152,
+      "height": 1536,
+      "sha256": "cf829671c84e7551327d2bd73b1546cfb3d576c660c7b6ccb5993bef904e2bd3"
+    },
+    {
+      "file": "page-05-5ff4a7945541.jpg",
+      "width": 1152,
+      "height": 1536,
+      "sha256": "5ff4a79455415413847cb4f20042b72a2e6d6ddffb64b16af176133387ff5a01"
+    },
+    {
+      "file": "page-06-f2ba44612d89.jpg",
+      "width": 1152,
+      "height": 1536,
+      "sha256": "f2ba44612d89566297025318fe6e77fea39fe5b59671f713b958681862988396"
+    }
+  ]
+}

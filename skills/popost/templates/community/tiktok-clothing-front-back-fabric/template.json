@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-clothing-front-back-fabric",
+  "platform": "tiktok",
+  "categories": [
+    "menswear-underwear"
+  ],
+  "copy": {
+    "zh": {
+      "name": "服装正背面与面料细节",
+      "summary": "通过正背面和面料近景讲清做工。",
+      "useWhen": "适合需要突出剪裁、缝线或面料纹理的服装。",
+      "instructions": "上传服装正背面照和面料近景，填写卖点。",
+      "output": "服装版型图和面料细节页。"
+    },
+    "en": {
+      "name": "Front and Back Views with Fabric Details",
+      "summary": "Turn your product photos into a TikTok Shop carousel about front and Back Views with Fabric Details.",
+      "useWhen": "For garments where cut, seams, or fabric texture matter.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with front and Back Views with Fabric Details."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-clothing-front-back-fabric/page-01-776907380070.webp",
+    "https://static.popost.ai/templates/tiktok-clothing-front-back-fabric/page-02-25c9ae7fc96b.webp",
+    "https://static.popost.ai/templates/tiktok-clothing-front-back-fabric/page-03-5c5e09b28c4b.webp",
+    "https://static.popost.ai/templates/tiktok-clothing-front-back-fabric/page-04-5585e49aca23.webp",
+    "https://static.popost.ai/templates/tiktok-clothing-front-back-fabric/page-05-74c7c2cd5c83.webp",
+    "https://static.popost.ai/templates/tiktok-clothing-front-back-fabric/page-06-48e21c30f7cf.webp",
+    "https://static.popost.ai/templates/tiktok-clothing-front-back-fabric/page-07-0a59b44a2ede.webp"
+  ],
+  "match": {
+    "goals": [
+      "服装正背面与面料细节",
+      "服饰平铺细节型",
+      "男装与内衣",
+      "Front and Back Views with Fabric Details",
+      "Menswear & Underwear"
+    ],
+    "imageCues": [
+      "正面挂拍",
+      "背面挂拍",
+      "局部花纹",
+      "领口与拼缝近景",
+      "完整正面",
+      "完整背面"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-clothing-front-back-fabric/cover-80b2c5e28f06.webp",
+  "legacyId": "tiktok-tt-014"
+}

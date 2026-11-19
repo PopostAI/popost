@@ -1,0 +1,53 @@
+{
+  "name": "popost-repo",
+  "version": "0.1.0",
+  "private": true,
+  "license": "SEE LICENSE IN LICENSE",
+  "author": "CLIPCAT AI LTD",
+  "type": "module",
+  "workspaces": [
+    "skills/popost"
+  ],
+  "scripts": {
+    "dev": "vite --config packages/canvas-editor/vite.config.ts",
+    "build": "npm run build:editor && npm run publish:editor",
+    "build:editor": "vite build --config packages/canvas-editor/vite.config.ts",
+    "publish:editor": "node scripts/publish-editor.mjs",
+    "typecheck": "tsc -p packages/canvas-editor/tsconfig.json && npm run typecheck -w popost",
+    "lint": "eslint packages/canvas-editor skills/popost/src skills/popost/tests",
+    "test": "vitest run --config packages/canvas-editor/vitest.config.ts && npm test -w popost",
+    "test:skill": "npm test -w popost",
+    "check": "npm run typecheck && npm run lint && npm run test",
+    "build:skill": "npm run build -w popost",
+    "pack:skill": "npm run build -w popost && npm pack -w popost --pack-destination skills/popost",
+    "release:check": "node scripts/release/check-skill-package.mjs",
+    "release:smoke": "node scripts/release/smoke-install.mjs"
+  },
+  "dependencies": {
+    "ag-psd": "^34.2.0",
+    "codemirror": "5.65.20",
+    "html-to-image": "^1.11.13",
+    "jszip": "^3.10.2",
+    "parse5": "^7.3.0",
+    "pdf-lib": "^1.17.1",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9",
+    "@types/node": "^24",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^5",
+    "esbuild": "^0.28.2",
+    "eslint": "^9",
+    "eslint-plugin-react-hooks": "^7",
+    "fake-indexeddb": "^6.2.7",
+    "globals": "^17",
+    "happy-dom": "^18.0.1",
+    "typescript": "~5.9",
+    "typescript-eslint": "^8",
+    "vite": "^8",
+    "vitest": "^3.2.7"
+  }
+}

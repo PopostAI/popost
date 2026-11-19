@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-comment-product-reveal",
+  "platform": "tiktok",
+  "categories": [
+    "automotive-motorcycle",
+    "baby-maternity",
+    "beauty-personal-care",
+    "books-magazines-audio",
+    "collectibles",
+    "computers-office-equipment",
+    "fashion-accessories",
+    "food-beverages",
+    "furniture",
+    "health",
+    "home-improvement",
+    "home-supplies",
+    "household-appliances",
+    "jewelry-accessories",
+    "kids-fashion",
+    "kitchenware",
+    "luggage-bags",
+    "menswear-underwear",
+    "modest-fashion",
+    "pet-supplies",
+    "phones-electronics",
+    "shoes",
+    "sports-outdoor",
+    "textiles-soft-furnishings",
+    "tools-hardware",
+    "toys-hobbies",
+    "womenswear-underwear"
+  ],
+  "copy": {
+    "zh": {
+      "name": "评论互动商品揭晓",
+      "summary": "用评论与回复接梗，再用商品实拍兑现讨论。",
+      "useWhen": "适用于可由商品外观、款式、细节或已核实资料回应的问题，跨品类使用。",
+      "instructions": "上传清晰产品图并说明需求，按本模板组织钩子与商品回应。",
+      "output": "可编辑的同款模板风格多页图文。"
+    },
+    "en": {
+      "name": "Comment Reply Product Reveal",
+      "summary": "Create a TikTok photo carousel using comment reply product reveal.",
+      "useWhen": "Use a comment reply product reveal structure with supported product facts.",
+      "instructions": "Upload product photos and describe your request.",
+      "output": "An editable TikTok photo carousel."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-comment-product-reveal/page-01-08236767396a.webp",
+    "https://static.popost.ai/templates/tiktok-comment-product-reveal/page-02-74c6b5c2d7ee.webp"
+  ],
+  "match": {
+    "goals": [
+      "评论接梗",
+      "评论回复",
+      "质疑回应",
+      "comment reply",
+      "product reveal"
+    ],
+    "imageCues": [
+      "主评论与缩进回复",
+      "圆形头像",
+      "心形点赞",
+      "黑底留白"
+    ],
+    "exclusions": [
+      "私信气泡",
+      "新闻长文",
+      "direct message"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/4c670d8bc0c9fab2e9b90dc8c4b50705e948549ca487c1c5ca7d7d5451f2e623.webp"
+}

@@ -1,0 +1,71 @@
+{
+  "name": "popost",
+  "version": "4.6.0",
+  "description": "popost Skill and CLI: create, reproduce and edit social media image posts as editable HTML projects, for coding agents such as Codex and Claude Code.",
+  "license": "SEE LICENSE IN LICENSE",
+  "author": "CLIPCAT AI LTD",
+  "homepage": "https://popost.ai",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PopostAI/popost.git",
+    "directory": "skills/popost"
+  },
+  "keywords": [
+    "popost",
+    "skill",
+    "agent",
+    "codex",
+    "claude-code",
+    "social-media",
+    "xiaohongshu",
+    "carousel",
+    "html"
+  ],
+  "type": "module",
+  "bin": {
+    "popost": "dist/cli.js"
+  },
+  "main": "dist/index.js",
+  "types": "dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist/",
+    "SKILL.md",
+    "README.md",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES",
+    "agents/",
+    "references/",
+    "templates/",
+    "assets/canvas/",
+    "assets/project-starter/",
+    "assets/mock/",
+    "assets/fonts/palette.json",
+    "assets/fonts/NOTICE.txt",
+    "assets/fonts/css/",
+    "assets/fonts/*/LICENSE",
+    "assets/*.json",
+    "assets/*.txt"
+  ],
+  "engines": {
+    "node": ">=20.19"
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "build:deck": "node bundles/build-deck.mjs",
+    "check:deck": "node bundles/build-deck.mjs --check",
+    "typecheck": "tsc -p tsconfig.json && tsc -p bundles/tsconfig.json",
+    "test": "vitest run --config vitest.config.ts"
+  },
+  "dependencies": {
+    "fflate": "^0.8.3",
+    "playwright-core": "1.64.1",
+    "htmlparser2": "^12.0.0"
+  }
+}

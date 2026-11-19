@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-accessory-wearing-closeups",
+  "platform": "tiktok",
+  "categories": [
+    "fashion-accessories"
+  ],
+  "copy": {
+    "zh": {
+      "name": "配饰手持与佩戴特写",
+      "summary": "用手持和佩戴近景讲清配饰大小与质感。",
+      "useWhen": "适合帽子、眼镜等需要看实物大小和佩戴效果的配饰。",
+      "instructions": "上传配饰手持照、佩戴照和细节，填写卖点。",
+      "output": "配饰佩戴效果和细节图。"
+    },
+    "en": {
+      "name": "Handheld Accessories and Wearing Details",
+      "summary": "Turn your product photos into a TikTok Shop carousel about handheld Accessories and Wearing Details.",
+      "useWhen": "For hats, glasses, and accessories whose scale matters when worn.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with handheld Accessories and Wearing Details."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-accessory-wearing-closeups/page-01-ef4e378449eb.webp",
+    "https://static.popost.ai/templates/tiktok-accessory-wearing-closeups/page-02-878e674d47ea.webp",
+    "https://static.popost.ai/templates/tiktok-accessory-wearing-closeups/page-03-2be804a91f3e.webp",
+    "https://static.popost.ai/templates/tiktok-accessory-wearing-closeups/page-04-4c464ec698e7.webp"
+  ],
+  "match": {
+    "goals": [
+      "配饰手持与佩戴特写",
+      "车内手持特写型",
+      "时尚配饰",
+      "Handheld Accessories and Wearing Details",
+      "Fashion Accessories"
+    ],
+    "imageCues": [
+      "手持风格开头",
+      "真人佩戴",
+      "绣花近景",
+      "手持回看与选择提示"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-accessory-wearing-closeups/cover-e152ad1ae10c.webp",
+  "legacyId": "tiktok-tt-057"
+}

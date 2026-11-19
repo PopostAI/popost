@@ -1,0 +1,4 @@
+interface:
+  display_name: "popost skill"
+  short_description: "社媒单图与多图文创作、同款复刻和本地画布编辑，支持整组构图与传播计划。"
+  default_prompt: "用 popost 复刻这个图文链接 XX，我的内容是 XX。也可以上传参考图；创作图文时，提供产品图、要求和风格，或让 Popost 自动检索模板库、指定模板风格。"

@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 2,
+  "id": "magazine-parallel-workflow",
+  "platform": "xiaohongshu",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "杂志风 · 工作流程",
+      "summary": "先展示两条工作的完整步骤，再标出配合与交接，讲清事情如何一起完成。",
+      "useWhen": "团队协作、周末市集和内容生产的并行分工。",
+      "instructions": "给两条任务线、各自阶段、负责人、交付物和交接时机。",
+      "output": "一组可编辑的小红书图文，默认 3 页。"
+    },
+    "en": {
+      "name": "Editorial Parallel Workflow",
+      "summary": "Explain two side-by-side workflows and show who hands over what at each checkpoint.",
+      "useWhen": "Working in pairs, production logistics, and content handoffs.",
+      "instructions": "Provide both tracks, stages, owners, deliverables, and handoff times.",
+      "output": "An editable Xiaohongshu carousel, typically three pages."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/magazine-parallel-workflow/page-01-b311222bc2b1.webp",
+    "https://static.popost.ai/templates/magazine-parallel-workflow/page-02-b135b8547b8a.webp",
+    "https://static.popost.ai/templates/magazine-parallel-workflow/page-03-889b1b08a4a5.webp"
+  ],
+  "match": {
+    "goals": [
+      "工作流程",
+      "摆摊分工",
+      "团队交接",
+      "双轨流程",
+      "parallel workflow"
+    ],
+    "imageCues": [
+      "并列泳道",
+      "双线交接",
+      "handoff map"
+    ],
+    "exclusions": [
+      "复盘反馈循环",
+      "单线步骤",
+      "工作日程列表"
+    ]
+  },
+  "animatedCover": true
+}

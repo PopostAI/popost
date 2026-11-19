@@ -1,0 +1,9 @@
+{
+  "id": "step-guide",
+  "title": "步骤 · 有序操作与完成检查",
+  "tags": ["步骤", "教程", "怎么做", "手把手", "分步", "攻略", "step-guide"],
+  "scenario_md": "platform-module/templates/step-guide/scenario.md",
+  "html": "platform-module/templates/step-guide/template.html",
+  "assets": [],
+  "mode": "adaptive"
+}

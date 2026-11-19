@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-baby-product-capacity-accessories",
+  "platform": "tiktok",
+  "categories": [
+    "baby-maternity"
+  ],
+  "copy": {
+    "zh": {
+      "name": "母婴用品容量与配件展示",
+      "summary": "把母婴用品容量和盒内配件一起展示。",
+      "useWhen": "适合带储存容量或多种配件的母婴用品。",
+      "instructions": "上传商品照、容量资料和配件图，填写卖点。",
+      "output": "母婴用品容量卡和配件清单。"
+    },
+    "en": {
+      "name": "Baby-product Capacity and Accessories",
+      "summary": "Turn your product photos into a TikTok Shop carousel about baby-product Capacity and Accessories.",
+      "useWhen": "For baby products with capacity or included accessories to explain.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with baby-product Capacity and Accessories."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-baby-product-capacity-accessories/page-01-50e60fad17bb.webp",
+    "https://static.popost.ai/templates/tiktok-baby-product-capacity-accessories/page-02-1da0251911e2.webp",
+    "https://static.popost.ai/templates/tiktok-baby-product-capacity-accessories/page-03-ca59ecf1278b.webp",
+    "https://static.popost.ai/templates/tiktok-baby-product-capacity-accessories/page-04-79b8003670f8.webp",
+    "https://static.popost.ai/templates/tiktok-baby-product-capacity-accessories/page-05-f1711f272b90.webp",
+    "https://static.popost.ai/templates/tiktok-baby-product-capacity-accessories/page-06-a45215d93222.webp",
+    "https://static.popost.ai/templates/tiktok-baby-product-capacity-accessories/page-07-b76835434c75.webp",
+    "https://static.popost.ai/templates/tiktok-baby-product-capacity-accessories/page-08-28640dc87d87.webp"
+  ],
+  "match": {
+    "goals": [
+      "母婴用品容量与配件展示",
+      "母婴功能拆解图",
+      "母婴用品",
+      "Baby-product Capacity and Accessories",
+      "Baby & Maternity"
+    ],
+    "imageCues": [
+      "洗瓶机与瓶组",
+      "真实耗材或套装清单",
+      "奶瓶容量",
+      "上层小件",
+      "吸奶配件",
+      "其他适用小件"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-baby-product-capacity-accessories/cover-9782a4481325.webp",
+  "legacyId": "tiktok-tt-072"
+}

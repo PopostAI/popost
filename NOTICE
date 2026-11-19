@@ -1,0 +1,24 @@
+Popost
+Copyright © 2026 CLIPCAT AI LTD
+
+Popost is licensed under the terms in LICENSE (a modified Apache License 2.0).
+It includes the third-party components below, which keep their own licenses.
+
+Fonts
+- skills/popost/assets/fonts/ (41 families): SIL Open Font License 1.1. Each family folder
+  keeps its original copyright and license text; see skills/popost/assets/fonts/NOTICE.txt.
+
+Canvas editor (packages/canvas-editor)
+- The editor build bundles npm packages (React, parse5, CodeMirror 5, html-to-image, JSZip, pdf-lib and ag-psd). Their license
+  texts are generated into skills/popost/assets/canvas/THIRD_PARTY_LICENSES.txt by
+  `npm run publish:editor`.
+
+Community template reference images
+- The preview pages are not stored in this repository. Each template's template.json lists
+  them as public image URLs (https://static.popost.ai/templates/<template>/). The original
+  social-post pages of the tiktok-* templates remain the work of their respective creators.
+  Each template's source.json and reference notes link to its original TikTok post. The repository's software license does not grant
+  rights in third-party photographs, trademarks or advertising copy. These pages are style
+  references, not reusable product assets for a new advertisement.
+- The six editorial preview images are layout examples. Their instructions were independently
+  written for this catalog; example photos and titles are replaced with the user's own material.

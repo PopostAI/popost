@@ -1,0 +1,30 @@
+{
+  "source": "https://www.tiktok.com/@kombuchaluvr222/photo/7668594065356754190",
+  "kind": "native-post-image",
+  "images": [
+    {
+      "file": "page-01-a8b1806d766f.jpg",
+      "width": 2160,
+      "height": 2880,
+      "sha256": "a8b1806d766fef354dee25654e8f85c1fcd56b3c9c1e0bb674d619def92f366b"
+    },
+    {
+      "file": "page-02-87e67f806e3b.jpg",
+      "width": 2160,
+      "height": 2880,
+      "sha256": "87e67f806e3bbe1a22161b9d6fa07706e9dd24b042a718a0639a86298eb508c9"
+    },
+    {
+      "file": "page-03-f030e5822d85.jpg",
+      "width": 2160,
+      "height": 2880,
+      "sha256": "f030e5822d858eec7dce4b89e232aa8ca2155373ca1adf31e25462e5690d2577"
+    },
+    {
+      "file": "page-04-663d553dc903.jpg",
+      "width": 2160,
+      "height": 2880,
+      "sha256": "663d553dc9036c1ff6ecc25d1c3aeeb5f1505c30625b56a952264ba174d42423"
+    }
+  ]
+}

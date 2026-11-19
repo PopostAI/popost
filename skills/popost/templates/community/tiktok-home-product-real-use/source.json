@@ -1,0 +1,42 @@
+{
+  "source": "https://www.tiktok.com/@the.thrift.life/photo/7676485302629829902",
+  "kind": "native-post-image",
+  "images": [
+    {
+      "file": "page-01-ed5a44d948ef.jpg",
+      "width": 1440,
+      "height": 1920,
+      "sha256": "ed5a44d948ef5ca9097271a11855735b8c5e531bd890b5ce1f8c2fb7e27f49c3"
+    },
+    {
+      "file": "page-02-816477fd89b2.jpg",
+      "width": 1440,
+      "height": 1920,
+      "sha256": "816477fd89b2c5818a80fd25bef44d708a4436587ec7baa6a6da19f0b2cfeee1"
+    },
+    {
+      "file": "page-03-dcbd43fb90ee.jpg",
+      "width": 1440,
+      "height": 1920,
+      "sha256": "dcbd43fb90ee7b55cbf5e1fada295e951a5778b6561015962486fdca9b255ecd"
+    },
+    {
+      "file": "page-04-b7d460eab12f.jpg",
+      "width": 1440,
+      "height": 1920,
+      "sha256": "b7d460eab12f8b2ef54ce6218945c3f6d898a07af77ca37ae9fa0be16271b9a8"
+    },
+    {
+      "file": "page-05-f94cbe406f00.jpg",
+      "width": 1440,
+      "height": 1920,
+      "sha256": "f94cbe406f009226141548bd78efbce3ef1af9fc1333721bcb63eea34b86113e"
+    },
+    {
+      "file": "page-06-db3a7638e4f5.jpg",
+      "width": 1440,
+      "height": 1920,
+      "sha256": "db3a7638e4f548e962abadac873bd992e70f0339454141db6a74c4e21e706bbd"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "schema": "template-meta.v1",
+  "id": "curated-list",
+  "title": "清单 · 标准下的平行收录",
+  "tags": [
+    "合集",
+    "盘点",
+    "清单",
+    "榜单",
+    "推荐列表",
+    "curated-list"
+  ],
+  "aliases": [
+    "合集",
+    "盘点",
+    "清单",
+    "榜单",
+    "推荐列表",
+    "curated-list"
+  ],
+  "scenario_md": "scenario.md",
+  "html": "template.html",
+  "assets": [],
+  "mode": "original",
+  "version": "platform-module/1.0",
+  "license": "internal-original",
+  "origin": {
+    "module": "platform-module",
+    "originalMode": "adaptive",
+    "originalManifest": "source.manifest.json",
+    "note": "adaptive=结构固定、仅靠 CSS 令牌切换平台画幅；非杂志美学"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  // The in-page code is typed for a browser and with the editor package's own strictness: it compiles the editor's source.
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "noUncheckedIndexedAccess": false,
+    "types": []
+  },
+  "include": ["deck-entry.ts"]
+}

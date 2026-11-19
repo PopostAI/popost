@@ -1,0 +1,11 @@
+THIRD_PARTY NOTICES
+===================
+
+- assets/canvas/ : the Popost canvas editor (source in the repository's packages/canvas-editor/ folder, our own
+  code). It bundles npm packages (React, parse5, CodeMirror 5, html-to-image, JSZip, pdf-lib and ag-psd); their licence texts are in
+  assets/canvas/THIRD_PARTY_LICENSES.txt, generated at publish time.
+
+- assets/fonts/<role>/*.woff2 : 41 original Fontsource font families under
+  SIL Open Font License 1.1. See each family LICENSE and assets/fonts/NOTICE.txt.
+  assets/fonts/palette.json records pinned package versions, file SHA-256,
+  license SHA-256 and measured glyph coverage. Font binaries are unmodified.

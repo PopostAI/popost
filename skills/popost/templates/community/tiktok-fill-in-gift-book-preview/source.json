@@ -1,0 +1,36 @@
+{
+  "source": "https://www.tiktok.com/@lilyladuefinds/photo/7677095787360161054",
+  "kind": "native-post-image",
+  "images": [
+    {
+      "file": "page-01-dc97ff7954ae.jpg",
+      "width": 1080,
+      "height": 1920,
+      "sha256": "dc97ff7954ae4c94d976ae9c2295394589d284ebd45d35e0d1ddd238ef744a48"
+    },
+    {
+      "file": "page-02-5387e39a2f3b.jpg",
+      "width": 1298,
+      "height": 2306,
+      "sha256": "5387e39a2f3b0bdabe4bc86a44e76c2c0e21c997e43041b08a7e0f57ec714954"
+    },
+    {
+      "file": "page-03-1e58ea130988.jpg",
+      "width": 1272,
+      "height": 2260,
+      "sha256": "1e58ea130988b3c5db522c1590fbf02dc274ea6b3287211cd6512f83399377d4"
+    },
+    {
+      "file": "page-04-faafc82de861.jpg",
+      "width": 1290,
+      "height": 2292,
+      "sha256": "faafc82de8616c2cc4a14919cf5a7ffbc1a20a76f238b4c8cd3b12befebb04fc"
+    },
+    {
+      "file": "page-05-c13ef27a0349.jpg",
+      "width": 1278,
+      "height": 2272,
+      "sha256": "c13ef27a0349a6c2f8b128d22ab6d13bbbb10b1bd93e58452c36f34258a73afe"
+    }
+  ]
+}

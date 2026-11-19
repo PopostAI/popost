@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-home-product-real-use",
+  "platform": "tiktok",
+  "categories": [
+    "home-supplies"
+  ],
+  "copy": {
+    "zh": {
+      "name": "家居好物功能实拍",
+      "summary": "用生活场景实拍讲清家居好物怎么用。",
+      "useWhen": "适合需要展示真实日常用法的小型居家用品。",
+      "instructions": "上传产品照和实际使用照片，填写卖点。",
+      "output": "家居好物场景图和功能页。"
+    },
+    "en": {
+      "name": "Home Essentials in Real Use",
+      "summary": "Turn your product photos into a TikTok Shop carousel about home Essentials in Real Use.",
+      "useWhen": "For household essentials best understood through everyday use.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with home Essentials in Real Use."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-home-product-real-use/page-01-b9d0dde64faf.webp",
+    "https://static.popost.ai/templates/tiktok-home-product-real-use/page-02-d3a831c348b3.webp",
+    "https://static.popost.ai/templates/tiktok-home-product-real-use/page-03-62a7a4cb7cc3.webp",
+    "https://static.popost.ai/templates/tiktok-home-product-real-use/page-04-eb4e9d3cebe8.webp",
+    "https://static.popost.ai/templates/tiktok-home-product-real-use/page-05-0de29cfb5681.webp",
+    "https://static.popost.ai/templates/tiktok-home-product-real-use/page-06-da2f9ccc4847.webp"
+  ],
+  "match": {
+    "goals": [
+      "家居好物功能实拍",
+      "家居功能演示实拍",
+      "居家用品",
+      "Home Essentials in Real Use",
+      "Home Supplies"
+    ],
+    "imageCues": [
+      "开盖全貌",
+      "手势触发",
+      "打开看容量",
+      "侧面感应开合",
+      "闭合状态",
+      "颜色选项与收尾"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-home-product-real-use/cover-c4ea5cf7b2f3.webp",
+  "legacyId": "tiktok-tt-026"
+}

@@ -1,0 +1,16 @@
+/* lxgw-wenkai-latin-300-normal */
+@font-face {
+  font-family: 'LXGW WenKai';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 300;
+  src: url("../cjk-wenkai/lxgw-wenkai-latin-300-normal.woff2") format('woff2');
+}
+/* lxgw-wenkai-latin-700-normal */
+@font-face {
+  font-family: 'LXGW WenKai';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 700;
+  src: url("../cjk-wenkai/lxgw-wenkai-latin-700-normal.woff2") format('woff2');
+}

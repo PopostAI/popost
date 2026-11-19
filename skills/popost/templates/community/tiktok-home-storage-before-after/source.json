@@ -1,0 +1,42 @@
+{
+  "source": "https://www.tiktok.com/@vlando.gift/photo/7674919671266643213",
+  "kind": "native-post-image",
+  "images": [
+    {
+      "file": "page-01-108992ef2521.jpg",
+      "width": 3200,
+      "height": 4266,
+      "sha256": "108992ef2521c0df374d44c49a7af5d2a452e473327e3f65c6b1d8f3f28b57e5"
+    },
+    {
+      "file": "page-02-f905308a7b24.jpg",
+      "width": 2400,
+      "height": 3000,
+      "sha256": "f905308a7b24e65a81a8d54673b8a6e0034a298dfe9c9057210652a6d900f83e"
+    },
+    {
+      "file": "page-03-6e4812eb5dad.jpg",
+      "width": 1200,
+      "height": 1500,
+      "sha256": "6e4812eb5dad1bf4ce1652d95478b032a14f261999934ec35fe3df36cb601bb9"
+    },
+    {
+      "file": "page-04-971f47cd369a.jpg",
+      "width": 1200,
+      "height": 1500,
+      "sha256": "971f47cd369ad1367ae4bbfa3f318269769def5cebfbf3dc085e413e4c41b309"
+    },
+    {
+      "file": "page-05-49a3c21c1073.jpg",
+      "width": 1200,
+      "height": 1500,
+      "sha256": "49a3c21c10733f557ca49fedf1eaea049bc71434714878294d12c21f627a3a3f"
+    },
+    {
+      "file": "page-06-fd90c72d1469.jpg",
+      "width": 1200,
+      "height": 1500,
+      "sha256": "fd90c72d1469f52d486f59d55fe81d323e509853bf31353cf704416be5c1ebd9"
+    }
+  ]
+}

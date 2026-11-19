@@ -1,0 +1,42 @@
+{
+  "source": "https://www.tiktok.com/@shoppingwithbrin/photo/7670664092461337886",
+  "kind": "native-post-image",
+  "images": [
+    {
+      "file": "page-01-67551d4a66d6.jpg",
+      "width": 1320,
+      "height": 1760,
+      "sha256": "67551d4a66d6517c91909a628f936d615f05d56ed99438a7baae642945b71502"
+    },
+    {
+      "file": "page-02-7e0cd37d6d38.jpg",
+      "width": 1320,
+      "height": 1760,
+      "sha256": "7e0cd37d6d3886883cb34ce3340b136f466643f58f1993fb42b0a02a5fb0c8fc"
+    },
+    {
+      "file": "page-03-7c62485f56ad.jpg",
+      "width": 1320,
+      "height": 1760,
+      "sha256": "7c62485f56adb0e2fb967b15153d28f5f111e3aa4c08fa07c2c5293a98d9330e"
+    },
+    {
+      "file": "page-04-d33750ec8556.jpg",
+      "width": 1320,
+      "height": 1760,
+      "sha256": "d33750ec855625a5f72a88c923a03fdfcefceccb2ad8656f193a928ea39610db"
+    },
+    {
+      "file": "page-05-d1a30758c2d6.jpg",
+      "width": 1320,
+      "height": 1760,
+      "sha256": "d1a30758c2d6aed7f21732ce9e02b4d2b1495f6c1d35e96323d9e2b892fd3a58"
+    },
+    {
+      "file": "page-06-d4793187fea5.jpg",
+      "width": 1320,
+      "height": 1760,
+      "sha256": "d4793187fea5df8da86929ccdf25aa3bcc2dfa0e8ad06d25d2eaaefd05c0490d"
+    }
+  ]
+}

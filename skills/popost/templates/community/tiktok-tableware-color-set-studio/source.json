@@ -1,0 +1,24 @@
+{
+  "source": "https://www.tiktok.com/@makeitcottagecozy/photo/7664771871031774495",
+  "kind": "native-post-image",
+  "images": [
+    {
+      "file": "page-01-8304fb05db69.jpg",
+      "width": 1402,
+      "height": 1122,
+      "sha256": "8304fb05db698b15ed156a21de44a76536b8a51877e20974e71c009d5bef77d5"
+    },
+    {
+      "file": "page-02-65a9ab7b353b.jpg",
+      "width": 1402,
+      "height": 1122,
+      "sha256": "65a9ab7b353bcc4dbc5a1d2f6430a347a6f655784f38d61f9e9feae95181c6cf"
+    },
+    {
+      "file": "page-03-1d71450e2af9.jpg",
+      "width": 1402,
+      "height": 1122,
+      "sha256": "1d71450e2af935fd2f97592facf8bb29a38cf7f5a2f884371f246772ccdb1e4a"
+    }
+  ]
+}

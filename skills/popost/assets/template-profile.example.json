@@ -1,0 +1,15 @@
+{
+  "skillPath": "/absolute/path/to/user-selected-scene-skill",
+  "rules": [
+    "按场景原文写明确的内容组织原则",
+    "写明字体、色彩与图片关系",
+    "写明需要保留的标志性版式和允许变化的部分"
+  ],
+  "pageTypes": [
+    "cover",
+    "content",
+    "closing"
+  ],
+  "referenceRole": "content",
+  "requiredResources": []
+}

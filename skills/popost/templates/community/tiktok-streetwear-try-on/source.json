@@ -1,0 +1,42 @@
+{
+  "source": "https://www.tiktok.com/@sleekteewear/photo/7658621060669082894",
+  "kind": "native-post-image",
+  "images": [
+    {
+      "file": "page-01-cc06ae836f76.jpg",
+      "width": 1152,
+      "height": 2048,
+      "sha256": "cc06ae836f760c4c9273a93ccc2448de2473887dad236d7d6bfaaf73ddd0ae7e"
+    },
+    {
+      "file": "page-02-3738e57ff388.jpg",
+      "width": 1152,
+      "height": 2048,
+      "sha256": "3738e57ff388ed038bb69cc335c7f5a83ca46aa9d57cc9d0182ada2ca019ccdb"
+    },
+    {
+      "file": "page-03-012a82839634.jpg",
+      "width": 1152,
+      "height": 2048,
+      "sha256": "012a8283963409c3a83f72f82453776284919f8f1faa8804cd2eaadd1ffae934"
+    },
+    {
+      "file": "page-04-62a7c226de76.jpg",
+      "width": 1152,
+      "height": 2048,
+      "sha256": "62a7c226de76ab54c8cacaa35b9fe5f2ef5bc85afe9219c5d7436b24a9410e30"
+    },
+    {
+      "file": "page-05-b5df3c1f6721.jpg",
+      "width": 1152,
+      "height": 2048,
+      "sha256": "b5df3c1f6721c4f2c4a25a0f627cd4cf58a4fa3e0e24337b51b9983ff222c10b"
+    },
+    {
+      "file": "page-06-18b5579a225e.jpg",
+      "width": 1152,
+      "height": 2048,
+      "sha256": "18b5579a225e41de643215bb318a5b9c93b80d005af5a780d6eb2336c7e9e70a"
+    }
+  ]
+}

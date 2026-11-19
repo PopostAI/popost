@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-bag-packing-capacity",
+  "platform": "tiktok",
+  "categories": [
+    "luggage-bags"
+  ],
+  "copy": {
+    "zh": {
+      "name": "包袋平铺与容量实装",
+      "summary": "用真实物品装包展示能带多少东西。",
+      "useWhen": "适合通勤包、旅行包和有装载卖点的包款。",
+      "instructions": "上传空包、装入物和装满后的照片，填写卖点。",
+      "output": "包袋容量和装载展示图。"
+    },
+    "en": {
+      "name": "Bag Flat Lays and Real Packing",
+      "summary": "Turn your product photos into a TikTok Shop carousel about bag Flat Lays and Real Packing.",
+      "useWhen": "For commuter or travel bags whose capacity is a selling point.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with bag Flat Lays and Real Packing."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-bag-packing-capacity/page-01-11c9c7ad25df.webp",
+    "https://static.popost.ai/templates/tiktok-bag-packing-capacity/page-02-bcb9e6fc8b76.webp",
+    "https://static.popost.ai/templates/tiktok-bag-packing-capacity/page-03-4612c5a4f5b0.webp",
+    "https://static.popost.ai/templates/tiktok-bag-packing-capacity/page-04-89ae3b773c00.webp",
+    "https://static.popost.ai/templates/tiktok-bag-packing-capacity/page-05-cd35479e7496.webp",
+    "https://static.popost.ai/templates/tiktok-bag-packing-capacity/page-06-37582b9b8888.webp",
+    "https://static.popost.ai/templates/tiktok-bag-packing-capacity/page-07-fc1d4b3a7921.webp"
+  ],
+  "match": {
+    "goals": [
+      "包袋平铺与容量实装",
+      "场景平铺+容量展示",
+      "箱包",
+      "Bag Flat Lays and Real Packing",
+      "Luggage & Bags"
+    ],
+    "imageCues": [
+      "三色场景总览",
+      "三包开口",
+      "第一组装载近景",
+      "第二组装载近景",
+      "内部分区特写",
+      "另一色包内细节"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-bag-packing-capacity/cover-3e432d57aa61.webp",
+  "legacyId": "tiktok-tt-066"
+}

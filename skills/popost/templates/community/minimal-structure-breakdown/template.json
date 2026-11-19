@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 2,
+  "id": "minimal-structure-breakdown",
+  "platform": "xiaohongshu",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "极简风 · 结构拆解",
+      "summary": "从核心到外围分层展开，讲清各部分的作用，以及它们如何组成整体。",
+      "useWhen": "知识体系、产品结构、垂类账号和工作分工。",
+      "instructions": "提供主体、三层名称、依赖关系和一个贯穿各层的例子。",
+      "output": "一组可编辑的小红书图文，默认 3 页。"
+    },
+    "en": {
+      "name": "Minimal Structure Breakdown",
+      "summary": "Explain a system from its core out, linking each layer to an example.",
+      "useWhen": "Product architecture, content planning, and related parts of a system.",
+      "instructions": "Provide the system, three related layers, and an example that connects them.",
+      "output": "An editable Xiaohongshu carousel, typically three pages."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/minimal-structure-breakdown/page-01-8a5745906cf5.webp",
+    "https://static.popost.ai/templates/minimal-structure-breakdown/page-02-2cb9525cff28.webp",
+    "https://static.popost.ai/templates/minimal-structure-breakdown/page-03-ec50d632a594.webp"
+  ],
+  "match": {
+    "goals": [
+      "结构拆解",
+      "账号定位",
+      "垂类选题",
+      "系统分层",
+      "system breakdown"
+    ],
+    "imageCues": [
+      "同心层次",
+      "由内到外",
+      "nested layers"
+    ],
+    "exclusions": [
+      "术语词典",
+      "六个定义",
+      "工作流水线"
+    ]
+  },
+  "animatedCover": true
+}

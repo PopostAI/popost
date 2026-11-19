@@ -1,0 +1,48 @@
+{
+  "source": "https://www.tiktok.com/@bobbizudkr0/photo/7676804786087349517",
+  "kind": "native-post-image",
+  "images": [
+    {
+      "file": "page-01-eeb271632f43.jpg",
+      "width": 1440,
+      "height": 1920,
+      "sha256": "eeb271632f4351dcbc6b28427ffb36f65014c208736bec44f70bce0e4d162f28"
+    },
+    {
+      "file": "page-02-11a0d2ce5bc3.jpg",
+      "width": 1440,
+      "height": 1920,
+      "sha256": "11a0d2ce5bc3efe4fb2db8e10df038db2f1c36eebbedfda5bdd8a611e333c532"
+    },
+    {
+      "file": "page-03-79298ed52ae6.jpg",
+      "width": 1440,
+      "height": 1920,
+      "sha256": "79298ed52ae6d085e2b05ef71ba9729b45f1fec932a315edf5eb9a43e6850776"
+    },
+    {
+      "file": "page-04-e40778b8821a.jpg",
+      "width": 1440,
+      "height": 1920,
+      "sha256": "e40778b8821a0cb4c7696df92f0a52d2a5e01ef5651ac17a400c41fc461108eb"
+    },
+    {
+      "file": "page-05-ba41ac7857e1.jpg",
+      "width": 1440,
+      "height": 1920,
+      "sha256": "ba41ac7857e197a9a99b5fd870be60b59767f0898833f9cc3e11bdc84985448d"
+    },
+    {
+      "file": "page-06-d69b41bd2951.jpg",
+      "width": 1440,
+      "height": 1920,
+      "sha256": "d69b41bd29517f43d7da6b7aeaeef1373be7b3a78021d0a69017dad524a092a6"
+    },
+    {
+      "file": "page-07-ed470dd152ec.jpg",
+      "width": 1440,
+      "height": 1920,
+      "sha256": "ed470dd152ec9109151205a7059a48af86499b2891b524a283843f5886c7e32a"
+    }
+  ]
+}

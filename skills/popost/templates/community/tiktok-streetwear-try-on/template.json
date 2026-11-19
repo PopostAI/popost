@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-streetwear-try-on",
+  "platform": "tiktok",
+  "categories": [
+    "womenswear-underwear"
+  ],
+  "copy": {
+    "zh": {
+      "name": "模特上身与街拍展示",
+      "summary": "用街拍和室内上身图展示同款轮廓。",
+      "useWhen": "适合潮牌上新、街头风穿搭和同款多场景展示。",
+      "instructions": "上传同款上身照和服装细节，填写卖点。",
+      "output": "街拍封面、卖点页和多场景穿搭图。"
+    },
+    "en": {
+      "name": "Streetwear Try-on and Street Scenes",
+      "summary": "Turn your product photos into a TikTok Shop carousel about streetwear Try-on and Street Scenes.",
+      "useWhen": "For streetwear launches and outfits worn in several settings.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with streetwear Try-on and Street Scenes."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-streetwear-try-on/page-01-31bed499d8dd.webp",
+    "https://static.popost.ai/templates/tiktok-streetwear-try-on/page-02-e86f5cc0024f.webp",
+    "https://static.popost.ai/templates/tiktok-streetwear-try-on/page-03-15f446388098.webp",
+    "https://static.popost.ai/templates/tiktok-streetwear-try-on/page-04-7d42a341d791.webp",
+    "https://static.popost.ai/templates/tiktok-streetwear-try-on/page-05-22403bf18892.webp",
+    "https://static.popost.ai/templates/tiktok-streetwear-try-on/page-06-4b896f856070.webp"
+  ],
+  "match": {
+    "goals": [
+      "模特上身与街拍展示",
+      "模特上身+街拍场景展示",
+      "女装与内衣",
+      "Streetwear Try-on and Street Scenes",
+      "Womenswear & Underwear"
+    ],
+    "imageCues": [
+      "夜景上身吸引",
+      "标题配三项可核实特点",
+      "街头镜前上身",
+      "室内侧面上身",
+      "坐姿看衣长",
+      "户外全身比例"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-streetwear-try-on/cover-b475e3360f9e.webp",
+  "legacyId": "tiktok-tt-001"
+}

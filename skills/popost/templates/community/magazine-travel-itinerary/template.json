@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 2,
+  "id": "magazine-travel-itinerary",
+  "platform": "xiaohongshu",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "杂志风 · 旅游攻略",
+      "summary": "风景填字封面、文化介绍和带交通信息的每日路线。",
+      "useWhen": "需要介绍真实目的地并按天给出出行安排。",
+      "instructions": "上传相关图片和事实资料，说明主题。",
+      "output": "一组可继续编辑的杂志风图文。"
+    },
+    "en": {
+      "name": "Editorial Travel Itinerary",
+      "summary": "Pair a landscape-lettered cover with culture and practical day routes.",
+      "useWhen": "You have a destination, scheduled stops and travel information.",
+      "instructions": "Add your photos and verified notes, then describe the topic.",
+      "output": "An editable magazine-style photo post."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/magazine-travel-itinerary/page-01-4cc2db4542d6.webp"
+  ],
+  "match": {
+    "goals": [
+      "旅游攻略",
+      "每日路线",
+      "目的地文化",
+      "travel itinerary",
+      "day route"
+    ],
+    "imageCues": [
+      "地标风景",
+      "景点照片",
+      "destination photography"
+    ],
+    "exclusions": [
+      "旅行回忆",
+      "人生阶段",
+      "trip retrospective"
+    ]
+  },
+  "animatedCover": true,
+  "legacyId": "editorial-travel-itinerary"
+}

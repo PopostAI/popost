@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 2,
+  "id": "minimal-period-recap",
+  "platform": "xiaohongshu",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "极简风 · 数据盘点",
+      "summary": "用醒目的数字和逐项说明，展示一段时间的投入、收获与变化。",
+      "useWhen": "月度总结、独居生活、习惯记录和项目里程碑。",
+      "instructions": "提供主题、记录周期、同口径的指标、单位和一条可保留的经验。",
+      "output": "一组可编辑的小红书图文，默认 3 页。"
+    },
+    "en": {
+      "name": "Minimal Period Recap",
+      "summary": "Review a period with one key figure, a clear breakdown, and what you will carry forward.",
+      "useWhen": "Monthly recaps, habit tracking, personal logs, and project milestones.",
+      "instructions": "Provide the period, comparable metrics, units, and what you learned.",
+      "output": "An editable Xiaohongshu carousel, typically three pages."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/minimal-period-recap/page-01-3e6886ef8b87.webp",
+    "https://static.popost.ai/templates/minimal-period-recap/page-02-8afa90ad4bdb.webp",
+    "https://static.popost.ai/templates/minimal-period-recap/page-03-dfa90750faac.webp"
+  ],
+  "match": {
+    "goals": [
+      "数据盘点",
+      "独居做饭",
+      "阅读盘点",
+      "月度总结",
+      "period recap"
+    ],
+    "imageCues": [
+      "大数字",
+      "数字分行",
+      "metric breakdown"
+    ],
+    "exclusions": [
+      "数据排行",
+      "按名次排序",
+      "门店改造"
+    ]
+  },
+  "animatedCover": true
+}

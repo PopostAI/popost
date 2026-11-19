@@ -1,0 +1,30 @@
+{
+  "source": "https://www.tiktok.com/@dedoostudio/photo/7677208546844380429",
+  "kind": "native-post-image",
+  "images": [
+    {
+      "file": "page-01-1b7320a4bfa1.jpg",
+      "width": 1152,
+      "height": 1536,
+      "sha256": "1b7320a4bfa1e86089e31c7372f3bb8f87e832aaf9c834f1a2dde550e58e8264"
+    },
+    {
+      "file": "page-02-f986a497b13c.jpg",
+      "width": 1152,
+      "height": 1536,
+      "sha256": "f986a497b13c04c7f7c67b90f894ef2d408252dc9c7ba0b7c537cf43dad1a8cb"
+    },
+    {
+      "file": "page-03-a026bf484a04.jpg",
+      "width": 1152,
+      "height": 1536,
+      "sha256": "a026bf484a0475fc9e65dec2d5db1f0be8079e2f110320ec940226944bc5278d"
+    },
+    {
+      "file": "page-04-11bfe2bbd5a5.jpg",
+      "width": 1152,
+      "height": 1536,
+      "sha256": "11bfe2bbd5a53e479d2de2cbed6ab51ce40dd2b9de67207af39bf1ed9a58a9a1"
+    }
+  ]
+}

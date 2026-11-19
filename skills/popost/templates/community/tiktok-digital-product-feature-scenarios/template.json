@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-digital-product-feature-scenarios",
+  "platform": "tiktok",
+  "categories": [
+    "phones-electronics"
+  ],
+  "copy": {
+    "zh": {
+      "name": "数码功能卖点与场景展示",
+      "summary": "一个场景对应一个数码卖点。",
+      "useWhen": "适合想展示某个数码功能如何解决日常问题的产品。",
+      "instructions": "上传产品照、功能特写和使用场景，填写卖点。",
+      "output": "数码产品卖点图和场景页。"
+    },
+    "en": {
+      "name": "Digital Product Benefits and Scenarios",
+      "summary": "Turn your product photos into a TikTok Shop carousel about digital Product Benefits and Scenarios.",
+      "useWhen": "For digital products with a feature that solves an everyday problem.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with digital Product Benefits and Scenarios."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-digital-product-feature-scenarios/page-01-6ab3311b8dd6.webp",
+    "https://static.popost.ai/templates/tiktok-digital-product-feature-scenarios/page-02-de6df9eb3fb2.webp",
+    "https://static.popost.ai/templates/tiktok-digital-product-feature-scenarios/page-03-263c1281c4e7.webp",
+    "https://static.popost.ai/templates/tiktok-digital-product-feature-scenarios/page-04-7ce5770a18a0.webp",
+    "https://static.popost.ai/templates/tiktok-digital-product-feature-scenarios/page-05-5c9f9787267b.webp",
+    "https://static.popost.ai/templates/tiktok-digital-product-feature-scenarios/page-06-b1fd6b04ef54.webp",
+    "https://static.popost.ai/templates/tiktok-digital-product-feature-scenarios/page-07-eef5f291372c.webp",
+    "https://static.popost.ai/templates/tiktok-digital-product-feature-scenarios/page-08-c67a88b29981.webp"
+  ],
+  "match": {
+    "goals": [
+      "数码功能卖点与场景展示",
+      "数码参数场景型",
+      "手机与数码",
+      "Digital Product Benefits and Scenarios",
+      "Phones & Electronics"
+    ],
+    "imageCues": [
+      "设备与能力总览",
+      "摄像功能",
+      "防抖对照",
+      "通话场景",
+      "翻译或识别场景",
+      "识别对象清单"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-digital-product-feature-scenarios/cover-cc5c5b5e280c.webp",
+  "legacyId": "tiktok-tt-037"
+}

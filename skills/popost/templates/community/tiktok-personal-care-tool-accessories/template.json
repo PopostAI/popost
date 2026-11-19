@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-personal-care-tool-accessories",
+  "platform": "tiktok",
+  "categories": [
+    "beauty-personal-care"
+  ],
+  "copy": {
+    "zh": {
+      "name": "个护工具与配件清单展示",
+      "summary": "用工具与配件的组合图讲清盒内有什么。",
+      "useWhen": "适合剃须、理发、美容等带多个配件的工具。",
+      "instructions": "上传工具、配件和包装照片，填写卖点。",
+      "output": "个护工具开箱和配件清单。"
+    },
+    "en": {
+      "name": "Personal-care Tools and Included Accessories",
+      "summary": "Turn your product photos into a TikTok Shop carousel about personal-care Tools and Included Accessories.",
+      "useWhen": "For grooming and beauty tools that ship with accessories.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with personal-care Tools and Included Accessories."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-personal-care-tool-accessories/page-01-9a3e4b6bec1d.webp",
+    "https://static.popost.ai/templates/tiktok-personal-care-tool-accessories/page-02-35a5fa7733f1.webp",
+    "https://static.popost.ai/templates/tiktok-personal-care-tool-accessories/page-03-9341c74b1df0.webp",
+    "https://static.popost.ai/templates/tiktok-personal-care-tool-accessories/page-04-12f89866f9c8.webp",
+    "https://static.popost.ai/templates/tiktok-personal-care-tool-accessories/page-05-ed7af647ae4c.webp",
+    "https://static.popost.ai/templates/tiktok-personal-care-tool-accessories/page-06-a112dd79c881.webp"
+  ],
+  "match": {
+    "goals": [
+      "个护工具与配件清单展示",
+      "个护配件清单图",
+      "美妆与个护",
+      "Personal-care Tools and Included Accessories",
+      "Beauty & Personal Care"
+    ],
+    "imageCues": [
+      "黑色套装质感主图",
+      "白底黑款清单",
+      "金色变体清单",
+      "蓝色变体清单",
+      "银黑组合清单",
+      "另一款完整配件布局"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-personal-care-tool-accessories/cover-da1a0e6251bd.webp",
+  "legacyId": "tiktok-tt-012"
+}

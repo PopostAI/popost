@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-sms-product-recommendation",
+  "platform": "tiktok",
+  "categories": [
+    "automotive-motorcycle",
+    "baby-maternity",
+    "beauty-personal-care",
+    "books-magazines-audio",
+    "collectibles",
+    "computers-office-equipment",
+    "fashion-accessories",
+    "food-beverages",
+    "furniture",
+    "health",
+    "home-improvement",
+    "home-supplies",
+    "household-appliances",
+    "jewelry-accessories",
+    "kids-fashion",
+    "kitchenware",
+    "luggage-bags",
+    "menswear-underwear",
+    "modest-fashion",
+    "pet-supplies",
+    "phones-electronics",
+    "shoes",
+    "sports-outdoor",
+    "textiles-soft-furnishings",
+    "tools-hardware",
+    "toys-hobbies",
+    "womenswear-underwear"
+  ],
+  "copy": {
+    "zh": {
+      "name": "短信互动好物推荐",
+      "summary": "用真实短信界面的问答与接话，引出下一页商品回应。",
+      "useWhen": "适合任何能回答一个具体生活问题的商品；先问需求、习惯或赠送对象，再用实物回答。",
+      "instructions": "上传清晰产品图并说明需求，按本模板组织钩子与商品回应。",
+      "output": "可编辑的同款模板风格多页图文。"
+    },
+    "en": {
+      "name": "Text Message Product Recommendation",
+      "summary": "Create a TikTok photo carousel using text message product recommendation.",
+      "useWhen": "Use a text message product recommendation structure with supported product facts.",
+      "instructions": "Upload product photos and describe your request.",
+      "output": "An editable TikTok photo carousel."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-sms-product-recommendation/page-01-c6c71509aca5.webp",
+    "https://static.popost.ai/templates/tiktok-sms-product-recommendation/page-02-0a5a32d3886a.webp"
+  ],
+  "match": {
+    "goals": [
+      "短信互动",
+      "短信推荐",
+      "朋友问答",
+      "text message recommendation",
+      "gift conversation"
+    ],
+    "imageCues": [
+      "蓝灰消息气泡",
+      "联系人头像",
+      "手机输入栏",
+      "product payoff"
+    ],
+    "exclusions": [
+      "公开评论区",
+      "完整功能说明书",
+      "comment thread"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/56134ef96cefaab406613209f20c0d3c5de420d1c44dfc721f4d12417e38471e.webp"
+}

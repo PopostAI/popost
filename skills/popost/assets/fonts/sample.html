@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Popost 公共字体样张</title>
+<style>*{box-sizing:border-box}body{margin:0;background:#f5f3ef;color:#222;font-family:sans-serif;padding:32px}h1{font-size:24px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}.card{background:white;padding:24px;border-radius:12px}.label,.meta{font:12px/1.6 sans-serif;color:#666}.sample{font-size:28px;line-height:1.5;margin:16px 0}.license{color:inherit}</style>
+</head><body><h1>Popost 公共字体样张</h1><p id="status">读取公共字库…</p><main class="grid" id="grid"></main>
+<script type="module">
+try{
+ const response=await fetch('palette.json');if(!response.ok)throw new Error('无法读取字库');const {roles}=await response.json();
+ document.querySelector('#status').textContent=`${roles.length} 个系列 · 中文与英文 · 原始 OFL-1.1 许可随包保留`;
+ const observer=new IntersectionObserver(entries=>{for(const {target,isIntersecting} of entries)if(isIntersecting){const link=document.createElement('link');link.rel='stylesheet';link.href=target.dataset.css;document.head.append(link);observer.unobserve(target);}},{rootMargin:'200px'});
+ for(const role of roles){const card=document.createElement('article');card.className='card';card.dataset.css=role.cssPath;
+ const label=document.createElement('div');label.className='label';label.textContent=role.label+' · '+role.family;
+ const sample=document.createElement('p');sample.className='sample';sample.style.fontFamily='"'+role.family+'", '+role.fallback;sample.textContent=role.scripts.includes('Hani')?'春夏秋冬 · 图文创作\n中文排版 繁體設計 Aa 0123':'The Quick Brown Fox\nPopost Design · Aa 0123456789';sample.style.whiteSpace='pre-line';
+ const meta=document.createElement('div');meta.className='meta';meta.textContent='字重 '+role.weights+' · '+role.package+'@'+role.packageVersion+' · ';
+ const license=document.createElement('a');license.className='license';license.href=role.licensePath;license.textContent='OFL-1.1';meta.append(license);card.append(label,sample,meta);document.querySelector('#grid').append(card);observer.observe(card);}
+}catch(error){document.querySelector('#status').textContent=error.message+'；请通过本地 HTTP 服务打开样张。';}
+</script></body></html>

@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-bag-material-studio-closeups",
+  "platform": "tiktok",
+  "categories": [
+    "luggage-bags"
+  ],
+  "copy": {
+    "zh": {
+      "name": "包袋材质棚拍与细节特写",
+      "summary": "从棚拍全貌切到包袋材质和五金近景。",
+      "useWhen": "适合靠材质、五金和走线体现价值的包款。",
+      "instructions": "上传包袋棚拍、材质和五金特写，填写卖点。",
+      "output": "包袋质感和五金细节图。"
+    },
+    "en": {
+      "name": "Bag Materials and Studio Details",
+      "summary": "Turn your product photos into a TikTok Shop carousel about bag Materials and Studio Details.",
+      "useWhen": "For bags distinguished by fabric, hardware, or stitching.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with bag Materials and Studio Details."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-bag-material-studio-closeups/page-01-0675c2744f10.webp",
+    "https://static.popost.ai/templates/tiktok-bag-material-studio-closeups/page-02-f73b7570b1a1.webp",
+    "https://static.popost.ai/templates/tiktok-bag-material-studio-closeups/page-03-5e1a813ea58f.webp",
+    "https://static.popost.ai/templates/tiktok-bag-material-studio-closeups/page-04-fba697448377.webp"
+  ],
+  "match": {
+    "goals": [
+      "包袋材质棚拍与细节特写",
+      "箱包棚拍+材质展示",
+      "箱包",
+      "Bag Materials and Studio Details",
+      "Luggage & Bags"
+    ],
+    "imageCues": [
+      "完整正面定位",
+      "斜侧轮廓",
+      "条绒与连接细节",
+      "完整侧面收尾"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-bag-material-studio-closeups/cover-b7071aee0576.webp",
+  "legacyId": "tiktok-tt-067"
+}

@@ -1,0 +1,30 @@
+{
+  "source": "https://www.tiktok.com/@cassmrslater/photo/7667437786839993631",
+  "kind": "native-post-image",
+  "images": [
+    {
+      "file": "page-01-9c1da0e7ccf9.jpg",
+      "width": 2160,
+      "height": 2880,
+      "sha256": "9c1da0e7ccf96504587eaf18964747ccb0cac5a1bbeda001c794e70b3e32c2ba"
+    },
+    {
+      "file": "page-02-12333886469c.jpg",
+      "width": 2160,
+      "height": 2880,
+      "sha256": "12333886469c1b8ec4896a2627dd9979c33fcc0e9222f2195585212b2f02c5bb"
+    },
+    {
+      "file": "page-03-85bd5e25cc66.jpg",
+      "width": 2160,
+      "height": 2880,
+      "sha256": "85bd5e25cc66b759e2f91c1bf3cd9079b6cd965e46feeeaf69dc2c0846d067ef"
+    },
+    {
+      "file": "page-04-c97e885fbc35.jpg",
+      "width": 2160,
+      "height": 2880,
+      "sha256": "c97e885fbc352a02d78d1ae72572776f90f02889eadb05aa76e6c06ab28872cf"
+    }
+  ]
+}

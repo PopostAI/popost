@@ -1,0 +1,9 @@
+{
+  "id": "commerce-sell",
+  "title": "带货 · 情境动作价值路径",
+  "tags": ["带货", "商品使用", "种草", "commerce", "product-use", "shoppable"],
+  "scenario_md": "platform-module/templates/commerce-sell/scenario.md",
+  "html": "platform-module/templates/commerce-sell/template.html",
+  "assets": [],
+  "mode": "adaptive"
+}

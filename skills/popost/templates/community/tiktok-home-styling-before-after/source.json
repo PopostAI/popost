@@ -1,0 +1,48 @@
+{
+  "source": "https://www.tiktok.com/@benson686868/photo/7679069790052388110",
+  "kind": "native-post-image",
+  "images": [
+    {
+      "file": "page-01-73ea1cf83124.jpg",
+      "width": 1086,
+      "height": 1448,
+      "sha256": "73ea1cf83124e532cd7d906b84739f7505c211750e7e866ad7709b8c6c73285e"
+    },
+    {
+      "file": "page-02-f48a74fd71e1.jpg",
+      "width": 1086,
+      "height": 1448,
+      "sha256": "f48a74fd71e12d0c6b3164b5c3be3ac9dc99c98d01b5a77398695e1626d36c7b"
+    },
+    {
+      "file": "page-03-0bb1e6866866.jpg",
+      "width": 1086,
+      "height": 1448,
+      "sha256": "0bb1e6866866f2de1863eb44a932369624795629d37aec6f564127f0cf991216"
+    },
+    {
+      "file": "page-04-af26ce270fce.jpg",
+      "width": 1086,
+      "height": 1448,
+      "sha256": "af26ce270fce425693f4524c24941e8759369d55a904f217f63f8c429f82e434"
+    },
+    {
+      "file": "page-05-e0b092063e97.jpg",
+      "width": 1086,
+      "height": 1448,
+      "sha256": "e0b092063e97f4afcda0c5e7ff276ef70a5c01e5cac2340d7edafcde54f7ed9c"
+    },
+    {
+      "file": "page-06-4e4eb6bbb503.jpg",
+      "width": 1086,
+      "height": 1448,
+      "sha256": "4e4eb6bbb503ca212483980d0307504d1104bc60cf94a519985341a63274e8a9"
+    },
+    {
+      "file": "page-07-b6bfd53854e2.jpg",
+      "width": 1086,
+      "height": 1448,
+      "sha256": "b6bfd53854e29c9f2c71352c0865acae7d6bea26e0e87e0a6d966d58f5635401"
+    }
+  ]
+}

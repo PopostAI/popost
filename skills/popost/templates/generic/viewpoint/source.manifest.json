@@ -1,0 +1,9 @@
+{
+  "id": "viewpoint",
+  "title": "观点 · 主张证据与限定结论",
+  "tags": ["观点", "论证", "立场", "论据", "利弊", "viewpoint", "opinion"],
+  "scenario_md": "platform-module/templates/viewpoint/scenario.md",
+  "html": "platform-module/templates/viewpoint/template.html",
+  "assets": [],
+  "mode": "adaptive"
+}

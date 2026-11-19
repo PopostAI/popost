@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-functional-clothing-in-use",
+  "platform": "tiktok",
+  "categories": [
+    "menswear-underwear"
+  ],
+  "copy": {
+    "zh": {
+      "name": "服装功能细节与场景展示",
+      "summary": "在穿着场景中说明衣服的实用细节。",
+      "useWhen": "适合有口袋、防风或可调节设计的功能服装。",
+      "instructions": "上传上身照、功能特写和已核实卖点，填写卖点。",
+      "output": "功能场景图和细节说明。"
+    },
+    "en": {
+      "name": "Functional Clothing in Everyday Scenes",
+      "summary": "Turn your product photos into a TikTok Shop carousel about functional Clothing in Everyday Scenes.",
+      "useWhen": "For clothing with practical features like pockets or adjustable fits.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with functional Clothing in Everyday Scenes."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-functional-clothing-in-use/page-01-ebfdfb02af81.webp",
+    "https://static.popost.ai/templates/tiktok-functional-clothing-in-use/page-02-459ed42dcce9.webp",
+    "https://static.popost.ai/templates/tiktok-functional-clothing-in-use/page-03-dfe99e63512c.webp",
+    "https://static.popost.ai/templates/tiktok-functional-clothing-in-use/page-04-ab3dd0bee582.webp",
+    "https://static.popost.ai/templates/tiktok-functional-clothing-in-use/page-05-2fe795d64446.webp",
+    "https://static.popost.ai/templates/tiktok-functional-clothing-in-use/page-06-ccdf9dad3fe8.webp",
+    "https://static.popost.ai/templates/tiktok-functional-clothing-in-use/page-07-95e53a629ac0.webp",
+    "https://static.popost.ai/templates/tiktok-functional-clothing-in-use/page-08-859c2f9397bf.webp",
+    "https://static.popost.ai/templates/tiktok-functional-clothing-in-use/page-09-94bb096a3099.webp"
+  ],
+  "match": {
+    "goals": [
+      "服装功能细节与场景展示",
+      "服饰功能拆解图",
+      "男装与内衣",
+      "Functional Clothing in Everyday Scenes",
+      "Menswear & Underwear"
+    ],
+    "imageCues": [
+      "多色整裤清单",
+      "真实尺寸表",
+      "膝部与口袋特写",
+      "四种使用场景",
+      "绿色上身",
+      "卡其色上身"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-functional-clothing-in-use/cover-9fc9eb5686ec.webp",
+  "legacyId": "tiktok-tt-016"
+}

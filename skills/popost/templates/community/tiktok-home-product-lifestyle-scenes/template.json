@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-home-product-lifestyle-scenes",
+  "platform": "tiktok",
+  "categories": [
+    "textiles-soft-furnishings"
+  ],
+  "copy": {
+    "zh": {
+      "name": "家居场景种草与使用展示",
+      "summary": "用日常场景展示家居商品的摆放和用法。",
+      "useWhen": "适合想用客厅、卧室等场景介绍用途的居家商品。",
+      "instructions": "上传家居商品和实际使用场景照，填写卖点。",
+      "output": "家居场景图和使用说明。"
+    },
+    "en": {
+      "name": "Home Scenes and Everyday Use",
+      "summary": "Turn your product photos into a TikTok Shop carousel about home Scenes and Everyday Use.",
+      "useWhen": "For home products that benefit from being shown in a real room.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with home Scenes and Everyday Use."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-home-product-lifestyle-scenes/page-01-76a9ee3166ea.webp",
+    "https://static.popost.ai/templates/tiktok-home-product-lifestyle-scenes/page-02-366f991b7a33.webp",
+    "https://static.popost.ai/templates/tiktok-home-product-lifestyle-scenes/page-03-b842fc1f8486.webp",
+    "https://static.popost.ai/templates/tiktok-home-product-lifestyle-scenes/page-04-5de3696b8274.webp"
+  ],
+  "match": {
+    "goals": [
+      "家居场景种草与使用展示",
+      "居家氛围种草型",
+      "纺织与软装",
+      "Home Scenes and Everyday Use",
+      "Textiles & Soft Furnishings"
+    ],
+    "imageCues": [
+      "理想客厅氛围",
+      "毛毯纹理近景",
+      "人物使用",
+      "客厅全景收尾"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-home-product-lifestyle-scenes/cover-5bf50c323a7d.webp",
+  "legacyId": "tiktok-tt-043"
+}

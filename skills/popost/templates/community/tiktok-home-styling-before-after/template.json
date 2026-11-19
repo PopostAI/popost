@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-home-styling-before-after",
+  "platform": "tiktok",
+  "categories": [
+    "home-supplies"
+  ],
+  "copy": {
+    "zh": {
+      "name": "家居布置前后对比",
+      "summary": "用同角度照片展示布置前后的变化。",
+      "useWhen": "适合灯饰、地毯、装饰品等能改变房间观感的商品。",
+      "instructions": "上传布置前后照和关键单品图，填写卖点。",
+      "output": "空间前后对比和单品细节页。"
+    },
+    "en": {
+      "name": "Home Styling Before and After",
+      "summary": "Turn your product photos into a TikTok Shop carousel about home Styling Before and After.",
+      "useWhen": "For lights, rugs, and decor that visibly change a room.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with home Styling Before and After."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-home-styling-before-after/page-01-0938e647fd8d.webp",
+    "https://static.popost.ai/templates/tiktok-home-styling-before-after/page-02-c1deafd9c044.webp",
+    "https://static.popost.ai/templates/tiktok-home-styling-before-after/page-03-e9fb246e8e95.webp",
+    "https://static.popost.ai/templates/tiktok-home-styling-before-after/page-04-4f83023f75ad.webp",
+    "https://static.popost.ai/templates/tiktok-home-styling-before-after/page-05-270d355b6b7a.webp",
+    "https://static.popost.ai/templates/tiktok-home-styling-before-after/page-06-28a680f79547.webp",
+    "https://static.popost.ai/templates/tiktok-home-styling-before-after/page-07-f7c2c2b17efa.webp"
+  ],
+  "match": {
+    "goals": [
+      "家居布置前后对比",
+      "家居前后对比展示",
+      "居家用品",
+      "Home Styling Before and After",
+      "Home Supplies"
+    ],
+    "imageCues": [
+      "旧布置困扰",
+      "同位布置后转折",
+      "填满花盆的动作",
+      "完整门廊效果",
+      "无需日常打理的可核实点",
+      "回看结果"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-home-styling-before-after/cover-882a5237f867.webp",
+  "legacyId": "tiktok-tt-024"
+}

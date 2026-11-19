@@ -1,0 +1,42 @@
+{
+  "source": "https://www.tiktok.com/@nextechtools/photo/7667179392392514830",
+  "kind": "native-post-image",
+  "images": [
+    {
+      "file": "page-01-3b0b1ecf6dcb.jpg",
+      "width": 2513,
+      "height": 2513,
+      "sha256": "3b0b1ecf6dcbb0acbb964da1edb9502a9485798465e95d79d67cd19564965f36"
+    },
+    {
+      "file": "page-02-992e62d1f6e2.jpg",
+      "width": 5120,
+      "height": 4676,
+      "sha256": "992e62d1f6e205b516f42a567acd28d2955167285aeea0016c51ec223b47d30e"
+    },
+    {
+      "file": "page-03-c3b9afdfc900.jpg",
+      "width": 5120,
+      "height": 5040,
+      "sha256": "c3b9afdfc9002a16d291972e073cb5ca2eeef1bc2595119c11ec0497af1d2853"
+    },
+    {
+      "file": "page-04-fb1640f9a546.jpg",
+      "width": 5120,
+      "height": 4788,
+      "sha256": "fb1640f9a54688e50004883a92ae89d5ad0913af6c79383d1f0f6800131c7826"
+    },
+    {
+      "file": "page-05-afc4ddee457f.jpg",
+      "width": 5120,
+      "height": 4736,
+      "sha256": "afc4ddee457f6a62d2c8a8a9c2b5f67f69cb5440a05254282a0e67b6aa219f6c"
+    },
+    {
+      "file": "page-06-8084def8a2a9.jpg",
+      "width": 1383,
+      "height": 1383,
+      "sha256": "8084def8a2a9dbc3af86d0fac9fda232624b9d7f4de7bee49b38621ad154d2bd"
+    }
+  ]
+}

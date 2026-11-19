@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-relationship-gift-response",
+  "platform": "tiktok",
+  "categories": [
+    "automotive-motorcycle",
+    "baby-maternity",
+    "beauty-personal-care",
+    "books-magazines-audio",
+    "collectibles",
+    "computers-office-equipment",
+    "fashion-accessories",
+    "food-beverages",
+    "furniture",
+    "health",
+    "home-improvement",
+    "home-supplies",
+    "household-appliances",
+    "jewelry-accessories",
+    "kids-fashion",
+    "kitchenware",
+    "luggage-bags",
+    "menswear-underwear",
+    "modest-fashion",
+    "pet-supplies",
+    "phones-electronics",
+    "shoes",
+    "sports-outdoor",
+    "textiles-soft-furnishings",
+    "tools-hardware",
+    "toys-hobbies",
+    "womenswear-underwear"
+  ],
+  "copy": {
+    "zh": {
+      "name": "关系情境礼物回应",
+      "summary": "先进入朋友、家人或伴侣的生活情境，再用礼物回应关系。",
+      "useWhen": "可作为礼物/共同使用的各品类商品。",
+      "instructions": "上传清晰产品图并说明需求，按本模板组织钩子与商品回应。",
+      "output": "可编辑的同款模板风格多页图文。"
+    },
+    "en": {
+      "name": "Relationship Scene Gift Reveal",
+      "summary": "Create a TikTok photo carousel using relationship scene gift reveal.",
+      "useWhen": "Use a relationship scene gift reveal structure with supported product facts.",
+      "instructions": "Upload product photos and describe your request.",
+      "output": "An editable TikTok photo carousel."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-relationship-gift-response/page-01-ccd5647d9d74.webp",
+    "https://static.popost.ai/templates/tiktok-relationship-gift-response/page-02-37825a7c869d.webp"
+  ],
+  "match": {
+    "goals": [
+      "关系送礼",
+      "伴侣礼物",
+      "家人心意",
+      "relationship gift",
+      "family moment"
+    ],
+    "imageCues": [
+      "聚会餐桌",
+      "亲友关系",
+      "成对物件",
+      "礼物文字"
+    ],
+    "exclusions": [
+      "纯价格对比",
+      "孤立风景",
+      "price comparison"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/bed9041e3bab4ae91a3a4a508c630d8d5ae4eff34cfb126cca55416f2e6b0708.webp"
+}

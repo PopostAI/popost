@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-one-garment-outfit-ideas",
+  "platform": "tiktok",
+  "categories": [
+    "menswear-underwear"
+  ],
+  "copy": {
+    "zh": {
+      "name": "一件单品多套穿搭",
+      "summary": "用同一件单品搭出几套风格。",
+      "useWhen": "适合基础款、通勤单品和换季穿搭内容。",
+      "instructions": "上传主单品和多套搭配照片，填写卖点。",
+      "output": "一衣多穿图组和搭配提示。"
+    },
+    "en": {
+      "name": "One Garment, Multiple Outfits",
+      "summary": "Turn your product photos into a TikTok Shop carousel about one Garment, Multiple Outfits.",
+      "useWhen": "For wardrobe staples, workwear, and seasonal styling ideas.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with one Garment, Multiple Outfits."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-one-garment-outfit-ideas/page-01-2248715063d6.webp",
+    "https://static.popost.ai/templates/tiktok-one-garment-outfit-ideas/page-02-dcb90209f214.webp",
+    "https://static.popost.ai/templates/tiktok-one-garment-outfit-ideas/page-03-c8ce1aa24e1c.webp",
+    "https://static.popost.ai/templates/tiktok-one-garment-outfit-ideas/page-04-22e57d13117e.webp",
+    "https://static.popost.ai/templates/tiktok-one-garment-outfit-ideas/page-05-aa8c499d3429.webp",
+    "https://static.popost.ai/templates/tiktok-one-garment-outfit-ideas/page-06-337cab4b104e.webp"
+  ],
+  "match": {
+    "goals": [
+      "一件单品多套穿搭",
+      "模特上身+穿搭展示",
+      "男装与内衣",
+      "One Garment, Multiple Outfits",
+      "Menswear & Underwear"
+    ],
+    "imageCues": [
+      "四套穿法总览",
+      "日常休闲拼贴",
+      "居家舒适拼贴",
+      "街头穿搭拼贴",
+      "约会夜间穿搭",
+      "同人全身与行动提示"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-one-garment-outfit-ideas/cover-d9f4bd35530f.webp",
+  "legacyId": "tiktok-tt-013"
+}

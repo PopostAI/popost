@@ -1,0 +1,5287 @@
+{
+  "schemaVersion": 2,
+  "templates": [
+    {
+      "id": "magazine-argument-explainer",
+      "legacyId": "editorial-argument-explainer",
+      "platform": "xiaohongshu",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "杂志风 · 观点解读",
+          "summary": "从议题到结论，用四种版式组织论点、例子与边界。",
+          "useWhen": "需要论证一个观点，或把一个概念讲清楚。",
+          "instructions": "上传相关图片和事实资料，说明主题。",
+          "output": "一组可继续编辑的杂志风图文。"
+        },
+        "en": {
+          "name": "Editorial Argument and Explainer",
+          "summary": "Develop an argument or mechanism across four coordinated layouts.",
+          "useWhen": "You have an idea to explain with reasoning and evidence.",
+          "instructions": "Add your photos and verified notes, then describe the topic.",
+          "output": "An editable magazine-style photo post."
+        }
+      },
+      "match": {
+        "goals": [
+          "观点解读",
+          "知识科普",
+          "机制解释",
+          "opinion explainer",
+          "how it works"
+        ],
+        "imageCues": [
+          "概念拼贴",
+          "三联证据图",
+          "concept diagram"
+        ],
+        "exclusions": [
+          "新闻合集",
+          "旅行路线",
+          "news roundup"
+        ]
+      },
+      "revision": "679be9d08dd3998e32a944cc68f6d394aff7831294de38ccb8d9f1a2baac51dc"
+    },
+    {
+      "id": "magazine-life-profile",
+      "legacyId": "editorial-life-profile",
+      "platform": "xiaohongshu",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "杂志风 · 人物生平",
+          "summary": "中央肖像串起人生阶段，详情分别展开经历、作品与影响。",
+          "useWhen": "需要解释一个人物跨阶段的经历和代表成果。",
+          "instructions": "上传相关图片和事实资料，说明主题。",
+          "output": "一组可继续编辑的杂志风图文。"
+        },
+        "en": {
+          "name": "Editorial Life Profile",
+          "summary": "Build a portrait-led overview with separate pages for milestones, work and impact.",
+          "useWhen": "You have documented milestones and a clear subject.",
+          "instructions": "Add your photos and verified notes, then describe the topic.",
+          "output": "An editable magazine-style photo post."
+        }
+      },
+      "match": {
+        "goals": [
+          "人物生平",
+          "代表作品",
+          "职业轨迹",
+          "biography",
+          "life profile"
+        ],
+        "imageCues": [
+          "中央肖像",
+          "不同阶段照片",
+          "archival portrait"
+        ],
+        "exclusions": [
+          "单一项目",
+          "行程规划",
+          "travel itinerary"
+        ]
+      },
+      "revision": "47d7682838c80ea21af915c23075132b074b9909bfd1a274adb9d07d26867d71"
+    },
+    {
+      "id": "magazine-news-brief",
+      "legacyId": "editorial-news-brief",
+      "platform": "xiaohongshu",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "杂志风 · 新闻资讯",
+          "summary": "报头、主新闻和次新闻网格，保留完整资讯层级。",
+          "useWhen": "有带日期和来源的新闻原稿或主题资讯。",
+          "instructions": "上传相关图片和事实资料，说明主题。",
+          "output": "一组可继续编辑的杂志风图文。"
+        },
+        "en": {
+          "name": "Editorial News Brief",
+          "summary": "Lead with a headline story and organize related reports below.",
+          "useWhen": "You have dated, sourced reporting or several updates on one topic.",
+          "instructions": "Add your photos and verified notes, then describe the topic.",
+          "output": "An editable magazine-style photo post."
+        }
+      },
+      "match": {
+        "goals": [
+          "新闻资讯",
+          "资讯简报",
+          "主新闻",
+          "news roundup",
+          "press digest"
+        ],
+        "imageCues": [
+          "现场照片",
+          "每条独立配图",
+          "event photography"
+        ],
+        "exclusions": [
+          "人物生平",
+          "旅行路线",
+          "biography"
+        ]
+      },
+      "revision": "d9b1ca38c4865d2afa833fa8faf08574293a3678d56547fc06ac11f66391c196"
+    },
+    {
+      "id": "magazine-outfit-breakdown",
+      "legacyId": "editorial-outfit-breakdown",
+      "platform": "xiaohongshu",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "杂志风 · 穿搭思路",
+          "summary": "先看多套组合，再用全身图和单品注释拆解造型。",
+          "useWhen": "有一套或多套造型实拍，希望解释搭配思路。",
+          "instructions": "上传相关图片和事实资料，说明主题。",
+          "output": "一组可继续编辑的杂志风图文。"
+        },
+        "en": {
+          "name": "Editorial Outfit Breakdown",
+          "summary": "Compare complete looks and then annotate individual pieces.",
+          "useWhen": "You have full-look photographs and want to explain the styling.",
+          "instructions": "Add your photos and verified notes, then describe the topic.",
+          "output": "An editable magazine-style photo post."
+        }
+      },
+      "match": {
+        "goals": [
+          "穿搭思路",
+          "穿搭拆解",
+          "造型解析",
+          "outfit breakdown",
+          "styling ideas"
+        ],
+        "imageCues": [
+          "全身造型",
+          "服装单品",
+          "outfit cutout"
+        ],
+        "exclusions": [
+          "旅游攻略",
+          "行业资讯",
+          "news digest"
+        ]
+      },
+      "revision": "64d0094ceae54e61a2415b7db36fda141c2072f6435f6f30ba719ddb6d890d55"
+    },
+    {
+      "id": "magazine-story-timeline",
+      "legacyId": "editorial-story-timeline",
+      "platform": "xiaohongshu",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "杂志风 · 时序故事",
+          "summary": "先用时间轴概览，再按关键节点展开经过。",
+          "useWhen": "一段真实经历或项目有连续的事件和照片。",
+          "instructions": "上传相关图片和事实资料，说明主题。",
+          "output": "一组可继续编辑的杂志风图文。"
+        },
+        "en": {
+          "name": "Editorial Story Timeline",
+          "summary": "Give the reader a timeline and then develop the turning points.",
+          "useWhen": "One experience or project has a sequence of documented events.",
+          "instructions": "Add your photos and verified notes, then describe the topic.",
+          "output": "An editable magazine-style photo post."
+        }
+      },
+      "match": {
+        "goals": [
+          "时序故事",
+          "项目复盘",
+          "成长经历",
+          "story timeline",
+          "project retrospective"
+        ],
+        "imageCues": [
+          "不同阶段场景照",
+          "同一主体的过程照片",
+          "milestone photo sequence"
+        ],
+        "exclusions": [
+          "未来路线",
+          "人物全传",
+          "daily itinerary"
+        ]
+      },
+      "revision": "8d189d7909af4797f6cd08ab115d189322fa4a800e8cfba190c7e6ae60c83405"
+    },
+    {
+      "id": "magazine-travel-itinerary",
+      "legacyId": "editorial-travel-itinerary",
+      "platform": "xiaohongshu",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "杂志风 · 旅游攻略",
+          "summary": "风景填字封面、文化介绍和带交通信息的每日路线。",
+          "useWhen": "需要介绍真实目的地并按天给出出行安排。",
+          "instructions": "上传相关图片和事实资料，说明主题。",
+          "output": "一组可继续编辑的杂志风图文。"
+        },
+        "en": {
+          "name": "Editorial Travel Itinerary",
+          "summary": "Pair a landscape-lettered cover with culture and practical day routes.",
+          "useWhen": "You have a destination, scheduled stops and travel information.",
+          "instructions": "Add your photos and verified notes, then describe the topic.",
+          "output": "An editable magazine-style photo post."
+        }
+      },
+      "match": {
+        "goals": [
+          "旅游攻略",
+          "每日路线",
+          "目的地文化",
+          "travel itinerary",
+          "day route"
+        ],
+        "imageCues": [
+          "地标风景",
+          "景点照片",
+          "destination photography"
+        ],
+        "exclusions": [
+          "旅行回忆",
+          "人生阶段",
+          "trip retrospective"
+        ]
+      },
+      "revision": "99fbce2bd8b143712c12a5bdc2196ceb2808b9bea096a38f2ab5a0207e616fc8"
+    },
+    {
+      "id": "tiktok-streetwear-try-on",
+      "legacyId": "tiktok-tt-001",
+      "platform": "tiktok",
+      "categories": [
+        "womenswear-underwear"
+      ],
+      "copy": {
+        "zh": {
+          "name": "模特上身与街拍展示",
+          "summary": "用街拍和室内上身图展示同款轮廓。",
+          "useWhen": "适合潮牌上新、街头风穿搭和同款多场景展示。",
+          "instructions": "上传同款上身照和服装细节，填写卖点。",
+          "output": "街拍封面、卖点页和多场景穿搭图。"
+        },
+        "en": {
+          "name": "Streetwear Try-on and Street Scenes",
+          "summary": "Turn your product photos into a TikTok Shop carousel about streetwear Try-on and Street Scenes.",
+          "useWhen": "For streetwear launches and outfits worn in several settings.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with streetwear Try-on and Street Scenes."
+        }
+      },
+      "match": {
+        "goals": [
+          "模特上身与街拍展示",
+          "模特上身+街拍场景展示",
+          "女装与内衣",
+          "Streetwear Try-on and Street Scenes",
+          "Womenswear & Underwear"
+        ],
+        "imageCues": [
+          "夜景上身吸引",
+          "标题配三项可核实特点",
+          "街头镜前上身",
+          "室内侧面上身",
+          "坐姿看衣长",
+          "户外全身比例"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "060d95868b50c35c80eeab7edda1f29aa451e7ec4289be2edcfbb470923831c7"
+    },
+    {
+      "id": "tiktok-body-type-fit-comparison",
+      "legacyId": "tiktok-tt-002",
+      "platform": "tiktok",
+      "categories": [
+        "womenswear-underwear"
+      ],
+      "copy": {
+        "zh": {
+          "name": "不同身材上身对比",
+          "summary": "用不同身材的上身照讲清版型差异。",
+          "useWhen": "适合宽松版型、尺码跨度大或需要说明上身差异的服装。",
+          "instructions": "上传同款不同身材的上身照和尺码，填写卖点。",
+          "output": "同款上身对比和尺码提示。"
+        },
+        "en": {
+          "name": "One Outfit on Different Body Types",
+          "summary": "Turn your product photos into a TikTok Shop carousel about one Outfit on Different Body Types.",
+          "useWhen": "For relaxed fits or garments sold across a wide size range.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with one Outfit on Different Body Types."
+        }
+      },
+      "match": {
+        "goals": [
+          "不同身材上身对比",
+          "模特上身+版型对比",
+          "女装与内衣",
+          "One Outfit on Different Body Types",
+          "Womenswear & Underwear"
+        ],
+        "imageCues": [
+          "双人同款提出比较",
+          "对应人物标身高尺码",
+          "腰臀腿近景兑现版型判断"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "649c66445984983cfe56c866b9e9186a063477013475af50d98306e0aa0fb860"
+    },
+    {
+      "id": "tiktok-underwear-before-after-styling",
+      "legacyId": "tiktok-tt-003",
+      "platform": "tiktok",
+      "categories": [
+        "womenswear-underwear"
+      ],
+      "copy": {
+        "zh": {
+          "name": "内衣穿搭前后对比",
+          "summary": "把同一套搭配的穿前穿后放在一起。",
+          "useWhen": "适合想说明内衣如何改变整套穿搭效果的商品。",
+          "instructions": "上传同角度的穿搭前后照，填写卖点。",
+          "output": "内衣穿搭对比和细节页。"
+        },
+        "en": {
+          "name": "Underwear Styling Before and After",
+          "summary": "Turn your product photos into a TikTok Shop carousel about underwear Styling Before and After.",
+          "useWhen": "For showing how an undergarment changes the look of an outfit.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with underwear Styling Before and After."
+        }
+      },
+      "match": {
+        "goals": [
+          "内衣穿搭前后对比",
+          "内衣痛点对比型",
+          "女装与内衣",
+          "Underwear Styling Before and After",
+          "Womenswear & Underwear"
+        ],
+        "imageCues": [
+          "先展示肩带外露",
+          "同位展示低背改善",
+          "单独亮出目标款",
+          "展示绕颈系法",
+          "正面支撑结构",
+          "同人穿搭收尾"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "b0cdecef16111e9a8035a670faf2fa506c4d6e5e81a23f93bfdc538a69db5564"
+    },
+    {
+      "id": "tiktok-mirror-try-on-fit",
+      "legacyId": "tiktok-tt-004",
+      "platform": "tiktok",
+      "categories": [
+        "womenswear-underwear"
+      ],
+      "copy": {
+        "zh": {
+          "name": "镜前试穿与效果对比",
+          "summary": "用镜前试穿照展示实际穿着效果。",
+          "useWhen": "适合连衣裙、裤装等需要看实际版型的服装。",
+          "instructions": "上传镜前全身照和局部细节，填写卖点。",
+          "output": "试穿对比和版型图。"
+        },
+        "en": {
+          "name": "Mirror Try-on and Fit Comparison",
+          "summary": "Turn your product photos into a TikTok Shop carousel about mirror Try-on and Fit Comparison.",
+          "useWhen": "For dresses, trousers, and other pieces shoppers want to see on.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with mirror Try-on and Fit Comparison."
+        }
+      },
+      "match": {
+        "goals": [
+          "镜前试穿与效果对比",
+          "镜前上身+对比展示",
+          "女装与内衣",
+          "Mirror Try-on and Fit Comparison",
+          "Womenswear & Underwear"
+        ],
+        "imageCues": [
+          "镜前提出覆盖困扰",
+          "同人目标款改善",
+          "腋下覆盖近景",
+          "对照款背面问题",
+          "目标款背面回应",
+          "背扣实物并排"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "0106bb17263b2250f5532faa268d3d5986b81d78d0a4ca0e51fe183eacf01786"
+    },
+    {
+      "id": "tiktok-clothing-colorway-styling",
+      "legacyId": "tiktok-tt-005",
+      "platform": "tiktok",
+      "categories": [
+        "womenswear-underwear"
+      ],
+      "copy": {
+        "zh": {
+          "name": "服装多色穿搭与细节展示",
+          "summary": "把同款的配色、搭配和细节放进一组。",
+          "useWhen": "适合同一款服装推出多种颜色的上新帖。",
+          "instructions": "上传不同颜色的上身照和细节，填写卖点。",
+          "output": "多色穿搭和细节对比图。"
+        },
+        "en": {
+          "name": "Clothing Colorways and Styling Details",
+          "summary": "Turn your product photos into a TikTok Shop carousel about clothing Colorways and Styling Details.",
+          "useWhen": "For clothing launches with several colorways.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with clothing Colorways and Styling Details."
+        }
+      },
+      "match": {
+        "goals": [
+          "服装多色穿搭与细节展示",
+          "服饰穿搭多色对比与细",
+          "女装与内衣",
+          "Clothing Colorways and Styling Details",
+          "Womenswear & Underwear"
+        ],
+        "imageCues": [
+          "两色平铺并排",
+          "两色上身比较",
+          "局部与全身拼图"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "7373811175e0323f183c5e8aa19e9a444cdfa343d54e1378b491c10f8687220c"
+    },
+    {
+      "id": "tiktok-apparel-unboxing-print",
+      "legacyId": "tiktok-tt-006",
+      "platform": "tiktok",
+      "categories": [
+        "womenswear-underwear"
+      ],
+      "copy": {
+        "zh": {
+          "name": "服装开箱与图案特写",
+          "summary": "从拆包过渡到衣服印花近景。",
+          "useWhen": "适合印花 T 恤、卫衣等卖点集中在图案的服装。",
+          "instructions": "上传包装、开箱照和印花特写，填写卖点。",
+          "output": "开箱组图和印花细节页。"
+        },
+        "en": {
+          "name": "Apparel Unboxing and Print Close-ups",
+          "summary": "Turn your product photos into a TikTok Shop carousel about apparel Unboxing and Print Close-ups.",
+          "useWhen": "For graphic tees and hoodies with a print worth showing closely.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with apparel Unboxing and Print Close-ups."
+        }
+      },
+      "match": {
+        "goals": [
+          "服装开箱与图案特写",
+          "联名卫衣开箱平铺型",
+          "女装与内衣",
+          "Apparel Unboxing and Print Close-ups",
+          "Womenswear & Underwear"
+        ],
+        "imageCues": [
+          "合作悬念开场",
+          "包装亮出身份",
+          "整件平铺揭晓",
+          "袖口与图案近景"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "9c224af15e28800de904336aa233458d91a933e96cdce3f6f5a8f8583e586659"
+    },
+    {
+      "id": "tiktok-makeup-unboxing-closeups",
+      "legacyId": "tiktok-tt-007",
+      "platform": "tiktok",
+      "categories": [
+        "beauty-personal-care"
+      ],
+      "copy": {
+        "zh": {
+          "name": "彩妆开箱与手持特写",
+          "summary": "用拆盒、手持和近景展示彩妆。",
+          "useWhen": "适合有外包装、质地或颜色亮点的彩妆新品。",
+          "instructions": "上传包装、手持照和产品特写，填写卖点。",
+          "output": "彩妆开箱和质地细节图。"
+        },
+        "en": {
+          "name": "Makeup Unboxing and Handheld Details",
+          "summary": "Turn your product photos into a TikTok Shop carousel about makeup Unboxing and Handheld Details.",
+          "useWhen": "For makeup launches with distinctive packaging, texture, or color.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with makeup Unboxing and Handheld Details."
+        }
+      },
+      "match": {
+        "goals": [
+          "彩妆开箱与手持特写",
+          "彩妆开箱手持特写型",
+          "美妆与个护",
+          "Makeup Unboxing and Handheld Details",
+          "Beauty & Personal Care"
+        ],
+        "imageCues": [
+          "整套制造惊喜",
+          "眼影盘展开",
+          "唇颊油手持",
+          "唇油单件近景",
+          "睫毛膏收尾"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "2d144a5db7c77a4d6be990a617e51a31e30b64c274fee6b66777f844b7f10435"
+    },
+    {
+      "id": "tiktok-skincare-set-price-comparison",
+      "legacyId": "tiktok-tt-008",
+      "platform": "tiktok",
+      "categories": [
+        "beauty-personal-care"
+      ],
+      "copy": {
+        "zh": {
+          "name": "护肤套装逐件介绍与比价",
+          "summary": "逐件介绍护肤套装并列出已核实价格。",
+          "useWhen": "适合组合装、节日礼盒或有公开价差的护肤套装。",
+          "instructions": "上传套装图、单品图和实际价格，填写卖点。",
+          "output": "护肤套装清单和比价图。"
+        },
+        "en": {
+          "name": "Skincare Set Breakdown and Price Comparison",
+          "summary": "Turn your product photos into a TikTok Shop carousel about skincare Set Breakdown and Price Comparison.",
+          "useWhen": "For skincare bundles, gift sets, or verified price comparisons.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with skincare Set Breakdown and Price Comparison."
+        }
+      },
+      "match": {
+        "goals": [
+          "护肤套装逐件介绍与比价",
+          "护肤套装单品逐件比价",
+          "美妆与个护",
+          "Skincare Set Breakdown and Price Comparison",
+          "Beauty & Personal Care"
+        ],
+        "imageCues": [
+          "人物反应设问",
+          "卸妆单品1",
+          "洁面单品2",
+          "化妆水单品3",
+          "两件护理品并列",
+          "眼部护理单品6"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "fe221d7843712880bc1ca0a059668fb59a52e254b19776f0ff746a90738f5a41"
+    },
+    {
+      "id": "tiktok-perfume-mood-fragrance-notes",
+      "legacyId": "tiktok-tt-009",
+      "platform": "tiktok",
+      "categories": [
+        "beauty-personal-care"
+      ],
+      "copy": {
+        "zh": {
+          "name": "氛围场景与香调揭晓",
+          "summary": "先给出氛围，再用画面揭晓香调。",
+          "useWhen": "适合有明确香调、季节或场合定位的香水。",
+          "instructions": "上传香水瓶照、场景照和官方香调，填写卖点。",
+          "output": "香氛氛围图和香调卡。"
+        },
+        "en": {
+          "name": "Mood Scenes and Fragrance Notes",
+          "summary": "Turn your product photos into a TikTok Shop carousel about mood Scenes and Fragrance Notes.",
+          "useWhen": "For perfumes with distinct notes, seasons, or occasions.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with mood Scenes and Fragrance Notes."
+        }
+      },
+      "match": {
+        "goals": [
+          "氛围场景与香调揭晓",
+          "氛围铺垫+香调揭示",
+          "美妆与个护",
+          "Mood Scenes and Fragrance Notes",
+          "Beauty & Personal Care"
+        ],
+        "imageCues": [
+          "秋日出游氛围",
+          "室内节庆灯光",
+          "落叶与手中杯子",
+          "南瓜场景延续",
+          "香水瓶与香调揭晓"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "416b6250ff2c64ea7f0f24784b872742f6579ee109630f0a2c73b84696a90f28"
+    },
+    {
+      "id": "tiktok-routine-before-after-timeline",
+      "legacyId": "tiktok-tt-010",
+      "platform": "tiktok",
+      "categories": [
+        "beauty-personal-care"
+      ],
+      "copy": {
+        "zh": {
+          "name": "同人使用前后与周期对比",
+          "summary": "用同一人物的实拍记录展示使用过程。",
+          "useWhen": "适合已经留存同一人物使用过程照片的商品。",
+          "instructions": "上传同一人物不同时间的照片，填写卖点。",
+          "output": "使用时间线和实拍对比图。"
+        },
+        "en": {
+          "name": "One Person's Routine and Time Comparison",
+          "summary": "Turn your product photos into a TikTok Shop carousel about one Person's Routine and Time Comparison.",
+          "useWhen": "For products with an existing photo record from the same person.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with one Person's Routine and Time Comparison."
+        }
+      },
+      "match": {
+        "goals": [
+          "同人使用前后与周期对比",
+          "前后对照+周期展示",
+          "美妆与个护",
+          "One Person's Routine and Time Comparison",
+          "Beauty & Personal Care"
+        ],
+        "imageCues": [
+          "使用前及时间点",
+          "使用后近景回应",
+          "手持产品说明"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "d213e0f92366f0f8843ca9779d689a6edcf0bf7bbfc91d18c730950bb5a22dba"
+    },
+    {
+      "id": "tiktok-makeup-shade-swatches",
+      "legacyId": "tiktok-tt-011",
+      "platform": "tiktok",
+      "categories": [
+        "beauty-personal-care"
+      ],
+      "copy": {
+        "zh": {
+          "name": "彩妆多色试色对比",
+          "summary": "在同一光线下对比彩妆试色。",
+          "useWhen": "适合唇釉、腮红、眼影等多色号产品。",
+          "instructions": "上传真实试色照和色号，填写卖点。",
+          "output": "试色对比图和色号说明。"
+        },
+        "en": {
+          "name": "Makeup Shade Swatch Comparison",
+          "summary": "Turn your product photos into a TikTok Shop carousel about makeup Shade Swatch Comparison.",
+          "useWhen": "For lipstick, blush, or eyeshadow sold in multiple shades.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with makeup Shade Swatch Comparison."
+        }
+      },
+      "match": {
+        "goals": [
+          "彩妆多色试色对比",
+          "彩妆试色四宫格型",
+          "美妆与个护",
+          "Makeup Shade Swatch Comparison",
+          "Beauty & Personal Care"
+        ],
+        "imageCues": [
+          "柔粉色号四宫格",
+          "冷米色号四宫格",
+          "棕玫瑰色号四宫格",
+          "暖玫瑰色号四宫格",
+          "冷浆果色号四宫格",
+          "深酒红色号四宫格"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "be9bc4eaa5e2d63fab8e7f1cc295f0d11ecff2beff0813f9d120ac6cc1bc53d9"
+    },
+    {
+      "id": "tiktok-personal-care-tool-accessories",
+      "legacyId": "tiktok-tt-012",
+      "platform": "tiktok",
+      "categories": [
+        "beauty-personal-care"
+      ],
+      "copy": {
+        "zh": {
+          "name": "个护工具与配件清单展示",
+          "summary": "用工具与配件的组合图讲清盒内有什么。",
+          "useWhen": "适合剃须、理发、美容等带多个配件的工具。",
+          "instructions": "上传工具、配件和包装照片，填写卖点。",
+          "output": "个护工具开箱和配件清单。"
+        },
+        "en": {
+          "name": "Personal-care Tools and Included Accessories",
+          "summary": "Turn your product photos into a TikTok Shop carousel about personal-care Tools and Included Accessories.",
+          "useWhen": "For grooming and beauty tools that ship with accessories.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with personal-care Tools and Included Accessories."
+        }
+      },
+      "match": {
+        "goals": [
+          "个护工具与配件清单展示",
+          "个护配件清单图",
+          "美妆与个护",
+          "Personal-care Tools and Included Accessories",
+          "Beauty & Personal Care"
+        ],
+        "imageCues": [
+          "黑色套装质感主图",
+          "白底黑款清单",
+          "金色变体清单",
+          "蓝色变体清单",
+          "银黑组合清单",
+          "另一款完整配件布局"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "f5145da10eb7e2a02cbb33e22f2aad7439242cc3575db53cf540e711cb5d53ee"
+    },
+    {
+      "id": "tiktok-one-garment-outfit-ideas",
+      "legacyId": "tiktok-tt-013",
+      "platform": "tiktok",
+      "categories": [
+        "menswear-underwear"
+      ],
+      "copy": {
+        "zh": {
+          "name": "一件单品多套穿搭",
+          "summary": "用同一件单品搭出几套风格。",
+          "useWhen": "适合基础款、通勤单品和换季穿搭内容。",
+          "instructions": "上传主单品和多套搭配照片，填写卖点。",
+          "output": "一衣多穿图组和搭配提示。"
+        },
+        "en": {
+          "name": "One Garment, Multiple Outfits",
+          "summary": "Turn your product photos into a TikTok Shop carousel about one Garment, Multiple Outfits.",
+          "useWhen": "For wardrobe staples, workwear, and seasonal styling ideas.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with one Garment, Multiple Outfits."
+        }
+      },
+      "match": {
+        "goals": [
+          "一件单品多套穿搭",
+          "模特上身+穿搭展示",
+          "男装与内衣",
+          "One Garment, Multiple Outfits",
+          "Menswear & Underwear"
+        ],
+        "imageCues": [
+          "四套穿法总览",
+          "日常休闲拼贴",
+          "居家舒适拼贴",
+          "街头穿搭拼贴",
+          "约会夜间穿搭",
+          "同人全身与行动提示"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "a9605c4b4f4876715bce8eec5c56dab655e475731acc010b29b58305f309939e"
+    },
+    {
+      "id": "tiktok-clothing-front-back-fabric",
+      "legacyId": "tiktok-tt-014",
+      "platform": "tiktok",
+      "categories": [
+        "menswear-underwear"
+      ],
+      "copy": {
+        "zh": {
+          "name": "服装正背面与面料细节",
+          "summary": "通过正背面和面料近景讲清做工。",
+          "useWhen": "适合需要突出剪裁、缝线或面料纹理的服装。",
+          "instructions": "上传服装正背面照和面料近景，填写卖点。",
+          "output": "服装版型图和面料细节页。"
+        },
+        "en": {
+          "name": "Front and Back Views with Fabric Details",
+          "summary": "Turn your product photos into a TikTok Shop carousel about front and Back Views with Fabric Details.",
+          "useWhen": "For garments where cut, seams, or fabric texture matter.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with front and Back Views with Fabric Details."
+        }
+      },
+      "match": {
+        "goals": [
+          "服装正背面与面料细节",
+          "服饰平铺细节型",
+          "男装与内衣",
+          "Front and Back Views with Fabric Details",
+          "Menswear & Underwear"
+        ],
+        "imageCues": [
+          "正面挂拍",
+          "背面挂拍",
+          "局部花纹",
+          "领口与拼缝近景",
+          "完整正面",
+          "完整背面"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "97f3d979701b7b7990d0dc0d82432d298b38472018d250bba561855c698cacdc"
+    },
+    {
+      "id": "tiktok-clothing-colorway-flat-lay",
+      "legacyId": "tiktok-tt-015",
+      "platform": "tiktok",
+      "categories": [
+        "menswear-underwear"
+      ],
+      "copy": {
+        "zh": {
+          "name": "服装多色平铺与上身展示",
+          "summary": "先看同款颜色，再看实际穿着效果。",
+          "useWhen": "适合想同时展示色卡和穿着效果的服装系列。",
+          "instructions": "上传不同颜色的平铺图和上身照，填写卖点。",
+          "output": "配色对比和上身图组。"
+        },
+        "en": {
+          "name": "Clothing Colorways, Flat Lays and Try-ons",
+          "summary": "Turn your product photos into a TikTok Shop carousel about clothing Colorways, Flat Lays and Try-ons.",
+          "useWhen": "For collections that need color comparison and on-body views.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with clothing Colorways, Flat Lays and Try-ons."
+        }
+      },
+      "match": {
+        "goals": [
+          "服装多色平铺与上身展示",
+          "服饰多色平铺上身型",
+          "男装与内衣",
+          "Clothing Colorways, Flat Lays and Try-ons",
+          "Menswear & Underwear"
+        ],
+        "imageCues": [
+          "第一组色卡平铺",
+          "第二组色卡平铺",
+          "男款深色上身",
+          "男款浅色上身",
+          "女款浅色上身",
+          "男女同框搭配"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "178c47a2b0759ac76cb03455695b968f6564c449b5d2952f30ed429ecf68affd"
+    },
+    {
+      "id": "tiktok-functional-clothing-in-use",
+      "legacyId": "tiktok-tt-016",
+      "platform": "tiktok",
+      "categories": [
+        "menswear-underwear"
+      ],
+      "copy": {
+        "zh": {
+          "name": "服装功能细节与场景展示",
+          "summary": "在穿着场景中说明衣服的实用细节。",
+          "useWhen": "适合有口袋、防风或可调节设计的功能服装。",
+          "instructions": "上传上身照、功能特写和已核实卖点，填写卖点。",
+          "output": "功能场景图和细节说明。"
+        },
+        "en": {
+          "name": "Functional Clothing in Everyday Scenes",
+          "summary": "Turn your product photos into a TikTok Shop carousel about functional Clothing in Everyday Scenes.",
+          "useWhen": "For clothing with practical features like pockets or adjustable fits.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with functional Clothing in Everyday Scenes."
+        }
+      },
+      "match": {
+        "goals": [
+          "服装功能细节与场景展示",
+          "服饰功能拆解图",
+          "男装与内衣",
+          "Functional Clothing in Everyday Scenes",
+          "Menswear & Underwear"
+        ],
+        "imageCues": [
+          "多色整裤清单",
+          "真实尺寸表",
+          "膝部与口袋特写",
+          "四种使用场景",
+          "绿色上身",
+          "卡其色上身"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "2d0b29344d9982e3d684c7064155c0e463986a2f241e2b586588deae54b59505"
+    },
+    {
+      "id": "tiktok-warm-clothing-fabric-details",
+      "legacyId": "tiktok-tt-017",
+      "platform": "tiktok",
+      "categories": [
+        "menswear-underwear"
+      ],
+      "copy": {
+        "zh": {
+          "name": "服装面料与保暖细节展示",
+          "summary": "用面料、内里和缝线近景展示保暖设计。",
+          "useWhen": "适合保暖外套、抓绒和夹层结构明显的冬装。",
+          "instructions": "上传面料、内里和服装特写，填写卖点。",
+          "output": "保暖结构与做工细节图。"
+        },
+        "en": {
+          "name": "Fabric Construction and Warmth Details",
+          "summary": "Turn your product photos into a TikTok Shop carousel about fabric Construction and Warmth Details.",
+          "useWhen": "For winter coats, fleece, and visibly layered garments.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with fabric Construction and Warmth Details."
+        }
+      },
+      "match": {
+        "goals": [
+          "服装面料与保暖细节展示",
+          "男装平铺细节功能展示",
+          "男装与内衣",
+          "Fabric Construction and Warmth Details",
+          "Menswear & Underwear"
+        ],
+        "imageCues": [
+          "整件外套定位",
+          "三色全貌",
+          "外层内衬拉链",
+          "帽兜内部",
+          "四格细节"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "02dd0264e0c6c9d5ae54c83450723cd60dcfb88ce98b51d269d195074c17ba35"
+    },
+    {
+      "id": "tiktok-outdoor-gear-spec-guide",
+      "legacyId": "tiktok-tt-018",
+      "platform": "tiktok",
+      "categories": [
+        "sports-outdoor"
+      ],
+      "copy": {
+        "zh": {
+          "name": "户外装备参数与功能图解",
+          "summary": "把户外装备的参数和功能做成图解。",
+          "useWhen": "适合规格多、需要解释功能的露营或户外装备。",
+          "instructions": "上传装备图、官方规格和使用照片，填写卖点。",
+          "output": "户外装备参数卡和功能页。"
+        },
+        "en": {
+          "name": "Outdoor Equipment Specs and Features",
+          "summary": "Turn your product photos into a TikTok Shop carousel about outdoor Equipment Specs and Features.",
+          "useWhen": "For camping gear with several features or specifications to explain.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with outdoor Equipment Specs and Features."
+        }
+      },
+      "match": {
+        "goals": [
+          "户外装备参数与功能图解",
+          "出行工具参数图解型",
+          "运动与户外",
+          "Outdoor Equipment Specs and Features",
+          "Sports & Outdoor"
+        ],
+        "imageCues": [
+          "整车白底",
+          "动力部件",
+          "电池与续航资料",
+          "轮胎及路况",
+          "传动刹车坐垫",
+          "骑行模式场景"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "02eec386e4e395ef52769f64e91a3941324db8606460baf28e1c5c1591d605b5"
+    },
+    {
+      "id": "tiktok-outdoor-gear-packing-capacity",
+      "legacyId": "tiktok-tt-019",
+      "platform": "tiktok",
+      "categories": [
+        "sports-outdoor"
+      ],
+      "copy": {
+        "zh": {
+          "name": "户外装备容量实装展示",
+          "summary": "用真实装入物展示户外装备的容量。",
+          "useWhen": "适合户外背包、储物箱等需要实测装载的装备。",
+          "instructions": "上传装备、装载物和实装照，填写卖点。",
+          "output": "装载步骤和容量图。"
+        },
+        "en": {
+          "name": "Packing Outdoor Equipment to Show Capacity",
+          "summary": "Turn your product photos into a TikTok Shop carousel about packing Outdoor Equipment to Show Capacity.",
+          "useWhen": "For hiking packs and storage bins whose capacity can be demonstrated.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with packing Outdoor Equipment to Show Capacity."
+        }
+      },
+      "match": {
+        "goals": [
+          "户外装备容量实装展示",
+          "户外装备实测型",
+          "运动与户外",
+          "Packing Outdoor Equipment to Show Capacity",
+          "Sports & Outdoor"
+        ],
+        "imageCues": [
+          "车尾完整装载",
+          "饮料容量近景",
+          "独立干区",
+          "闭合后出行场景",
+          "回到产品与选择提示"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "604034581495afb155be45bec986b7d618ea605f68af670f31c3384b0683d93a"
+    },
+    {
+      "id": "tiktok-sportswear-flat-lay-fabric",
+      "legacyId": "tiktok-tt-020",
+      "platform": "tiktok",
+      "categories": [
+        "sports-outdoor"
+      ],
+      "copy": {
+        "zh": {
+          "name": "运动套装平铺与面料特写",
+          "summary": "平铺看运动套装，再拉近看面料。",
+          "useWhen": "适合健身套装、瑜伽服和强调面料的运动服。",
+          "instructions": "上传运动套装平铺和面料特写，填写卖点。",
+          "output": "套装展示和面料近景图。"
+        },
+        "en": {
+          "name": "Sportswear Flat Lays and Fabric Close-ups",
+          "summary": "Turn your product photos into a TikTok Shop carousel about sportswear Flat Lays and Fabric Close-ups.",
+          "useWhen": "For activewear sets, yoga apparel, and fabric-focused sportswear.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with sportswear Flat Lays and Fabric Close-ups."
+        }
+      },
+      "match": {
+        "goals": [
+          "运动套装平铺与面料特写",
+          "运动套装平铺特写",
+          "运动与户外",
+          "Sportswear Flat Lays and Fabric Close-ups",
+          "Sports & Outdoor"
+        ],
+        "imageCues": [
+          "套装平铺",
+          "手指拉伸上衣",
+          "整套版型",
+          "标签与里侧",
+          "面料及边缘手持"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "b35197d39ea57d01dfcea70729dcbe2ac69c03bb19bd5b078600481ae6f6e2d9"
+    },
+    {
+      "id": "tiktok-travel-product-problem-solution",
+      "legacyId": "tiktok-tt-021",
+      "platform": "tiktok",
+      "categories": [
+        "sports-outdoor"
+      ],
+      "copy": {
+        "zh": {
+          "name": "出行痛点与功能对比图",
+          "summary": "用旅行中的具体麻烦带出商品功能。",
+          "useWhen": "适合能解决打包、收纳或旅途携带问题的商品。",
+          "instructions": "上传出行场景照、商品图和功能实拍，填写卖点。",
+          "output": "痛点、解决方式和使用图。"
+        },
+        "en": {
+          "name": "Travel Problems and Feature Comparisons",
+          "summary": "Turn your product photos into a TikTok Shop carousel about travel Problems and Feature Comparisons.",
+          "useWhen": "For products that make packing, storage, or travel easier.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with travel Problems and Feature Comparisons."
+        }
+      },
+      "match": {
+        "goals": [
+          "出行痛点与功能对比图",
+          "出行痛点对比图",
+          "运动与户外",
+          "Travel Problems and Feature Comparisons",
+          "Sports & Outdoor"
+        ],
+        "imageCues": [
+          "行车记录有无对比",
+          "导航操作对比",
+          "防盗与续航查询",
+          "减震舒适对比",
+          "爬坡动力对比",
+          "整车汇总"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "f32a773e7536ed1ac9ab5d81cfcb4cddab1d7f4ae010f35fa1ffa1225cc00029"
+    },
+    {
+      "id": "tiktok-outdoor-apparel-colorway-try-on",
+      "legacyId": "tiktok-tt-022",
+      "platform": "tiktok",
+      "categories": [
+        "sports-outdoor"
+      ],
+      "copy": {
+        "zh": {
+          "name": "户外穿戴多色与上身展示",
+          "summary": "在户外场景里对比同款配色。",
+          "useWhen": "适合户外夹克、帽衫等多色户外服装。",
+          "instructions": "上传同款配色照片和户外上身照，填写卖点。",
+          "output": "户外穿搭和配色对比图。"
+        },
+        "en": {
+          "name": "Outdoor Apparel Colorways and Try-ons",
+          "summary": "Turn your product photos into a TikTok Shop carousel about outdoor Apparel Colorways and Try-ons.",
+          "useWhen": "For outdoor jackets, hoodies, and other apparel in multiple colors.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with outdoor Apparel Colorways and Try-ons."
+        }
+      },
+      "match": {
+        "goals": [
+          "户外穿戴多色与上身展示",
+          "户外生活化多色产品展",
+          "运动与户外",
+          "Outdoor Apparel Colorways and Try-ons",
+          "Sports & Outdoor"
+        ],
+        "imageCues": [
+          "酒红平铺",
+          "米色平铺",
+          "黑色户外上身",
+          "灰色海报收尾"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "8fbb890b12d79c80dc238fd54fd9384c1bf381e768b61eb94414ad099d54193a"
+    },
+    {
+      "id": "tiktok-home-lighting-mood",
+      "legacyId": "tiktok-tt-023",
+      "platform": "tiktok",
+      "categories": [
+        "home-supplies"
+      ],
+      "copy": {
+        "zh": {
+          "name": "居家灯光氛围实拍",
+          "summary": "用实拍展示灯光改变房间氛围。",
+          "useWhen": "适合氛围灯、床头灯和需要展示光线效果的产品。",
+          "instructions": "上传开灯前后的房间图和灯具照，填写卖点。",
+          "output": "家居灯光氛围图组。"
+        },
+        "en": {
+          "name": "Real Home Lighting and Atmosphere",
+          "summary": "Turn your product photos into a TikTok Shop carousel about real Home Lighting and Atmosphere.",
+          "useWhen": "For mood lights, bedside lamps, and products with a visible lighting effect.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with real Home Lighting and Atmosphere."
+        }
+      },
+      "match": {
+        "goals": [
+          "居家灯光氛围实拍",
+          "居家场景+氛围展示",
+          "居家用品",
+          "Real Home Lighting and Atmosphere",
+          "Home Supplies"
+        ],
+        "imageCues": [
+          "整体夜间氛围",
+          "灯具与蜡烛近景",
+          "回到放松视角"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "72bde90ab512c27f376400134330478b599c3fcf17d979c4a290c14417037378"
+    },
+    {
+      "id": "tiktok-home-styling-before-after",
+      "legacyId": "tiktok-tt-024",
+      "platform": "tiktok",
+      "categories": [
+        "home-supplies"
+      ],
+      "copy": {
+        "zh": {
+          "name": "家居布置前后对比",
+          "summary": "用同角度照片展示布置前后的变化。",
+          "useWhen": "适合灯饰、地毯、装饰品等能改变房间观感的商品。",
+          "instructions": "上传布置前后照和关键单品图，填写卖点。",
+          "output": "空间前后对比和单品细节页。"
+        },
+        "en": {
+          "name": "Home Styling Before and After",
+          "summary": "Turn your product photos into a TikTok Shop carousel about home Styling Before and After.",
+          "useWhen": "For lights, rugs, and decor that visibly change a room.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with home Styling Before and After."
+        }
+      },
+      "match": {
+        "goals": [
+          "家居布置前后对比",
+          "家居前后对比展示",
+          "居家用品",
+          "Home Styling Before and After",
+          "Home Supplies"
+        ],
+        "imageCues": [
+          "旧布置困扰",
+          "同位布置后转折",
+          "填满花盆的动作",
+          "完整门廊效果",
+          "无需日常打理的可核实点",
+          "回看结果"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "ab7c616411a60b22511e26f4a6db1c55118f6132d9dd2404e6c22a4bf4a8a3f2"
+    },
+    {
+      "id": "tiktok-home-storage-before-after",
+      "legacyId": "tiktok-tt-025",
+      "platform": "tiktok",
+      "categories": [
+        "home-supplies"
+      ],
+      "copy": {
+        "zh": {
+          "name": "家居收纳前后与细节展示",
+          "summary": "先看杂乱空间，再展示整理效果。",
+          "useWhen": "适合收纳盒、层架和整理后变化明显的产品。",
+          "instructions": "上传整理前后照和收纳用品细节，填写卖点。",
+          "output": "家居收纳对比图和细节页。"
+        },
+        "en": {
+          "name": "Storage Changes and Product Details",
+          "summary": "Turn your product photos into a TikTok Shop carousel about storage Changes and Product Details.",
+          "useWhen": "For bins, shelves, and other products with a clear organizing result.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with storage Changes and Product Details."
+        }
+      },
+      "match": {
+        "goals": [
+          "家居收纳前后与细节展示",
+          "家居卖点拆解展示",
+          "居家用品",
+          "Storage Changes and Product Details",
+          "Home Supplies"
+        ],
+        "imageCues": [
+          "收纳盒全貌",
+          "卧室摆放",
+          "杂乱与整理后",
+          "防尘盖及材料",
+          "尺寸与内部格位",
+          "装满的俯视结果"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "667210b482510459a334f2e0dd0faad324ca48bb09f401a8c11a985c0839d3dc"
+    },
+    {
+      "id": "tiktok-home-product-real-use",
+      "legacyId": "tiktok-tt-026",
+      "platform": "tiktok",
+      "categories": [
+        "home-supplies"
+      ],
+      "copy": {
+        "zh": {
+          "name": "家居好物功能实拍",
+          "summary": "用生活场景实拍讲清家居好物怎么用。",
+          "useWhen": "适合需要展示真实日常用法的小型居家用品。",
+          "instructions": "上传产品照和实际使用照片，填写卖点。",
+          "output": "家居好物场景图和功能页。"
+        },
+        "en": {
+          "name": "Home Essentials in Real Use",
+          "summary": "Turn your product photos into a TikTok Shop carousel about home Essentials in Real Use.",
+          "useWhen": "For household essentials best understood through everyday use.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with home Essentials in Real Use."
+        }
+      },
+      "match": {
+        "goals": [
+          "家居好物功能实拍",
+          "家居功能演示实拍",
+          "居家用品",
+          "Home Essentials in Real Use",
+          "Home Supplies"
+        ],
+        "imageCues": [
+          "开盖全貌",
+          "手势触发",
+          "打开看容量",
+          "侧面感应开合",
+          "闭合状态",
+          "颜色选项与收尾"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "8808d4719578a74a617dc7efd7fd6da0be8040f7a72ed19df3eaf2dd3d78eb14"
+    },
+    {
+      "id": "tiktok-footwear-on-foot-outfits",
+      "legacyId": "tiktok-tt-027",
+      "platform": "tiktok",
+      "categories": [
+        "shoes"
+      ],
+      "copy": {
+        "zh": {
+          "name": "真人穿搭与上脚展示",
+          "summary": "把鞋放进整套穿搭，并展示上脚细节。",
+          "useWhen": "适合运动鞋、靴子等需要配合全身穿搭展示的鞋款。",
+          "instructions": "上传全身穿搭照和上脚近景，填写卖点。",
+          "output": "上脚效果和鞋履搭配图。"
+        },
+        "en": {
+          "name": "Complete Outfit and On-foot Views",
+          "summary": "Turn your product photos into a TikTok Shop carousel about complete Outfit and On-foot Views.",
+          "useWhen": "For sneakers and boots that are easier to picture in a full outfit.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with complete Outfit and On-foot Views."
+        }
+      },
+      "match": {
+        "goals": [
+          "真人穿搭与上脚展示",
+          "穿搭上脚展示型",
+          "鞋靴",
+          "Complete Outfit and On-foot Views",
+          "Shoes"
+        ],
+        "imageCues": [
+          "全身穿搭比例",
+          "材质与扣带",
+          "站姿看鞋筒",
+          "靴面与鞋跟近景"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "e5e7da8fc8cdbfc40899fca995815d758f1eadf80c9a8f139f2c6ae6ba2e4f93"
+    },
+    {
+      "id": "tiktok-footwear-colorway-on-foot",
+      "legacyId": "tiktok-tt-028",
+      "platform": "tiktok",
+      "categories": [
+        "shoes"
+      ],
+      "copy": {
+        "zh": {
+          "name": "鞋履多色平铺与上脚对比",
+          "summary": "把各色鞋款的平铺图和上脚图成组对比。",
+          "useWhen": "适合同款多色球鞋、凉鞋和日常鞋。",
+          "instructions": "上传多色鞋款和对应上脚照，填写卖点。",
+          "output": "鞋款配色和上脚对比图。"
+        },
+        "en": {
+          "name": "Footwear Colorways and On-foot Comparison",
+          "summary": "Turn your product photos into a TikTok Shop carousel about footwear Colorways and On-foot Comparison.",
+          "useWhen": "For sneakers, sandals, and everyday shoes in multiple colorways.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with footwear Colorways and On-foot Comparison."
+        }
+      },
+      "match": {
+        "goals": [
+          "鞋履多色平铺与上脚对比",
+          "鞋履平铺搭配型",
+          "鞋靴",
+          "Footwear Colorways and On-foot Comparison",
+          "Shoes"
+        ],
+        "imageCues": [
+          "配色A平铺",
+          "配色A俯视上脚",
+          "配色A侧面上脚",
+          "配色B平铺",
+          "配色B完整鞋型",
+          "配色B上脚"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "4565807931eba287a7a770695259096a54969cc1b2b6f1f9e3f6666a86911def"
+    },
+    {
+      "id": "tiktok-footwear-handheld-detail",
+      "legacyId": "tiktok-tt-029",
+      "platform": "tiktok",
+      "categories": [
+        "shoes"
+      ],
+      "copy": {
+        "zh": {
+          "name": "鞋履手持与细节特写",
+          "summary": "用手持近景拍清鞋底、鞋面和走线。",
+          "useWhen": "适合靠鞋底、走线或材料细节体现卖点的鞋款。",
+          "instructions": "上传手持鞋照和鞋底鞋面特写，填写卖点。",
+          "output": "鞋履近景和工艺细节图。"
+        },
+        "en": {
+          "name": "Handheld Shoes and Detail Close-ups",
+          "summary": "Turn your product photos into a TikTok Shop carousel about handheld Shoes and Detail Close-ups.",
+          "useWhen": "For footwear with distinctive soles, stitching, or materials.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with handheld Shoes and Detail Close-ups."
+        }
+      },
+      "match": {
+        "goals": [
+          "鞋履手持与细节特写",
+          "鞋类手持细节展示",
+          "鞋靴",
+          "Handheld Shoes and Detail Close-ups",
+          "Shoes"
+        ],
+        "imageCues": [
+          "手持整鞋与穿搭定位",
+          "鞋面触感",
+          "侧面鞋底与搭配",
+          "鞋口和整体选择提示"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "76927671ec4e66ebe9b51a3b1f314a3de0ea67c7ddef6622ba556bdf5e8a609e"
+    },
+    {
+      "id": "tiktok-waterproof-footwear-outdoors",
+      "legacyId": "tiktok-tt-030",
+      "platform": "tiktok",
+      "categories": [
+        "shoes"
+      ],
+      "copy": {
+        "zh": {
+          "name": "户外上脚与防水场景实拍",
+          "summary": "在真实户外场景里展示鞋款防水用途。",
+          "useWhen": "适合有实拍测试的徒步鞋、雨靴和户外鞋。",
+          "instructions": "上传户外上脚照和可核实防水资料，填写卖点。",
+          "output": "户外上脚图和防水说明。"
+        },
+        "en": {
+          "name": "Outdoor Footwear and Waterproof Use",
+          "summary": "Turn your product photos into a TikTok Shop carousel about outdoor Footwear and Waterproof Use.",
+          "useWhen": "For hiking shoes, rain boots, or outdoor footwear with real test photos.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with outdoor Footwear and Waterproof Use."
+        }
+      },
+      "match": {
+        "goals": [
+          "户外上脚与防水场景实拍",
+          "户外场景生活化展示",
+          "鞋靴",
+          "Outdoor Footwear and Waterproof Use",
+          "Shoes"
+        ],
+        "imageCues": [
+          "潮湿地面问题",
+          "积水中上脚观察",
+          "日常坐姿外观"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "0d9d7aa1849d1abea8b8deea0f478509f8320966140eb141097f376b4cd366bd"
+    },
+    {
+      "id": "tiktok-vacuum-cleaning-results",
+      "legacyId": "tiktok-tt-031",
+      "platform": "tiktok",
+      "categories": [
+        "household-appliances"
+      ],
+      "copy": {
+        "zh": {
+          "name": "清洁痛点与吸尘效果展示",
+          "summary": "用脏污和清洁后的照片展示吸尘过程。",
+          "useWhen": "适合吸尘器和能展示地面清洁效果的设备。",
+          "instructions": "上传脏污照、清洁过程和结果照，填写卖点。",
+          "output": "吸尘前后对比图。"
+        },
+        "en": {
+          "name": "Cleaning Problems and Vacuum Results",
+          "summary": "Turn your product photos into a TikTok Shop carousel about cleaning Problems and Vacuum Results.",
+          "useWhen": "For vacuums and devices with a visible floor-cleaning result.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with cleaning Problems and Vacuum Results."
+        }
+      },
+      "match": {
+        "goals": [
+          "清洁痛点与吸尘效果展示",
+          "吸尘器痛点+吸力展示",
+          "家用电器",
+          "Cleaning Problems and Vacuum Results",
+          "Household Appliances"
+        ],
+        "imageCues": [
+          "集尘仓问题开头",
+          "地毯清洁纹路",
+          "整机与可见结果",
+          "功能及结果补充",
+          "使用情境收尾"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "a46ebab9281fdacf7ca452628d9ebdd8098c8f79dd086d26c2339701c34dc89b"
+    },
+    {
+      "id": "tiktok-cleaning-appliance-feature-demo",
+      "legacyId": "tiktok-tt-032",
+      "platform": "tiktok",
+      "categories": [
+        "household-appliances"
+      ],
+      "copy": {
+        "zh": {
+          "name": "清洁家电实拍与功能拆解",
+          "summary": "用实拍演示清洁家电的主要功能。",
+          "useWhen": "适合洗地机、蒸汽清洁机等多功能清洁设备。",
+          "instructions": "上传清洁过程、配件图和官方功能，填写卖点。",
+          "output": "清洁家电功能图和操作展示。"
+        },
+        "en": {
+          "name": "Cleaning Appliances and Feature Breakdown",
+          "summary": "Turn your product photos into a TikTok Shop carousel about cleaning Appliances and Feature Breakdown.",
+          "useWhen": "For floor washers, steam cleaners, and other multi-function appliances.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with cleaning Appliances and Feature Breakdown."
+        }
+      },
+      "match": {
+        "goals": [
+          "清洁家电实拍与功能拆解",
+          "扫地机实拍+功能拆解",
+          "家用电器",
+          "Cleaning Appliances and Feature Breakdown",
+          "Household Appliances"
+        ],
+        "imageCues": [
+          "清洁路线开头",
+          "底部刷头与拖布",
+          "集尘仓",
+          "路径功能资料",
+          "边角功能资料",
+          "实物与控制功能"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "1413f2a49eeaf40c64e7ed0cac581d5f5645e83a9499136618be514cac0dbbcb"
+    },
+    {
+      "id": "tiktok-kitchen-appliance-food-results",
+      "legacyId": "tiktok-tt-033",
+      "platform": "tiktok",
+      "categories": [
+        "household-appliances"
+      ],
+      "copy": {
+        "zh": {
+          "name": "厨电成品与功能展示",
+          "summary": "先看做好的食物，再展示厨电怎么完成。",
+          "useWhen": "适合烤箱、空气炸锅和能拍出成品的厨电。",
+          "instructions": "上传厨电照、操作过程和成品照，填写卖点。",
+          "output": "厨房电器功能图和成品图。"
+        },
+        "en": {
+          "name": "Kitchen Appliances and Finished Food",
+          "summary": "Turn your product photos into a TikTok Shop carousel about kitchen Appliances and Finished Food.",
+          "useWhen": "For ovens, air fryers, and appliances with a visible cooking result.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with kitchen Appliances and Finished Food."
+        }
+      },
+      "match": {
+        "goals": [
+          "厨电成品与功能展示",
+          "厨电成品+优惠券展示",
+          "家用电器",
+          "Kitchen Appliances and Finished Food",
+          "Household Appliances"
+        ],
+        "imageCues": [
+          "成品杯开场",
+          "手机上的真实优惠或选购信息",
+          "操作面板",
+          "配杯容量",
+          "机器与选择提示"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "7f090c329cda7c12b6dcab16d99ad60ce71f28fe10a3cae2a7c9d2601103d4d2"
+    },
+    {
+      "id": "tiktok-appliance-spec-use-guide",
+      "legacyId": "tiktok-tt-034",
+      "platform": "tiktok",
+      "categories": [
+        "household-appliances"
+      ],
+      "copy": {
+        "zh": {
+          "name": "家电参数与使用场景图解",
+          "summary": "用场景图解释家电参数实际有什么用。",
+          "useWhen": "适合功率、容量或模式容易混淆的小家电。",
+          "instructions": "上传家电照、官方参数和实际场景，填写卖点。",
+          "output": "家电参数卡和场景图。"
+        },
+        "en": {
+          "name": "Appliance Specs and Use Scenarios",
+          "summary": "Turn your product photos into a TikTok Shop carousel about appliance Specs and Use Scenarios.",
+          "useWhen": "For appliances with power, capacity, or modes to explain.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with appliance Specs and Use Scenarios."
+        }
+      },
+      "match": {
+        "goals": [
+          "家电参数与使用场景图解",
+          "家电参数拆解卡",
+          "家用电器",
+          "Appliance Specs and Use Scenarios",
+          "Household Appliances"
+        ],
+        "imageCues": [
+          "整机与产出定位",
+          "保温结构剖面",
+          "面板和部件",
+          "清洁操作",
+          "实际尺寸",
+          "不同使用场景"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "f8ad1ea1577c47e24491afc0c87668c5a0dc2be721246c3005e51e8b72133414"
+    },
+    {
+      "id": "tiktok-electronics-unboxing-accessories",
+      "legacyId": "tiktok-tt-035",
+      "platform": "tiktok",
+      "categories": [
+        "phones-electronics"
+      ],
+      "copy": {
+        "zh": {
+          "name": "数码开箱与配件平铺",
+          "summary": "按拆盒顺序展示数码产品和随机配件。",
+          "useWhen": "适合新款数码产品和配件较多的套装。",
+          "instructions": "上传包装照、开箱照和配件平铺图，填写卖点。",
+          "output": "数码开箱图和配件清单。"
+        },
+        "en": {
+          "name": "Electronics Unboxing and Accessory Layout",
+          "summary": "Turn your product photos into a TikTok Shop carousel about electronics Unboxing and Accessory Layout.",
+          "useWhen": "For electronics launches and bundles with several accessories.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with electronics Unboxing and Accessory Layout."
+        }
+      },
+      "match": {
+        "goals": [
+          "数码开箱与配件平铺",
+          "数码开箱平铺图",
+          "手机与数码",
+          "Electronics Unboxing and Accessory Layout",
+          "Phones & Electronics"
+        ],
+        "imageCues": [
+          "开箱清单全貌",
+          "主机与随附或另购配件",
+          "包装及购买理由"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "67fe771408e727b127b9cf903fc0fd379a690019923788d975be2392a9a2ce71"
+    },
+    {
+      "id": "tiktok-outdoor-electronics-specs",
+      "legacyId": "tiktok-tt-036",
+      "platform": "tiktok",
+      "categories": [
+        "phones-electronics"
+      ],
+      "copy": {
+        "zh": {
+          "name": "数码功能参数与户外场景",
+          "summary": "把数码产品规格放到户外用途里解释。",
+          "useWhen": "适合户外电源、便携设备和需要交代参数的装备。",
+          "instructions": "上传户外实拍、设备图和官方参数，填写卖点。",
+          "output": "户外数码场景图和参数卡。"
+        },
+        "en": {
+          "name": "Electronic Features in Outdoor Settings",
+          "summary": "Turn your product photos into a TikTok Shop carousel about electronic Features in Outdoor Settings.",
+          "useWhen": "For portable power stations and outdoor devices with key specs.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with electronic Features in Outdoor Settings."
+        }
+      },
+      "match": {
+        "goals": [
+          "数码功能参数与户外场景",
+          "数码参数场景拆解",
+          "手机与数码",
+          "Electronic Features in Outdoor Settings",
+          "Phones & Electronics"
+        ],
+        "imageCues": [
+          "整机定位及规格",
+          "露营供电",
+          "端口与多设备",
+          "手提便携",
+          "补电方式",
+          "保护与使用边界"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "6c5b950ea3e042fb3252384c2f69ff8b1ab3b63e3a46983b6a7c9bd902dc5c72"
+    },
+    {
+      "id": "tiktok-digital-product-feature-scenarios",
+      "legacyId": "tiktok-tt-037",
+      "platform": "tiktok",
+      "categories": [
+        "phones-electronics"
+      ],
+      "copy": {
+        "zh": {
+          "name": "数码功能卖点与场景展示",
+          "summary": "一个场景对应一个数码卖点。",
+          "useWhen": "适合想展示某个数码功能如何解决日常问题的产品。",
+          "instructions": "上传产品照、功能特写和使用场景，填写卖点。",
+          "output": "数码产品卖点图和场景页。"
+        },
+        "en": {
+          "name": "Digital Product Benefits and Scenarios",
+          "summary": "Turn your product photos into a TikTok Shop carousel about digital Product Benefits and Scenarios.",
+          "useWhen": "For digital products with a feature that solves an everyday problem.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with digital Product Benefits and Scenarios."
+        }
+      },
+      "match": {
+        "goals": [
+          "数码功能卖点与场景展示",
+          "数码参数场景型",
+          "手机与数码",
+          "Digital Product Benefits and Scenarios",
+          "Phones & Electronics"
+        ],
+        "imageCues": [
+          "设备与能力总览",
+          "摄像功能",
+          "防抖对照",
+          "通话场景",
+          "翻译或识别场景",
+          "识别对象清单"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "17b07b25c8013000dd5654741e757ad5db1aa0c956591147d1d355ce3ea45433"
+    },
+    {
+      "id": "tiktok-lifestyle-hook-finished-results",
+      "legacyId": "tiktok-tt-038",
+      "platform": "tiktok",
+      "categories": [
+        "phones-electronics"
+      ],
+      "copy": {
+        "zh": {
+          "name": "生活话题引入与成品展示",
+          "summary": "从日常话题切入，用成品照给出答案。",
+          "useWhen": "适合烘焙、手工或能用成品回应开场问题的内容。",
+          "instructions": "上传生活场景、过程照和成品照，填写卖点。",
+          "output": "话题封面和成品展示图。"
+        },
+        "en": {
+          "name": "Everyday Conversation and Finished Results",
+          "summary": "Turn your product photos into a TikTok Shop carousel about everyday Conversation and Finished Results.",
+          "useWhen": "For cooking or crafts where the finished result answers the opening question.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with everyday Conversation and Finished Results."
+        }
+      },
+      "match": {
+        "goals": [
+          "生活话题引入与成品展示",
+          "居家场景实拍展示",
+          "手机与数码",
+          "Everyday Conversation and Finished Results",
+          "Phones & Electronics"
+        ],
+        "imageCues": [
+          "礼物话题开场",
+          "设备与照片成品",
+          "手机连接及输出能力",
+          "成品与选择提示"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "10a90482043e0116d1521469843b9c9b34e04406493696a820bef8bf0bf7476d"
+    },
+    {
+      "id": "tiktok-lighting-installation-mood",
+      "legacyId": "tiktok-tt-039",
+      "platform": "tiktok",
+      "categories": [
+        "home-improvement"
+      ],
+      "copy": {
+        "zh": {
+          "name": "家居灯具安装与氛围展示",
+          "summary": "按安装步骤展示灯具点亮后的变化。",
+          "useWhen": "适合灯带、壁灯等需要展示安装和亮灯效果的商品。",
+          "instructions": "上传安装过程照和灯光效果图，填写卖点。",
+          "output": "灯具安装步骤和氛围图。"
+        },
+        "en": {
+          "name": "Lighting Installation and Room Atmosphere",
+          "summary": "Turn your product photos into a TikTok Shop carousel about lighting Installation and Room Atmosphere.",
+          "useWhen": "For light strips and fixtures with installation and lighting results to show.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with lighting Installation and Room Atmosphere."
+        }
+      },
+      "match": {
+        "goals": [
+          "家居灯具安装与氛围展示",
+          "家居氛围+安装展示",
+          "家装建材",
+          "Lighting Installation and Room Atmosphere",
+          "Home Improvement"
+        ],
+        "imageCues": [
+          "目标氛围",
+          "灯条清单",
+          "安装位置与方式",
+          "遥控调色",
+          "完整点亮效果",
+          "充电与配件"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "59eebe0518014568d1cfe9ef5edf9363f9257a41f0beb5a69425c18c8334a976"
+    },
+    {
+      "id": "tiktok-emergency-essentials-checklist",
+      "legacyId": "tiktok-tt-040",
+      "platform": "tiktok",
+      "categories": [
+        "home-improvement"
+      ],
+      "copy": {
+        "zh": {
+          "name": "应急场景清单与好物穿插",
+          "summary": "按应急场景列出用品及其用途。",
+          "useWhen": "适合应急包、便携工具和有明确备用场景的商品。",
+          "instructions": "上传应急用品照片和使用说明，填写卖点。",
+          "output": "应急清单和好物推荐图。"
+        },
+        "en": {
+          "name": "Emergency Checklists with Practical Products",
+          "summary": "Turn your product photos into a TikTok Shop carousel about emergency Checklists with Practical Products.",
+          "useWhen": "For emergency kits, portable tools, and backup essentials.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with emergency Checklists with Practical Products."
+        }
+      },
+      "match": {
+        "goals": [
+          "应急场景清单与好物穿插",
+          "应急灯+生存场景攻略",
+          "家装建材",
+          "Emergency Checklists with Practical Products",
+          "Home Improvement"
+        ],
+        "imageCues": [
+          "暗场景提出准备问题",
+          "用水准备示意",
+          "应急灯所在步骤",
+          "日常设备或储备注意",
+          "充电设备准备",
+          "其他经核实准备项"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "5293b8f92884a7385cd1c830f812c7578a6449c6eef303293c48286621978a48"
+    },
+    {
+      "id": "tiktok-device-setup-ports-guide",
+      "legacyId": "tiktok-tt-041",
+      "platform": "tiktok",
+      "categories": [
+        "home-improvement"
+      ],
+      "copy": {
+        "zh": {
+          "name": "设备组合参数与接口拆解",
+          "summary": "用组合示意和接口近景解释设备怎么连。",
+          "useWhen": "适合桌面设备组合、扩展坞和接口较多的数码商品。",
+          "instructions": "上传整套设备图、接口图和已核实规格，填写卖点。",
+          "output": "设备组合图、参数和接口卡。"
+        },
+        "en": {
+          "name": "Device Combinations, Specs and Connections",
+          "summary": "Turn your product photos into a TikTok Shop carousel about device Combinations, Specs and Connections.",
+          "useWhen": "For desk setups, docks, and devices with several connections.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with device Combinations, Specs and Connections."
+        }
+      },
+      "match": {
+        "goals": [
+          "设备组合参数与接口拆解",
+          "参数图解+接口拆解",
+          "家装建材",
+          "Device Combinations, Specs and Connections",
+          "Home Improvement"
+        ],
+        "imageCues": [
+          "设备组合清单",
+          "住宅用电情境",
+          "电池尺寸与容量",
+          "内部结构",
+          "监控方式",
+          "接口逐项说明"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "befa9c2ad0e10f650656dde8bcfed4468f88c04c2cabe54634018e9c86c3038f"
+    },
+    {
+      "id": "tiktok-bedding-setup-fabric",
+      "legacyId": "tiktok-tt-042",
+      "platform": "tiktok",
+      "categories": [
+        "textiles-soft-furnishings"
+      ],
+      "copy": {
+        "zh": {
+          "name": "床品铺床与面料细节展示",
+          "summary": "先看铺床后的整体效果，再看床品面料。",
+          "useWhen": "适合床单、被套和强调织物质感的床品。",
+          "instructions": "上传铺床场景照和床品细节，填写卖点。",
+          "output": "床品展示组图和面料近景。"
+        },
+        "en": {
+          "name": "Bedding Setup and Fabric Details",
+          "summary": "Turn your product photos into a TikTok Shop carousel about bedding Setup and Fabric Details.",
+          "useWhen": "For sheets, duvet covers, and bedding with a distinctive fabric.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with bedding Setup and Fabric Details."
+        }
+      },
+      "match": {
+        "goals": [
+          "床品铺床与面料细节展示",
+          "家纺铺床+面料细节展示",
+          "纺织与软装",
+          "Bedding Setup and Fabric Details",
+          "Textiles & Soft Furnishings"
+        ],
+        "imageCues": [
+          "整床秋冬氛围",
+          "全套铺陈",
+          "手捏被面",
+          "标签或内页放在面料上",
+          "面料近景",
+          "回到整床"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "fbfadd8e9d788e9470415ebee6a14f58a28ce35ab25043dcd4801302612c9646"
+    },
+    {
+      "id": "tiktok-home-product-lifestyle-scenes",
+      "legacyId": "tiktok-tt-043",
+      "platform": "tiktok",
+      "categories": [
+        "textiles-soft-furnishings"
+      ],
+      "copy": {
+        "zh": {
+          "name": "家居场景种草与使用展示",
+          "summary": "用日常场景展示家居商品的摆放和用法。",
+          "useWhen": "适合想用客厅、卧室等场景介绍用途的居家商品。",
+          "instructions": "上传家居商品和实际使用场景照，填写卖点。",
+          "output": "家居场景图和使用说明。"
+        },
+        "en": {
+          "name": "Home Scenes and Everyday Use",
+          "summary": "Turn your product photos into a TikTok Shop carousel about home Scenes and Everyday Use.",
+          "useWhen": "For home products that benefit from being shown in a real room.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with home Scenes and Everyday Use."
+        }
+      },
+      "match": {
+        "goals": [
+          "家居场景种草与使用展示",
+          "居家氛围种草型",
+          "纺织与软装",
+          "Home Scenes and Everyday Use",
+          "Textiles & Soft Furnishings"
+        ],
+        "imageCues": [
+          "理想客厅氛围",
+          "毛毯纹理近景",
+          "人物使用",
+          "客厅全景收尾"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "b665a7db2264ab4cd680361ea7ec02f8f779a65ead3b2991fd34bb78619cda52"
+    },
+    {
+      "id": "tiktok-bedside-storage-before-after",
+      "legacyId": "tiktok-tt-044",
+      "platform": "tiktok",
+      "categories": [
+        "textiles-soft-furnishings"
+      ],
+      "copy": {
+        "zh": {
+          "name": "床边收纳痛点与前后对比",
+          "summary": "用床边整理前后照片展示收纳变化。",
+          "useWhen": "适合床头架、挂袋和小空间收纳产品。",
+          "instructions": "上传床边前后照和收纳产品图，填写卖点。",
+          "output": "床边收纳前后对比图。"
+        },
+        "en": {
+          "name": "Bedside Storage Before and After",
+          "summary": "Turn your product photos into a TikTok Shop carousel about bedside Storage Before and After.",
+          "useWhen": "For bedside shelves, hanging organizers, and compact storage.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with bedside Storage Before and After."
+        }
+      },
+      "match": {
+        "goals": [
+          "床边收纳痛点与前后对比",
+          "床品痛点对比+功能演示",
+          "纺织与软装",
+          "Bedside Storage Before and After",
+          "Textiles & Soft Furnishings"
+        ],
+        "imageCues": [
+          "枕头掉缝问题",
+          "遥控器掉落问题",
+          "装上产品转折",
+          "填缝作用",
+          "侧袋收纳",
+          "完整结果与选择提示"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "b96c5da8b283f7f6f57ab8adfef339a5ea38e8adeaac5f552b727732611bc73c"
+    },
+    {
+      "id": "tiktok-childrens-book-family-reading",
+      "legacyId": "tiktok-tt-045",
+      "platform": "tiktok",
+      "categories": [
+        "books-magazines-audio"
+      ],
+      "copy": {
+        "zh": {
+          "name": "童书内页翻阅与亲子场景",
+          "summary": "用内页和亲子共读照片介绍童书。",
+          "useWhen": "适合绘本、启蒙书和有亲子阅读场景的童书。",
+          "instructions": "上传书封、可展示内页和共读照片，填写卖点。",
+          "output": "童书内页预览和共读场景图。"
+        },
+        "en": {
+          "name": "Children's Books and Family Reading",
+          "summary": "Turn your product photos into a TikTok Shop carousel about children's Books and Family Reading.",
+          "useWhen": "For picture books and early-learning books read together.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with children's Books and Family Reading."
+        }
+      },
+      "match": {
+        "goals": [
+          "童书内页翻阅与亲子场景",
+          "童书内页翻阅展示",
+          "图书音像",
+          "Children's Books and Family Reading",
+          "Books, Magazines & Audio"
+        ],
+        "imageCues": [
+          "亲子阅读情境",
+          "问题类内页",
+          "插图类内页",
+          "另一主题内页",
+          "封面与版本"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "85c08031c1a1b91a270996ce563ec38a53144c916fcd633e1463e9417d49e414"
+    },
+    {
+      "id": "tiktok-fill-in-gift-book-preview",
+      "legacyId": "tiktok-tt-046",
+      "platform": "tiktok",
+      "categories": [
+        "books-magazines-audio"
+      ],
+      "copy": {
+        "zh": {
+          "name": "礼物书内页与填写展示",
+          "summary": "用内页和填写示例说明礼物书怎么送。",
+          "useWhen": "适合纪念册、手帐和可以填写或送礼的书。",
+          "instructions": "上传书封、内页和填写示例，填写卖点。",
+          "output": "礼物书内页和填写展示。"
+        },
+        "en": {
+          "name": "Gift Books and Fill-in Pages",
+          "summary": "Turn your product photos into a TikTok Shop carousel about gift Books and Fill-in Pages.",
+          "useWhen": "For memory books, journals, and fill-in gifts.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with gift Books and Fill-in Pages."
+        }
+      },
+      "match": {
+        "goals": [
+          "礼物书内页与填写展示",
+          "书籍礼品+内页翻阅",
+          "图书音像",
+          "Gift Books and Fill-in Pages",
+          "Books, Magazines & Audio"
+        ],
+        "imageCues": [
+          "送礼场景引子",
+          "第一张填空内页",
+          "另一项填写题",
+          "后续页码内容",
+          "完整封面"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "fc675c764658afaad97615f27fd6da5160c7721de18cef89986aad6f85b7ef43"
+    },
+    {
+      "id": "tiktok-book-excerpt-emotional-hook",
+      "legacyId": "tiktok-tt-047",
+      "platform": "tiktok",
+      "categories": [
+        "books-magazines-audio"
+      ],
+      "copy": {
+        "zh": {
+          "name": "情绪文案与书籍内页展示",
+          "summary": "从一句情绪文案带入书里的代表内容。",
+          "useWhen": "适合有代表性段落的小说、散文或情绪类书籍。",
+          "instructions": "上传书封和有权展示的内页，填写卖点。",
+          "output": "情绪封面和内页摘选图。"
+        },
+        "en": {
+          "name": "Emotional Copy and Book Excerpts",
+          "summary": "Turn your product photos into a TikTok Shop carousel about emotional Copy and Book Excerpts.",
+          "useWhen": "For novels or essays with a representative excerpt.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with emotional Copy and Book Excerpts."
+        }
+      },
+      "match": {
+        "goals": [
+          "情绪文案与书籍内页展示",
+          "书籍空镜+内页封面展示",
+          "图书音像",
+          "Emotional Copy and Book Excerpts",
+          "Books, Magazines & Audio"
+        ],
+        "imageCues": [
+          "关于共情的自述",
+          "关于成长的自述",
+          "关于释怀的自述",
+          "相关内页",
+          "书封揭晓"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "459997c59a8ec86029d65b33c2e518933df2d625343b717a7e4e9f3e2a47db38"
+    },
+    {
+      "id": "tiktok-themed-book-list-flat-lay",
+      "legacyId": "tiktok-tt-048",
+      "platform": "tiktok",
+      "categories": [
+        "books-magazines-audio"
+      ],
+      "copy": {
+        "zh": {
+          "name": "书单平铺与主题推荐",
+          "summary": "按同一主题把多本书组织成书单。",
+          "useWhen": "适合按主题、季节或读者兴趣组织的书单。",
+          "instructions": "上传各书书封、书名和推荐理由，填写卖点。",
+          "output": "主题书单图和单本推荐页。"
+        },
+        "en": {
+          "name": "Themed Book Recommendations and Flat Lays",
+          "summary": "Turn your product photos into a TikTok Shop carousel about themed Book Recommendations and Flat Lays.",
+          "useWhen": "For reading lists organized around a topic, season, or audience.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with themed Book Recommendations and Flat Lays."
+        }
+      },
+      "match": {
+        "goals": [
+          "书单平铺与主题推荐",
+          "书籍平铺+清单呈现",
+          "图书音像",
+          "Themed Book Recommendations and Flat Lays",
+          "Books, Magazines & Audio"
+        ],
+        "imageCues": [
+          "书单主题封面",
+          "推荐1及对应书",
+          "推荐2及对应书",
+          "推荐3及对应书",
+          "推荐4及对应书",
+          "推荐5及对应书"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "86ce29a036fd1ffded10c094cbd779d9674e43c82824307978415925ca231aab"
+    },
+    {
+      "id": "tiktok-furniture-room-detail",
+      "legacyId": "tiktok-tt-049",
+      "platform": "tiktok",
+      "categories": [
+        "furniture"
+      ],
+      "copy": {
+        "zh": {
+          "name": "家具场景氛围与细节展示",
+          "summary": "先看家具放在房间里的效果，再看细节。",
+          "useWhen": "适合需要同时看房间氛围和局部做工的家具。",
+          "instructions": "上传房间实拍和家具材质近景，填写卖点。",
+          "output": "家具场景图和细节页。"
+        },
+        "en": {
+          "name": "Furniture in Rooms and Detail Shots",
+          "summary": "Turn your product photos into a TikTok Shop carousel about furniture in Rooms and Detail Shots.",
+          "useWhen": "For furniture whose room setting and craftsmanship both matter.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with furniture in Rooms and Detail Shots."
+        }
+      },
+      "match": {
+        "goals": [
+          "家具场景氛围与细节展示",
+          "家居场景氛围图",
+          "家具",
+          "Furniture in Rooms and Detail Shots",
+          "Furniture"
+        ],
+        "imageCues": [
+          "完整家具氛围",
+          "柜面与木纹细节",
+          "储物及摆放",
+          "完整空间收尾"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "b77c707020314cd7b89c205a13fed293c0700eef1385c8ebdfcb6e0897fbb6cb"
+    },
+    {
+      "id": "tiktok-furniture-set-feature-breakdown",
+      "legacyId": "tiktok-tt-050",
+      "platform": "tiktok",
+      "categories": [
+        "furniture"
+      ],
+      "copy": {
+        "zh": {
+          "name": "家具组合与功能拆解",
+          "summary": "把家具组合拆成不同模块讲用途。",
+          "useWhen": "适合有隐藏收纳、可组合结构或多个部件的家具。",
+          "instructions": "上传整套家具图、部件图和功能说明，填写卖点。",
+          "output": "家具组合展示和功能拆解图。"
+        },
+        "en": {
+          "name": "Furniture Sets and Functional Features",
+          "summary": "Turn your product photos into a TikTok Shop carousel about furniture Sets and Functional Features.",
+          "useWhen": "For furniture with hidden storage, modular layouts, or several pieces.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with furniture Sets and Functional Features."
+        }
+      },
+      "match": {
+        "goals": [
+          "家具组合与功能拆解",
+          "家具参数拆解型",
+          "家具",
+          "Furniture Sets and Functional Features",
+          "Furniture"
+        ],
+        "imageCues": [
+          "完整组合",
+          "尺寸和箱数",
+          "连接与安装",
+          "脚凳多用方式",
+          "坐垫支撑",
+          "材质与收纳细节"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "a69933788d83ef85f57a35b79a6427b9ec5baed7c0a99638576aa913554dd347"
+    },
+    {
+      "id": "tiktok-furniture-set-dimensions",
+      "legacyId": "tiktok-tt-051",
+      "platform": "tiktok",
+      "categories": [
+        "furniture"
+      ],
+      "copy": {
+        "zh": {
+          "name": "家具套装场景与尺寸图解",
+          "summary": "把家具套装的尺寸和房间效果放在一起。",
+          "useWhen": "适合需要核对占地尺寸和空间搭配的家具套装。",
+          "instructions": "上传家具实拍和官方尺寸，填写卖点。",
+          "output": "家具场景图和尺寸卡。"
+        },
+        "en": {
+          "name": "Furniture Sets, Room Scenes and Dimensions",
+          "summary": "Turn your product photos into a TikTok Shop carousel about furniture Sets, Room Scenes and Dimensions.",
+          "useWhen": "For furniture sets shoppers need to measure against their space.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with furniture Sets, Room Scenes and Dimensions."
+        }
+      },
+      "match": {
+        "goals": [
+          "家具套装场景与尺寸图解",
+          "家具套装参数拆解型",
+          "家具",
+          "Furniture Sets, Room Scenes and Dimensions",
+          "Furniture"
+        ],
+        "imageCues": [
+          "完整餐厅套装",
+          "餐椅细节",
+          "套装卖点",
+          "桌面及底座",
+          "桌椅尺寸",
+          "使用场景"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "dc7ea7ec970b8f4a01c91ae4fdecfc578dbb9d145baee53650b2a0cd0c37695d"
+    },
+    {
+      "id": "tiktok-supplement-ingredients-serving-guide",
+      "legacyId": "tiktok-tt-052",
+      "platform": "tiktok",
+      "categories": [
+        "health"
+      ],
+      "copy": {
+        "zh": {
+          "name": "营养品配方与用量图解",
+          "summary": "把营养品标签上的配方和用量整理成图。",
+          "useWhen": "适合配方和用量信息可从官方标签核实的营养品。",
+          "instructions": "上传包装照、配料表和标签用量，填写卖点。",
+          "output": "配方和建议用量说明图。"
+        },
+        "en": {
+          "name": "Supplement Ingredients and Serving Guides",
+          "summary": "Turn your product photos into a TikTok Shop carousel about supplement Ingredients and Serving Guides.",
+          "useWhen": "For supplements with ingredient and serving details verified from the label.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with supplement Ingredients and Serving Guides."
+        }
+      },
+      "match": {
+        "goals": [
+          "营养品配方与用量图解",
+          "营养品功能解析",
+          "健康保健",
+          "Supplement Ingredients and Serving Guides",
+          "Health"
+        ],
+        "imageCues": [
+          "口味与包装",
+          "每份营养构成",
+          "事实标签和取用量",
+          "资料支持的使用信息",
+          "包装正面",
+          "经许可的品牌说明或日常收尾"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "94f6af66b81dfd42af206970b8a15d645218842e82018f46788b2490775ba991"
+    },
+    {
+      "id": "tiktok-nutrition-drink-mixing",
+      "legacyId": "tiktok-tt-053",
+      "platform": "tiktok",
+      "categories": [
+        "health"
+      ],
+      "copy": {
+        "zh": {
+          "name": "营养饮品冲调与场景实拍",
+          "summary": "用实拍说明营养饮品怎么冲调。",
+          "useWhen": "适合蛋白粉、冲饮和可以拍摄调配过程的饮品。",
+          "instructions": "上传冲调过程、成品和包装照，填写卖点。",
+          "output": "冲调步骤和饮用场景图。"
+        },
+        "en": {
+          "name": "Nutrition Drinks, Mixing and Daily Scenes",
+          "summary": "Turn your product photos into a TikTok Shop carousel about nutrition Drinks, Mixing and Daily Scenes.",
+          "useWhen": "For protein powders and drink mixes with a preparation process to show.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with nutrition Drinks, Mixing and Daily Scenes."
+        }
+      },
+      "match": {
+        "goals": [
+          "营养饮品冲调与场景实拍",
+          "运动营养场景实拍展示",
+          "健康保健",
+          "Nutrition Drinks, Mixing and Daily Scenes",
+          "Health"
+        ],
+        "imageCues": [
+          "饮品场景引子",
+          "同杯与包装及标签信息"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "1a74acc2a8110214bd6b5e507d6dcafe6de876cf05df595e9370328232390f26"
+    },
+    {
+      "id": "tiktok-car-appearance-upgrade",
+      "legacyId": "tiktok-tt-054",
+      "platform": "tiktok",
+      "categories": [
+        "automotive-motorcycle"
+      ],
+      "copy": {
+        "zh": {
+          "name": "汽车外观升级前后对比",
+          "summary": "对比同一辆车外观升级前后的样子。",
+          "useWhen": "适合车贴、内饰件等安装前后变化明显的改装配件。",
+          "instructions": "上传同角度车身前后照和配件图，填写卖点。",
+          "output": "车辆外观前后对比图。"
+        },
+        "en": {
+          "name": "Vehicle Appearance Before and After",
+          "summary": "Turn your product photos into a TikTok Shop carousel about vehicle Appearance Before and After.",
+          "useWhen": "For vehicle accessories with a visible before-and-after change.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with vehicle Appearance Before and After."
+        }
+      },
+      "match": {
+        "goals": [
+          "汽车外观升级前后对比",
+          "汽配前后对比图",
+          "汽车与摩托",
+          "Vehicle Appearance Before and After",
+          "Automotive & Motorcycle"
+        ],
+        "imageCues": [
+          "同机位前后对比",
+          "升级后外观",
+          "实际安装部位",
+          "整车夜景收尾"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "705b4c074f2154b8bb39545ed246e8936c1d8ae391be6131518e8b6243de9a58"
+    },
+    {
+      "id": "tiktok-car-accessory-compatibility",
+      "legacyId": "tiktok-tt-055",
+      "platform": "tiktok",
+      "categories": [
+        "automotive-motorcycle"
+      ],
+      "copy": {
+        "zh": {
+          "name": "汽车配件功能与适配图解",
+          "summary": "用适配资料和装车照讲清配件用途。",
+          "useWhen": "适合需要按车型、尺寸或安装位置确认适配的配件。",
+          "instructions": "上传配件照、装车照和车型适配表，填写卖点。",
+          "output": "配件功能图和适配说明。"
+        },
+        "en": {
+          "name": "Car Accessories, Features and Compatibility",
+          "summary": "Turn your product photos into a TikTok Shop carousel about car Accessories, Features and Compatibility.",
+          "useWhen": "For car accessories with model, size, or installation compatibility to explain.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with car Accessories, Features and Compatibility."
+        }
+      },
+      "match": {
+        "goals": [
+          "汽车配件功能与适配图解",
+          "汽车配件+功能图解",
+          "汽车与摩托",
+          "Car Accessories, Features and Compatibility",
+          "Automotive & Motorcycle"
+        ],
+        "imageCues": [
+          "装车及细节",
+          "适配场景",
+          "座位结构和预留口",
+          "材料拆分",
+          "纹理近景",
+          "尺寸与适配范围"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "2c5b4c3de318aca69191433af4e3290671b98f87bf1fe234b3571775a457cacb"
+    },
+    {
+      "id": "tiktok-car-tool-use-cases",
+      "legacyId": "tiktok-tt-056",
+      "platform": "tiktok",
+      "categories": [
+        "automotive-motorcycle"
+      ],
+      "copy": {
+        "zh": {
+          "name": "车载工具多场景功能展示",
+          "summary": "用几种车载场景展示工具实际怎么用。",
+          "useWhen": "适合补胎、洗车、养护等有具体操作场景的工具。",
+          "instructions": "上传工具照、使用照片和操作说明，填写卖点。",
+          "output": "车载工具多场景演示图。"
+        },
+        "en": {
+          "name": "Car Tools in Multiple Use Cases",
+          "summary": "Turn your product photos into a TikTok Shop carousel about car Tools in Multiple Use Cases.",
+          "useWhen": "For car repair, washing, or maintenance tools with practical uses.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with car Tools in Multiple Use Cases."
+        }
+      },
+      "match": {
+        "goals": [
+          "车载工具多场景功能展示",
+          "车品多场景功能图",
+          "汽车与摩托",
+          "Car Tools in Multiple Use Cases",
+          "Automotive & Motorcycle"
+        ],
+        "imageCues": [
+          "整套工具",
+          "车辆启动情境",
+          "轮胎充气情境",
+          "为设备供电",
+          "照明模式",
+          "适用对象与边界"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "16409e480576235c23df357f91641eaedd8ec5583307d6acdc123fa41f25e0bb"
+    },
+    {
+      "id": "tiktok-accessory-wearing-closeups",
+      "legacyId": "tiktok-tt-057",
+      "platform": "tiktok",
+      "categories": [
+        "fashion-accessories"
+      ],
+      "copy": {
+        "zh": {
+          "name": "配饰手持与佩戴特写",
+          "summary": "用手持和佩戴近景讲清配饰大小与质感。",
+          "useWhen": "适合帽子、眼镜等需要看实物大小和佩戴效果的配饰。",
+          "instructions": "上传配饰手持照、佩戴照和细节，填写卖点。",
+          "output": "配饰佩戴效果和细节图。"
+        },
+        "en": {
+          "name": "Handheld Accessories and Wearing Details",
+          "summary": "Turn your product photos into a TikTok Shop carousel about handheld Accessories and Wearing Details.",
+          "useWhen": "For hats, glasses, and accessories whose scale matters when worn.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with handheld Accessories and Wearing Details."
+        }
+      },
+      "match": {
+        "goals": [
+          "配饰手持与佩戴特写",
+          "车内手持特写型",
+          "时尚配饰",
+          "Handheld Accessories and Wearing Details",
+          "Fashion Accessories"
+        ],
+        "imageCues": [
+          "手持风格开头",
+          "真人佩戴",
+          "绣花近景",
+          "手持回看与选择提示"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "9f3de9e393eaf24c13d3440b60b7a25ed8329cd1b9df85557575983d6a1ced93"
+    },
+    {
+      "id": "tiktok-gift-box-reveal",
+      "legacyId": "tiktok-tt-058",
+      "platform": "tiktok",
+      "categories": [
+        "fashion-accessories"
+      ],
+      "copy": {
+        "zh": {
+          "name": "送礼话题与开盒展示",
+          "summary": "从送礼场景切入，逐步展示盒内礼物。",
+          "useWhen": "适合节日礼盒、组合礼品和需要展示开箱体验的商品。",
+          "instructions": "上传礼盒、开盒过程和礼物照片，填写卖点。",
+          "output": "送礼封面和开盒图组。"
+        },
+        "en": {
+          "name": "Gift Conversations and Box Reveals",
+          "summary": "Turn your product photos into a TikTok Shop carousel about gift Conversations and Box Reveals.",
+          "useWhen": "For holiday gift boxes and sets where the reveal is part of the appeal.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with gift Conversations and Box Reveals."
+        }
+      },
+      "match": {
+        "goals": [
+          "送礼话题与开盒展示",
+          "社媒话题+实物展示",
+          "时尚配饰",
+          "Gift Conversations and Box Reveals",
+          "Fashion Accessories"
+        ],
+        "imageCues": [
+          "原创送礼话题卡",
+          "打开礼盒的实物特写"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "e1ce5ca99c83f88bf0da3a91306a15491672e14e857ec792c7a58196b7b5a35c"
+    },
+    {
+      "id": "tiktok-party-game-interaction",
+      "legacyId": "tiktok-tt-059",
+      "platform": "tiktok",
+      "categories": [
+        "toys-hobbies"
+      ],
+      "copy": {
+        "zh": {
+          "name": "聚会游戏实拍与互动展示",
+          "summary": "用聚会实拍展示游戏怎么开始、怎么玩。",
+          "useWhen": "适合桌游、派对道具和需要多人演示玩法的商品。",
+          "instructions": "上传游戏道具、现场互动照和玩法，填写卖点。",
+          "output": "聚会游戏实拍和玩法图。"
+        },
+        "en": {
+          "name": "Party Games and Real Interaction",
+          "summary": "Turn your product photos into a TikTok Shop carousel about party Games and Real Interaction.",
+          "useWhen": "For party games and props best shown with several people.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with party Games and Real Interaction."
+        }
+      },
+      "match": {
+        "goals": [
+          "聚会游戏实拍与互动展示",
+          "聚会游戏实拍展示",
+          "玩具与爱好",
+          "Party Games and Real Interaction",
+          "Toys & Hobbies"
+        ],
+        "imageCues": [
+          "原创对话或规则问题",
+          "同桌玩法实拍",
+          "手持题卡与参与者反馈"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "032da395768d120df24c646b33bcba95b7f1b3200c0a5cae152f04555ba05b82"
+    },
+    {
+      "id": "tiktok-holiday-gift-building-unboxing",
+      "legacyId": "tiktok-tt-060",
+      "platform": "tiktok",
+      "categories": [
+        "toys-hobbies"
+      ],
+      "copy": {
+        "zh": {
+          "name": "节日礼物开箱与拼搭展示",
+          "summary": "把节日礼物的拆箱和拼搭过程串起来。",
+          "useWhen": "适合节日套装、积木和有组装过程的礼品。",
+          "instructions": "上传礼盒、零件、拼搭过程和成品照，填写卖点。",
+          "output": "节日礼物开箱和拼搭图。"
+        },
+        "en": {
+          "name": "Holiday Unboxing and Building Steps",
+          "summary": "Turn your product photos into a TikTok Shop carousel about holiday Unboxing and Building Steps.",
+          "useWhen": "For holiday sets and gifts with a build or assembly sequence.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with holiday Unboxing and Building Steps."
+        }
+      },
+      "match": {
+        "goals": [
+          "节日礼物开箱与拼搭展示",
+          "圣诞礼赠积木好物开箱",
+          "玩具与爱好",
+          "Holiday Unboxing and Building Steps",
+          "Toys & Hobbies"
+        ],
+        "imageCues": [
+          "节日陪伴动机",
+          "礼盒与完整拼搭",
+          "单日部件",
+          "后续日成品",
+          "整套收尾"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "dfbb2cc6aee3b5f8322b8d3c67e1e08bb93b1ccfbdf467561e8a7acf07a461bc"
+    },
+    {
+      "id": "tiktok-collectible-toy-set-singles",
+      "legacyId": "tiktok-tt-061",
+      "platform": "tiktok",
+      "categories": [
+        "toys-hobbies"
+      ],
+      "copy": {
+        "zh": {
+          "name": "潮玩全套与单款组合展示",
+          "summary": "先展示整套潮玩，再让每款单独露出。",
+          "useWhen": "适合盲盒、手办和需要区分整套与单款的收藏品。",
+          "instructions": "上传整套合照和单款照片，填写卖点。",
+          "output": "潮玩系列图和单款展示页。"
+        },
+        "en": {
+          "name": "Collectible Toys, Full Sets and Singles",
+          "summary": "Turn your product photos into a TikTok Shop carousel about collectible Toys, Full Sets and Singles.",
+          "useWhen": "For blind boxes and collectibles sold as a set or individually.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with collectible Toys, Full Sets and Singles."
+        }
+      },
+      "match": {
+        "goals": [
+          "潮玩全套与单款组合展示",
+          "潮玩摆件多图组合展示",
+          "玩具与爱好",
+          "Collectible Toys, Full Sets and Singles",
+          "Toys & Hobbies"
+        ],
+        "imageCues": [
+          "全系列与盒装",
+          "第一组角色",
+          "第二组角色",
+          "第三组角色",
+          "第四组角色"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "88db4737e65593af15e5c2a6439dfa8a64e3314d43df70a5d9508cd2221c7f5e"
+    },
+    {
+      "id": "tiktok-kitchen-tool-step-demo",
+      "legacyId": "tiktok-tt-062",
+      "platform": "tiktok",
+      "categories": [
+        "kitchenware"
+      ],
+      "copy": {
+        "zh": {
+          "name": "厨房好物步骤演示",
+          "summary": "按操作顺序展示厨房工具怎么用。",
+          "useWhen": "适合切配、烘焙或需要分步骤说明的厨具。",
+          "instructions": "上传工具照、关键步骤和成品图，填写卖点。",
+          "output": "厨房好物步骤演示图。"
+        },
+        "en": {
+          "name": "Kitchen Tools in Step-by-step Use",
+          "summary": "Turn your product photos into a TikTok Shop carousel about kitchen Tools in Step-by-step Use.",
+          "useWhen": "For kitchen tools that are easiest to show step by step.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with kitchen Tools in Step-by-step Use."
+        }
+      },
+      "match": {
+        "goals": [
+          "厨房好物步骤演示",
+          "厨房好物步骤演示型",
+          "厨房用品",
+          "Kitchen Tools in Step-by-step Use",
+          "Kitchenware"
+        ],
+        "imageCues": [
+          "目标收纳结果",
+          "原包装问题",
+          "潮湿风险可见证据",
+          "用户确认的处理步骤",
+          "沥水动作",
+          "收纳盒关键作用"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "11bfe923bf9ebaeb190203c9d7dbb85b84b6e6299211d1ead86f173dbf1dac5f"
+    },
+    {
+      "id": "tiktok-drinkware-on-the-go",
+      "legacyId": "tiktok-tt-063",
+      "platform": "tiktok",
+      "categories": [
+        "kitchenware"
+      ],
+      "copy": {
+        "zh": {
+          "name": "杯具手持与随行场景",
+          "summary": "用手持和随行场景展示杯具的实际大小。",
+          "useWhen": "适合水杯、保温杯等需要展示随身携带的杯具。",
+          "instructions": "上传杯具手持照和随行场景照，填写卖点。",
+          "output": "随行杯场景和细节图。"
+        },
+        "en": {
+          "name": "Handheld Drinkware and Travel Scenes",
+          "summary": "Turn your product photos into a TikTok Shop carousel about handheld Drinkware and Travel Scenes.",
+          "useWhen": "For water bottles and travel mugs used on the go.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with handheld Drinkware and Travel Scenes."
+        }
+      },
+      "match": {
+        "goals": [
+          "杯具手持与随行场景",
+          "杯具手持场景型",
+          "厨房用品",
+          "Handheld Drinkware and Travel Scenes",
+          "Kitchenware"
+        ],
+        "imageCues": [
+          "手持配色开场",
+          "翻盖与携带",
+          "车内杯架",
+          "两杯组合",
+          "手持收尾"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "809940203c5d60e40a28b985b2abe2cc5bc70e82584b9916919024f63c9669c8"
+    },
+    {
+      "id": "tiktok-tableware-color-set-studio",
+      "legacyId": "tiktok-tt-064",
+      "platform": "tiktok",
+      "categories": [
+        "kitchenware"
+      ],
+      "copy": {
+        "zh": {
+          "name": "餐具多色套装棚拍展示",
+          "summary": "用统一棚拍对比不同配色餐具套装。",
+          "useWhen": "适合多色餐盘、杯碟和成套售卖的餐具。",
+          "instructions": "上传同机位的套装照和颜色信息，填写卖点。",
+          "output": "餐具套装和配色对比图。"
+        },
+        "en": {
+          "name": "Tableware Color Sets in Studio Scenes",
+          "summary": "Turn your product photos into a TikTok Shop carousel about tableware Color Sets in Studio Scenes.",
+          "useWhen": "For tableware sold in coordinated sets or several colors.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with tableware Color Sets in Studio Scenes."
+        }
+      },
+      "match": {
+        "goals": [
+          "餐具多色套装棚拍展示",
+          "餐具棚拍+多色套装展示",
+          "厨房用品",
+          "Tableware Color Sets in Studio Scenes",
+          "Kitchenware"
+        ],
+        "imageCues": [
+          "浅绿套装主图",
+          "蓝色及多色选项",
+          "红色餐具实际摆用"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "93ef1a28d06bfb3c4701c1f1bcadf751a719668ca62980e2c716e99ba55c398f"
+    },
+    {
+      "id": "tiktok-bag-on-body-size-guide",
+      "legacyId": "tiktok-tt-065",
+      "platform": "tiktok",
+      "categories": [
+        "luggage-bags"
+      ],
+      "copy": {
+        "zh": {
+          "name": "包袋上身比例与尺寸展示",
+          "summary": "把包袋上身比例和实际尺寸一起说明。",
+          "useWhen": "适合挎包、双肩包和需要说明上身比例的箱包。",
+          "instructions": "上传包袋上身照和真实尺寸，填写卖点。",
+          "output": "包袋上身图和尺寸说明。"
+        },
+        "en": {
+          "name": "Bags on the Body and Size Guides",
+          "summary": "Turn your product photos into a TikTok Shop carousel about bags on the Body and Size Guides.",
+          "useWhen": "For crossbody bags and backpacks where on-body scale matters.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with bags on the Body and Size Guides."
+        }
+      },
+      "match": {
+        "goals": [
+          "包袋上身比例与尺寸展示",
+          "女包穿搭实拍尺寸演示",
+          "箱包",
+          "Bags on the Body and Size Guides",
+          "Luggage & Bags"
+        ],
+        "imageCues": [
+          "肩背侧面比例",
+          "靠近看包型",
+          "桌面完整包",
+          "正面上身",
+          "包体尺寸",
+          "另一颜色棚拍"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "591eb66715b80f79d2d0713f69257b2b8cdd3aec96175a83813d785e538a00cc"
+    },
+    {
+      "id": "tiktok-bag-packing-capacity",
+      "legacyId": "tiktok-tt-066",
+      "platform": "tiktok",
+      "categories": [
+        "luggage-bags"
+      ],
+      "copy": {
+        "zh": {
+          "name": "包袋平铺与容量实装",
+          "summary": "用真实物品装包展示能带多少东西。",
+          "useWhen": "适合通勤包、旅行包和有装载卖点的包款。",
+          "instructions": "上传空包、装入物和装满后的照片，填写卖点。",
+          "output": "包袋容量和装载展示图。"
+        },
+        "en": {
+          "name": "Bag Flat Lays and Real Packing",
+          "summary": "Turn your product photos into a TikTok Shop carousel about bag Flat Lays and Real Packing.",
+          "useWhen": "For commuter or travel bags whose capacity is a selling point.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with bag Flat Lays and Real Packing."
+        }
+      },
+      "match": {
+        "goals": [
+          "包袋平铺与容量实装",
+          "场景平铺+容量展示",
+          "箱包",
+          "Bag Flat Lays and Real Packing",
+          "Luggage & Bags"
+        ],
+        "imageCues": [
+          "三色场景总览",
+          "三包开口",
+          "第一组装载近景",
+          "第二组装载近景",
+          "内部分区特写",
+          "另一色包内细节"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "d1036fb3997ce57d8f2a14ba3b32d83c88a0c60802f05979020b113717ba2c9f"
+    },
+    {
+      "id": "tiktok-bag-material-studio-closeups",
+      "legacyId": "tiktok-tt-067",
+      "platform": "tiktok",
+      "categories": [
+        "luggage-bags"
+      ],
+      "copy": {
+        "zh": {
+          "name": "包袋材质棚拍与细节特写",
+          "summary": "从棚拍全貌切到包袋材质和五金近景。",
+          "useWhen": "适合靠材质、五金和走线体现价值的包款。",
+          "instructions": "上传包袋棚拍、材质和五金特写，填写卖点。",
+          "output": "包袋质感和五金细节图。"
+        },
+        "en": {
+          "name": "Bag Materials and Studio Details",
+          "summary": "Turn your product photos into a TikTok Shop carousel about bag Materials and Studio Details.",
+          "useWhen": "For bags distinguished by fabric, hardware, or stitching.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with bag Materials and Studio Details."
+        }
+      },
+      "match": {
+        "goals": [
+          "包袋材质棚拍与细节特写",
+          "箱包棚拍+材质展示",
+          "箱包",
+          "Bag Materials and Studio Details",
+          "Luggage & Bags"
+        ],
+        "imageCues": [
+          "完整正面定位",
+          "斜侧轮廓",
+          "条绒与连接细节",
+          "完整侧面收尾"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "ab3ce345cda29f7da18c474a04d0948bfc474475a54da83f0a212322bbe342d1"
+    },
+    {
+      "id": "tiktok-tool-specs-use-steps",
+      "legacyId": "tiktok-tt-068",
+      "platform": "tiktok",
+      "categories": [
+        "tools-hardware"
+      ],
+      "copy": {
+        "zh": {
+          "name": "工具规格与使用步骤图解",
+          "summary": "在操作步骤中解释工具的实际规格。",
+          "useWhen": "适合需要讲清参数、配件或操作顺序的工具。",
+          "instructions": "上传工具照片、规格和操作步骤，填写卖点。",
+          "output": "工具参数和步骤图解。"
+        },
+        "en": {
+          "name": "Tool Specifications and Use Steps",
+          "summary": "Turn your product photos into a TikTok Shop carousel about tool Specifications and Use Steps.",
+          "useWhen": "For tools with specifications, accessories, or an operating sequence.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with tool Specifications and Use Steps."
+        }
+      },
+      "match": {
+        "goals": [
+          "工具规格与使用步骤图解",
+          "工具参数拆解型",
+          "工具与五金",
+          "Tool Specifications and Use Steps",
+          "Tools & Hardware"
+        ],
+        "imageCues": [
+          "工具清单",
+          "钻头兼容",
+          "结构细节",
+          "角度与接口尺寸",
+          "不同规格排布",
+          "操作步骤"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "19dc64957bbd9ddf7ec926260f3d31d549a38b09c09c1d23d9c18258292321a1"
+    },
+    {
+      "id": "tiktok-gardening-tool-before-after",
+      "legacyId": "tiktok-tt-069",
+      "platform": "tiktok",
+      "categories": [
+        "tools-hardware"
+      ],
+      "copy": {
+        "zh": {
+          "name": "园艺工具作业前后对比",
+          "summary": "按作业前、使用中和完成后展示园艺工具。",
+          "useWhen": "适合有修剪、整理或清除前后变化的园艺用品。",
+          "instructions": "上传园艺现场前后照和工具实拍，填写卖点。",
+          "output": "园艺作业前后对比图。"
+        },
+        "en": {
+          "name": "Gardening Work Before and After",
+          "summary": "Turn your product photos into a TikTok Shop carousel about gardening Work Before and After.",
+          "useWhen": "For gardening tools with visible trimming or clearing results.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with gardening Work Before and After."
+        }
+      },
+      "match": {
+        "goals": [
+          "园艺工具作业前后对比",
+          "园艺工具前后对比型",
+          "工具与五金",
+          "Gardening Work Before and After",
+          "Tools & Hardware"
+        ],
+        "imageCues": [
+          "工具和完整草坪",
+          "同位作业场景",
+          "局部处理证据",
+          "同区域前后对比",
+          "三种真实用途",
+          "机头与适用草况"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "3e267006988d991d67849e35724560938759a0f5fb33702e831bb2ae771a6323"
+    },
+    {
+      "id": "tiktok-snack-flavor-packaging",
+      "legacyId": "tiktok-tt-070",
+      "platform": "tiktok",
+      "categories": [
+        "food-beverages"
+      ],
+      "copy": {
+        "zh": {
+          "name": "零食多口味与包装展示",
+          "summary": "并排展示多种口味和包装上的区别。",
+          "useWhen": "适合多口味零食、分享装和需要区分包装的产品。",
+          "instructions": "上传各口味包装照和实物照片，填写卖点。",
+          "output": "零食口味和包装对比图。"
+        },
+        "en": {
+          "name": "Snack Flavors and Packaging",
+          "summary": "Turn your product photos into a TikTok Shop carousel about snack Flavors and Packaging.",
+          "useWhen": "For snacks in several flavors or packaging variants.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with snack Flavors and Packaging."
+        }
+      },
+      "match": {
+        "goals": [
+          "零食多口味与包装展示",
+          "零食口味拆解卡",
+          "食品与饮料",
+          "Snack Flavors and Packaging",
+          "Food & Beverages"
+        ],
+        "imageCues": [
+          "组合定位",
+          "三味包装并列",
+          "口味成分图示",
+          "第一款单包特写",
+          "另一款单包特写"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "730cd9690e5652c14b205cb1395fc114f69b4f506d835ba64b18b13894341d8f"
+    },
+    {
+      "id": "tiktok-food-unpacking-texture",
+      "legacyId": "tiktok-tt-071",
+      "platform": "tiktok",
+      "categories": [
+        "food-beverages"
+      ],
+      "copy": {
+        "zh": {
+          "name": "美食开包与质地特写",
+          "summary": "从打开包装到食物近景，突出真实质地。",
+          "useWhen": "适合开封后能展示切面、质地或真实份量的食品。",
+          "instructions": "上传食品开包照和实物特写，填写卖点。",
+          "output": "开包图和食物质地近景。"
+        },
+        "en": {
+          "name": "Food Unpacking and Texture Close-ups",
+          "summary": "Turn your product photos into a TikTok Shop carousel about food Unpacking and Texture Close-ups.",
+          "useWhen": "For foods with a cut surface, texture, or portion to show after opening.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with food Unpacking and Texture Close-ups."
+        }
+      },
+      "match": {
+        "goals": [
+          "美食开包与质地特写",
+          "美食场景细节展示",
+          "食品与饮料",
+          "Food Unpacking and Texture Close-ups",
+          "Food & Beverages"
+        ],
+        "imageCues": [
+          "开罐成品及质地",
+          "同款包装与可核实制作信息"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "54227283cab14d3a3efc1235f436a5434f346bdb7179c8468c028f140dbcea98"
+    },
+    {
+      "id": "tiktok-baby-product-capacity-accessories",
+      "legacyId": "tiktok-tt-072",
+      "platform": "tiktok",
+      "categories": [
+        "baby-maternity"
+      ],
+      "copy": {
+        "zh": {
+          "name": "母婴用品容量与配件展示",
+          "summary": "把母婴用品容量和盒内配件一起展示。",
+          "useWhen": "适合带储存容量或多种配件的母婴用品。",
+          "instructions": "上传商品照、容量资料和配件图，填写卖点。",
+          "output": "母婴用品容量卡和配件清单。"
+        },
+        "en": {
+          "name": "Baby-product Capacity and Accessories",
+          "summary": "Turn your product photos into a TikTok Shop carousel about baby-product Capacity and Accessories.",
+          "useWhen": "For baby products with capacity or included accessories to explain.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with baby-product Capacity and Accessories."
+        }
+      },
+      "match": {
+        "goals": [
+          "母婴用品容量与配件展示",
+          "母婴功能拆解图",
+          "母婴用品",
+          "Baby-product Capacity and Accessories",
+          "Baby & Maternity"
+        ],
+        "imageCues": [
+          "洗瓶机与瓶组",
+          "真实耗材或套装清单",
+          "奶瓶容量",
+          "上层小件",
+          "吸奶配件",
+          "其他适用小件"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "b8c724d378aa2880ffeffefd7432f7b1726dc402496c1bd3d63dfa6d4d212816"
+    },
+    {
+      "id": "tiktok-baby-appliance-side-by-side",
+      "legacyId": "tiktok-tt-073",
+      "platform": "tiktok",
+      "categories": [
+        "baby-maternity"
+      ],
+      "copy": {
+        "zh": {
+          "name": "母婴电器双款实拍对比",
+          "summary": "并排展示两款母婴电器的差别。",
+          "useWhen": "适合参数容易混淆、需要并排对比的母婴电器。",
+          "instructions": "上传两款实拍、相同测试条件和规格，填写卖点。",
+          "output": "双款对比图和选购提示。"
+        },
+        "en": {
+          "name": "Two Baby Appliances Compared",
+          "summary": "Turn your product photos into a TikTok Shop carousel about two Baby Appliances Compared.",
+          "useWhen": "For baby appliances with differences best shown side by side.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with two Baby Appliances Compared."
+        }
+      },
+      "match": {
+        "goals": [
+          "母婴电器双款实拍对比",
+          "母婴电器+双品对比",
+          "母婴用品",
+          "Two Baby Appliances Compared",
+          "Baby & Maternity"
+        ],
+        "imageCues": [
+          "双款比较定位",
+          "容量对照",
+          "接触部件对照",
+          "控制位置对照",
+          "资料支持的功能与体验",
+          "续航配件及选择条件"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "41ea0399ed0bc8476bd253222fd1206fc7b03e4cc6192696b0516814e152fe95"
+    },
+    {
+      "id": "tiktok-pet-product-scenarios-specs",
+      "legacyId": "tiktok-tt-074",
+      "platform": "tiktok",
+      "categories": [
+        "pet-supplies"
+      ],
+      "copy": {
+        "zh": {
+          "name": "宠物用品场景与参数展示",
+          "summary": "用宠物实拍说明产品的适用场景和规格。",
+          "useWhen": "适合需要同时说明宠物使用场景和尺寸的用品。",
+          "instructions": "上传宠物使用图、产品图和真实规格，填写卖点。",
+          "output": "宠物用品场景图和规格卡。"
+        },
+        "en": {
+          "name": "Pet Products in Scenes with Specifications",
+          "summary": "Turn your product photos into a TikTok Shop carousel about pet Products in Scenes with Specifications.",
+          "useWhen": "For pet supplies with a use case and size to clarify.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with pet Products in Scenes with Specifications."
+        }
+      },
+      "match": {
+        "goals": [
+          "宠物用品场景与参数展示",
+          "宠物用品+参数展示",
+          "宠物用品",
+          "Pet Products in Scenes with Specifications",
+          "Pet Supplies"
+        ],
+        "imageCues": [
+          "宠物与整机",
+          "入口和空间",
+          "抽屉与维护",
+          "资料支持的监控功能",
+          "安全结构示意",
+          "内衬与清理细节"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "8101a401b069c18b8e6251f78ae7fa727add4636eba9b24e1405d3b4f71c0d98"
+    },
+    {
+      "id": "tiktok-pet-product-features-reviews",
+      "legacyId": "tiktok-tt-075",
+      "platform": "tiktok",
+      "categories": [
+        "pet-supplies"
+      ],
+      "copy": {
+        "zh": {
+          "name": "宠物好物功能图解与口碑",
+          "summary": "把宠物用品功能与可核实的评价放在一起。",
+          "useWhen": "适合有真实使用反馈、需要展示功能的宠物用品。",
+          "instructions": "上传功能实拍和可引用的真实评价，填写卖点。",
+          "output": "宠物用品功能图和口碑卡。"
+        },
+        "en": {
+          "name": "Pet-product Features and Sourced Feedback",
+          "summary": "Turn your product photos into a TikTok Shop carousel about pet-product Features and Sourced Feedback.",
+          "useWhen": "For pet supplies with real user feedback and features to demonstrate.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with pet-product Features and Sourced Feedback."
+        }
+      },
+      "match": {
+        "goals": [
+          "宠物好物功能图解与口碑",
+          "宠物用品功能解析口碑",
+          "宠物用品",
+          "Pet-product Features and Sourced Feedback",
+          "Pet Supplies"
+        ],
+        "imageCues": [
+          "原创选购话题或真实引述",
+          "结构与流向解释",
+          "真实评价或原创问答回扣"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "c38acdd0344b61f22f4c5dfc460403ce721e6b3b058cf09ee7f4a4329afac4c9"
+    },
+    {
+      "id": "tiktok-computer-unboxing-first-use",
+      "legacyId": "tiktok-tt-076",
+      "platform": "tiktok",
+      "categories": [
+        "computers-office-equipment"
+      ],
+      "copy": {
+        "zh": {
+          "name": "数码设备开箱与上手流程",
+          "summary": "按拆箱、连接和上手顺序介绍设备。",
+          "useWhen": "适合电脑、显示器和想展示初次上手过程的设备。",
+          "instructions": "上传开箱照、设备配件和上手照片，填写卖点。",
+          "output": "电脑开箱和上手步骤图。"
+        },
+        "en": {
+          "name": "Computer Unboxing and First-use Steps",
+          "summary": "Turn your product photos into a TikTok Shop carousel about computer Unboxing and First-use Steps.",
+          "useWhen": "For computers and displays with an unboxing and first-use sequence.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with computer Unboxing and First-use Steps."
+        }
+      },
+      "match": {
+        "goals": [
+          "数码设备开箱与上手流程",
+          "数码开箱流程展示",
+          "电脑与办公",
+          "Computer Unboxing and First-use Steps",
+          "Computers & Office Equipment"
+        ],
+        "imageCues": [
+          "到手设备",
+          "耗材清点",
+          "装料设置",
+          "制作中的成品",
+          "同一批首次输出与控制面板"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "863743920f32b36b85b645fc7a40dc8750f2c97356be8cafa7f6b4efd79f633a"
+    },
+    {
+      "id": "tiktok-kids-clothing-flat-lay-try-on",
+      "legacyId": "tiktok-tt-077",
+      "platform": "tiktok",
+      "categories": [
+        "kids-fashion"
+      ],
+      "copy": {
+        "zh": {
+          "name": "童装平铺与上身展示",
+          "summary": "用童装平铺和上身照片展示款式与比例。",
+          "useWhen": "适合童装套装、儿童外套和多色童装上新。",
+          "instructions": "上传童装平铺照和真实上身图，填写卖点。",
+          "output": "童装款式和上身展示图。"
+        },
+        "en": {
+          "name": "Children's Clothing Flat Lays and Try-ons",
+          "summary": "Turn your product photos into a TikTok Shop carousel about children's Clothing Flat Lays and Try-ons.",
+          "useWhen": "For kids’ sets, coats, and collections in multiple colors.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with children's Clothing Flat Lays and Try-ons."
+        }
+      },
+      "match": {
+        "goals": [
+          "童装平铺与上身展示",
+          "童装居家场景多维度展",
+          "童装",
+          "Children's Clothing Flat Lays and Try-ons",
+          "Kids' Fashion"
+        ],
+        "imageCues": [
+          "挂拍看完整印花",
+          "平铺看比例",
+          "同款儿童上身"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "90b1dc9e1081c32fd03c4dd09fe83d3f2ad0998f2954ae08c3e6c34830e6257c"
+    },
+    {
+      "id": "tiktok-jewelry-macro-craftsmanship",
+      "legacyId": "tiktok-tt-078",
+      "platform": "tiktok",
+      "categories": [
+        "jewelry-accessories"
+      ],
+      "copy": {
+        "zh": {
+          "name": "饰品微距与工艺细节展示",
+          "summary": "用饰品微距展示材质、镶嵌和做工。",
+          "useWhen": "适合强调镶嵌、抛光或结构细节的首饰。",
+          "instructions": "上传饰品全貌、微距和材质信息，填写卖点。",
+          "output": "饰品细节和工艺展示图。"
+        },
+        "en": {
+          "name": "Jewelry Macros and Craft Details",
+          "summary": "Turn your product photos into a TikTok Shop carousel about jewelry Macros and Craft Details.",
+          "useWhen": "For jewelry whose setting, finish, or construction benefits from macro shots.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with jewelry Macros and Craft Details."
+        }
+      },
+      "match": {
+        "goals": [
+          "饰品微距与工艺细节展示",
+          "饰品微距细节展示型",
+          "珠宝首饰",
+          "Jewelry Macros and Craft Details",
+          "Jewelry Accessories & Derivatives"
+        ],
+        "imageCues": [
+          "完整链饰",
+          "扣头微距",
+          "另一角度整件",
+          "链节与扣头细节",
+          "包装与规格牌"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "d20fca5eee42bd1e6e24c3325f1d7361437110887fabfb4578e9f9e5e90cf853"
+    },
+    {
+      "id": "tiktok-modest-fashion-try-on-details",
+      "legacyId": "tiktok-tt-079",
+      "platform": "tiktok",
+      "categories": [
+        "modest-fashion"
+      ],
+      "copy": {
+        "zh": {
+          "name": "服装上身与正背挂拍细节",
+          "summary": "对照上身、正面挂拍和背面细节。",
+          "useWhen": "适合需要说明长度、覆盖范围和面料的端庄穿搭。",
+          "instructions": "上传上身照、正背面挂拍和细节，填写卖点。",
+          "output": "服装上身和正背细节图。"
+        },
+        "en": {
+          "name": "Modest Clothing Try-ons and Hanging Details",
+          "summary": "Turn your product photos into a TikTok Shop carousel about modest Clothing Try-ons and Hanging Details.",
+          "useWhen": "For modest apparel where length, coverage, and fabric matter.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with modest Clothing Try-ons and Hanging Details."
+        }
+      },
+      "match": {
+        "goals": [
+          "服装上身与正背挂拍细节",
+          "女装上衣实拍挂拍细节",
+          "穆斯林时尚",
+          "Modest Clothing Try-ons and Hanging Details",
+          "Modest Fashion"
+        ],
+        "imageCues": [
+          "正面上身",
+          "背面上身",
+          "正面近景",
+          "正面挂拍",
+          "背面挂拍"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "e83c19ab54ed4490b0d8c2c76f0a1781f236aec68243f4c3751d2039cd04f854"
+    },
+    {
+      "id": "tiktok-trading-card-edition-guide",
+      "legacyId": "tiktok-tt-080",
+      "platform": "tiktok",
+      "categories": [
+        "collectibles"
+      ],
+      "copy": {
+        "zh": {
+          "name": "卡牌系列与版本图解",
+          "summary": "用实物卡牌对照整理系列和版本差异。",
+          "useWhen": "适合版本、稀有度或卡面细节容易混淆的卡牌。",
+          "instructions": "上传卡牌正反面照和官方版本信息，填写卖点。",
+          "output": "卡牌系列和版本对照图。"
+        },
+        "en": {
+          "name": "Trading Card Series and Edition Guides",
+          "summary": "Turn your product photos into a TikTok Shop carousel about trading Card Series and Edition Guides.",
+          "useWhen": "For trading cards with editions, rarity, or artwork details to clarify.",
+          "instructions": "Upload product and reference photos, then add verified details.",
+          "output": "An editable TikTok Shop carousel with trading Card Series and Edition Guides."
+        }
+      },
+      "match": {
+        "goals": [
+          "卡牌系列与版本图解",
+          "卡牌概率图解型",
+          "收藏品",
+          "Trading Card Series and Edition Guides",
+          "Collectibles"
+        ],
+        "imageCues": [
+          "系列与封包",
+          "真实版本或数量说明",
+          "第一组卡面",
+          "第二组卡面",
+          "重点卡面与选择提示"
+        ],
+        "exclusions": [
+          "无关商品素材",
+          "unsupported product claims",
+          "没有产品事实依据"
+        ]
+      },
+      "revision": "44ad6686ce383e6e883e214949bfe7fbdfb91626e77e41cc44d4680def5a3d68"
+    },
+    {
+      "id": "tiktok-audience-gift-recommendation",
+      "platform": "tiktok",
+      "categories": [
+        "automotive-motorcycle",
+        "baby-maternity",
+        "beauty-personal-care",
+        "books-magazines-audio",
+        "collectibles",
+        "computers-office-equipment",
+        "fashion-accessories",
+        "food-beverages",
+        "furniture",
+        "health",
+        "home-improvement",
+        "home-supplies",
+        "household-appliances",
+        "jewelry-accessories",
+        "kids-fashion",
+        "kitchenware",
+        "luggage-bags",
+        "menswear-underwear",
+        "modest-fashion",
+        "pet-supplies",
+        "phones-electronics",
+        "shoes",
+        "sports-outdoor",
+        "textiles-soft-furnishings",
+        "tools-hardware",
+        "toys-hobbies",
+        "womenswear-underwear"
+      ],
+      "copy": {
+        "zh": {
+          "name": "人群点名礼物推荐",
+          "summary": "首屏点名收礼人并露出商品，再补充套装或选款理由。",
+          "useWhen": "跨品类的礼物和人群推荐。",
+          "instructions": "上传清晰产品图并说明需求，按本模板组织钩子与商品回应。",
+          "output": "可编辑的同款模板风格多页图文。"
+        },
+        "en": {
+          "name": "Audience Callout Gift Recommendation",
+          "summary": "Create a TikTok photo carousel using audience callout gift recommendation.",
+          "useWhen": "Use a audience callout gift recommendation structure with supported product facts.",
+          "instructions": "Upload product photos and describe your request.",
+          "output": "An editable TikTok photo carousel."
+        }
+      },
+      "match": {
+        "goals": [
+          "点名人群",
+          "礼物推荐",
+          "套装送礼",
+          "audience callout",
+          "gift set"
+        ],
+        "imageCues": [
+          "商品首屏露出",
+          "台面礼盒",
+          "白底短段",
+          "内容展开"
+        ],
+        "exclusions": [
+          "先藏商品",
+          "技术教程",
+          "hidden product hook",
+          "开箱过程",
+          "填写内页",
+          "unboxing",
+          "opening",
+          "fill-in",
+          "album"
+        ]
+      },
+      "revision": "44637111ef49f8d3b2e9d3259e64b55929b8fa374741ea8e3c78b487c2de51c8"
+    },
+    {
+      "id": "tiktok-budget-message-recommendation",
+      "platform": "tiktok",
+      "categories": [
+        "automotive-motorcycle",
+        "baby-maternity",
+        "beauty-personal-care",
+        "books-magazines-audio",
+        "collectibles",
+        "computers-office-equipment",
+        "fashion-accessories",
+        "food-beverages",
+        "furniture",
+        "health",
+        "home-improvement",
+        "home-supplies",
+        "household-appliances",
+        "jewelry-accessories",
+        "kids-fashion",
+        "kitchenware",
+        "luggage-bags",
+        "menswear-underwear",
+        "modest-fashion",
+        "pet-supplies",
+        "phones-electronics",
+        "shoes",
+        "sports-outdoor",
+        "textiles-soft-furnishings",
+        "tools-hardware",
+        "toys-hobbies",
+        "womenswear-underwear"
+      ],
+      "copy": {
+        "zh": {
+          "name": "预算反差短信推荐",
+          "summary": "用预算吐槽与朋友回应制造反差，再翻页揭晓商品。",
+          "useWhen": "适合可由外观、用途或已核实价格回应“预算不够/想买又犹豫”的任何商品品类。",
+          "instructions": "上传清晰产品图并说明需求，按本模板组织钩子与商品回应。",
+          "output": "可编辑的同款模板风格多页图文。"
+        },
+        "en": {
+          "name": "Budget Chat Product Reveal",
+          "summary": "Create a TikTok photo carousel using budget chat product reveal.",
+          "useWhen": "Use a budget chat product reveal structure with supported product facts.",
+          "instructions": "Upload product photos and describe your request.",
+          "output": "An editable TikTok photo carousel."
+        }
+      },
+      "match": {
+        "goals": [
+          "预算吐槽",
+          "朋友推荐",
+          "购买犹豫",
+          "budget chat",
+          "affordable gift"
+        ],
+        "imageCues": [
+          "暗色短信",
+          "消息附件",
+          "对话后揭晓",
+          "handheld product"
+        ],
+        "exclusions": [
+          "参数对比",
+          "无购买反差",
+          "technical comparison"
+        ]
+      },
+      "revision": "1521d6b5eb33879970dcfee24f78a69f8995a13abaeeca80bcf3bb4bfd318e32"
+    },
+    {
+      "id": "tiktok-comment-product-reveal",
+      "platform": "tiktok",
+      "categories": [
+        "automotive-motorcycle",
+        "baby-maternity",
+        "beauty-personal-care",
+        "books-magazines-audio",
+        "collectibles",
+        "computers-office-equipment",
+        "fashion-accessories",
+        "food-beverages",
+        "furniture",
+        "health",
+        "home-improvement",
+        "home-supplies",
+        "household-appliances",
+        "jewelry-accessories",
+        "kids-fashion",
+        "kitchenware",
+        "luggage-bags",
+        "menswear-underwear",
+        "modest-fashion",
+        "pet-supplies",
+        "phones-electronics",
+        "shoes",
+        "sports-outdoor",
+        "textiles-soft-furnishings",
+        "tools-hardware",
+        "toys-hobbies",
+        "womenswear-underwear"
+      ],
+      "copy": {
+        "zh": {
+          "name": "评论互动商品揭晓",
+          "summary": "用评论与回复接梗，再用商品实拍兑现讨论。",
+          "useWhen": "适用于可由商品外观、款式、细节或已核实资料回应的问题，跨品类使用。",
+          "instructions": "上传清晰产品图并说明需求，按本模板组织钩子与商品回应。",
+          "output": "可编辑的同款模板风格多页图文。"
+        },
+        "en": {
+          "name": "Comment Reply Product Reveal",
+          "summary": "Create a TikTok photo carousel using comment reply product reveal.",
+          "useWhen": "Use a comment reply product reveal structure with supported product facts.",
+          "instructions": "Upload product photos and describe your request.",
+          "output": "An editable TikTok photo carousel."
+        }
+      },
+      "match": {
+        "goals": [
+          "评论接梗",
+          "评论回复",
+          "质疑回应",
+          "comment reply",
+          "product reveal"
+        ],
+        "imageCues": [
+          "主评论与缩进回复",
+          "圆形头像",
+          "心形点赞",
+          "黑底留白"
+        ],
+        "exclusions": [
+          "私信气泡",
+          "新闻长文",
+          "direct message"
+        ]
+      },
+      "revision": "49868aff51c807f36254a3cddeedfb62f04912679084e655d8c4d86243b70c05"
+    },
+    {
+      "id": "tiktok-handheld-product-features",
+      "platform": "tiktok",
+      "categories": [
+        "automotive-motorcycle",
+        "baby-maternity",
+        "beauty-personal-care",
+        "books-magazines-audio",
+        "collectibles",
+        "computers-office-equipment",
+        "fashion-accessories",
+        "food-beverages",
+        "furniture",
+        "health",
+        "home-improvement",
+        "home-supplies",
+        "household-appliances",
+        "jewelry-accessories",
+        "kids-fashion",
+        "kitchenware",
+        "luggage-bags",
+        "menswear-underwear",
+        "modest-fashion",
+        "pet-supplies",
+        "phones-electronics",
+        "shoes",
+        "sports-outdoor",
+        "textiles-soft-furnishings",
+        "tools-hardware",
+        "toys-hobbies",
+        "womenswear-underwear"
+      ],
+      "copy": {
+        "zh": {
+          "name": "手持实物功能展开",
+          "summary": "先看手持实物，再用部件和状态变化展开功能。",
+          "useWhen": "适用于能通过手持、拆装、展开、连接或状态解释的各品类商品。",
+          "instructions": "上传清晰产品图并说明需求，按本模板组织钩子与商品回应。",
+          "output": "可编辑的同款模板风格多页图文。"
+        },
+        "en": {
+          "name": "Handheld Product Feature Walkthrough",
+          "summary": "Create a TikTok photo carousel using handheld product feature walkthrough.",
+          "useWhen": "Use a handheld product feature walkthrough structure with supported product facts.",
+          "instructions": "Upload product photos and describe your request.",
+          "output": "An editable TikTok photo carousel."
+        }
+      },
+      "match": {
+        "goals": [
+          "手持展示",
+          "部件展开",
+          "结构功能",
+          "handheld details",
+          "feature walkthrough"
+        ],
+        "imageCues": [
+          "手部尺度",
+          "拆装或展开",
+          "同一场景",
+          "状态变化"
+        ],
+        "exclusions": [
+          "纯参数表",
+          "未证实功效",
+          "specification-only"
+        ]
+      },
+      "revision": "21053999c1fcd1ce0c41be6e1a00c979a48a186f72cc6f078343311c2f3bcd36"
+    },
+    {
+      "id": "tiktok-interest-mood-product-match",
+      "platform": "tiktok",
+      "categories": [
+        "automotive-motorcycle",
+        "baby-maternity",
+        "beauty-personal-care",
+        "books-magazines-audio",
+        "collectibles",
+        "computers-office-equipment",
+        "fashion-accessories",
+        "food-beverages",
+        "furniture",
+        "health",
+        "home-improvement",
+        "home-supplies",
+        "household-appliances",
+        "jewelry-accessories",
+        "kids-fashion",
+        "kitchenware",
+        "luggage-bags",
+        "menswear-underwear",
+        "modest-fashion",
+        "pet-supplies",
+        "phones-electronics",
+        "shoes",
+        "sports-outdoor",
+        "textiles-soft-furnishings",
+        "tools-hardware",
+        "toys-hobbies",
+        "womenswear-underwear"
+      ],
+      "copy": {
+        "zh": {
+          "name": "兴趣氛围同款呼应",
+          "summary": "用兴趣符号建立认同，再展示能回应该符号的商品细节。",
+          "useWhen": "适用于有实际兴趣符号、主题色、图案或用途关联的商品，可跨服饰、配饰、家居、图书与玩具。",
+          "instructions": "上传清晰产品图并说明需求，按本模板组织钩子与商品回应。",
+          "output": "可编辑的同款模板风格多页图文。"
+        },
+        "en": {
+          "name": "Interest Mood Product Match",
+          "summary": "Create a TikTok photo carousel using interest mood product match.",
+          "useWhen": "Use a interest mood product match structure with supported product facts.",
+          "instructions": "Upload product photos and describe your request.",
+          "output": "An editable TikTok photo carousel."
+        }
+      },
+      "match": {
+        "goals": [
+          "兴趣认同",
+          "主题商品",
+          "爱好周边",
+          "interest mood",
+          "themed product"
+        ],
+        "imageCues": [
+          "主题拼贴",
+          "符号呼应",
+          "正背面细节",
+          "兴趣场景"
+        ],
+        "exclusions": [
+          "无主题联系",
+          "凭空联名",
+          "unrelated mood"
+        ]
+      },
+      "revision": "9211eb5e166ba654cb590e48638c470c03a598a929665eb8b018e4394fe26d48"
+    },
+    {
+      "id": "tiktok-lockscreen-product-reveal",
+      "platform": "tiktok",
+      "categories": [
+        "automotive-motorcycle",
+        "baby-maternity",
+        "beauty-personal-care",
+        "books-magazines-audio",
+        "collectibles",
+        "computers-office-equipment",
+        "fashion-accessories",
+        "food-beverages",
+        "furniture",
+        "health",
+        "home-improvement",
+        "home-supplies",
+        "household-appliances",
+        "jewelry-accessories",
+        "kids-fashion",
+        "kitchenware",
+        "luggage-bags",
+        "menswear-underwear",
+        "modest-fashion",
+        "pet-supplies",
+        "phones-electronics",
+        "shoes",
+        "sports-outdoor",
+        "textiles-soft-furnishings",
+        "tools-hardware",
+        "toys-hobbies",
+        "womenswear-underwear"
+      ],
+      "copy": {
+        "zh": {
+          "name": "锁屏通知商品揭晓",
+          "summary": "用锁屏通知留下悬念，再翻页展示对应商品。",
+          "useWhen": "跨品类使用：家居、数码、美妆、食品、服饰和礼物均可。",
+          "instructions": "上传清晰产品图并说明需求，按本模板组织钩子与商品回应。",
+          "output": "可编辑的同款模板风格多页图文。"
+        },
+        "en": {
+          "name": "Lock Screen Notification Reveal",
+          "summary": "Create a TikTok photo carousel using lock screen notification reveal.",
+          "useWhen": "Use a lock screen notification reveal structure with supported product facts.",
+          "instructions": "Upload product photos and describe your request.",
+          "output": "An editable TikTok photo carousel."
+        }
+      },
+      "match": {
+        "goals": [
+          "锁屏通知",
+          "通知悬念",
+          "提醒揭晓",
+          "lock screen",
+          "notification reveal"
+        ],
+        "imageCues": [
+          "超大时间",
+          "半透明通知",
+          "壁纸",
+          "商品回应"
+        ],
+        "exclusions": [
+          "完整聊天记录",
+          "多段参数说明",
+          "chat history"
+        ]
+      },
+      "revision": "9fc7ca5b7e208736af698333f9972eeac856a59cd8253edcef112fc1f1f7c177"
+    },
+    {
+      "id": "tiktok-problem-action-product-guide",
+      "platform": "tiktok",
+      "categories": [
+        "home-supplies",
+        "household-appliances",
+        "home-improvement",
+        "kitchenware",
+        "tools-hardware",
+        "sports-outdoor",
+        "phones-electronics",
+        "computers-office-equipment",
+        "automotive-motorcycle",
+        "pet-supplies",
+        "baby-maternity",
+        "health",
+        "beauty-personal-care"
+      ],
+      "copy": {
+        "zh": {
+          "name": "场景问题操作解答",
+          "summary": "从真实生活问题开始，用连续动作逐页说明商品如何应对。",
+          "useWhen": "可跨家居、电器、工具、厨房、户外等能展示操作的品类。",
+          "instructions": "上传清晰产品图并说明需求，按本模板组织钩子与商品回应。",
+          "output": "可编辑的同款模板风格多页图文。"
+        },
+        "en": {
+          "name": "Problem-to-Action Product Guide",
+          "summary": "Create a TikTok photo carousel using problem-to-action product guide.",
+          "useWhen": "Use a problem-to-action product guide structure with supported product facts.",
+          "instructions": "Upload product photos and describe your request.",
+          "output": "An editable TikTok photo carousel."
+        }
+      },
+      "match": {
+        "goals": [
+          "问题解决",
+          "操作解答",
+          "使用步骤",
+          "problem solution",
+          "product action"
+        ],
+        "imageCues": [
+          "问题现场",
+          "连续手部操作",
+          "部件与状态",
+          "场景结果"
+        ],
+        "exclusions": [
+          "纯情绪两页",
+          "无使用资料",
+          "mood-only reveal"
+        ]
+      },
+      "revision": "05fc7475113890b9fdeb0fbf2c1b9950fb3af55cd972230a7c4284171dd12e90"
+    },
+    {
+      "id": "tiktok-reaction-product-twist",
+      "platform": "tiktok",
+      "categories": [
+        "automotive-motorcycle",
+        "baby-maternity",
+        "beauty-personal-care",
+        "books-magazines-audio",
+        "collectibles",
+        "computers-office-equipment",
+        "fashion-accessories",
+        "food-beverages",
+        "furniture",
+        "health",
+        "home-improvement",
+        "home-supplies",
+        "household-appliances",
+        "jewelry-accessories",
+        "kids-fashion",
+        "kitchenware",
+        "luggage-bags",
+        "menswear-underwear",
+        "modest-fashion",
+        "pet-supplies",
+        "phones-electronics",
+        "shoes",
+        "sports-outdoor",
+        "textiles-soft-furnishings",
+        "tools-hardware",
+        "toys-hobbies",
+        "womenswear-underwear"
+      ],
+      "copy": {
+        "zh": {
+          "name": "表情反应商品反转",
+          "summary": "先用角色表情表达犹豫或惊喜，再展示引发反应的商品。",
+          "useWhen": "跨品类的情绪反差；入口由角色姿态、目光或双人对白推动。",
+          "instructions": "上传清晰产品图并说明需求，按本模板组织钩子与商品回应。",
+          "output": "可编辑的同款模板风格多页图文。"
+        },
+        "en": {
+          "name": "Reaction Meme Product Twist",
+          "summary": "Create a TikTok photo carousel using reaction meme product twist.",
+          "useWhen": "Use a reaction meme product twist structure with supported product facts.",
+          "instructions": "Upload product photos and describe your request.",
+          "output": "An editable TikTok photo carousel."
+        }
+      },
+      "match": {
+        "goals": [
+          "表情反应",
+          "角色梗图",
+          "惊喜反转",
+          "reaction meme",
+          "product twist"
+        ],
+        "imageCues": [
+          "角色表情",
+          "留黑短句",
+          "产品反转"
+        ],
+        "exclusions": [
+          "严肃长文",
+          "无情绪入口",
+          "technical manual"
+        ]
+      },
+      "revision": "dfbad3d0518ecdeeb352f27d0701f7d057299b61b6d6afa1fc93a912370cb30a"
+    },
+    {
+      "id": "tiktok-relationship-gift-response",
+      "platform": "tiktok",
+      "categories": [
+        "automotive-motorcycle",
+        "baby-maternity",
+        "beauty-personal-care",
+        "books-magazines-audio",
+        "collectibles",
+        "computers-office-equipment",
+        "fashion-accessories",
+        "food-beverages",
+        "furniture",
+        "health",
+        "home-improvement",
+        "home-supplies",
+        "household-appliances",
+        "jewelry-accessories",
+        "kids-fashion",
+        "kitchenware",
+        "luggage-bags",
+        "menswear-underwear",
+        "modest-fashion",
+        "pet-supplies",
+        "phones-electronics",
+        "shoes",
+        "sports-outdoor",
+        "textiles-soft-furnishings",
+        "tools-hardware",
+        "toys-hobbies",
+        "womenswear-underwear"
+      ],
+      "copy": {
+        "zh": {
+          "name": "关系情境礼物回应",
+          "summary": "先进入朋友、家人或伴侣的生活情境，再用礼物回应关系。",
+          "useWhen": "可作为礼物/共同使用的各品类商品。",
+          "instructions": "上传清晰产品图并说明需求，按本模板组织钩子与商品回应。",
+          "output": "可编辑的同款模板风格多页图文。"
+        },
+        "en": {
+          "name": "Relationship Scene Gift Reveal",
+          "summary": "Create a TikTok photo carousel using relationship scene gift reveal.",
+          "useWhen": "Use a relationship scene gift reveal structure with supported product facts.",
+          "instructions": "Upload product photos and describe your request.",
+          "output": "An editable TikTok photo carousel."
+        }
+      },
+      "match": {
+        "goals": [
+          "关系送礼",
+          "伴侣礼物",
+          "家人心意",
+          "relationship gift",
+          "family moment"
+        ],
+        "imageCues": [
+          "聚会餐桌",
+          "亲友关系",
+          "成对物件",
+          "礼物文字"
+        ],
+        "exclusions": [
+          "纯价格对比",
+          "孤立风景",
+          "price comparison"
+        ]
+      },
+      "revision": "074091acdaa4bce3625cde7d6f7fa903d61942147bec9a1fb19551d0a541cbcb"
+    },
+    {
+      "id": "tiktok-scenery-product-reveal",
+      "platform": "tiktok",
+      "categories": [
+        "automotive-motorcycle",
+        "baby-maternity",
+        "beauty-personal-care",
+        "books-magazines-audio",
+        "collectibles",
+        "computers-office-equipment",
+        "fashion-accessories",
+        "food-beverages",
+        "furniture",
+        "health",
+        "home-improvement",
+        "home-supplies",
+        "household-appliances",
+        "jewelry-accessories",
+        "kids-fashion",
+        "kitchenware",
+        "luggage-bags",
+        "menswear-underwear",
+        "modest-fashion",
+        "pet-supplies",
+        "phones-electronics",
+        "shoes",
+        "sports-outdoor",
+        "textiles-soft-furnishings",
+        "tools-hardware",
+        "toys-hobbies",
+        "womenswear-underwear"
+      ],
+      "copy": {
+        "zh": {
+          "name": "风景氛围商品揭晓",
+          "summary": "在风景上抛出需求或人群提问，再翻页揭晓商品。",
+          "useWhen": "跨品类的情绪悬念入口，风景负责氛围，商品负责回答。",
+          "instructions": "上传清晰产品图并说明需求，按本模板组织钩子与商品回应。",
+          "output": "可编辑的同款模板风格多页图文。"
+        },
+        "en": {
+          "name": "Scenic Mood Product Reveal",
+          "summary": "Create a TikTok photo carousel using scenic mood product reveal.",
+          "useWhen": "Use a scenic mood product reveal structure with supported product facts.",
+          "instructions": "Upload product photos and describe your request.",
+          "output": "An editable TikTok photo carousel."
+        }
+      },
+      "match": {
+        "goals": [
+          "风景引流",
+          "氛围提问",
+          "商品悬念",
+          "scenic hook",
+          "product reveal"
+        ],
+        "imageCues": [
+          "全幅风景",
+          "描边问句",
+          "冷暖转场",
+          "生活陈列"
+        ],
+        "exclusions": [
+          "规格图解",
+          "关系对白",
+          "specification sheet"
+        ]
+      },
+      "revision": "cffdae6707170cc642ea556bce3e804e0220b63855b0073fc5454dd2b3edc524"
+    },
+    {
+      "id": "tiktok-selfie-product-discovery",
+      "platform": "tiktok",
+      "categories": [
+        "automotive-motorcycle",
+        "baby-maternity",
+        "beauty-personal-care",
+        "books-magazines-audio",
+        "collectibles",
+        "computers-office-equipment",
+        "fashion-accessories",
+        "food-beverages",
+        "furniture",
+        "health",
+        "home-improvement",
+        "home-supplies",
+        "household-appliances",
+        "jewelry-accessories",
+        "kids-fashion",
+        "kitchenware",
+        "luggage-bags",
+        "menswear-underwear",
+        "modest-fashion",
+        "pet-supplies",
+        "phones-electronics",
+        "shoes",
+        "sports-outdoor",
+        "textiles-soft-furnishings",
+        "tools-hardware",
+        "toys-hobbies",
+        "womenswear-underwear"
+      ],
+      "copy": {
+        "zh": {
+          "name": "自拍心情好物分享",
+          "summary": "用随手自拍表达心情，再揭晓让人心动的商品。",
+          "useWhen": "各品类可用的随拍情绪入口，适合轻松分享与送礼犹豫。",
+          "instructions": "上传清晰产品图并说明需求，按本模板组织钩子与商品回应。",
+          "output": "可编辑的同款模板风格多页图文。"
+        },
+        "en": {
+          "name": "Selfie Mood Product Discovery",
+          "summary": "Create a TikTok photo carousel using selfie mood product discovery.",
+          "useWhen": "Use a selfie mood product discovery structure with supported product facts.",
+          "instructions": "Upload product photos and describe your request.",
+          "output": "An editable TikTok photo carousel."
+        }
+      },
+      "match": {
+        "goals": [
+          "自拍分享",
+          "心情好物",
+          "生活随拍",
+          "selfie mood",
+          "product discovery"
+        ],
+        "imageCues": [
+          "近脸自拍",
+          "低机位",
+          "黄色短句",
+          "生活商品"
+        ],
+        "exclusions": [
+          "无人物风景",
+          "动画角色",
+          "landscape only"
+        ]
+      },
+      "revision": "651ce3f381cfd2a4dc69e38b78de86369903c47038ef4cc8e6f999abf99f5d93"
+    },
+    {
+      "id": "tiktok-sensory-mood-product-reveal",
+      "platform": "tiktok",
+      "categories": [
+        "beauty-personal-care",
+        "food-beverages",
+        "home-supplies",
+        "textiles-soft-furnishings",
+        "fashion-accessories"
+      ],
+      "copy": {
+        "zh": {
+          "name": "感官意象同款揭晓",
+          "summary": "先展示口味、香气或色彩意象，再用有真实关联的商品回应。",
+          "useWhen": "适用于有已证实口味、香型、颜色或材质线索的商品。",
+          "instructions": "上传清晰产品图并说明需求，按本模板组织钩子与商品回应。",
+          "output": "可编辑的同款模板风格多页图文。"
+        },
+        "en": {
+          "name": "Sensory Mood Product Reveal",
+          "summary": "Create a TikTok photo carousel using sensory mood product reveal.",
+          "useWhen": "Use a sensory mood product reveal structure with supported product facts.",
+          "instructions": "Upload product photos and describe your request.",
+          "output": "An editable TikTok photo carousel."
+        }
+      },
+      "match": {
+        "goals": [
+          "口味意象",
+          "香调揭晓",
+          "色彩呼应",
+          "sensory mood",
+          "flavor reveal"
+        ],
+        "imageCues": [
+          "食物近景",
+          "对应道具",
+          "同色包装",
+          "香型线索"
+        ],
+        "exclusions": [
+          "无真实感官关联",
+          "功能实测",
+          "unrelated flavor"
+        ]
+      },
+      "revision": "ad358aeec1d2e3d673fc229de302bb73f319962c1d7dd76e7d03eaf7d9a6a186"
+    },
+    {
+      "id": "tiktok-sms-product-recommendation",
+      "platform": "tiktok",
+      "categories": [
+        "automotive-motorcycle",
+        "baby-maternity",
+        "beauty-personal-care",
+        "books-magazines-audio",
+        "collectibles",
+        "computers-office-equipment",
+        "fashion-accessories",
+        "food-beverages",
+        "furniture",
+        "health",
+        "home-improvement",
+        "home-supplies",
+        "household-appliances",
+        "jewelry-accessories",
+        "kids-fashion",
+        "kitchenware",
+        "luggage-bags",
+        "menswear-underwear",
+        "modest-fashion",
+        "pet-supplies",
+        "phones-electronics",
+        "shoes",
+        "sports-outdoor",
+        "textiles-soft-furnishings",
+        "tools-hardware",
+        "toys-hobbies",
+        "womenswear-underwear"
+      ],
+      "copy": {
+        "zh": {
+          "name": "短信互动好物推荐",
+          "summary": "用真实短信界面的问答与接话，引出下一页商品回应。",
+          "useWhen": "适合任何能回答一个具体生活问题的商品；先问需求、习惯或赠送对象，再用实物回答。",
+          "instructions": "上传清晰产品图并说明需求，按本模板组织钩子与商品回应。",
+          "output": "可编辑的同款模板风格多页图文。"
+        },
+        "en": {
+          "name": "Text Message Product Recommendation",
+          "summary": "Create a TikTok photo carousel using text message product recommendation.",
+          "useWhen": "Use a text message product recommendation structure with supported product facts.",
+          "instructions": "Upload product photos and describe your request.",
+          "output": "An editable TikTok photo carousel."
+        }
+      },
+      "match": {
+        "goals": [
+          "短信互动",
+          "短信推荐",
+          "朋友问答",
+          "text message recommendation",
+          "gift conversation"
+        ],
+        "imageCues": [
+          "蓝灰消息气泡",
+          "联系人头像",
+          "手机输入栏",
+          "product payoff"
+        ],
+        "exclusions": [
+          "公开评论区",
+          "完整功能说明书",
+          "comment thread"
+        ]
+      },
+      "revision": "27ced0bb3564cdded3ea95420e83e879e69ba9fcf921c806d759911beafec69f"
+    },
+    {
+      "id": "tiktok-social-status-recommendation",
+      "platform": "tiktok",
+      "categories": [
+        "automotive-motorcycle",
+        "baby-maternity",
+        "beauty-personal-care",
+        "books-magazines-audio",
+        "collectibles",
+        "computers-office-equipment",
+        "fashion-accessories",
+        "food-beverages",
+        "furniture",
+        "health",
+        "home-improvement",
+        "home-supplies",
+        "household-appliances",
+        "jewelry-accessories",
+        "kids-fashion",
+        "kitchenware",
+        "luggage-bags",
+        "menswear-underwear",
+        "modest-fashion",
+        "pet-supplies",
+        "phones-electronics",
+        "shoes",
+        "sports-outdoor",
+        "textiles-soft-furnishings",
+        "tools-hardware",
+        "toys-hobbies",
+        "womenswear-underwear"
+      ],
+      "copy": {
+        "zh": {
+          "name": "社交动态好物推荐",
+          "summary": "从社交动态中的人群提醒，引出实物与可选款式。",
+          "useWhen": "适用于各品类的兴趣人群、使用需求或送礼提醒。",
+          "instructions": "上传清晰产品图并说明需求，按本模板组织钩子与商品回应。",
+          "output": "可编辑的同款模板风格多页图文。"
+        },
+        "en": {
+          "name": "Social Feed Product Recommendation",
+          "summary": "Create a TikTok photo carousel using social feed product recommendation.",
+          "useWhen": "Use a social feed product recommendation structure with supported product facts.",
+          "instructions": "Upload product photos and describe your request.",
+          "output": "An editable TikTok photo carousel."
+        }
+      },
+      "match": {
+        "goals": [
+          "社交动态",
+          "人群提醒",
+          "动态推荐",
+          "social feed post",
+          "community reminder"
+        ],
+        "imageCues": [
+          "头像与时间",
+          "动态大字",
+          "反应统计与操作栏",
+          "生活实物"
+        ],
+        "exclusions": [
+          "一对一短信",
+          "专业参数海报",
+          "private chat"
+        ]
+      },
+      "revision": "27fd7486bc070d8bb9d64c58aad9ab757048944c5a05b1465e329cf298245dae"
+    },
+    {
+      "id": "tiktok-two-choice-gift-recommendation",
+      "platform": "tiktok",
+      "categories": [
+        "automotive-motorcycle",
+        "baby-maternity",
+        "beauty-personal-care",
+        "books-magazines-audio",
+        "collectibles",
+        "computers-office-equipment",
+        "fashion-accessories",
+        "food-beverages",
+        "furniture",
+        "health",
+        "home-improvement",
+        "home-supplies",
+        "household-appliances",
+        "jewelry-accessories",
+        "kids-fashion",
+        "kitchenware",
+        "luggage-bags",
+        "menswear-underwear",
+        "modest-fashion",
+        "pet-supplies",
+        "phones-electronics",
+        "shoes",
+        "sports-outdoor",
+        "textiles-soft-furnishings",
+        "tools-hardware",
+        "toys-hobbies",
+        "womenswear-underwear"
+      ],
+      "copy": {
+        "zh": {
+          "name": "双路选择趣味推荐",
+          "summary": "用两路选择的趣味反差，引出更贴合需求的商品。",
+          "useWhen": "各品类的决策或送礼比较，比较的是选择动机，不编造两款商品性能高低。",
+          "instructions": "上传清晰产品图并说明需求，按本模板组织钩子与商品回应。",
+          "output": "可编辑的同款模板风格多页图文。"
+        },
+        "en": {
+          "name": "Two-Choice Product Recommendation",
+          "summary": "Create a TikTok photo carousel using two-choice product recommendation.",
+          "useWhen": "Use a two-choice product recommendation structure with supported product facts.",
+          "instructions": "Upload product photos and describe your request.",
+          "output": "An editable TikTok photo carousel."
+        }
+      },
+      "match": {
+        "goals": [
+          "二选一",
+          "送礼选择",
+          "决策反差",
+          "two choices",
+          "gift decision"
+        ],
+        "imageCues": [
+          "分叉路径",
+          "左右标牌",
+          "两扇门",
+          "推荐实物"
+        ],
+        "exclusions": [
+          "实验数据对比",
+          "虚构销量",
+          "laboratory comparison"
+        ]
+      },
+      "revision": "72c3598889231e732a7e304bdff7ae8eaeda59acf872a33caae0a373cbcf21d6"
+    },
+    {
+      "id": "magazine-parallel-workflow",
+      "platform": "xiaohongshu",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "杂志风 · 工作流程",
+          "summary": "先展示两条工作的完整步骤，再标出配合与交接，讲清事情如何一起完成。",
+          "useWhen": "团队协作、周末市集和内容生产的并行分工。",
+          "instructions": "给两条任务线、各自阶段、负责人、交付物和交接时机。",
+          "output": "一组可编辑的小红书图文，默认 3 页。"
+        },
+        "en": {
+          "name": "Editorial Parallel Workflow",
+          "summary": "Explain two side-by-side workflows and show who hands over what at each checkpoint.",
+          "useWhen": "Working in pairs, production logistics, and content handoffs.",
+          "instructions": "Provide both tracks, stages, owners, deliverables, and handoff times.",
+          "output": "An editable Xiaohongshu carousel, typically three pages."
+        }
+      },
+      "match": {
+        "goals": [
+          "工作流程",
+          "摆摊分工",
+          "团队交接",
+          "双轨流程",
+          "parallel workflow"
+        ],
+        "imageCues": [
+          "并列泳道",
+          "双线交接",
+          "handoff map"
+        ],
+        "exclusions": [
+          "复盘反馈循环",
+          "单线步骤",
+          "工作日程列表"
+        ]
+      },
+      "revision": "56d88eb17cc0555fa79c701815cff0618df0631c55a3808ba412e265ac2b4689"
+    },
+    {
+      "id": "magazine-quote-reading",
+      "platform": "xiaohongshu",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "杂志风 · 金句解读",
+          "summary": "用大字突出一句原文，再展开出处、含义和应用，让好句子有理解、有启发。",
+          "useWhen": "阅读笔记、访谈金句、演讲和文章精读。",
+          "instructions": "提供逐字原句、出处、相关背景和希望展开的应用方向。",
+          "output": "一组可编辑的小红书图文，默认 3 页。"
+        },
+        "en": {
+          "name": "Editorial Quote Reading",
+          "summary": "Lead with a sourced quote, develop its meaning, then demonstrate a small practical use.",
+          "useWhen": "Book notes, interviews, talks, and close reading.",
+          "instructions": "Provide the exact quote, source, context, and what you wish to apply.",
+          "output": "An editable Xiaohongshu carousel, typically three pages."
+        }
+      },
+      "match": {
+        "goals": [
+          "金句解读",
+          "读书笔记",
+          "引语",
+          "原文批注",
+          "close reading"
+        ],
+        "imageCues": [
+          "大字号引文",
+          "边注",
+          "editorial quotation"
+        ],
+        "exclusions": [
+          "无原句",
+          "新闻资讯",
+          "单纯推荐清单"
+        ]
+      },
+      "revision": "2611807b8c6ffde700feeb12e7ed584d6dfab4e760b29f140b509cddf9b90612"
+    },
+    {
+      "id": "minimal-case-outcome",
+      "platform": "xiaohongshu",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "极简风 · 案例成果",
+          "summary": "用案例图片建立认识，再结合关键数据，讲清做了什么、取得什么结果。",
+          "useWhen": "出租屋改造、项目总结和活动成果。",
+          "instructions": "提供单个案例的背景、原始照片、改动项、结果指标和适用条件。",
+          "output": "一组可编辑的小红书图文，默认 3 页。"
+        },
+        "en": {
+          "name": "Minimal Case Outcome",
+          "summary": "Show a case through comparable images, concrete changes, and a clearly defined outcome.",
+          "useWhen": "Small-space makeovers, project results, and event recaps.",
+          "instructions": "Add the real case photos, changes, measurable outcome, and constraints.",
+          "output": "An editable Xiaohongshu carousel, typically three pages."
+        }
+      },
+      "match": {
+        "goals": [
+          "案例成果",
+          "出租屋改造",
+          "玄关收纳",
+          "改造前后",
+          "case outcome"
+        ],
+        "imageCues": [
+          "固定机位前后图",
+          "成果数字",
+          "before and after"
+        ],
+        "exclusions": [
+          "月度盘点",
+          "成绩清单",
+          "没有案例图"
+        ]
+      },
+      "revision": "d7083ab34123682b003e11717aad2fa874ff89e5501c6a1443a69a30abc4babd"
+    },
+    {
+      "id": "minimal-concept-starter",
+      "platform": "xiaohongshu",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "极简风 · 概念入门",
+          "summary": "把相关概念整理成整齐的小格，用简短定义和例子帮助读者快速入门。",
+          "useWhen": "新手科普、行话解释与课程预习。",
+          "instructions": "给出同一场景下的 4–8 个概念，以及适合新手的例子。",
+          "output": "一组可编辑的小红书图文，默认 3 页。"
+        },
+        "en": {
+          "name": "Minimal Concept Starter",
+          "summary": "Learn a related set of terms through a consistent grid, short definitions, and familiar examples.",
+          "useWhen": "Beginner guides, jargon, and lesson previews.",
+          "instructions": "Provide four to eight related terms and examples for beginners.",
+          "output": "An editable Xiaohongshu carousel, typically three pages."
+        }
+      },
+      "match": {
+        "goals": [
+          "概念入门",
+          "手冲咖啡",
+          "菜单术语",
+          "新手科普",
+          "glossary"
+        ],
+        "imageCues": [
+          "六格词典",
+          "短释义",
+          "concept grid"
+        ],
+        "exclusions": [
+          "依赖分层",
+          "系统结构",
+          "单句解读",
+          "复杂的概念",
+          "复杂概念",
+          "develop an argument"
+        ]
+      },
+      "revision": "bfbd01e6fcfffe8b5f982257cdf2dd8f7d14b794b4cf291bc071813d428d322f"
+    },
+    {
+      "id": "minimal-data-ranking",
+      "platform": "xiaohongshu",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "极简风 · 数据排行",
+          "summary": "按同一标准排列数据，用长短条形展示差距，再解释值得关注的结果。",
+          "useWhen": "内容表现、使用频次和同类对象的量化比较。",
+          "instructions": "提供对象、可比数值、统计周期、单位和排序方式。",
+          "output": "一组可编辑的小红书图文，默认 3 页。"
+        },
+        "en": {
+          "name": "Minimal Data Ranking",
+          "summary": "Rank comparable values with proportional bars and explain the result.",
+          "useWhen": "Usage counts, audience results, and comparisons with a shared measure.",
+          "instructions": "Provide comparable values, measurement units, period, and sort direction.",
+          "output": "An editable Xiaohongshu carousel, typically three pages."
+        }
+      },
+      "match": {
+        "goals": [
+          "数据排行",
+          "通勤好物",
+          "使用频次",
+          "横向条形图",
+          "ranked data"
+        ],
+        "imageCues": [
+          "横条排序",
+          "差距对比",
+          "proportional bars"
+        ],
+        "exclusions": [
+          "无数据推荐",
+          "来自不同口径",
+          "固定 SKU 比价"
+        ]
+      },
+      "revision": "3c1b49312970492c13042726916309fb710ddadfcb4f09a11586ff46566742ed"
+    },
+    {
+      "id": "minimal-feedback-loop",
+      "platform": "xiaohongshu",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "极简风 · 方法改进",
+          "summary": "先看完整循环，再分步讲清怎么执行、检查和调整，让方法越用越顺。",
+          "useWhen": "学习方法、创作复盘、训练和习惯改进。",
+          "instructions": "提供目标、完整步骤、检验方法、反馈以及下一轮的调整条件。",
+          "output": "一组可编辑的小红书图文，默认 3 页。"
+        },
+        "en": {
+          "name": "Minimal Feedback Loop",
+          "summary": "Show what to do, how to check it, and how the results change the next attempt.",
+          "useWhen": "Learning methods, creative practice, and habit improvement.",
+          "instructions": "Provide the goal, steps, feedback signal, and what changes on the next pass.",
+          "output": "An editable Xiaohongshu carousel, typically three pages."
+        }
+      },
+      "match": {
+        "goals": [
+          "方法改进",
+          "复习方法",
+          "反馈闭环",
+          "下班学习",
+          "learning loop"
+        ],
+        "imageCues": [
+          "循环箭头",
+          "编号步骤",
+          "feedback arrows"
+        ],
+        "exclusions": [
+          "双人分工",
+          "工作交接",
+          "只做一次"
+        ]
+      },
+      "revision": "ddb310b9a2bb314b57e17788bcebcf31eade4eaa781cf22e6e14b22ff2a4c954"
+    },
+    {
+      "id": "minimal-period-recap",
+      "platform": "xiaohongshu",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "极简风 · 数据盘点",
+          "summary": "用醒目的数字和逐项说明，展示一段时间的投入、收获与变化。",
+          "useWhen": "月度总结、独居生活、习惯记录和项目里程碑。",
+          "instructions": "提供主题、记录周期、同口径的指标、单位和一条可保留的经验。",
+          "output": "一组可编辑的小红书图文，默认 3 页。"
+        },
+        "en": {
+          "name": "Minimal Period Recap",
+          "summary": "Review a period with one key figure, a clear breakdown, and what you will carry forward.",
+          "useWhen": "Monthly recaps, habit tracking, personal logs, and project milestones.",
+          "instructions": "Provide the period, comparable metrics, units, and what you learned.",
+          "output": "An editable Xiaohongshu carousel, typically three pages."
+        }
+      },
+      "match": {
+        "goals": [
+          "数据盘点",
+          "独居做饭",
+          "阅读盘点",
+          "月度总结",
+          "period recap"
+        ],
+        "imageCues": [
+          "大数字",
+          "数字分行",
+          "metric breakdown"
+        ],
+        "exclusions": [
+          "数据排行",
+          "按名次排序",
+          "门店改造"
+        ]
+      },
+      "revision": "fc8e49dcdcf721dd16177a104edf5652cd582a11877d5e486cfeed77c09f8d2c"
+    },
+    {
+      "id": "minimal-structure-breakdown",
+      "platform": "xiaohongshu",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "极简风 · 结构拆解",
+          "summary": "从核心到外围分层展开，讲清各部分的作用，以及它们如何组成整体。",
+          "useWhen": "知识体系、产品结构、垂类账号和工作分工。",
+          "instructions": "提供主体、三层名称、依赖关系和一个贯穿各层的例子。",
+          "output": "一组可编辑的小红书图文，默认 3 页。"
+        },
+        "en": {
+          "name": "Minimal Structure Breakdown",
+          "summary": "Explain a system from its core out, linking each layer to an example.",
+          "useWhen": "Product architecture, content planning, and related parts of a system.",
+          "instructions": "Provide the system, three related layers, and an example that connects them.",
+          "output": "An editable Xiaohongshu carousel, typically three pages."
+        }
+      },
+      "match": {
+        "goals": [
+          "结构拆解",
+          "账号定位",
+          "垂类选题",
+          "系统分层",
+          "system breakdown"
+        ],
+        "imageCues": [
+          "同心层次",
+          "由内到外",
+          "nested layers"
+        ],
+        "exclusions": [
+          "术语词典",
+          "六个定义",
+          "工作流水线"
+        ]
+      },
+      "revision": "d8029bd23a4319d314424174819c5251c95c8613761b8d2b8bb61b177668f72c"
+    }
+  ]
+}

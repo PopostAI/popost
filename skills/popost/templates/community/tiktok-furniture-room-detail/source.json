@@ -1,0 +1,30 @@
+{
+  "source": "https://www.tiktok.com/@amerlifeshop/photo/7675062068558449934",
+  "kind": "native-post-image",
+  "images": [
+    {
+      "file": "page-01-bd115d886176.jpg",
+      "width": 1086,
+      "height": 1448,
+      "sha256": "bd115d8861763aa26d5c43f060faa61f8e1dd505ac33cb683c644d01513518f6"
+    },
+    {
+      "file": "page-02-507db1035bd8.jpg",
+      "width": 1086,
+      "height": 1448,
+      "sha256": "507db1035bd84d89d403733ec8fec385640f34fa4e24b4b81f157d8bb0b02a3e"
+    },
+    {
+      "file": "page-03-60e156a7d1b3.jpg",
+      "width": 1086,
+      "height": 1448,
+      "sha256": "60e156a7d1b32f84952f9c0f1453ba72232a7e874cd2cd94b1ffb7ae66d4728f"
+    },
+    {
+      "file": "page-04-f3040ca4a458.jpg",
+      "width": 1086,
+      "height": 1448,
+      "sha256": "f3040ca4a45850fff04c793adb33e6beabea183aed493b021c19e00142a35ebe"
+    }
+  ]
+}

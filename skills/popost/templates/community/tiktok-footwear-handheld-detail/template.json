@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-footwear-handheld-detail",
+  "platform": "tiktok",
+  "categories": [
+    "shoes"
+  ],
+  "copy": {
+    "zh": {
+      "name": "鞋履手持与细节特写",
+      "summary": "用手持近景拍清鞋底、鞋面和走线。",
+      "useWhen": "适合靠鞋底、走线或材料细节体现卖点的鞋款。",
+      "instructions": "上传手持鞋照和鞋底鞋面特写，填写卖点。",
+      "output": "鞋履近景和工艺细节图。"
+    },
+    "en": {
+      "name": "Handheld Shoes and Detail Close-ups",
+      "summary": "Turn your product photos into a TikTok Shop carousel about handheld Shoes and Detail Close-ups.",
+      "useWhen": "For footwear with distinctive soles, stitching, or materials.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with handheld Shoes and Detail Close-ups."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-footwear-handheld-detail/page-01-070cc82319fb.webp",
+    "https://static.popost.ai/templates/tiktok-footwear-handheld-detail/page-02-8bbf69f5cf93.webp",
+    "https://static.popost.ai/templates/tiktok-footwear-handheld-detail/page-03-e292e9ed01f3.webp",
+    "https://static.popost.ai/templates/tiktok-footwear-handheld-detail/page-04-fd5a569b3be7.webp"
+  ],
+  "match": {
+    "goals": [
+      "鞋履手持与细节特写",
+      "鞋类手持细节展示",
+      "鞋靴",
+      "Handheld Shoes and Detail Close-ups",
+      "Shoes"
+    ],
+    "imageCues": [
+      "手持整鞋与穿搭定位",
+      "鞋面触感",
+      "侧面鞋底与搭配",
+      "鞋口和整体选择提示"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-footwear-handheld-detail/cover-eb186d3a25fa.webp",
+  "legacyId": "tiktok-tt-029"
+}

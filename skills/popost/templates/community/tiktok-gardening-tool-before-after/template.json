@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-gardening-tool-before-after",
+  "platform": "tiktok",
+  "categories": [
+    "tools-hardware"
+  ],
+  "copy": {
+    "zh": {
+      "name": "园艺工具作业前后对比",
+      "summary": "按作业前、使用中和完成后展示园艺工具。",
+      "useWhen": "适合有修剪、整理或清除前后变化的园艺用品。",
+      "instructions": "上传园艺现场前后照和工具实拍，填写卖点。",
+      "output": "园艺作业前后对比图。"
+    },
+    "en": {
+      "name": "Gardening Work Before and After",
+      "summary": "Turn your product photos into a TikTok Shop carousel about gardening Work Before and After.",
+      "useWhen": "For gardening tools with visible trimming or clearing results.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with gardening Work Before and After."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-gardening-tool-before-after/page-01-7d01545227eb.webp",
+    "https://static.popost.ai/templates/tiktok-gardening-tool-before-after/page-02-d719d10b6f73.webp",
+    "https://static.popost.ai/templates/tiktok-gardening-tool-before-after/page-03-1c834ac483ea.webp",
+    "https://static.popost.ai/templates/tiktok-gardening-tool-before-after/page-04-36e328bf34e1.webp",
+    "https://static.popost.ai/templates/tiktok-gardening-tool-before-after/page-05-f3c21e4cc767.webp",
+    "https://static.popost.ai/templates/tiktok-gardening-tool-before-after/page-06-cc6d424e5e47.webp",
+    "https://static.popost.ai/templates/tiktok-gardening-tool-before-after/page-07-f55a2b5f1d00.webp",
+    "https://static.popost.ai/templates/tiktok-gardening-tool-before-after/page-08-c3c512249ccb.webp",
+    "https://static.popost.ai/templates/tiktok-gardening-tool-before-after/page-09-81e33c7fa141.webp",
+    "https://static.popost.ai/templates/tiktok-gardening-tool-before-after/page-10-9db6f76bf724.webp",
+    "https://static.popost.ai/templates/tiktok-gardening-tool-before-after/page-11-7a42001783c4.webp",
+    "https://static.popost.ai/templates/tiktok-gardening-tool-before-after/page-12-46364295dde4.webp"
+  ],
+  "match": {
+    "goals": [
+      "园艺工具作业前后对比",
+      "园艺工具前后对比型",
+      "工具与五金",
+      "Gardening Work Before and After",
+      "Tools & Hardware"
+    ],
+    "imageCues": [
+      "工具和完整草坪",
+      "同位作业场景",
+      "局部处理证据",
+      "同区域前后对比",
+      "三种真实用途",
+      "机头与适用草况"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-gardening-tool-before-after/cover-a143bd1cdcfd.webp",
+  "legacyId": "tiktok-tt-069"
+}

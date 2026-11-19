@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-vacuum-cleaning-results",
+  "platform": "tiktok",
+  "categories": [
+    "household-appliances"
+  ],
+  "copy": {
+    "zh": {
+      "name": "清洁痛点与吸尘效果展示",
+      "summary": "用脏污和清洁后的照片展示吸尘过程。",
+      "useWhen": "适合吸尘器和能展示地面清洁效果的设备。",
+      "instructions": "上传脏污照、清洁过程和结果照，填写卖点。",
+      "output": "吸尘前后对比图。"
+    },
+    "en": {
+      "name": "Cleaning Problems and Vacuum Results",
+      "summary": "Turn your product photos into a TikTok Shop carousel about cleaning Problems and Vacuum Results.",
+      "useWhen": "For vacuums and devices with a visible floor-cleaning result.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with cleaning Problems and Vacuum Results."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-vacuum-cleaning-results/page-01-959a2a9b5029.webp",
+    "https://static.popost.ai/templates/tiktok-vacuum-cleaning-results/page-02-2046216c7dbc.webp",
+    "https://static.popost.ai/templates/tiktok-vacuum-cleaning-results/page-03-7c76fdb01a9b.webp",
+    "https://static.popost.ai/templates/tiktok-vacuum-cleaning-results/page-04-780aeb3d920c.webp",
+    "https://static.popost.ai/templates/tiktok-vacuum-cleaning-results/page-05-6d56ba37bf7b.webp"
+  ],
+  "match": {
+    "goals": [
+      "清洁痛点与吸尘效果展示",
+      "吸尘器痛点+吸力展示",
+      "家用电器",
+      "Cleaning Problems and Vacuum Results",
+      "Household Appliances"
+    ],
+    "imageCues": [
+      "集尘仓问题开头",
+      "地毯清洁纹路",
+      "整机与可见结果",
+      "功能及结果补充",
+      "使用情境收尾"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-vacuum-cleaning-results/cover-976c27b7c4d7.webp",
+  "legacyId": "tiktok-tt-031"
+}

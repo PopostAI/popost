@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-social-status-recommendation",
+  "platform": "tiktok",
+  "categories": [
+    "automotive-motorcycle",
+    "baby-maternity",
+    "beauty-personal-care",
+    "books-magazines-audio",
+    "collectibles",
+    "computers-office-equipment",
+    "fashion-accessories",
+    "food-beverages",
+    "furniture",
+    "health",
+    "home-improvement",
+    "home-supplies",
+    "household-appliances",
+    "jewelry-accessories",
+    "kids-fashion",
+    "kitchenware",
+    "luggage-bags",
+    "menswear-underwear",
+    "modest-fashion",
+    "pet-supplies",
+    "phones-electronics",
+    "shoes",
+    "sports-outdoor",
+    "textiles-soft-furnishings",
+    "tools-hardware",
+    "toys-hobbies",
+    "womenswear-underwear"
+  ],
+  "copy": {
+    "zh": {
+      "name": "社交动态好物推荐",
+      "summary": "从社交动态中的人群提醒，引出实物与可选款式。",
+      "useWhen": "适用于各品类的兴趣人群、使用需求或送礼提醒。",
+      "instructions": "上传清晰产品图并说明需求，按本模板组织钩子与商品回应。",
+      "output": "可编辑的同款模板风格多页图文。"
+    },
+    "en": {
+      "name": "Social Feed Product Recommendation",
+      "summary": "Create a TikTok photo carousel using social feed product recommendation.",
+      "useWhen": "Use a social feed product recommendation structure with supported product facts.",
+      "instructions": "Upload product photos and describe your request.",
+      "output": "An editable TikTok photo carousel."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-social-status-recommendation/page-01-f572458fd2ff.webp",
+    "https://static.popost.ai/templates/tiktok-social-status-recommendation/page-02-b97e0a4c9c6e.webp"
+  ],
+  "match": {
+    "goals": [
+      "社交动态",
+      "人群提醒",
+      "动态推荐",
+      "social feed post",
+      "community reminder"
+    ],
+    "imageCues": [
+      "头像与时间",
+      "动态大字",
+      "反应统计与操作栏",
+      "生活实物"
+    ],
+    "exclusions": [
+      "一对一短信",
+      "专业参数海报",
+      "private chat"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/51d1c9a272134fbe2b7d90cd36a2c2b43c8b80ba2ca628d6a9e40ce5d5a0a8b2.webp"
+}

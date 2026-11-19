@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-pet-product-features-reviews",
+  "platform": "tiktok",
+  "categories": [
+    "pet-supplies"
+  ],
+  "copy": {
+    "zh": {
+      "name": "宠物好物功能图解与口碑",
+      "summary": "把宠物用品功能与可核实的评价放在一起。",
+      "useWhen": "适合有真实使用反馈、需要展示功能的宠物用品。",
+      "instructions": "上传功能实拍和可引用的真实评价，填写卖点。",
+      "output": "宠物用品功能图和口碑卡。"
+    },
+    "en": {
+      "name": "Pet-product Features and Sourced Feedback",
+      "summary": "Turn your product photos into a TikTok Shop carousel about pet-product Features and Sourced Feedback.",
+      "useWhen": "For pet supplies with real user feedback and features to demonstrate.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with pet-product Features and Sourced Feedback."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-pet-product-features-reviews/page-01-c77bbc910def.webp",
+    "https://static.popost.ai/templates/tiktok-pet-product-features-reviews/page-02-418f2dd8b442.webp",
+    "https://static.popost.ai/templates/tiktok-pet-product-features-reviews/page-03-8e2c487b2aaa.webp"
+  ],
+  "match": {
+    "goals": [
+      "宠物好物功能图解与口碑",
+      "宠物用品功能解析口碑",
+      "宠物用品",
+      "Pet-product Features and Sourced Feedback",
+      "Pet Supplies"
+    ],
+    "imageCues": [
+      "原创选购话题或真实引述",
+      "结构与流向解释",
+      "真实评价或原创问答回扣"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-pet-product-features-reviews/cover-f0f143155ae0.webp",
+  "legacyId": "tiktok-tt-075"
+}

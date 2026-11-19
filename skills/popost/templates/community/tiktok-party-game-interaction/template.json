@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-party-game-interaction",
+  "platform": "tiktok",
+  "categories": [
+    "toys-hobbies"
+  ],
+  "copy": {
+    "zh": {
+      "name": "聚会游戏实拍与互动展示",
+      "summary": "用聚会实拍展示游戏怎么开始、怎么玩。",
+      "useWhen": "适合桌游、派对道具和需要多人演示玩法的商品。",
+      "instructions": "上传游戏道具、现场互动照和玩法，填写卖点。",
+      "output": "聚会游戏实拍和玩法图。"
+    },
+    "en": {
+      "name": "Party Games and Real Interaction",
+      "summary": "Turn your product photos into a TikTok Shop carousel about party Games and Real Interaction.",
+      "useWhen": "For party games and props best shown with several people.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with party Games and Real Interaction."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-party-game-interaction/page-01-22cf09d4790a.webp",
+    "https://static.popost.ai/templates/tiktok-party-game-interaction/page-02-c94ff69089f9.webp",
+    "https://static.popost.ai/templates/tiktok-party-game-interaction/page-03-7e66fa745478.webp"
+  ],
+  "match": {
+    "goals": [
+      "聚会游戏实拍与互动展示",
+      "聚会游戏实拍展示",
+      "玩具与爱好",
+      "Party Games and Real Interaction",
+      "Toys & Hobbies"
+    ],
+    "imageCues": [
+      "原创对话或规则问题",
+      "同桌玩法实拍",
+      "手持题卡与参与者反馈"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-party-game-interaction/cover-f575afa72dfd.webp",
+  "legacyId": "tiktok-tt-059"
+}

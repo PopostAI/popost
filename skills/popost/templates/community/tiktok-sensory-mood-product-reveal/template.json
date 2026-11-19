@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-sensory-mood-product-reveal",
+  "platform": "tiktok",
+  "categories": [
+    "beauty-personal-care",
+    "food-beverages",
+    "home-supplies",
+    "textiles-soft-furnishings",
+    "fashion-accessories"
+  ],
+  "copy": {
+    "zh": {
+      "name": "感官意象同款揭晓",
+      "summary": "先展示口味、香气或色彩意象，再用有真实关联的商品回应。",
+      "useWhen": "适用于有已证实口味、香型、颜色或材质线索的商品。",
+      "instructions": "上传清晰产品图并说明需求，按本模板组织钩子与商品回应。",
+      "output": "可编辑的同款模板风格多页图文。"
+    },
+    "en": {
+      "name": "Sensory Mood Product Reveal",
+      "summary": "Create a TikTok photo carousel using sensory mood product reveal.",
+      "useWhen": "Use a sensory mood product reveal structure with supported product facts.",
+      "instructions": "Upload product photos and describe your request.",
+      "output": "An editable TikTok photo carousel."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-sensory-mood-product-reveal/page-01-fb34a2c54e01.webp",
+    "https://static.popost.ai/templates/tiktok-sensory-mood-product-reveal/page-02-fc2b48a97347.webp"
+  ],
+  "match": {
+    "goals": [
+      "口味意象",
+      "香调揭晓",
+      "色彩呼应",
+      "sensory mood",
+      "flavor reveal"
+    ],
+    "imageCues": [
+      "食物近景",
+      "对应道具",
+      "同色包装",
+      "香型线索"
+    ],
+    "exclusions": [
+      "无真实感官关联",
+      "功能实测",
+      "unrelated flavor"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/883970b744670867c8c0efa96db0313f43d01f8621413632e0f634a845ba109b.webp"
+}

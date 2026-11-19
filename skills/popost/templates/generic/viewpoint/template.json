@@ -1,0 +1,34 @@
+{
+  "schema": "template-meta.v1",
+  "id": "viewpoint",
+  "title": "观点 · 主张证据与限定结论",
+  "tags": [
+    "观点",
+    "论证",
+    "立场",
+    "论据",
+    "利弊",
+    "viewpoint",
+    "opinion"
+  ],
+  "aliases": [
+    "观点",
+    "论证",
+    "立场",
+    "论据",
+    "利弊",
+    "viewpoint"
+  ],
+  "scenario_md": "scenario.md",
+  "html": "template.html",
+  "assets": [],
+  "mode": "original",
+  "version": "platform-module/1.0",
+  "license": "internal-original",
+  "origin": {
+    "module": "platform-module",
+    "originalMode": "adaptive",
+    "originalManifest": "source.manifest.json",
+    "note": "adaptive=结构固定、仅靠 CSS 令牌切换平台画幅；非杂志美学"
+  }
+}

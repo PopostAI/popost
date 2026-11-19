@@ -1,0 +1,18 @@
+{
+  "source": "https://www.tiktok.com/@veyla_gift/photo/7699494320675507469",
+  "kind": "native-post-image",
+  "images": [
+    {
+      "file": "page-01-d6a397553d53.jpg",
+      "width": 2160,
+      "height": 2880,
+      "sha256": "d6a397553d5328c9f2679408dc2934b0a0c152916e9e6d885648c530756a8367"
+    },
+    {
+      "file": "page-02-e68f91bc8d0c.jpg",
+      "width": 1152,
+      "height": 1536,
+      "sha256": "e68f91bc8d0c7c879c3020e0850f6538539826906c496c388b3cb4539c5830d2"
+    }
+  ]
+}

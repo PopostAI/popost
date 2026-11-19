@@ -1,0 +1,42 @@
+{
+  "source": "https://www.tiktok.com/@kismile.usa/photo/7675663813340843278",
+  "kind": "native-post-image",
+  "images": [
+    {
+      "file": "page-01-5d2223a72ccc.jpg",
+      "width": 3168,
+      "height": 4224,
+      "sha256": "5d2223a72ccca0d1519467ebaaecb1e8b3bd3f2bb614fc8983c1e6b217682678"
+    },
+    {
+      "file": "page-02-48f2925ced8b.jpg",
+      "width": 1584,
+      "height": 2112,
+      "sha256": "48f2925ced8b489335990cef6e843069f64a95b8a69958025fafa747fa769a97"
+    },
+    {
+      "file": "page-03-2167092d1400.jpg",
+      "width": 1584,
+      "height": 2112,
+      "sha256": "2167092d140037d39919fe389564d1cf5ff69f361eae50270c84a5361276ad80"
+    },
+    {
+      "file": "page-04-6e2cda6b3130.jpg",
+      "width": 3168,
+      "height": 4224,
+      "sha256": "6e2cda6b3130336b6c942ef6bd4e61654aeb312c68f2e6d57fbcd5c546c82811"
+    },
+    {
+      "file": "page-05-33522eec4437.jpg",
+      "width": 1584,
+      "height": 2112,
+      "sha256": "33522eec4437be8d9741323303e040b68d3823075bc28b8ea8766e6812921cf9"
+    },
+    {
+      "file": "page-06-ecb94f7dfcca.jpg",
+      "width": 1584,
+      "height": 2112,
+      "sha256": "ecb94f7dfcca90647f008bbdbd2016df2647578aeb17f22d7864b47b1b7080dd"
+    }
+  ]
+}

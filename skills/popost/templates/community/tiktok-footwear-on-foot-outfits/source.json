@@ -1,0 +1,30 @@
+{
+  "source": "https://www.tiktok.com/@angelacallisto123/photo/7667653933602589965",
+  "kind": "native-post-image",
+  "images": [
+    {
+      "file": "page-01-046e50cc4348.jpg",
+      "width": 1802,
+      "height": 3202,
+      "sha256": "046e50cc4348266d53827c093fb309bac8c20cbbcfce5ab6d5ab11542e51bd14"
+    },
+    {
+      "file": "page-02-25689c03c49e.jpg",
+      "width": 1812,
+      "height": 3218,
+      "sha256": "25689c03c49eb922dbc13ce335a1c6b90ce6c0bf4866025ad7535f93d9756cfb"
+    },
+    {
+      "file": "page-03-765163a4b6da.jpg",
+      "width": 1136,
+      "height": 2016,
+      "sha256": "765163a4b6da96ccaecb049e5dc775e2acc5e097fb44a7faa53bf817316e828d"
+    },
+    {
+      "file": "page-04-83b26a0f0d04.jpg",
+      "width": 1080,
+      "height": 1918,
+      "sha256": "83b26a0f0d04b908241a11f5db12bf843aa234f7ea8ceb69cc38dcc0becdfd1e"
+    }
+  ]
+}

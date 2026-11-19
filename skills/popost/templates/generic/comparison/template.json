@@ -1,0 +1,33 @@
+{
+  "schema": "template-meta.v1",
+  "id": "comparison",
+  "title": "比较 · 同口径并列与条件指向",
+  "tags": [
+    "对比",
+    "横评",
+    "区别",
+    "vs",
+    "comparison",
+    "二选一"
+  ],
+  "aliases": [
+    "对比",
+    "横评",
+    "区别",
+    "vs",
+    "comparison",
+    "二选一"
+  ],
+  "scenario_md": "scenario.md",
+  "html": "template.html",
+  "assets": [],
+  "mode": "original",
+  "version": "platform-module/1.0",
+  "license": "internal-original",
+  "origin": {
+    "module": "platform-module",
+    "originalMode": "adaptive",
+    "originalManifest": "source.manifest.json",
+    "note": "adaptive=结构固定、仅靠 CSS 令牌切换平台画幅；非杂志美学"
+  }
+}

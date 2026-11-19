@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-outdoor-gear-spec-guide",
+  "platform": "tiktok",
+  "categories": [
+    "sports-outdoor"
+  ],
+  "copy": {
+    "zh": {
+      "name": "户外装备参数与功能图解",
+      "summary": "把户外装备的参数和功能做成图解。",
+      "useWhen": "适合规格多、需要解释功能的露营或户外装备。",
+      "instructions": "上传装备图、官方规格和使用照片，填写卖点。",
+      "output": "户外装备参数卡和功能页。"
+    },
+    "en": {
+      "name": "Outdoor Equipment Specs and Features",
+      "summary": "Turn your product photos into a TikTok Shop carousel about outdoor Equipment Specs and Features.",
+      "useWhen": "For camping gear with several features or specifications to explain.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with outdoor Equipment Specs and Features."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-outdoor-gear-spec-guide/page-01-4569361ef233.webp",
+    "https://static.popost.ai/templates/tiktok-outdoor-gear-spec-guide/page-02-6d26b0fbaa5d.webp",
+    "https://static.popost.ai/templates/tiktok-outdoor-gear-spec-guide/page-03-781a83e6b165.webp",
+    "https://static.popost.ai/templates/tiktok-outdoor-gear-spec-guide/page-04-9d2de8e49b3c.webp",
+    "https://static.popost.ai/templates/tiktok-outdoor-gear-spec-guide/page-05-6f8a0ca927ba.webp",
+    "https://static.popost.ai/templates/tiktok-outdoor-gear-spec-guide/page-06-a3c3523e554b.webp",
+    "https://static.popost.ai/templates/tiktok-outdoor-gear-spec-guide/page-07-7556e79267b2.webp",
+    "https://static.popost.ai/templates/tiktok-outdoor-gear-spec-guide/page-08-081a004e710f.webp"
+  ],
+  "match": {
+    "goals": [
+      "户外装备参数与功能图解",
+      "出行工具参数图解型",
+      "运动与户外",
+      "Outdoor Equipment Specs and Features",
+      "Sports & Outdoor"
+    ],
+    "imageCues": [
+      "整车白底",
+      "动力部件",
+      "电池与续航资料",
+      "轮胎及路况",
+      "传动刹车坐垫",
+      "骑行模式场景"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-outdoor-gear-spec-guide/cover-68ff63c6f0e6.webp",
+  "legacyId": "tiktok-tt-018"
+}

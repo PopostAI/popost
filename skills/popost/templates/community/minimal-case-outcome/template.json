@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 2,
+  "id": "minimal-case-outcome",
+  "platform": "xiaohongshu",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "极简风 · 案例成果",
+      "summary": "用案例图片建立认识，再结合关键数据，讲清做了什么、取得什么结果。",
+      "useWhen": "出租屋改造、项目总结和活动成果。",
+      "instructions": "提供单个案例的背景、原始照片、改动项、结果指标和适用条件。",
+      "output": "一组可编辑的小红书图文，默认 3 页。"
+    },
+    "en": {
+      "name": "Minimal Case Outcome",
+      "summary": "Show a case through comparable images, concrete changes, and a clearly defined outcome.",
+      "useWhen": "Small-space makeovers, project results, and event recaps.",
+      "instructions": "Add the real case photos, changes, measurable outcome, and constraints.",
+      "output": "An editable Xiaohongshu carousel, typically three pages."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/minimal-case-outcome/page-01-50647d77f62f.webp",
+    "https://static.popost.ai/templates/minimal-case-outcome/page-02-308baf3c22c1.webp",
+    "https://static.popost.ai/templates/minimal-case-outcome/page-03-639102a6763b.webp"
+  ],
+  "match": {
+    "goals": [
+      "案例成果",
+      "出租屋改造",
+      "玄关收纳",
+      "改造前后",
+      "case outcome"
+    ],
+    "imageCues": [
+      "固定机位前后图",
+      "成果数字",
+      "before and after"
+    ],
+    "exclusions": [
+      "月度盘点",
+      "成绩清单",
+      "没有案例图"
+    ]
+  },
+  "animatedCover": true
+}

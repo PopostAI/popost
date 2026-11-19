@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 2,
+  "id": "tiktok-footwear-colorway-on-foot",
+  "platform": "tiktok",
+  "categories": [
+    "shoes"
+  ],
+  "copy": {
+    "zh": {
+      "name": "鞋履多色平铺与上脚对比",
+      "summary": "把各色鞋款的平铺图和上脚图成组对比。",
+      "useWhen": "适合同款多色球鞋、凉鞋和日常鞋。",
+      "instructions": "上传多色鞋款和对应上脚照，填写卖点。",
+      "output": "鞋款配色和上脚对比图。"
+    },
+    "en": {
+      "name": "Footwear Colorways and On-foot Comparison",
+      "summary": "Turn your product photos into a TikTok Shop carousel about footwear Colorways and On-foot Comparison.",
+      "useWhen": "For sneakers, sandals, and everyday shoes in multiple colorways.",
+      "instructions": "Upload product and reference photos, then add verified details.",
+      "output": "An editable TikTok Shop carousel with footwear Colorways and On-foot Comparison."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/tiktok-footwear-colorway-on-foot/page-01-dfed7ce46b56.webp",
+    "https://static.popost.ai/templates/tiktok-footwear-colorway-on-foot/page-02-19124616185d.webp",
+    "https://static.popost.ai/templates/tiktok-footwear-colorway-on-foot/page-03-d6032bbb628c.webp",
+    "https://static.popost.ai/templates/tiktok-footwear-colorway-on-foot/page-04-ef90699c74f3.webp",
+    "https://static.popost.ai/templates/tiktok-footwear-colorway-on-foot/page-05-496c8be20133.webp",
+    "https://static.popost.ai/templates/tiktok-footwear-colorway-on-foot/page-06-61739e2e6608.webp",
+    "https://static.popost.ai/templates/tiktok-footwear-colorway-on-foot/page-07-a2e7208d8175.webp"
+  ],
+  "match": {
+    "goals": [
+      "鞋履多色平铺与上脚对比",
+      "鞋履平铺搭配型",
+      "鞋靴",
+      "Footwear Colorways and On-foot Comparison",
+      "Shoes"
+    ],
+    "imageCues": [
+      "配色A平铺",
+      "配色A俯视上脚",
+      "配色A侧面上脚",
+      "配色B平铺",
+      "配色B完整鞋型",
+      "配色B上脚"
+    ],
+    "exclusions": [
+      "无关商品素材",
+      "unsupported product claims",
+      "没有产品事实依据"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/templates/tiktok-footwear-colorway-on-foot/cover-6e1f83242221.webp",
+  "legacyId": "tiktok-tt-028"
+}
