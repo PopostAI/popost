@@ -49,7 +49,7 @@ describe('pending ticket', () => {
 
   it('takes only a post link of the platform it names, short links and sub-domains included', async () => {
     const rt = await newRuntime();
-    for (const [url, platform] of [
+    const links: readonly (readonly [string, string])[] = [
       ['https://www.tiktok.com/@a/photo/1', 'tiktok'],
       ['https://vm.tiktok.com/ZM1/', 'tiktok'],
       ['http://xhslink.com/a/b', 'xiaohongshu'],
@@ -57,8 +57,8 @@ describe('pending ticket', () => {
       ['https://www.iesdouyin.com/share/note/1', 'douyin'],
       ['https://www.instagram.com/p/x/', 'instagram'],
       ['https://twitter.com/a/status/1', 'x'],
-    ])
-      expect(bundles.makePendingTicket(rt, url, platform).platform).toBe(platform);
+    ];
+    for (const [url, platform] of links) expect(bundles.makePendingTicket(rt, url, platform).platform).toBe(platform);
     expect(() => bundles.makePendingTicket(rt, 'https://www.tiktok.com/@a/video/1', 'douyin')).toThrow(
       'https://www.tiktok.com/@a/video/1 is a tiktok link, not douyin: pass --platform tiktok',
     );
