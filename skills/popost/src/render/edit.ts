@@ -8,6 +8,7 @@ import { ValueError } from '../core/errors';
 import type { EditFormat, EditPlan } from '../images/edit-plan';
 import type { Runtime } from '../runtime';
 import { callInPage, openOfflineContext, settlePage, withBrowser } from './offline';
+import { msg } from '../i18n';
 
 export interface EditSource {
   readonly mime: string;
@@ -91,7 +92,7 @@ const sourceHtml = (source: EditSource): string =>
 
 const decodeDataUrl = (url: string, format: EditFormat): Uint8Array => {
   const prefix = `data:image/${format};base64,`;
-  if (!url.startsWith(prefix)) throw new ValueError(`this browser cannot write ${format} pictures; use another --out extension`);
+  if (!url.startsWith(prefix)) throw new ValueError(msg(`this browser cannot write ${format} pictures; use another --out extension`, `此浏览器无法写出 ${format} 图片；请换一个 --out 扩展名`));
   return new Uint8Array(Buffer.from(url.slice(prefix.length), 'base64'));
 };
 
@@ -113,7 +114,7 @@ export const editPicture = (
       await page.setContent(sourceHtml(source), { waitUntil: 'load', timeout: 30_000 });
       await settlePage(page);
       const size = await callInPage<{ width: number; height: number }>(page, SIZE_SCRIPT);
-      if (!size.width || !size.height) throw new ValueError('the picture could not be decoded');
+      if (!size.width || !size.height) throw new ValueError(msg('the picture could not be decoded', '图片无法解码'));
       const planned = plan(size.width, size.height);
       const url = await callInPage<string>(page, DRAW_SCRIPT, { plan: planned, output });
       return { bytes: decodeDataUrl(url, output.format), plan: planned, source: size };

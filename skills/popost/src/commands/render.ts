@@ -5,6 +5,7 @@
 import type { CommandSpec, ParsedArgs } from '../args';
 import { Project } from '../core/project';
 import { errorText, fail, printJson } from '../core/util';
+import { msg } from '../i18n';
 import { present } from '../editor/handoff';
 import { serveProject } from '../editor/server';
 import { selectPages } from '../render/page-select';
@@ -18,9 +19,9 @@ import { runSubcommand, type Subcommand } from '../workflow/subcommands';
 type Spec = Omit<CommandSpec, 'prog'>;
 
 const DIR = { flag: '--dir', required: true } as const;
-const FORCE = { flag: '--force', kind: 'flag', help: 'rerender changed renderer output; review it again' } as const;
+const force = () => ({ flag: '--force', kind: 'flag', help: msg('rerender changed renderer output; review it again', '重新渲染渲染器输出有变化的页面；之后要重新评审') }) as const;
 
-/** Python's `ValueError`, whose name is part of the error text agents see. */
+/** Python's `ValueError`: hosts tell input errors apart by this name. */
 class ValueError extends Error {
   override name = 'ValueError';
 }
@@ -28,7 +29,7 @@ class ValueError extends Error {
 /** `--final`: refuse to export while the delivery checks are not all met. */
 const requireReadyToDeliver = async (project: Project): Promise<void> => {
   if (!(await buildProject(project)).readyToDeliver)
-    throw new ValueError('final delivery checks pending; inspect build-report.json');
+    throw new ValueError(msg('final delivery checks pending; inspect build-report.json', '最终交付检查尚未全部通过；请查看 build-report.json'));
 };
 
 /**
@@ -45,7 +46,7 @@ const exportPages = async (project: Project, args: ParsedArgs, rt: Runtime): Pro
     const { zip, rendered, unchanged } = await exportAllReport(project, target, force);
     return { ok: true, exported: out ?? zip, rendered, unchanged };
   }
-  if (pids.length > 1 && out) throw new ValueError('--out goes with one page or all, not with a list of pages');
+  if (pids.length > 1 && out) throw new ValueError(msg('--out goes with one page or all, not with a list of pages', '--out 只能配合单页或 all 使用，不能配合页面列表'));
   const pid = pids[0]!;
   const { paths, rendered, unchanged } = await renderPages(project, pids, target ? { [pid]: target } : {}, force);
   return pids.length === 1 ? { ok: true, png: out ?? paths[pid], rendered, unchanged } : { ok: true, pngs: paths, rendered, unchanged };
@@ -86,48 +87,72 @@ const rendering = (spec: Spec, prepare = false): Subcommand => ({
   },
 });
 
-const render = rendering(
-  {
-    description:
-      'render the pages to PNG in one browser session: exports/<page>.png for one page, exports/all.zip for all; --page takes all, one id or a list (p1,p3). Only changed pages are rendered ("rendered"; the others are "unchanged"). First restores font links a rewritten page lost and reports page problems ("problems", see popost page check)',
-    options: [{ flag: '--page', default: 'all', help: 'all, a page id or a comma-separated list such as p1,p3' }, FORCE],
-  },
-  true,
-);
+const render = () =>
+  rendering(
+    {
+      description: msg(
+        'render the pages to PNG in one browser session: exports/<page>.png for one page, exports/all.zip for all; --page takes all, one id or a list (p1,p3). Only changed pages are rendered ("rendered"; the others are "unchanged"). First restores font links a rewritten page lost and reports page problems ("problems", see popost page check)',
+        '在一个浏览器会话里把页面渲染成 PNG：单页输出 exports/<page>.png，全部输出 exports/all.zip；--page 取 all、一个 id 或列表（p1,p3）。只渲染有变化的页面（"rendered"；其余为 "unchanged"）。渲染前先补回被改写页面丢失的字体链接，并报告页面问题（"problems"，见 popost page check）',
+      ),
+      options: [{ flag: '--page', default: 'all', help: msg('all, a page id or a comma-separated list such as p1,p3', 'all、一个页 id，或逗号分隔的列表如 p1,p3') }, force()],
+    },
+    true,
+  );
 
-const exportCommand = rendering({
-  description: 'export one page as PNG or all pages as a ZIP',
-  options: [
-    { flag: '--page', required: true, help: '页 id、逗号分隔的列表（p1,p3）或 all' },
-    { flag: '--out' },
-    { flag: '--final', kind: 'flag', help: 'require current visual and series review' },
-    FORCE,
-  ],
-});
+const exportCommand = () =>
+  rendering({
+    description: msg('export one page as PNG or all pages as a ZIP', '把单页导出为 PNG，或把全部页面导出为 ZIP'),
+    options: [
+      { flag: '--page', required: true, help: msg('a page id, a comma-separated list (p1,p3) or all', '页 id、逗号分隔的列表（p1,p3）或 all') },
+      { flag: '--out' },
+      { flag: '--final', kind: 'flag', help: msg('require current visual and series review', '要求当前版本已通过单页和整组评审') },
+      force(),
+    ],
+  });
 
-const CLOUD = { flag: '--cloud', default: 'auto', choices: ['auto', 'off'], help: 'auto: open the cloud workbench with a key, or open the local editor with Save to Cloud; off: local only' } as const;
-const SERVE_CLOUD = { ...CLOUD, choices: ['auto', 'login', 'off'], help: 'auto: sync with a key or browser login; login: browser login only; off: no cloud save' } as const;
+const cloudOption = () =>
+  ({
+    flag: '--cloud',
+    default: 'auto',
+    choices: ['auto', 'off'],
+    help: msg(
+      'auto: open the cloud workbench with a key, or open the local editor with Save to Cloud; off: local only',
+      'auto：有 Key 时打开云端工作台，否则打开带“保存到云端”的本地编辑器；off：只用本地',
+    ),
+  }) as const;
+const serveCloudOption = () =>
+  ({
+    ...cloudOption(),
+    choices: ['auto', 'login', 'off'],
+    help: msg(
+      'auto: sync with a key or browser login; login: browser login only; off: no cloud save',
+      'auto：用 Key 或浏览器登录同步；login：只用浏览器登录；off：不保存到云端',
+    ),
+  }) as const;
 
-const serve: Subcommand = {
+const serve = (): Subcommand => ({
   spec: {
-    description: 'run the local editor service on loopback',
-    options: [DIR, { flag: '--port', kind: 'int', default: 8765 }, SERVE_CLOUD],
+    description: msg('run the local editor service on loopback', '在本机回环地址上运行本地编辑器服务'),
+    options: [DIR, { flag: '--port', kind: 'int', default: 8765 }, serveCloudOption()],
   },
   run: async (args, rt) =>
     serveProject(rt, await Project.load(rt, args.req('dir')), args.number('port') ?? 8765, {
       enabled: args.req('cloud') !== 'off',
       loginOnly: args.req('cloud') === 'login',
     }),
-};
+});
 
-const presentCommand: Subcommand = {
+const presentCommand = (): Subcommand => ({
   spec: {
-    description: "open the project in an editor: the host's own, Popost's cloud workbench, or the local editor",
+    description: msg(
+      "open the project in an editor: the host's own, Popost's cloud workbench, or the local editor",
+      '在编辑器里打开工程：宿主自带的编辑器、Popost 云端工作台，或本地编辑器',
+    ),
     options: [
       DIR,
-      { flag: '--host', default: 'auto', help: 'codex, claude-code, workbuddy, doubao, generic, web or auto' },
-      { flag: '--port', kind: 'int', default: 0, help: '0 finds a free loopback port' },
-      CLOUD,
+      { flag: '--host', default: 'auto', help: msg('codex, claude-code, workbuddy, doubao, generic, web or auto', 'codex、claude-code、workbuddy、doubao、generic、web 或 auto') },
+      { flag: '--port', kind: 'int', default: 0, help: msg('0 finds a free loopback port', '0 表示自动找一个空闲的本机端口') },
+      cloudOption(),
     ],
   },
   run: async (args, rt) => {
@@ -137,11 +162,11 @@ const presentCommand: Subcommand = {
       printJson(rt, result, true);
       return result.ok === false ? 2 : 0;
     } catch (error) {
-      return fail(rt, error instanceof Error ? error.message : String(error));
+      return fail(rt, errorText(error));
     }
   },
-};
+});
 
-const COMMANDS: Record<string, Subcommand> = { render, export: exportCommand, serve, present: presentCommand };
+const commands = (): Record<string, Subcommand> => ({ render: render(), export: exportCommand(), serve: serve(), present: presentCommand() });
 
-export const main: CommandMain = (argv, rt) => runSubcommand('popost', COMMANDS, argv, rt);
+export const main: CommandMain = (argv, rt) => runSubcommand('popost', commands(), argv, rt);

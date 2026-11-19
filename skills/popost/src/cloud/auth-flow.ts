@@ -5,6 +5,7 @@
  * an integer port: nothing in a URL or a request chooses the host or path.
  */
 import { createHash, randomBytes as nodeRandomBytes, timingSafeEqual } from 'node:crypto';
+import { msg } from '../i18n';
 import { CloudError } from './errors';
 
 export const AUTH_VERSION = 1;
@@ -51,7 +52,7 @@ export interface AuthorizeInput {
 
 export const buildAuthorizeUrl = (input: AuthorizeInput): string => {
   if (!Number.isInteger(input.port) || input.port < MIN_PORT || input.port > MAX_PORT)
-    throw new CloudError('BAD_PORT', `the editor service port ${input.port} cannot be used for the cloud login`);
+    throw new CloudError('BAD_PORT', msg(`the editor service port ${input.port} cannot be used for the cloud login`, `编辑器服务端口 ${input.port} 不能用于云端登录`));
   const query = new URLSearchParams({
     v: String(AUTH_VERSION),
     port: String(input.port),

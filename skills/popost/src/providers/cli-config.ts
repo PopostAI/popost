@@ -4,7 +4,9 @@
  */
 import { createHash } from 'node:crypto';
 import type { Runtime } from '../runtime';
+import { errorText } from '../core/error-text';
 import { isFile } from '../core/util';
+import { msg } from '../i18n';
 import { BASE_URL_ENV, DEFAULT_BASE_URL, DEFAULT_KEY_ENV } from './api';
 import { isRecord, type BaseImageProvider, type JsonRecord, type Ref } from './base';
 import { canonicalJson, pyStr } from './canonical';
@@ -43,7 +45,7 @@ export const loadConfig = async (rt: Runtime, path?: string): Promise<JsonRecord
     const data: unknown = JSON.parse(await rt.fs.readText(abs));
     return isRecord(data) ? data : {};
   } catch (error) {
-    throw new CliReject(2, `配置文件 ${file} 读取失败: ${(error as Error).message}`);
+    throw new CliReject(2, msg(`the config file ${file} cannot be read: ${errorText(error)}`, `配置文件 ${file} 读取失败: ${errorText(error)}`));
   }
 };
 
@@ -138,21 +140,25 @@ const repr = (value: unknown): string => (typeof value === 'string' ? `'${value}
 
 /** A unit price as a decimal: refuses booleans, missing, NaN/Inf, negative; zero only when explicitly declared free. */
 export const parseCredits = (value: unknown, allowFree = false): Decimal => {
-  if (typeof value === 'boolean') throw new CliReject(1, '价格为布尔值，非法（拒绝）');
-  if (value === null || value === undefined) throw new CliReject(1, '价格未知，拒绝报价/提交');
+  if (typeof value === 'boolean') throw new CliReject(1, msg('the price is a boolean, which is invalid; refused', '价格为布尔值，非法（拒绝）'));
+  if (value === null || value === undefined) throw new CliReject(1, msg('the price is unknown; no quote or submit', '价格未知，拒绝报价/提交'));
   const text = typeof value === 'string' || typeof value === 'number' ? String(value) : '';
-  if (Decimal.isNonFinite(text)) throw new CliReject(1, '价格非有限值（NaN/Inf），拒绝');
+  if (Decimal.isNonFinite(text)) throw new CliReject(1, msg('the price is not finite (NaN/Inf); refused', '价格非有限值（NaN/Inf），拒绝'));
   const d = decimalOf(value);
-  if (!d) throw new CliReject(1, `价格非数值: ${repr(value)}，拒绝`);
-  if (d.isNegative()) throw new CliReject(1, `负价格 ${d}，拒绝`);
-  if (d.isZero() && !allowFree) throw new CliReject(1, '零价格未显式声明免费，按未知价拒绝（禁止 0 元扣费放行）');
+  if (!d) throw new CliReject(1, msg(`the price is not a number: ${repr(value)}; refused`, `价格非数值: ${repr(value)}，拒绝`));
+  if (d.isNegative()) throw new CliReject(1, msg(`negative price ${d}; refused`, `负价格 ${d}，拒绝`));
+  if (d.isZero() && !allowFree)
+    throw new CliReject(
+      1,
+      msg('a zero price that is not declared free counts as unknown; refused (nothing is ever charged at 0)', '零价格未显式声明免费，按未知价拒绝（禁止 0 元扣费放行）'),
+    );
   return d;
 };
 
 /** Platform channel: `min(200, maxCreditsPerRequest)`; BYOK: `maxAmountPerRequest` (may be none). */
 export const creditCap = (cfg: JsonRecord, name: string, pcfg: JsonRecord): Decimal | null => {
   const cap = decimalOf('maxCreditsPerRequest' in cfg ? cfg.maxCreditsPerRequest : 200);
-  if (!cap || cap.isNegative()) throw new CliReject(1, '配置 maxCreditsPerRequest 非法');
+  if (!cap || cap.isNegative()) throw new CliReject(1, msg('the configured maxCreditsPerRequest is invalid', '配置 maxCreditsPerRequest 非法'));
   if (name === OFFICIAL_PROVIDER) return cap.compare(MAX_CREDITS_PER_REQUEST) < 0 ? cap : MAX_CREDITS_PER_REQUEST;
   if (pcfg.maxAmountPerRequest !== undefined && pcfg.maxAmountPerRequest !== null) return decimalOf(pcfg.maxAmountPerRequest);
   return null;

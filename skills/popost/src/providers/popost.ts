@@ -13,6 +13,8 @@
  * confirmed total `maxCredits`), saves the images into a local task record and returns `completed`.
  */
 import { createHash } from 'node:crypto';
+import { errorText } from '../core/error-text';
+import { msg } from '../i18n';
 import type { Runtime } from '../runtime';
 import { stamp } from './time';
 import { DEFAULT_KEY_ENV, PopostClient, sniffImageMime } from './api';
@@ -70,7 +72,13 @@ export class PopostProvider extends BaseImageProvider {
     super(rt, init);
     const auth = isRecord(this.config.auth) ? this.config.auth : {};
     for (const field of SECRET_FIELDS)
-      if (field in this.config || field in auth) throw new ImageProviderError(`popost 配置里不得写密钥（发现字段 ${field}）：删除该字段，改用 popost auth set 保存密钥（或设置环境变量 ${DEFAULT_KEY_ENV}）`);
+      if (field in this.config || field in auth)
+        throw new ImageProviderError(
+          msg(
+            `the popost config must not hold a key (found the field ${field}): delete the field and save the key with popost auth set (or set the environment variable ${DEFAULT_KEY_ENV})`,
+            `popost 配置里不得写密钥（发现字段 ${field}）：删除该字段，改用 popost auth set 保存密钥（或设置环境变量 ${DEFAULT_KEY_ENV}）`,
+          ),
+        );
     this.taskDir = (this.config.taskDir as string | undefined) || null;
     this.store = new TaskStore(rt, () => this.taskDir || defaultTaskDir(rt));
     this.mockState = new PopostMock(rt, this.mockDir, staticMockDir(rt), this.config.mockModelsPath);
@@ -93,7 +101,7 @@ export class PopostProvider extends BaseImageProvider {
   async models(): Promise<ModelRow[]> {
     if (!this.rows) {
       const raw = this.mock ? (await this.mockState.catalog()).models : await this.fetchModels();
-      if (!Array.isArray(raw)) throw new PopostApiError('模型清单格式不符（缺 models 数组）', { code: 'BAD_RESPONSE' });
+      if (!Array.isArray(raw)) throw new PopostApiError(msg('the model list has an unexpected format (no models array)', '模型清单格式不符（缺 models 数组）'), { code: 'BAD_RESPONSE' });
       this.rows = raw.filter((m) => isRecord(m) && m.id && (m.kind ?? 'image') === 'image').map((m) => toRow(m as JsonRecord));
     }
     return this.rows.map((r) => ({ ...r }));
@@ -124,7 +132,12 @@ export class PopostProvider extends BaseImageProvider {
     if (fallback === null && !offline) fallback = await this.platformDefault();
     if (!model) return fallback;
     if (fallback === null || model === fallback || this.overridden(model)) return model;
-    throw new ImageProviderError(`默认模型锁定为 ${fallback}：换成 ${model} 需要用户在私有配置 providerOverrides 中显式加入 {"provider": "popost", "model": "${model}"}`);
+    throw new ImageProviderError(
+      msg(
+        `the default model is locked to ${fallback}: using ${model} instead needs the user to add {"provider": "popost", "model": "${model}"} to providerOverrides in the private config`,
+        `默认模型锁定为 ${fallback}：换成 ${model} 需要用户在私有配置 providerOverrides 中显式加入 {"provider": "popost", "model": "${model}"}`,
+      ),
+    );
   }
 
   override resolveQuotedModel(model: string | null | undefined): Promise<string | null> {
@@ -147,7 +160,10 @@ export class PopostProvider extends BaseImageProvider {
     let row: ModelRow | null = null;
     if (model) {
       row = await this.rowFor(model);
-      if (!row) throw new ImageProviderError(`模型 ${model} 不在 popost.ai 实时清单（popost provider cli models 查看）`);
+      if (!row)
+        throw new ImageProviderError(
+          msg(`the model ${model} is not in the live popost.ai list (see popost provider cli models)`, `模型 ${model} 不在 popost.ai 实时清单（popost provider cli models 查看）`),
+        );
     }
     await validateRequest(this.rt, row, aspect, count, refs);
     const data = this.mock ? await this.mockQuote(model, count) : await this.client.request('POST', '/images/quote', { body });
@@ -155,10 +171,11 @@ export class PopostProvider extends BaseImageProvider {
   }
 
   private async quoteFrom(data: unknown, model: string | null, row: ModelRow | null, aspect: string, count: number, refs: Ref[]): Promise<PopostQuote> {
-    if (!isRecord(data) || !isNumber(data.creditsPerImage) || !isNumber(data.totalCredits)) throw new PopostApiError('报价响应缺少 creditsPerImage/totalCredits', { code: 'BAD_RESPONSE' });
+    if (!isRecord(data) || !isNumber(data.creditsPerImage) || !isNumber(data.totalCredits)) throw new PopostApiError(msg('the quote answer lacks creditsPerImage/totalCredits', '报价响应缺少 creditsPerImage/totalCredits'), { code: 'BAD_RESPONSE' });
     const quoted = (data.model as string | undefined) || model;
-    if (!quoted) throw new PopostApiError('报价响应未给出模型', { code: 'BAD_RESPONSE' });
-    if (model && quoted !== model) throw new ImageProviderError(`平台报价模型 ${quoted} 与请求模型 ${model} 不一致，拒绝`);
+    if (!quoted) throw new PopostApiError(msg('the quote answer names no model', '报价响应未给出模型'), { code: 'BAD_RESPONSE' });
+    if (model && quoted !== model)
+      throw new ImageProviderError(msg(`the platform priced model ${quoted}, not the requested ${model}; refused`, `平台报价模型 ${quoted} 与请求模型 ${model} 不一致，拒绝`));
     let chosen = row;
     if (!model) {
       chosen = await this.rowFor(quoted);
@@ -187,13 +204,15 @@ export class PopostProvider extends BaseImageProvider {
   // ---------- submit (synchronous generation) ----------
   override async submit(prompt: string, request: SubmitRequest = {}): Promise<JsonRecord> {
     const { aspect = '1:1', options = {} } = request;
-    if (!prompt || !prompt.trim()) throw new ImageProviderError('prompt 为空');
-    if ([...prompt].length > MAX_PROMPT_CHARS) throw new CapabilityError(`prompt 超过 ${MAX_PROMPT_CHARS} 字符上限`);
+    if (!prompt || !prompt.trim()) throw new ImageProviderError(msg('the prompt is empty', 'prompt 为空'));
+    if ([...prompt].length > MAX_PROMPT_CHARS)
+      throw new CapabilityError(msg(`the prompt is longer than the ${MAX_PROMPT_CHARS}-character limit`, `prompt 超过 ${MAX_PROMPT_CHARS} 字符上限`));
     const model = await this.resolveModel(request.model, true);
     const refs = normalizeRefs(request.refs);
     const count = Math.trunc(Number(request.count || 1));
     const idem = options.idempotencyKey || `skill-${this.rt.randomUUID().replace(/-/g, '')}`;
-    if (!IDEMPOTENCY_RE.test(idem)) throw new ImageProviderError('idempotencyKey 须为 8–128 位字母、数字或 . _ -');
+    if (!IDEMPOTENCY_RE.test(idem))
+      throw new ImageProviderError(msg('idempotencyKey must be 8–128 letters, digits or . _ -', 'idempotencyKey 须为 8–128 位字母、数字或 . _ -'));
     const body: JsonRecord = { prompt, n: count, aspectRatio: aspect, idempotencyKey: idem };
     if (model) body.model = model;
     if (options.maxCredits !== null && options.maxCredits !== undefined) body.maxCredits = jsonNumber(options.maxCredits);
@@ -220,13 +239,16 @@ export class PopostProvider extends BaseImageProvider {
     let row: ModelRow | null = null;
     if (model) {
       row = await this.rowFor(model);
-      if (!row) throw new ImageProviderError(`模型 ${model} 已不在 popost.ai 实时清单，未提交`);
+      if (!row) throw new ImageProviderError(msg(`the model ${model} is no longer in the live popost.ai list; nothing was submitted`, `模型 ${model} 已不在 popost.ai 实时清单，未提交`));
     }
     await validateRequest(this.rt, row, aspect, count, refs);
     if (refs.length) body.referenceImages = await this.encodeRefs(refs);
     const taskId = `pt-${stamp(this.rt.now())}-${hex(this.rt, 10)}`;
     const root = await this.store.prepare(taskId); // a result that cannot be saved is found out before paying
-    const hint = `禁止自动重试；请先在 popost.ai 账户核对生成记录。如需重试：重新 quote 后 image run（沿用原键）或 provider cli generate 加 --idempotency-key ${idem}，平台不会对同一生成重复扣费`;
+    const hint = msg(
+      `Do not retry automatically; first check the generation history in the popost.ai account. To retry: quote again, then image run (it keeps the same key) or provider cli generate with --idempotency-key ${idem}; the platform never charges twice for the same generation`,
+      `禁止自动重试；请先在 popost.ai 账户核对生成记录。如需重试：重新 quote 后 image run（沿用原键）或 provider cli generate 加 --idempotency-key ${idem}，平台不会对同一生成重复扣费`,
+    );
     let data: unknown;
     try {
       data = await this.client.request('POST', '/images/generations', { body, timeoutSec: Number(this.config.generationTimeoutSec || GENERATION_TIMEOUT_SEC), ambiguous: true, hint });
@@ -256,8 +278,10 @@ export class PopostProvider extends BaseImageProvider {
       return await this.store.store(taskId, root, data, model, aspect, count, idem);
     } catch (error) {
       if (error instanceof AmbiguousSubmitError) throw error;
-      const kind = (error as { code?: string })?.code ?? (error as Error)?.name ?? 'Error';
-      throw new AmbiguousSubmitError(`生成请求已成功但结果无法保存（${kind}），可能已扣费。${hint}`);
+      const reason = errorText(error);
+      throw new AmbiguousSubmitError(
+        msg(`The generation request succeeded but its result could not be saved (${reason}); it may have been charged. ${hint}`, `生成请求已成功但结果无法保存（${reason}），可能已扣费。${hint}`),
+      );
     }
   }
 
@@ -278,7 +302,9 @@ export class PopostProvider extends BaseImageProvider {
       }
       const raw = await this.rt.fs.readFile(ref.value);
       if (ref.sha256 && createHash('sha256').update(raw).digest('hex') !== ref.sha256)
-        throw new ImageProviderError(`参考图 ${this.rt.path.basename(ref.value)} 在报价后被修改，未提交`);
+        throw new ImageProviderError(
+          msg(`the reference image ${this.rt.path.basename(ref.value)} changed after the quote; nothing was submitted`, `参考图 ${this.rt.path.basename(ref.value)} 在报价后被修改，未提交`),
+        );
       out.push({ data: Buffer.from(raw).toString('base64'), mimeType: sniffImageMime(raw.subarray(0, 16)) });
     }
     return out;
@@ -299,7 +325,15 @@ export class PopostProvider extends BaseImageProvider {
   // ---------- preflight ----------
   async check(): Promise<CheckResult> {
     if (this.mock) return this.checkMock();
-    if (!this.client.hasKey()) return [false, false, `未配置 API Key：请运行 popost auth login 连接账户；管理连接：${this.client.keyPage()}（环境变量 ${this.client.keyEnv} 同样有效）；未联网`];
+    if (!this.client.hasKey())
+      return [
+        false,
+        false,
+        msg(
+          `no API key is configured: run popost auth login to connect the account; manage connections at ${this.client.keyPage()} (the environment variable ${this.client.keyEnv} works too); nothing was sent`,
+          `未配置 API Key：请运行 popost auth login 连接账户；管理连接：${this.client.keyPage()}（环境变量 ${this.client.keyEnv} 同样有效）；未联网`,
+        ),
+      ];
     let rows: ModelRow[];
     try {
       rows = await this.models();
@@ -307,11 +341,19 @@ export class PopostProvider extends BaseImageProvider {
       if (error instanceof ImageProviderError) return [false, true, error.message];
       throw error;
     }
-    if (!rows.length) return [false, true, 'popost.ai 未返回可用图像模型'];
+    if (!rows.length) return [false, true, msg('popost.ai returned no usable image model', 'popost.ai 未返回可用图像模型')];
     const pinned = this.pinnedModel();
-    if (pinned && !rows.some((r) => r.value === pinned)) return [false, true, `私有配置 defaultModel=${pinned} 不在 popost.ai 实时清单`];
+    if (pinned && !rows.some((r) => r.value === pinned))
+      return [false, true, msg(`the private config's defaultModel=${pinned} is not in the live popost.ai list`, `私有配置 defaultModel=${pinned} 不在 popost.ai 实时清单`)];
     const fallback = pinned || (await this.platformDefault());
-    return [true, true, `popost.ai 可用：${rows.length} 个图像模型，默认 ${fallback || '由平台决定'}（价格以实时报价为准）`];
+    return [
+      true,
+      true,
+      msg(
+        `popost.ai is available: ${rows.length} image model(s), default ${fallback || 'chosen by the platform'} (prices are those of the live quote)`,
+        `popost.ai 可用：${rows.length} 个图像模型，默认 ${fallback || '由平台决定'}（价格以实时报价为准）`,
+      ),
+    ];
   }
 
   private async checkMock(): Promise<CheckResult> {
@@ -319,9 +361,11 @@ export class PopostProvider extends BaseImageProvider {
     try {
       rows = await this.models();
     } catch (error) {
-      return [false, false, `popost mock 夹具缺失: ${(error as Error).message}`];
+      return [false, false, msg(`the popost mock fixture is missing: ${errorText(error)}`, `popost mock 夹具缺失: ${errorText(error)}`)];
     }
-    return rows.length ? [true, false, 'popost mock 本地模拟（未联网、未实测、不代表真实连通）'] : [false, false, 'popost mock 清单为空'];
+    return rows.length
+      ? [true, false, msg('popost mock: a local simulation (offline, not tested, says nothing about the real connection)', 'popost mock 本地模拟（未联网、未实测、不代表真实连通）')]
+      : [false, false, msg('the popost mock list is empty', 'popost mock 清单为空')];
   }
 }
 

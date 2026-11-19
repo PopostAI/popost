@@ -87,7 +87,7 @@ describe('provider cli --mock', () => {
     const q = (await pcli('quote', ...MOCK_FLAGS, '--prompt-file', PROMPT, '--aspect-ratio', '9:16')).data;
     const bad = await pcli('generate', '--quote-id', q.quote.quoteId, '--confirm', ...MOCK_FLAGS, '--prompt-file', '/work/other.txt', '--out-dir', '/work/out');
     expect(bad.code).toBe(1);
-    expect(bad.data.error).toContain('不一致');
+    expect(bad.data.error).toContain('differs from the quote');
     const good = await pcli('generate', '--quote-id', q.quote.quoteId, '--confirm', ...MOCK_FLAGS, '--out-dir', '/work/out');
     expect(good.code, JSON.stringify(good.data)).toBe(0);
   });
@@ -96,7 +96,7 @@ describe('provider cli --mock', () => {
     const { pcli, rt } = await mockScene();
     let r = await pcli('quote', ...MOCK_FLAGS, '--prompt-file', PROMPT, '--model', 'mock-image-model-alt', '--aspect-ratio', '1:1');
     expect(r.code).toBe(1);
-    expect(r.data.error).toContain('锁定');
+    expect(r.data.error).toContain('locked');
     await rt.fs.writeFile('/work/private.json', JSON.stringify({ popost: { providerOverrides: [{ provider: 'popost', model: 'mock-image-model-alt' }] } }));
     r = await pcli('--config', '/work/private.json', 'quote', ...MOCK_FLAGS, '--prompt-file', PROMPT, '--model', 'mock-image-model-alt', '--aspect-ratio', '1:1');
     expect(r.code, JSON.stringify(r.data)).toBe(0);
@@ -147,7 +147,7 @@ describe('manual and host channels', () => {
     let r = await pcli('--provider', 'manual', 'quote', '--prompt', 'x');
     expect(r.code).toBe(1);
     r = await pcli('--provider', 'nope', 'models');
-    expect([r.code, r.data.error]).toEqual([2, expect.stringContaining('未知 provider')]);
+    expect([r.code, r.data.error]).toEqual([2, expect.stringContaining('unknown provider')]);
   });
 
   it('lists the live models as protocol rows', async () => {
@@ -165,7 +165,7 @@ describe('usage errors', () => {
     expect((await cli(rt, 'provider', 'cli', 'nope')).code).toBe(2);
     const bad = await cli(rt, 'provider', 'cli', 'quote', '--prompt', 'x', '--aspect-ratio', 'wide');
     expect(bad.code).toBe(2);
-    expect(bad.stderr).toContain('画幅须为 W:H');
+    expect(bad.stderr).toContain('the ratio must be W:H');
     expect((await cli(rt, 'provider', 'cli', 'generate')).code).toBe(2); // --quote-id is required
     expect((await cli(rt, 'provider', 'nope')).code).toBe(2);
   });

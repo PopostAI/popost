@@ -4,6 +4,7 @@
  * are dropped; doctype and comments are not re-emitted (the editor adds its own doctype when it compiles a page).
  */
 import { Parser } from 'htmlparser2';
+import { msg } from '../i18n';
 
 const BLOCKED = new Set(['script', 'iframe', 'object', 'embed']);
 const VOID = new Set([
@@ -116,7 +117,7 @@ export const sanitizeHtml = (html: string, options: SanitizeOptions = {}): strin
 
 /** A document for the editor's preview frame, and the `Content-Security-Policy` it must be served with. */
 export const previewHtml = (content: string, nonce: string | null): { body: string; csp: string } => {
-  if (nonce !== null && !/^[a-f0-9]{32}$/.test(nonce)) throw new Error('invalid preview nonce');
+  if (nonce !== null && !/^[a-f0-9]{32}$/.test(nonce)) throw new Error(msg('invalid preview nonce', '预览 nonce 无效'));
   const safe = sanitizeHtml(content, { preview: true, nonce });
   const base = '<base href="/pages/">';
   const body = safe.includes('<head>') ? safe.replace('<head>', () => `<head>${base}`) : base + safe;

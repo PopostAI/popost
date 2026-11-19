@@ -3,10 +3,11 @@
  * (schema v2, workflowVersion 3), one HTML file per page under `pages/` (the only layout authority), `assets/`,
  * `exports/`, `design.md`, and the production records the workflow commands add.
  */
+import { msg } from '../i18n';
 import type { Runtime } from '../runtime';
+import { quoted } from './error-text';
 import { OsError } from './errors';
 import { sniffImage } from './image';
-import { pyRepr } from './pyjson';
 import { escapeHtml, isDir, isFile, isInside, isoNow, readJson, sha256, walkFiles, writeAtomic, writeJson } from './util';
 
 export const SCHEMA = 'social-studio-project.v2';
@@ -15,8 +16,15 @@ export type Mode = (typeof MODES)[number];
 export const MANIFEST_NAME = 'social-studio-project.json';
 export const SAFE_ID = /^[A-Za-z0-9_-]{1,64}$/;
 export const MAX_CANVAS = 16384;
+/**
+ * The heading under which design.md collects observations, and the prefix of the note `init` adds there. `build` reads
+ * design.md by these two markers, so they are the same in every language.
+ */
+export const OBSERVATION_LOG = '## Observation log';
+export const INIT_NOTE_PREFIX = 'init:';
 /** The first line `init` adds to design.md: the file is a starter until the design phase rewrites it. */
-export const INIT_DESIGN_NOTE = 'init: design.md 初稿来自 brief（starter，未完成，勿当 final）';
+export const initDesignNote = (): string =>
+  `${INIT_NOTE_PREFIX} ${msg('the design.md draft comes from the brief (a starter, not finished; never treat it as final)', 'design.md 初稿来自 brief（starter，未完成，勿当 final）')}`;
 
 export class ProjectError extends Error {
   override name = 'ProjectError';
@@ -113,9 +121,10 @@ export class Project {
   }
 
   static async create(rt: Runtime, root: string, brief: string, mode: Mode = 'original', width = 1080, height = 1350) {
-    if (!MODES.includes(mode)) throw new ProjectError(`mode 必须是 ${MODES.join('/')}`);
+    if (!MODES.includes(mode)) throw new ProjectError(msg(`mode must be ${MODES.join('/')}`, `mode 必须是 ${MODES.join('/')}`));
     const dir = rt.path.resolve(rt.cwd, root);
-    if ((await isDir(rt, dir)) && (await rt.fs.readdir(dir)).length) throw new ProjectError(`目录非空，拒绝 init: ${root}`);
+    if ((await isDir(rt, dir)) && (await rt.fs.readdir(dir)).length)
+      throw new ProjectError(msg(`the folder is not empty, so init refuses it: ${root}`, `目录非空，拒绝 init: ${root}`));
     const project = new Project(rt, dir, {
       schema: SCHEMA,
       version: 1,
@@ -152,14 +161,26 @@ export class Project {
       '## Brief',
       brief,
       '',
-      '## 初始设计意图（init 生成，待设计阶段修订）',
-      '- 受众：待补',
-      '- 多页节奏：封面 → 主体 → 收尾（待补）',
-      '- Visual direction：待补（色板/字阶/留白）',
-      '- Font roles：display / body / caption（待 palette 选定）',
-      '- Constraints：不烧字进图、无外链、安全区按平台',
+      ...msg(
+        [
+          '## Initial design intent (written by init, to be revised in the design phase)',
+          '- Audience: to do',
+          '- Page rhythm: cover → body → close (to do)',
+          '- Visual direction: to do (palette / type scale / white space)',
+          '- Font roles: display / body / caption (pick them from the palette)',
+          '- Constraints: no text burned into images, no external links, safe areas per platform',
+        ].join('\n'),
+        [
+          '## 初始设计意图（init 生成，待设计阶段修订）',
+          '- 受众：待补',
+          '- 多页节奏：封面 → 主体 → 收尾（待补）',
+          '- Visual direction：待补（色板/字阶/留白）',
+          '- Font roles：display / body / caption（待 palette 选定）',
+          '- Constraints：不烧字进图、无外链、安全区按平台',
+        ].join('\n'),
+      ).split('\n'),
       '',
-      '## Observation log (read PNG, append below)',
+      `${OBSERVATION_LOG} ${msg('(read PNG, append below)', '（读 PNG 后在下方追加）')}`,
       '',
     ];
     await writeAtomic(this.rt, this.designMd, body.join('\n'));
@@ -168,14 +189,20 @@ export class Project {
   static async load(rt: Runtime, root: string): Promise<Project> {
     const dir = rt.path.resolve(rt.cwd, root);
     const manifestPath = rt.path.join(dir, MANIFEST_NAME);
-    if (!(await isFile(rt, manifestPath))) throw new ProjectError(`不是 v2 工程（缺 ${MANIFEST_NAME}）: ${root}；--dir 要指向 popost setup / init 建的工程目录`);
+    if (!(await isFile(rt, manifestPath)))
+      throw new ProjectError(
+        msg(
+          `not a v2 project (no ${MANIFEST_NAME}): ${root}; --dir must point at a project folder made by popost setup / init`,
+          `不是 v2 工程（缺 ${MANIFEST_NAME}）: ${root}；--dir 要指向 popost setup / init 建的工程目录`,
+        ),
+      );
     const manifest = await readJson<Manifest>(rt, manifestPath);
-    if (manifest.schema !== SCHEMA) throw new ProjectError(`schema 必须为 ${SCHEMA}`);
-    if (!MODES.includes(manifest.mode)) throw new ProjectError(`mode 非法: ${pyRepr(manifest.mode)}`);
+    if (manifest.schema !== SCHEMA) throw new ProjectError(msg(`schema must be ${SCHEMA}`, `schema 必须为 ${SCHEMA}`));
+    if (!MODES.includes(manifest.mode)) throw new ProjectError(msg(`invalid mode: ${quoted(manifest.mode)}`, `mode 非法: ${quoted(manifest.mode)}`));
     for (const page of manifest.pages) {
-      if (!SAFE_ID.test(page.id)) throw new ProjectError(`页 id 非法: ${pyRepr(page.id)}`);
-      if (!isInside(rt, dir, page.htmlPath)) throw new ProjectError('page path outside project');
-      if (!validSize(Number(page.width)) || !validSize(Number(page.height))) throw new ProjectError('invalid canvas size');
+      if (!SAFE_ID.test(page.id)) throw new ProjectError(msg(`invalid page id: ${quoted(page.id)}`, `页 id 非法: ${quoted(page.id)}`));
+      if (!isInside(rt, dir, page.htmlPath)) throw new ProjectError(msg('page path outside project', '页面路径在工程目录之外'));
+      if (!validSize(Number(page.width)) || !validSize(Number(page.height))) throw new ProjectError(msg('invalid canvas size', '画布尺寸非法'));
     }
     manifest.reviews ??= {};
     manifest.revision ??= 0;
@@ -221,9 +248,9 @@ export class Project {
   }
 
   async addPage(pid: string, name: string, width = 1080, height = 1350): Promise<string> {
-    if (!SAFE_ID.test(pid)) throw new ProjectError(`页 id 只允许字母数字_-: ${pyRepr(pid)}`);
-    if (this.manifest.pages.some((page) => page.id === pid)) throw new ProjectError(`页 id 已存在: ${pid}`);
-    if (!validSize(width) || !validSize(height)) throw new ProjectError('canvas size must be within 1..16384');
+    if (!SAFE_ID.test(pid)) throw new ProjectError(msg(`a page id takes only letters, digits, _ and -: ${quoted(pid)}`, `页 id 只允许字母数字_-: ${quoted(pid)}`));
+    if (this.manifest.pages.some((page) => page.id === pid)) throw new ProjectError(msg(`the page id already exists: ${pid}`, `页 id 已存在: ${pid}`));
+    if (!validSize(width) || !validSize(height)) throw new ProjectError(msg('canvas size must be within 1..16384', '画布尺寸必须在 1..16384 之间'));
     const htmlPath = `pages/${pid}.html`;
     await writeAtomic(this.rt, this.abs(htmlPath), await this.skeletonHtml(pid, name, width, height));
     this.manifest.pages.push({ id: pid, name, htmlPath, width, height });
@@ -233,7 +260,7 @@ export class Project {
 
   page(pid: string): PageEntry {
     const page = this.manifest.pages.find((p) => p.id === pid);
-    if (!page) throw new ProjectError(`页不存在: ${pid}`);
+    if (!page) throw new ProjectError(msg(`no such page: ${pid}`, `页不存在: ${pid}`));
     return page;
   }
 
@@ -259,7 +286,7 @@ export class Project {
   // ---------- assets / fonts / sources ----------
   async addAssetBytes(data: Uint8Array, relName: string, kind = 'image'): Promise<AssetEntry> {
     const stem = relName.replace(/\.[^.]*$/, '');
-    if (!SAFE_ID.test(stem)) throw new ProjectError(`资产名非法: ${pyRepr(relName)}`);
+    if (!SAFE_ID.test(stem)) throw new ProjectError(msg(`invalid asset name: ${quoted(relName)}`, `资产名非法: ${quoted(relName)}`));
     const path = `assets/${relName}`;
     await this.rt.fs.writeFile(this.abs(path), data);
     const entry: AssetEntry = { id: stem, path, sha256: sha256(data), kind };
@@ -312,12 +339,12 @@ export class Project {
   }
 
   async setConcept(status: string, prompt: string | null = null, fixture: string | null = null): Promise<void> {
-    if (!CONCEPT_STATUSES.includes(status)) throw new ProjectError(`concept.status 非法: ${pyRepr(status)}`);
+    if (!CONCEPT_STATUSES.includes(status)) throw new ProjectError(msg(`invalid concept.status: ${quoted(status)}`, `concept.status 非法: ${quoted(status)}`));
     this.manifest.concept = { status, prompt, fixture };
     await this.saveManifest();
   }
 
-  /** A file the user named, relative to the working directory; missing ones fail like Python's `open()`. */
+  /** A file the user named, relative to the working directory; a missing one is an `OsError` naming it. */
   private async readReferenceFile(path: string): Promise<Uint8Array> {
     const full = this.rt.path.resolve(this.rt.cwd, path);
     const stat = await this.rt.fs.stat(full);
@@ -336,7 +363,9 @@ export class Project {
     await this.rt.fs.mkdir(folder);
     const name = (concept ? 'composition-reference' : digest.slice(0, 16)) + extension;
     if (concept && (await this.rt.fs.readdir(folder)).some((f) => f.startsWith('composition-reference.')))
-      throw new ProjectError('one composition contact sheet per series; reuse it instead of adding page concepts');
+      throw new ProjectError(
+        msg('one composition contact sheet per series; reuse it instead of adding page concepts', '每组只有一张整组构图参考图；请复用它，不要再加单页构图'),
+      );
     await this.rt.fs.writeFile(this.rt.path.join(folder, name), data);
     const entry = {
       kind: concept ? 'composition' : 'local-reference',

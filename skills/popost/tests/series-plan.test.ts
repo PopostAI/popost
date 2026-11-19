@@ -91,11 +91,11 @@ describe('plan and series commands', () => {
     expect((await runCli(rt, ['plan', '--dir', 'project', '--file', 'plan.json'])).code).toBe(2);
     expect(rt.json()).toEqual({ ok: false, error: 'plan page ids/order differ from project' });
     expect((await runCli(rt, ['plan', '--dir', 'project', '--file', 'nope.json'])).code).toBe(2);
-    expect(rt.json().error).toBe("[Errno 2] No such file or directory: 'nope.json'");
+    expect(rt.json().error).toBe('file not found: nope.json');
     await rt.fs.writeFile('/work/bad.json', '{not json');
     expect((await runCli(rt, ['plan', '--dir', 'project', '--file', 'bad.json'])).code).toBe(2);
     expect((await runCli(rt, ['plan', '--dir', 'project', '--file', '/work'])).code).toBe(2);
-    expect(rt.json().error).toBe("[Errno 21] Is a directory: '/work'");
+    expect(rt.json().error).toBe('/work is a folder, not a file');
   });
 
   it('writes one composition prompt for the whole sheet and generates nothing', async () => {

@@ -4,7 +4,9 @@
  * base uses its same-origin proxy's `@<version>` route. Downloads are
  * verified against the hashes in `palette.json` before anything is kept.
  */
+import { networkReason } from '../core/error-text';
 import { isFile, sha256, writeAtomic } from '../core/util';
+import { msg } from '../i18n';
 import type { Runtime } from '../runtime';
 import { FontError, type FontLibrary } from './palette';
 
@@ -27,9 +29,11 @@ const download = async (rt: Runtime, lib: FontLibrary, relPath: string): Promise
   try {
     response = await rt.fetch(url);
   } catch (error) {
-    throw new FontError(`cannot download font file ${relPath} (${url}): ${error instanceof Error ? error.message : error}`);
+    const reason = networkReason(error, url);
+    throw new FontError(msg(`cannot download font file ${relPath} (${url}): ${reason}`, `无法下载字体文件 ${relPath}（${url}）：${reason}`));
   }
-  if (!response.ok) throw new FontError(`cannot download font file ${relPath} (HTTP ${response.status}): ${url}`);
+  if (!response.ok)
+    throw new FontError(msg(`cannot download font file ${relPath} (HTTP ${response.status}): ${url}`, `无法下载字体文件 ${relPath}（HTTP ${response.status}）：${url}`));
   return new Uint8Array(await response.arrayBuffer());
 };
 
@@ -49,7 +53,7 @@ export const readFontAsset = async (
     if (!hash || sha256(data) === hash) return data;
   }
   const data = await download(rt, lib, relPath);
-  if (hash && sha256(data) !== hash) throw new FontError(`font file ${relPath} does not match the library hash`);
+  if (hash && sha256(data) !== hash) throw new FontError(msg(`font file ${relPath} does not match the library hash`, `字体文件 ${relPath} 与字库记录的哈希不一致`));
   if (cached) await writeAtomic(rt, cached, data).catch(() => undefined);
   return data;
 };

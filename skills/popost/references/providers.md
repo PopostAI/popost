@@ -22,7 +22,7 @@ official 通道由 popost CLI 自身直接调用 popost.ai 平台 OpenAPI（HTTP
 |---|---|
 | UNAUTHORIZED / FORBIDDEN | Resolve the invalid Key or missing permission privately; do not treat it as insufficient credits. Use the key page for the current origin; never request a Key in chat. |
 | INVALID_REQUEST | 参数不合法，逐条列出 issues；修正后重新报价 |
-| INSUFFICIENT_CREDITS | Show required/balance when known and the purchase options returned by `account`; retain local references and user-selected custom / host generation. No automatic billing fallback. |
+| INSUFFICIENT_CREDITS | Show required/balance when known and the purchase options returned by `account`. A quote the balance does not cover still exits 1 with its price in `billing` (`creditsPerImage`, `totalCredits`, `balance`); a batch quote lists each job's `credits` and the sum as `requiredCredits`. No quote id is recorded, so quote again after a top-up; retain local references and user-selected custom / host generation. No automatic billing fallback. |
 | CREDIT_LIMIT_EXCEEDED | 实际计价超过已确认上限，平台拒绝且未扣费：重新报价并确认 |
 | RATE_LIMITED | 限流：按 retryAfterSeconds 等待后再操作 |
 | CLI_VERSION_TOO_OLD | Skill 版本低于平台要求：请用户更新 popost Skill |

@@ -8,6 +8,7 @@ import { escapeHtml } from '../core/util';
 import type { Runtime } from '../runtime';
 import { hasBrokenImage, openOfflineContext, settlePage, withBrowser } from './offline';
 import type { PlacedTile, SheetImage, SheetLayout } from './sheet-layout';
+import { msg } from '../i18n';
 
 /** A picture that is ready to draw: its bytes and the mime type its header says it has. */
 export interface SheetPicture extends SheetImage {
@@ -57,7 +58,7 @@ export const renderSheet = (rt: Runtime, layout: SheetLayout<SheetPicture>): Pro
       await page.setViewportSize({ width: layout.width, height: layout.height });
       await page.setContent(sheetHtml(layout), { waitUntil: 'load', timeout: 30_000 });
       await settlePage(page);
-      if (await hasBrokenImage(page)) throw new ValueError('a picture on the sheet could not be decoded');
+      if (await hasBrokenImage(page)) throw new ValueError(msg('a picture on the sheet could not be decoded', '总览图上有一张图片无法解码'));
       return await page.screenshot({ type: 'jpeg', quality: SHEET_JPEG_QUALITY, animations: 'disabled' });
     } finally {
       await context.close();

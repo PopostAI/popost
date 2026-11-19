@@ -13,7 +13,9 @@
  * supplies the values saved by `popost auth set` (`credentials.ts`).
  */
 import { createHash } from 'node:crypto';
+import { fileErrorText } from '../core/error-text';
 import { printJson } from '../core/util';
+import { msg } from '../i18n';
 import type { Runtime } from '../runtime';
 import { DEFAULT_KEY_ENV, PopostClient } from './api';
 import { isRecord, type JsonRecord } from './base';
@@ -43,18 +45,20 @@ export const dryRun = (client: PopostClient, plan: ImportPlan): JsonRecord => {
         resourceId: entry.resourceId,
         path: entry.path,
         request: client.describeRequest('POST', '/uploads', body),
-        then: '按返回的 method/uploadUrl/headers 上传文件字节（不带 Authorization）',
+        then: msg('upload the file bytes as the returned method/uploadUrl/headers say (without Authorization)', '按返回的 method/uploadUrl/headers 上传文件字节（不带 Authorization）'),
       });
       images.push(imagePayload(entry, `<fileUrl of ${String(entry.resourceId)}>`));
     } else images.push(imagePayload(entry, entry.url as string));
   }
   const body = { ...plan.post, images, clientId: plan.clientId };
-  return { ok: true, dryRun: true, uploads, request: client.describeRequest('POST', '/inspirations', body), skipped: plan.skipped, clientId: plan.clientId, message: 'dry-run：未联网、未上传、未保存' };
+  const message = msg('dry run: nothing was sent, uploaded or saved', 'dry-run：未联网、未上传、未保存');
+  return { ok: true, dryRun: true, uploads, request: client.describeRequest('POST', '/inspirations', body), skipped: plan.skipped, clientId: plan.clientId, message };
 };
 
 const upload = async (rt: Runtime, client: PopostClient, entry: PlanImage, uploaded: JsonRecord[]): Promise<string> => {
   const raw = await rt.fs.readFile(entry.path as string);
-  if (createHash('sha256').update(raw).digest('hex') !== entry.sha256) throw new InputError(`图片 ${String(entry.path)} 在导入过程中被修改`);
+  if (createHash('sha256').update(raw).digest('hex') !== entry.sha256)
+    throw new InputError(msg(`the picture ${String(entry.path)} changed during the import`, `图片 ${String(entry.path)} 在导入过程中被修改`));
   const up = await client.uploadBytes(raw, entry.fileName as string, entry.mimeType as string, 'inspiration');
   uploaded.push({ resourceId: entry.resourceId, fileUrl: up.fileUrl, uploadId: up.uploadId ?? null, bytes: up.bytes, sha256: up.sha256 });
   return up.fileUrl;
@@ -66,10 +70,14 @@ export const runImport = async (rt: Runtime, client: PopostClient, plan: ImportP
   for (const entry of plan.images) images.push(imagePayload(entry, entry.kind === 'local' ? await upload(rt, client, entry, uploaded) : (entry.url as string)));
   const data = await client.request('POST', '/inspirations', {
     body: { ...plan.post, images, clientId: plan.clientId },
-    hint: `可能已保存；重跑同一命令即可（clientId ${plan.clientId} 相同，平台按 clientId 去重）`,
+    hint: msg(
+      `It may have been saved; just run the same command again (the clientId ${plan.clientId} is the same, and the platform de-duplicates by clientId)`,
+      `可能已保存；重跑同一命令即可（clientId ${plan.clientId} 相同，平台按 clientId 去重）`,
+    ),
   });
   const inspiration = isRecord(data) ? data.inspiration : null;
-  if (!isRecord(inspiration) || !inspiration.id) throw new PopostApiError('POST /inspirations 响应缺少 inspiration.id', { code: 'BAD_RESPONSE' });
+  if (!isRecord(inspiration) || !inspiration.id)
+    throw new PopostApiError(msg('the POST /inspirations answer has no inspiration.id', 'POST /inspirations 响应缺少 inspiration.id'), { code: 'BAD_RESPONSE' });
   const summary = {
     id: inspiration.id,
     createdAt: inspiration.createdAt ?? null,
@@ -78,7 +86,7 @@ export const runImport = async (rt: Runtime, client: PopostClient, plan: ImportP
     sourceUrl: inspiration.sourceUrl ?? null,
     imageCount: Array.isArray(inspiration.images) ? inspiration.images.length : 0,
   };
-  return { ok: true, inspiration: summary, clientId: plan.clientId, uploaded, skipped: plan.skipped, note: '已保存到 popost.ai「我的灵感」' };
+  return { ok: true, inspiration: summary, clientId: plan.clientId, uploaded, skipped: plan.skipped, note: msg('saved to My Inspirations on popost.ai', '已保存到 popost.ai「我的灵感」') };
 };
 
 export interface ImportCall {
@@ -119,12 +127,13 @@ class FileProblem extends Error {
 const readBundle = async (rt: Runtime, file: string): Promise<unknown> => {
   const path = resolvePath(rt, file);
   const stat = await rt.fs.stat(path);
-  if (!stat) throw new FileProblem('FILE_NOT_FOUND', `[Errno 2] No such file or directory: '${file}'`);
-  if (stat.isDirectory) throw new FileProblem('NOT_A_FILE', `[Errno 21] Is a directory: '${file}'`);
+  if (!stat) throw new FileProblem('FILE_NOT_FOUND', fileErrorText('ENOENT', file)!);
+  if (stat.isDirectory) throw new FileProblem('NOT_A_FILE', fileErrorText('EISDIR', file)!);
   try {
     return JSON.parse(await rt.fs.readText(path));
   } catch (error) {
-    throw new FileProblem('BAD_JSON', `PostBundle 不是合法 JSON：${(error as Error).message}`);
+    const detail = (error as Error).message;
+    throw new FileProblem('BAD_JSON', msg(`the PostBundle is not valid JSON: ${detail}`, `PostBundle 不是合法 JSON：${detail}`));
   }
 };
 

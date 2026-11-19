@@ -117,7 +117,7 @@ describe('page check: the command', () => {
     await project.addPage('p2', 'Two');
     await project.addPage('p3', 'Three');
     expect((await run(rt, '--page', 'p3,p1')).out).toMatchObject({ checked: ['p3', 'p1'] });
-    expect(await run(rt, '--page', 'p1,p9')).toMatchObject({ code: 2, out: { ok: false, error: 'ProjectError: 页不存在: p9' } });
+    expect(await run(rt, '--page', 'p1,p9')).toMatchObject({ code: 2, out: { ok: false, error: 'no such page: p9' } });
   });
 
   it('is listed in the help, and page add / ls still work', async () => {

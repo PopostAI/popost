@@ -6,6 +6,7 @@
  *   content key. The agent reads the full text and decides.
  * - `detectConflict` does not assert a conflict; it only flags `requiresReview`.
  */
+import { msg } from '../i18n';
 import type { Runtime } from '../runtime';
 import { sha256 } from '../core/util';
 import { compareCodePoints } from '../core/pyjson';
@@ -104,10 +105,20 @@ export const locateSkill = async (rt: Runtime, userPath: string): Promise<SkillL
   const alternative = rt.path.join(path, 'SOURCE-SKILL.md');
   if (!(await isFile(rt, skillMd)) && (await isFile(rt, alternative))) skillMd = alternative;
   if (!(await isFile(rt, skillMd)))
-    return { ok: false, route: 'error', path, error: `SKILL.md 缺失：${skillMd}（资源错误，不静默替换）` };
+    return {
+      ok: false,
+      route: 'error',
+      path,
+      error: msg(`SKILL.md is missing: ${skillMd} (a resource error; nothing is silently substituted)`, `SKILL.md 缺失：${skillMd}（资源错误，不静默替换）`),
+    };
   const text = await readSkillText(rt, skillMd);
   if (text === null)
-    return { ok: false, route: 'error', path, error: 'SKILL.md 非合法 UTF-8（资源错误，不降级自由创作）' };
+    return {
+      ok: false,
+      route: 'error',
+      path,
+      error: msg('SKILL.md is not valid UTF-8 (a resource error; no fallback to free creation)', 'SKILL.md 非合法 UTF-8（资源错误，不降级自由创作）'),
+    };
   const frontmatter = parseFrontmatter(text);
   const references = await listReferences(rt, path, text);
   const missingRefs = references.filter((r) => !r.exists).map((r) => r.path);
@@ -126,10 +137,19 @@ export const locateSkill = async (rt: Runtime, userPath: string): Promise<SkillL
   };
 };
 
+/**
+ * Words of a brief or a template name. A hyphenated or underscored word counts whole and by its parts, so the brief
+ * "minimal data ranking" meets the template `minimal-data-ranking` (2026-11-19: every community template scored 0).
+ */
 const tokens = (text: string): Set<string> => {
   const out = new Set<string>();
-  for (const token of text.toLowerCase().match(/[A-Za-z][A-Za-z0-9_+-]*|[\u4e00-\u9fff]{2,}/g) ?? [])
-    if (!PLATFORM_WORDS.has(token) && !STOP.has(token)) out.add(token);
+  const keep = (token: string): void => {
+    if (token && !PLATFORM_WORDS.has(token) && !STOP.has(token)) out.add(token);
+  };
+  for (const token of text.toLowerCase().match(/[A-Za-z][A-Za-z0-9_+-]*|[\u4e00-\u9fff]{2,}/g) ?? []) {
+    keep(token);
+    for (const part of token.split(/[-_+]+/)) keep(part);
+  }
   return out;
 };
 
@@ -186,17 +206,25 @@ export const recallCandidates = async (
       score: matched.length,
       matchedTokens: matched.sort(compareCodePoints),
       verdict_authoritative: false,
-      note: '词法候选，非最终审美/适配结论；agent 须通读全文后终判',
+      note: msg(
+        'a lexical candidate, not a final verdict on taste or fit; the agent decides after reading the whole Skill',
+        '词法候选，非最终审美/适配结论；agent 须通读全文后终判',
+      ),
     });
   }
   candidates.sort((a, b) => b.score - a.score || compareCodePoints(a.path, b.path));
   return { ok: true, platform_hint: platformHint, count: candidates.length, candidates };
 };
 
-const CONFLICT_NOTE =
-  '指定模板与 supplied 参考同时存在且为 strict：本模块只标 requiresReview，' +
-  '不直接改 strict、不静默二选一；agent 通读两者实核后，未经用户明确授权' +
-  '不得偏离模板结构或改 strict 模式。';
+const conflictNote = (): string =>
+  msg(
+    'A chosen template and a supplied reference both exist and the mode is strict: this module only sets requiresReview; ' +
+      'it neither changes strict nor silently picks one. The agent reads and checks both; without the explicit authorization ' +
+      'of the user it must not depart from the template structure or change the strict mode.',
+    '指定模板与 supplied 参考同时存在且为 strict：本模块只标 requiresReview，' +
+      '不直接改 strict、不静默二选一；agent 通读两者实核后，未经用户明确授权' +
+      '不得偏离模板结构或改 strict 模式。',
+  );
 
 export const detectConflict = (templateChosen: boolean, referenceSupplied: boolean, strict: boolean) => {
   const both = templateChosen && referenceSupplied;
@@ -207,6 +235,6 @@ export const detectConflict = (templateChosen: boolean, referenceSupplied: boole
     conflict: null, // not asserted: the agent reads both and decides
     requiresReview: both && strict,
     authorizationField: 'templateConflictAuthorization',
-    note: both && strict ? CONFLICT_NOTE : '',
+    note: both && strict ? conflictNote() : '',
   };
 };

@@ -1,12 +1,13 @@
 /**
  * The machine audit that runs inside the page for one canvas root (port of `render_html.AUDIT_JS`): overflow and clipping
- * checks, broken images, unloaded fonts. It returns facts and issues; it never decides what to promote.
+ * checks, broken images, unloaded fonts. It returns facts and issues; it never decides what to promote. The issue texts
+ * come in with the argument (`arg.messages`, by issue code) in the language of the invocation (`auditMessages`).
  * Shipped as text because it runs in the browser, not in Node. Page scripts are off in the render context, which also stops
  * DOM collections from calling back into script (`NodeList.forEach`, `FontFaceSet.forEach`): iterate real arrays instead.
  */
 export const AUDIT_SCRIPT = String.raw`
 (arg) => {
-  const selector = arg.selector, index = arg.index, fallbackSel = arg.fallback;
+  const selector = arg.selector, index = arg.index, fallbackSel = arg.fallback, text = arg.messages;
   let list = document.querySelectorAll(selector);
   let used = selector;
   if (list.length === 0 && fallbackSel && selector !== fallbackSel) {
@@ -23,7 +24,7 @@ export const AUDIT_SCRIPT = String.raw`
 
   const rt = getComputedStyle(root).transform;
   if (rt && rt !== 'none') issues.push({code:'global-scale', severity:'error',
-    message:'根元素带整体 transform:'+rt, evidence:rt});
+    message:text['global-scale']+rt, evidence:rt});
 
   const tol = 1;
   Array.from(root.querySelectorAll('*')).forEach(el => {
@@ -34,29 +35,29 @@ export const AUDIT_SCRIPT = String.raw`
     if (r.left < rootRect.left - tol || r.top < rootRect.top - tol ||
         r.right > rootRect.right + tol || r.bottom > rootRect.bottom + tol) {
       issues.push({code:'out-of-bounds', severity:'error',
-        message:'元素越出根画布',
+        message:text['out-of-bounds'],
         evidence:{tag:el.tagName, cls:(el.className&&el.className.toString)?el.className.toString():'',
                   rect:{x:Math.round(r.left-rootRect.left),y:Math.round(r.top-rootRect.top),
                         w:Math.round(r.width),h:Math.round(r.height)}}});
     }
     if (st.textOverflow === 'ellipsis' && el.scrollWidth > el.clientWidth + tol) {
-      issues.push({code:'ellipsis-clipped', severity:'error', message:'单行省略号截断文本',
+      issues.push({code:'ellipsis-clipped', severity:'error', message:text['ellipsis-clipped'],
         evidence:{text:(el.textContent||'').slice(0,40), sw:el.scrollWidth, cw:el.clientWidth}});
     }
     const lc = st.webkitLineClamp;
     if (lc && parseInt(lc,10) > 0 && el.scrollHeight > el.clientHeight + tol) {
-      issues.push({code:'line-clamped', severity:'error', message:'line-clamp 隐藏后续多行',
+      issues.push({code:'line-clamped', severity:'error', message:text['line-clamped'],
         evidence:{clamp:lc, sh:el.scrollHeight, ch:el.clientHeight}});
     }
     if (st.overflow === 'hidden' && (el.scrollWidth > el.clientWidth + tol ||
                                      el.scrollHeight > el.clientHeight + tol) &&
         st.textOverflow !== 'ellipsis' && !(lc && parseInt(lc,10)>0)) {
-      issues.push({code:'clipped-hidden', severity:'error', message:'overflow:hidden 裁掉内容',
+      issues.push({code:'clipped-hidden', severity:'error', message:text['clipped-hidden'],
         evidence:{sw:el.scrollWidth,cw:el.clientWidth,sh:el.scrollHeight,ch:el.clientHeight}});
     }
     if ((st.overflow === 'auto' || st.overflow === 'scroll') &&
         (el.scrollWidth > el.clientWidth + tol || el.scrollHeight > el.clientHeight + tol)) {
-      issues.push({code:'scroll-overflow', severity:'error', message:'需滚动才能看到内容',
+      issues.push({code:'scroll-overflow', severity:'error', message:text['scroll-overflow'],
         evidence:{sw:el.scrollWidth, sh:el.scrollHeight}});
     }
   });
@@ -65,7 +66,7 @@ export const AUDIT_SCRIPT = String.raw`
     facts.images.push({src:(img.currentSrc||img.src||'').slice(0,120),
                        complete:img.complete, naturalWidth:img.naturalWidth});
     if (img.complete && img.naturalWidth === 0) {
-      issues.push({code:'broken-image', severity:'error', message:'裂图（naturalWidth=0）',
+      issues.push({code:'broken-image', severity:'error', message:text['broken-image'],
         evidence:{src:(img.src||'').slice(0,120), alt:img.alt}});
     }
   });
@@ -73,7 +74,7 @@ export const AUDIT_SCRIPT = String.raw`
   try {
     Array.from(document.fonts).forEach(f => facts.usedFonts.push(f.family + ' / ' + f.status));
     if (document.fonts.status === 'error')
-      issues.push({code:'font-unloaded', severity:'error', message:'存在加载失败的 @font-face',
+      issues.push({code:'font-unloaded', severity:'error', message:text['font-unloaded'],
         evidence:document.fonts.status});
   } catch (e) { facts.fontError = String(e); }
 

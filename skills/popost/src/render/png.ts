@@ -10,6 +10,7 @@ import { pageFingerprint, RENDER_SIGNATURE } from '../core/fingerprint';
 import type { Project } from '../core/project';
 import { isFile, readJson, sha256, writeAtomic, writeJson } from '../core/util';
 import { hasBrokenImage, loadPage, openOfflineContext, withBrowser } from './offline';
+import { msg } from '../i18n';
 
 /** Python-style error names are kept: they are part of the `{"ok": false, "error": "Name: message"}` text agents see. */
 export class RenderError extends Error {
@@ -62,9 +63,9 @@ const screenshotRoot = async (project: Project, browser: Browser, pid: string): 
   try {
     const page = await context.newPage();
     await loadPage(page, entry.htmlPath, entry.width, entry.height);
-    if (await hasBrokenImage(page)) throw new RenderError('page contains missing or unreadable images');
+    if (await hasBrokenImage(page)) throw new RenderError(msg('page contains missing or unreadable images', '页面里有缺失或无法读取的图片'));
     const root = (await page.locator('.post').count()) ? page.locator('.post') : page.locator('.page');
-    if (!(await root.count())) throw new RenderError('page has no .post or .page root element');
+    if (!(await root.count())) throw new RenderError(msg('page has no .post or .page root element', '页面没有 .post 或 .page 根元素'));
     return await root.first().screenshot({ scale: 'device', type: 'png' });
   } finally {
     await context.close();
@@ -76,7 +77,7 @@ const renderOne = async (project: Project, browser: Browser, pid: string, out: s
   const fingerprint = await pageFingerprint(project, pid);
   const png = await screenshotRoot(project, browser, pid);
   if ((await pageFingerprint(project, pid)) !== fingerprint)
-    throw new RenderError('project changed during render; retry current source');
+    throw new RenderError(msg('project changed during render; retry current source', '渲染期间项目有改动；请按当前源文件重试'));
   await writeAtomic(rt, out, png);
   await writeJson(rt, receiptPath(project, out), { fingerprint, pngHash: sha256(png), renderer: RENDER_SIGNATURE });
 };
@@ -146,7 +147,7 @@ export const exportAllReport = async (
   const { paths: images, rendered, unchanged } = await renderPages(project, pids, {}, force);
   const entries: Record<string, Uint8Array> = {};
   for (const pid of pids) {
-    if (!(await isFile(rt, images[pid]!))) throw new RenderError(`missing PNG for page ${pid}`);
+    if (!(await isFile(rt, images[pid]!))) throw new RenderError(msg(`missing PNG for page ${pid}`, `页 ${pid} 缺少 PNG`));
     entries[`${pid}.png`] = await rt.fs.readFile(images[pid]!);
   }
   await rt.fs.writeFile(target, zipSync(entries, { level: 6, mtime: rt.now() }));

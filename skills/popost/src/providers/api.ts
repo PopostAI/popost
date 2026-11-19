@@ -15,7 +15,9 @@
  *   non-envelope 5xx, TIMEOUT / INTERNAL_ERROR) throws `AmbiguousSubmitError`; the caller records it and never retries.
  */
 import { createHash } from 'node:crypto';
+import { isHostBlocked, isTimeout, networkReason } from '../core/error-text';
 import { BASE_URL_ENV, keyGuidance, keyPageUrl } from '../credentials';
+import { msg } from '../i18n';
 import type { Runtime } from '../runtime';
 import { VERSION } from '../version';
 import { DEFAULT_KEY_ENV, DEFAULT_KEY_PAGE, describeError, num } from './api-errors';
@@ -65,10 +67,10 @@ export const checkUrl = (url: string, what: string): string => {
   } catch {
     parsed = null;
   }
-  if (!parsed || !parsed.hostname) throw new PopostApiError(`${what} 不是合法地址`, { code: 'BAD_URL' });
+  if (!parsed || !parsed.hostname) throw new PopostApiError(msg(`${what} is not a valid address`, `${what} 不是合法地址`), { code: 'BAD_URL' });
   if (parsed.protocol === 'https:') return url;
   if (parsed.protocol === 'http:' && isLoopback(parsed.hostname)) return url;
-  throw new PopostApiError(`${what} 必须是 https 地址（http 仅允许本机回环测试）`, { code: 'BAD_URL' });
+  throw new PopostApiError(msg(`${what} must be an https address (http is allowed only for loopback tests)`, `${what} 必须是 https 地址（http 仅允许本机回环测试）`), { code: 'BAD_URL' });
 };
 
 class TooLarge extends Error {}
@@ -110,24 +112,24 @@ const causeOf = (error: unknown): { code?: string; message?: string; name?: stri
 /** Refused connections, unresolvable hosts and certificate failures: the request never reached the server. */
 export const isNotDelivered = (error: unknown): boolean => CONNECT_REFUSED_CODES.has(causeOf(error).code ?? '');
 
-export const isTimeout = (error: unknown): boolean => (error as { name?: string } | null)?.name === 'TimeoutError' || (error as { name?: string } | null)?.name === 'AbortError';
-
 /**
  * A host that restricts the network (the popost.ai web agent's sandbox) refuses a URL before anything is sent; its error
  * is named `BlockedFetchError`. Nothing reached any server, so such a failure is never "outcome unknown".
  */
-export const isHostBlocked = (error: unknown): boolean => (error as { name?: string } | null)?.name === 'BlockedFetchError';
+export { isHostBlocked, isTimeout };
 
-/** `Name: message` of a failed fetch, including the underlying cause when there is one. */
-export const describeFetchError = (error: unknown): string => {
-  const cause = causeOf(error);
-  const base = error instanceof Error ? `${error.name}: ${error.message}` : String(error);
-  return cause.message ? `${base} (${cause.code ?? cause.name ?? 'cause'}: ${cause.message})` : base;
+const hostOf = (url: string): string => {
+  try {
+    return new URL(url).host;
+  } catch {
+    return url;
+  }
 };
 
 export const keyEnvName = (name: string | undefined): string => {
   const keyEnv = name || DEFAULT_KEY_ENV;
-  if (!/^[A-Za-z_][A-Za-z0-9_]{0,127}$/.test(keyEnv)) throw new PopostApiError('auth.envVar 必须是环境变量名（不是密钥本身）', { code: 'BAD_CONFIG' });
+  if (!/^[A-Za-z_][A-Za-z0-9_]{0,127}$/.test(keyEnv))
+    throw new PopostApiError(msg('auth.envVar must be the name of an environment variable (not the key itself)', 'auth.envVar 必须是环境变量名（不是密钥本身）'), { code: 'BAD_CONFIG' });
   return keyEnv;
 };
 
@@ -166,7 +168,13 @@ export class PopostClient {
     if (this.bearer) return this.bearer;
     const key = (this.rt.env[this.keyEnv] ?? '').trim();
     if (!key)
-      throw new PopostApiError(`尚未连接 popost.ai 账户，本次未发出请求、未扣费。${keyGuidance(this.keyPage(), this.keyEnv)}`, { code: 'NO_API_KEY' });
+      throw new PopostApiError(
+        msg(
+          `No popost.ai account is connected: nothing was sent and nothing was charged. ${keyGuidance(this.keyPage(), this.keyEnv)}`,
+          `尚未连接 popost.ai 账户，本次未发出请求、未扣费。${keyGuidance(this.keyPage(), this.keyEnv)}`,
+        ),
+        { code: 'NO_API_KEY' },
+      );
     return key;
   }
 
@@ -208,13 +216,14 @@ export class PopostClient {
     const headers = this.headers(body !== undefined);
     headers.Authorization = `Bearer ${key}`;
     const signal = timeoutSignal(this.rt, wait * 1000);
+    const url = this.url(path, query);
     try {
-      const response = await this.rt.fetch(this.url(path, query), { method, headers, ...(device ? {redirect:'error' as const} : {}), body: body === undefined ? undefined : JSON.stringify(body), signal });
+      const response = await this.rt.fetch(url, { method, headers, ...(device ? {redirect:'error' as const} : {}), body: body === undefined ? undefined : JSON.stringify(body), signal });
       const raw = await this.readBody(response, ambiguous, hint);
       return this.parse(response.status, raw, ambiguous, hint);
     } catch (error) {
       if (error instanceof ImageProviderError) throw error;
-      return this.failed(error, wait, ambiguous, hint);
+      return this.failed(error, url, wait, ambiguous, hint);
     }
   }
 
@@ -224,23 +233,39 @@ export class PopostClient {
       return await readCapped(response, MAX_RESPONSE_BYTES);
     } catch (error) {
       if (!response.ok) return new Uint8Array();
-      if (error instanceof TooLarge) return this.uncertain(ambiguous, `响应超过 ${MAX_RESPONSE_BYTES / 1048576} MiB 上限`, hint);
+      if (error instanceof TooLarge) {
+        const limit = MAX_RESPONSE_BYTES / 1048576;
+        return this.uncertain(ambiguous, msg(`the answer is larger than the ${limit} MiB limit`, `响应超过 ${limit} MiB 上限`), hint);
+      }
       throw error;
     }
   }
 
-  private failed(error: unknown, wait: number, ambiguous: boolean, hint: string): never {
-    if (isHostBlocked(error))
-      throw new PopostApiError(`当前运行环境不允许访问该地址（${this.redact(describeFetchError(error)).slice(0, 200)}）：请求未发出，未产生费用`, { code: 'NETWORK' });
+  /** A request that got no answer: the host and why (DNS, refused, timeout, …), never the fetch error's own text. */
+  private failed(error: unknown, url: string, wait: number, ambiguous: boolean, hint: string): never {
+    if (isHostBlocked(error)) {
+      const host = hostOf(url);
+      throw new PopostApiError(
+        msg(`This environment does not allow connections to ${host}: the request was not sent and nothing was charged`, `当前运行环境不允许访问该地址（${host}）：请求未发出，未产生费用`),
+        { code: 'NETWORK' },
+      );
+    }
+    const reason = this.redact(networkReason(error, url)).slice(0, 200);
     if (isNotDelivered(error))
-      throw new PopostApiError(`无法连接 popost.ai（${this.redact(describeFetchError(error)).slice(0, 200)}）：请求未送达，未产生费用`, { code: 'NETWORK' });
-    if (isTimeout(error)) return this.uncertain(ambiguous, `等待响应超过 ${num(wait)}s`, hint);
-    return this.uncertain(ambiguous, `网络错误：${this.redact(describeFetchError(error)).slice(0, 200)}`, hint);
+      throw new PopostApiError(
+        msg(`Could not reach popost.ai: ${reason}. The request was not delivered and nothing was charged`, `无法连接 popost.ai（${reason}）：请求未送达，未产生费用`),
+        { code: 'NETWORK' },
+      );
+    if (isTimeout(error)) return this.uncertain(ambiguous, msg(`no answer within ${num(wait)}s`, `等待响应超过 ${num(wait)}s`), hint);
+    return this.uncertain(ambiguous, msg(`network error: ${reason}`, `网络错误：${reason}`), hint);
   }
 
   private uncertain(ambiguous: boolean, what: string, hint: string): never {
-    if (ambiguous) throw new AmbiguousSubmitError(`popost.ai 请求已发出但结果不确定（${what}），可能已扣费。${hint}`);
-    throw new PopostApiError(`popost.ai 请求失败（${what}）。${hint || '请稍后重试'}`, { code: 'NETWORK' });
+    if (ambiguous)
+      throw new AmbiguousSubmitError(
+        msg(`The popost.ai request was sent but its outcome is unknown (${what}); it may have been charged. ${hint}`, `popost.ai 请求已发出但结果不确定（${what}），可能已扣费。${hint}`).trimEnd(),
+      );
+    throw new PopostApiError(msg(`The popost.ai request failed (${what}). ${hint || 'Try again later.'}`, `popost.ai 请求失败（${what}）。${hint || '请稍后重试'}`), { code: 'NETWORK' });
   }
 
   private parse(status: number, raw: Uint8Array, ambiguous: boolean, hint: string): unknown {
@@ -256,14 +281,19 @@ export class PopostClient {
     }
     // Not an envelope: an unparsable 2xx or a gateway 5xx means the request may have been processed.
     if (ambiguous && (status === 0 || (status >= 200 && status < 300) || status >= 500))
-      throw new AmbiguousSubmitError(`popost.ai 响应无法解析（HTTP ${status}），结果不确定，可能已扣费。${hint}`);
-    throw new PopostApiError(`popost.ai 返回非标准响应（HTTP ${status}）：请检查 baseUrl 或稍后重试`, { code: 'BAD_RESPONSE', status });
+      throw new AmbiguousSubmitError(
+        msg(`The popost.ai answer could not be read (HTTP ${status}); the outcome is unknown and it may have been charged. ${hint}`, `popost.ai 响应无法解析（HTTP ${status}），结果不确定，可能已扣费。${hint}`).trimEnd(),
+      );
+    throw new PopostApiError(msg(`popost.ai gave an unexpected answer (HTTP ${status}): check the baseUrl or try again later`, `popost.ai 返回非标准响应（HTTP ${status}）：请检查 baseUrl 或稍后重试`), { code: 'BAD_RESPONSE', status });
   }
 
   private successData(envelope: Record<string, unknown>, status: number, ambiguous: boolean, hint: string): unknown {
     if (!('data' in envelope)) {
-      if (ambiguous) throw new AmbiguousSubmitError(`popost.ai 响应缺少 data，结果不确定，可能已扣费。${hint}`);
-      throw new PopostApiError(`popost.ai 响应缺少 data（HTTP ${status}）`, { code: 'BAD_RESPONSE', status });
+      if (ambiguous)
+        throw new AmbiguousSubmitError(
+          msg(`The popost.ai answer has no data; the outcome is unknown and it may have been charged. ${hint}`, `popost.ai 响应缺少 data，结果不确定，可能已扣费。${hint}`).trimEnd(),
+        );
+      throw new PopostApiError(msg(`The popost.ai answer has no data (HTTP ${status})`, `popost.ai 响应缺少 data（HTTP ${status}）`), { code: 'BAD_RESPONSE', status });
     }
     this.lastMeta = envelope.meta;
     return envelope.data;
@@ -273,7 +303,8 @@ export class PopostClient {
     const err = isRecord(envelope.error) ? envelope.error : {};
     const code = String(err.code || 'UNKNOWN').slice(0, 64);
     const text = this.redact(describeError(code, err.message, err.details, this.keyEnv)).replace(DEFAULT_KEY_PAGE, this.keyPage());
-    if (ambiguous && AMBIGUOUS_CODES.includes(code)) throw new AmbiguousSubmitError(`${text}；平台是否已扣费无法确定。${hint}`);
+    if (ambiguous && AMBIGUOUS_CODES.includes(code))
+      throw new AmbiguousSubmitError(msg(`${text}; whether the platform charged cannot be determined. ${hint}`, `${text}；平台是否已扣费无法确定。${hint}`).trimEnd());
     throw new PopostApiError(text, { code, status, details: err.details });
   }
 
@@ -283,15 +314,17 @@ export class PopostClient {
    * without Authorization or the platform headers. Returns `{uploadId, fileUrl, ...}`.
    */
   async uploadBytes(raw: Uint8Array, fileName: string, mimeType: string, purpose: string) {
-    if (!(UPLOAD_PURPOSES as readonly string[]).includes(purpose)) throw new PopostApiError(`purpose 必须是 ${UPLOAD_PURPOSES.join('/')} 之一`, { code: 'BAD_ARGS' });
-    if (raw.length > MAX_UPLOAD_BYTES) throw new PopostApiError(`文件 ${fileName} 超过 30 MiB 上传上限`, { code: 'TOO_LARGE' });
+    if (!(UPLOAD_PURPOSES as readonly string[]).includes(purpose))
+      throw new PopostApiError(msg(`purpose must be one of ${UPLOAD_PURPOSES.join('/')}`, `purpose 必须是 ${UPLOAD_PURPOSES.join('/')} 之一`), { code: 'BAD_ARGS' });
+    if (raw.length > MAX_UPLOAD_BYTES)
+      throw new PopostApiError(msg(`${fileName} is larger than the 30 MiB upload limit`, `文件 ${fileName} 超过 30 MiB 上传上限`), { code: 'TOO_LARGE' });
     const sha = createHash('sha256').update(raw).digest('hex');
     const ticket = await this.request('POST', '/uploads', { body: { fileName, mimeType, bytes: raw.length, purpose, sha256: sha } });
-    if (!isRecord(ticket)) throw new PopostApiError('POST /uploads 响应格式不符', { code: 'BAD_RESPONSE' });
+    if (!isRecord(ticket)) throw new PopostApiError(msg('the POST /uploads answer has an unexpected format', 'POST /uploads 响应格式不符'), { code: 'BAD_RESPONSE' });
     const method = String(ticket.method || 'PUT').toUpperCase();
     const ticketHeaders = ticket.headers ?? {};
     if (!['PUT', 'POST'].includes(method) || !isRecord(ticketHeaders) || typeof ticket.uploadUrl !== 'string' || typeof ticket.fileUrl !== 'string')
-      throw new PopostApiError('POST /uploads 响应缺少上传地址/方法/文件地址', { code: 'BAD_RESPONSE' });
+      throw new PopostApiError(msg('the POST /uploads answer lacks the upload address, method or file address', 'POST /uploads 响应缺少上传地址/方法/文件地址'), { code: 'BAD_RESPONSE' });
     const uploadUrl = checkUrl(ticket.uploadUrl, 'uploadUrl');
     const fileUrl = checkUrl(ticket.fileUrl, 'fileUrl');
     const headers = Object.fromEntries(Object.entries(ticketHeaders).map(([k, v]) => [String(k), String(v)]));
@@ -308,15 +341,19 @@ export class PopostClient {
       // `raw` is a plain byte array, never a shared buffer, so it is a valid fetch body.
       response = await this.rt.fetch(url, { method, headers, body: raw as Uint8Array<ArrayBuffer>, signal });
     } catch (error) {
-      const kind = isHostBlocked(error) ? '当前运行环境不允许访问上传地址' : ((error as { name?: string })?.name ?? 'Error');
-      throw new PopostApiError(`上传 ${fileName} 失败（${kind}），请重试导入`, { code: 'UPLOAD_FAILED' });
+      const reason = networkReason(error, url);
+      throw new PopostApiError(msg(`Uploading ${fileName} failed (${reason}); try the import again`, `上传 ${fileName} 失败（${reason}），请重试导入`), { code: 'UPLOAD_FAILED' });
     }
     await response.body?.cancel().catch(() => undefined);
-    if (!response.ok) throw new PopostApiError(`上传 ${fileName} 被存储服务拒绝（HTTP ${response.status}），请重试导入`, { code: 'UPLOAD_FAILED', status: response.status });
+    if (!response.ok)
+      throw new PopostApiError(
+        msg(`The storage service refused the upload of ${fileName} (HTTP ${response.status}); try the import again`, `上传 ${fileName} 被存储服务拒绝（HTTP ${response.status}），请重试导入`),
+        { code: 'UPLOAD_FAILED', status: response.status },
+      );
   }
 }
 
-/** How a failed download is worded: what was fetched, and what the user can do next. */
+/** How a failed download is worded: what was fetched ("the result image"), and what the user can do next. */
 export interface DownloadLabels {
   readonly what?: string;
   readonly retry?: string;
@@ -324,21 +361,22 @@ export interface DownloadLabels {
 
 /** Downloads a picture the platform returned (https, no Authorization) and writes it to `dest`. */
 export const downloadResult = async (rt: Runtime, url: string, dest: string, maxBytes = MAX_DOWNLOAD_BYTES, timeoutSec = 120, labels: DownloadLabels = {}): Promise<Uint8Array> => {
-  const { what = '结果图', retry = '任务记录仍在，可稍后重试 download' } = labels;
-  checkUrl(url, `${what}地址`);
+  const { what = msg('the result image', '结果图'), retry = msg('the task record is kept; run download again later', '任务记录仍在，可稍后重试 download') } = labels;
+  checkUrl(url, msg(`the address of ${what}`, `${what}地址`));
   let data: Uint8Array;
   try {
     const response = await rt.fetch(url, { headers: { 'User-Agent': userAgent() }, signal: timeoutSignal(rt, timeoutSec * 1000) });
     if (!response.ok) {
       await response.body?.cancel().catch(() => undefined);
-      throw new PopostApiError(`${what}下载失败（HTTP ${response.status}）；${retry}`, { code: 'DOWNLOAD_FAILED', status: response.status });
+      throw new PopostApiError(msg(`Downloading ${what} failed (HTTP ${response.status}); ${retry}`, `${what}下载失败（HTTP ${response.status}）；${retry}`), { code: 'DOWNLOAD_FAILED', status: response.status });
     }
     data = await readCapped(response, maxBytes);
   } catch (error) {
     if (error instanceof PopostApiError) throw error;
-    if (error instanceof TooLarge) throw new PopostApiError(`${what}超过 ${maxBytes / 1048576} MiB 下载上限`, { code: 'TOO_LARGE' });
-    const kind = isHostBlocked(error) ? `当前运行环境不允许访问${what}地址` : ((error as { name?: string })?.name ?? 'Error');
-    throw new PopostApiError(`${what}下载失败（${kind}）；${retry}`, { code: 'DOWNLOAD_FAILED' });
+    const limit = maxBytes / 1048576;
+    if (error instanceof TooLarge) throw new PopostApiError(msg(`${what} is larger than the ${limit} MiB download limit`, `${what}超过 ${limit} MiB 下载上限`), { code: 'TOO_LARGE' });
+    const reason = networkReason(error, url);
+    throw new PopostApiError(msg(`Downloading ${what} failed (${reason}); ${retry}`, `${what}下载失败（${reason}）；${retry}`), { code: 'DOWNLOAD_FAILED' });
   }
   await rt.fs.writeFile(dest, data);
   return data;

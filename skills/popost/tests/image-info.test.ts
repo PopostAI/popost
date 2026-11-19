@@ -87,7 +87,7 @@ describe('describePicture', () => {
 
   it('rejects what is not a picture, a cut-off header, and an HTML page that mentions svg', () => {
     for (const data of [bytes('hello'), bytes(), png(4, 4, 6).slice(0, 20), new TextEncoder().encode('<html><body><svg width="1" height="1"></svg></body></html>')])
-      expect(() => describePicture(data, 'x.bin')).toThrow("cannot identify image file 'x.bin'");
+      expect(() => describePicture(data, 'x.bin')).toThrow('not a readable picture file: x.bin');
   });
 });
 
@@ -125,9 +125,9 @@ describe('popost image info', () => {
     expect(r.data).toMatchObject({ ok: true });
     const images = r.data!.images as Record<string, unknown>[];
     expect(images[0]).toMatchObject({ file: 'a.png', format: 'png', width: 8 });
-    expect(images[1]).toEqual({ file: 'notes.txt', ok: false, error: "cannot identify image file 'notes.txt'" });
-    expect(images[2]).toEqual({ file: 'missing.png', ok: false, error: "[Errno 2] No such file or directory: 'missing.png'" });
-    expect(images[3]).toEqual({ file: 'dir', ok: false, error: "[Errno 21] Is a directory: 'dir'" });
+    expect(images[1]).toEqual({ file: 'notes.txt', ok: false, error: 'not a readable picture file: notes.txt' });
+    expect(images[2]).toEqual({ file: 'missing.png', ok: false, error: 'file not found: missing.png' });
+    expect(images[3]).toEqual({ file: 'dir', ok: false, error: 'dir is a folder, not a file' });
   });
 
   it('exits 2 when every file failed, and still lists them', async () => {

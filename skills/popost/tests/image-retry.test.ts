@@ -178,7 +178,7 @@ describe('image run after an ambiguous attempt', () => {
     t.stub.models[0]!.creditsPerImage = 15;
     const refused = await t.image('run', '--quote-id', q2, '--confirm');
     expect(refused.code).toBe(1);
-    expect(refused.data.error).toContain('价格已变动');
+    expect(refused.data.error).toContain('the price changed');
     expect(t.platform.seen).toHaveLength(1);
     const q3 = await t.quote();
     const run = await t.image('run', '--quote-id', q3, '--confirm');
@@ -265,7 +265,7 @@ describe('image run that was refused without a charge', () => {
     t.stub.models[0]!.creditsPerImage = 15;
     const refused = await t.image('run', '--quote-id', q1, '--confirm');
     expect(refused.code).toBe(1);
-    expect(refused.data.error).toContain('价格已变动');
+    expect(refused.data.error).toContain('the price changed');
     expect(t.platform.seen).toEqual([]);
     await open(t);
     await noLedger(t);
@@ -281,7 +281,7 @@ describe('image run that was refused without a charge', () => {
     t.stub.balance = 5;
     const refused = await t.image('run', '--quote-id', q1, '--confirm');
     expect(refused.code).toBe(1);
-    expect(refused.data.error).toContain('积分不足');
+    expect(refused.data.error).toContain('Not enough credits');
     expect(t.platform.seen).toEqual([]);
     await open(t);
     await noLedger(t);
@@ -314,8 +314,8 @@ describe('image run that was refused without a charge', () => {
     t.stub.set('POST', '/images/generations', err(402, 'INSUFFICIENT_CREDITS', 'stub error', { required: 12, balance: 5 }));
     const refused = await t.image('run', '--quote-id', q1, '--confirm');
     expect(refused.code).toBe(1);
-    expect(refused.data.error).toContain('提交被拒绝');
-    expect(refused.data.error).toContain('积分不足');
+    expect(refused.data.error).toContain('the submit was refused');
+    expect(refused.data.error).toContain('Not enough credits');
     expect(states(await t.ledger())).toEqual([`${q1.slice(0, 6)}:reserved`, `${q1.slice(0, 6)}:ambiguous`]);
     expect((await t.ledger()).at(-1)!.meta.charged).toBe(false);
     await open(t);

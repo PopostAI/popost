@@ -3,6 +3,7 @@
  * two custom argparse types of provider_cli.py (`aspect_arg`, `idempotency_arg`).
  */
 import { formatHelp, parseArgs, UsageError, type CommandSpec, type ParsedArgs } from '../args';
+import { msg } from '../i18n';
 import type { Runtime } from '../runtime';
 
 /**
@@ -31,9 +32,11 @@ const IDEMPOTENCY = /^[A-Za-z0-9._-]{8,128}$/;
 /** The custom argparse types, applied after parsing: a bad value is a usage error (exit 2) like in argparse. */
 export const checkCustomTypes = (args: ParsedArgs): void => {
   const aspect = args.string('aspect-ratio');
-  if (aspect !== undefined && !ASPECT.test(aspect)) throw new UsageError('argument --aspect-ratio: 画幅须为 W:H，例如 1:1、3:4、9:16');
+  if (aspect !== undefined && !ASPECT.test(aspect))
+    throw new UsageError(msg('argument --aspect-ratio: the ratio must be W:H, for example 1:1, 3:4, 9:16', 'argument --aspect-ratio: 画幅须为 W:H，例如 1:1、3:4、9:16'));
   const key = args.string('idempotency-key');
-  if (key !== undefined && !IDEMPOTENCY.test(key)) throw new UsageError('argument --idempotency-key: 须为 8–128 位字母、数字或 . _ -');
+  if (key !== undefined && !IDEMPOTENCY.test(key))
+    throw new UsageError(msg('argument --idempotency-key: must be 8–128 letters, digits or . _ -', 'argument --idempotency-key: 须为 8–128 位字母、数字或 . _ -'));
 };
 
 /** Like `withArgs`, with spaced values joined and the custom types checked. */

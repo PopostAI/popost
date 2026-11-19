@@ -56,19 +56,15 @@ The same workbench is available beside your agent and on [popost.ai](https://pop
 
 ## Start creating
 
-Install the current development version from GitHub:
+Install the Skill and its command line from npm:
 
 <!-- install:start -->
 ~~~bash
-git clone --branch develop https://github.com/PopostAI/popost.git
-cd popost
-npm ci
-npm run build:skill
-npm install -g ./skills/popost
+npm install -g popost
 popost install
 ~~~
 
-Node.js 20.19+ · macOS, Windows, and Linux. <code>popost install</code> detects Codex and Claude Code; use <code>popost install --dir &lt;skills directory&gt;</code> for another agent. The npm package is not yet public, so keep this checkout: the global CLI points to it.
+Node.js 20.19+ · macOS, Windows, and Linux. <code>popost install</code> detects Codex and Claude Code; use <code>popost install --dir &lt;skills directory&gt;</code> for another agent. To try the development version instead, build it from the <code>develop</code> branch of this repository (<code>npm ci</code>, <code>npm run build:skill</code>, <code>npm install -g ./skills/popost</code>) and keep the checkout: the global CLI points to it.
 <!-- install:end -->
 
 Then tell your agent:

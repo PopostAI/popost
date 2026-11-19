@@ -5,6 +5,7 @@
  * so it is read here.
  */
 import { unzipSync } from 'fflate';
+import { msg } from '../i18n';
 import { ValueError } from './errors';
 
 export const MAX_EXPANDED = 512 * 1024 * 1024;
@@ -62,9 +63,9 @@ const unsafeName = (name: string): boolean =>
 export const assertSafeArchive = (data: Uint8Array, manifestName: string): ZipEntry[] => {
   const entries = listEntries(data);
   const names = entries.map((entry) => entry.name);
-  if (names.length !== new Set(names).size || !names.includes(manifestName)) throw new ValueError('invalid project archive');
-  if (entries.reduce((sum, entry) => sum + entry.size, 0) > MAX_EXPANDED) throw new ValueError('project archive too large');
+  if (names.length !== new Set(names).size || !names.includes(manifestName)) throw new ValueError(msg('invalid project archive', '工程压缩包无效'));
+  if (entries.reduce((sum, entry) => sum + entry.size, 0) > MAX_EXPANDED) throw new ValueError(msg('project archive too large', '工程压缩包过大'));
   const links = symlinkNames(data);
-  if (entries.some((entry) => unsafeName(entry.name) || links.has(entry.name))) throw new ValueError('unsafe archive path');
+  if (entries.some((entry) => unsafeName(entry.name) || links.has(entry.name))) throw new ValueError(msg('unsafe archive path', '压缩包里有不安全的路径'));
   return entries;
 };

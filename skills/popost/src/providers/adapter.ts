@@ -12,6 +12,7 @@ import type { JsonRecord } from './base';
 import { main as providerCliMain } from './cli';
 import { runSubcommand, type SubcommandEntry } from './cli-args';
 import { resolvePath } from './paths';
+import { msg } from '../i18n';
 
 export const OFFICIAL_CHANNEL = 'popost'; // the popost.ai platform; the default model is private config or the platform's, never hard-coded
 export const MAX_CREDITS_PER_REQUEST = 200;
@@ -71,10 +72,12 @@ export const normalizeRoleRefs = (refs: readonly unknown[] | null | undefined): 
     let role: unknown;
     if (Array.isArray(ref) && ref.length === 2) [path, role] = ref;
     else if (ref !== null && typeof ref === 'object' && !Array.isArray(ref)) ({ path, role } = ref as JsonRecord);
-    else throw new AdapterInputError('ref 必须是 {path,role} 或 [path,role]');
-    if (typeof path !== 'string' || !path) throw new AdapterInputError('ref.path 必须是非空字符串');
-    if (typeof role !== 'string' || !(REF_ROLES as readonly string[]).includes(role))
-      throw new AdapterInputError(`ref.role 必须是 ${REF_ROLES.join('/')} 之一，收到 ${JSON.stringify(role)}`);
+    else throw new AdapterInputError(msg('a ref must be {path,role} or [path,role]', 'ref 必须是 {path,role} 或 [path,role]'));
+    if (typeof path !== 'string' || !path) throw new AdapterInputError(msg('ref.path must be a non-empty string', 'ref.path 必须是非空字符串'));
+    if (typeof role !== 'string' || !(REF_ROLES as readonly string[]).includes(role)) {
+      const got = role === undefined ? msg('nothing', '空值') : JSON.stringify(role);
+      throw new AdapterInputError(msg(`ref.role must be one of ${REF_ROLES.join('/')}, got ${got}`, `ref.role 必须是 ${REF_ROLES.join('/')} 之一，收到 ${got}`));
+    }
     return { path, role };
   });
   const identityRefs = out.filter((r) => r.role === 'identity');
@@ -88,15 +91,22 @@ export const refsToProviderArgs = (refs: readonly RoleRef[]): string[] => [...ne
 /** Channel capabilities. The platform channel is `not_tested` unless the caller gives a runner and asks to probe. */
 export const checkChannels = async (runner?: CliRunner): Promise<JsonRecord> => {
   const channels: Record<string, unknown> = {
-    manual: { status: 'available', measured: null, note: '本地文件；用时 inventory 登记 sha256' },
+    manual: { status: 'available', measured: null, note: msg('local files; register the sha256 with inventory when used', '本地文件；用时 inventory 登记 sha256') },
     [OFFICIAL_CHANNEL]: {
       status: 'not_tested',
       measured: false,
       defaultModel: null,
       maxCreditsPerRequest: MAX_CREDITS_PER_REQUEST,
-      note: '未在本模块联网探测；真实 check 由显式 quote 流程触发。默认模型 = 私有配置 defaultModel，否则平台默认',
+      note: msg(
+        "not probed over the network here; a real check happens in an explicit quote. Default model = the private config's defaultModel, else the platform default",
+        '未在本模块联网探测；真实 check 由显式 quote 流程触发。默认模型 = 私有配置 defaultModel，否则平台默认',
+      ),
     },
-    host: { status: 'declared', measured: false, note: '仅登记宿主声明的结果，不代调、不实测' },
+    host: {
+      status: 'declared',
+      measured: false,
+      note: msg('only records results the host declares; nothing is called or tested on its behalf', '仅登记宿主声明的结果，不代调、不实测'),
+    },
     pending: ['parse-service', 'future-host-tools'],
   };
   if (runner) {
@@ -119,7 +129,7 @@ const tail = (text: string): string => (text ? text.trim().slice(-500) : '');
 /** manual: registers a local file (sha256) through the CLI's `inventory`. A missing file is blocked, nothing delegated. */
 export const registerManual = async (rt: Runtime, path: string, runner: CliRunner = processRunner(rt)): Promise<JsonRecord> => {
   const sha256 = await sha256Of(rt, path);
-  if (sha256 === null) return blocked(`manual 文件不存在: ${path}`);
+  if (sha256 === null) return blocked(msg(`the manual file does not exist: ${path}`, `manual 文件不存在: ${path}`));
   const { code, parsed } = await runJson(['inventory', '--file', path, '--json'], runner);
   return { ok: code === 0, channel: 'manual', path, sha256, delegated: parsed, exit: code };
 };
@@ -142,13 +152,25 @@ export const quoteSlot = async (rt: Runtime, slot: QuoteSlot, runner: CliRunner 
   if (slot.model) argv.push('--model', slot.model);
   argv.push(...refsToProviderArgs(normalized.refs));
   const { code, parsed, stderr } = await runJson(argv, runner);
-  return { ok: code === 0, channel: provider, phase: 'quote', refsNormalized: normalized, note: '仅报价；须用户明确费用授权 才可 generate', delegated: parsed, exit: code, stderr: tail(stderr) };
+  const note = msg('a quote only; generate needs the user to authorize the cost explicitly', '仅报价；须用户明确费用授权 才可 generate');
+  return { ok: code === 0, channel: provider, phase: 'quote', refsNormalized: normalized, note, delegated: parsed, exit: code, stderr: tail(stderr) };
 };
 
 /** The second step. `confirm` defaults to false and blocks; this module never sets it itself. */
 export const confirmGenerate = async (rt: Runtime, quoteId: string, outDir: string, options: { confirm?: boolean; config?: string | null } = {}, runner: CliRunner = processRunner(rt)): Promise<JsonRecord> => {
   if (!options.confirm)
-    return { ok: false, status: 'blocked', exit: 3, error: { code: 'UNCONFIRMED', msg: '未收到用户明确确认凭证（confirm=False 默认阻断）；本模块不会自动确认真实扣费。' } };
+    return {
+      ok: false,
+      status: 'blocked',
+      exit: 3,
+      error: {
+        code: 'UNCONFIRMED',
+        msg: msg(
+          'no explicit confirmation from the user was given (confirm=false blocks by default); this module never confirms a real charge by itself.',
+          '未收到用户明确确认凭证（confirm=false 默认阻断）；本模块不会自动确认真实扣费。',
+        ),
+      },
+    };
   const argv = [...(options.config ? ['--config', options.config] : []), 'generate', '--quote-id', quoteId, '--confirm', '--out-dir', outDir];
   const { code, parsed, stderr } = await runJson(argv, runner);
   return { ok: code === 0, channel: OFFICIAL_CHANNEL, phase: 'generate', delegated: parsed, exit: code, stderr: tail(stderr) };
@@ -157,8 +179,12 @@ export const confirmGenerate = async (rt: Runtime, quoteId: string, outDir: stri
 /** host: records a result the host really produced. Never marked measured. */
 export const importHostAsset = async (rt: Runtime, path: string, license = '', attribution = ''): Promise<JsonRecord> => {
   const sha256 = await sha256Of(rt, path);
-  if (sha256 === null) return blocked(`host 资产文件不存在: ${path}`);
-  return { ok: true, channel: 'host', status: 'declared', measured: false, path, sha256, license, attribution, note: '宿主代供；本模块不代取、不实测连通、不冒充 measured' };
+  if (sha256 === null) return blocked(msg(`the host asset file does not exist: ${path}`, `host 资产文件不存在: ${path}`));
+  const note = msg(
+    'supplied by the host; this module neither fetches it, nor tests the connection, nor claims it was measured',
+    '宿主代供；本模块不代取、不实测连通、不冒充 measured',
+  );
+  return { ok: true, channel: 'host', status: 'declared', measured: false, path, sha256, license, attribution, note };
 };
 
 // ---------------- the command ----------------
@@ -166,7 +192,7 @@ export const importHostAsset = async (rt: Runtime, path: string, license = '', a
 const refsFromCli = (items: readonly string[]): RoleRef[] =>
   items.map((item) => {
     const cut = item.lastIndexOf(':');
-    if (cut < 0) throw new AdapterInputError(`--ref 需 path:role，收到 ${JSON.stringify(item)}`);
+    if (cut < 0) throw new AdapterInputError(msg(`--ref needs path:role, got ${JSON.stringify(item)}`, `--ref 需 path:role，收到 ${JSON.stringify(item)}`));
     return { path: item.slice(0, cut), role: item.slice(cut + 1) };
   });
 
@@ -178,10 +204,13 @@ const emit = (rt: Runtime, result: JsonRecord): number => {
 };
 
 const entries = (rt: Runtime): Record<string, SubcommandEntry> => ({
-  check: { spec: { description: '声明通道能力（popost 默认 not_tested）' }, run: async () => emit(rt, await checkChannels()) },
+  check: {
+    spec: { description: msg('declare the channel capabilities (popost is not_tested by default)', '声明通道能力（popost 默认 not_tested）') },
+    run: async () => emit(rt, await checkChannels()),
+  },
   quote: {
     spec: {
-      description: '第一段：只报价',
+      description: msg('step one: a quote only', '第一段：只报价'),
       options: [
         { flag: '--prompt', required: true },
         { flag: '--provider', choices: [OFFICIAL_CHANNEL, 'custom'], default: OFFICIAL_CHANNEL },
@@ -189,30 +218,43 @@ const entries = (rt: Runtime): Record<string, SubcommandEntry> => ({
         { flag: '--config' },
         { flag: '--aspect', default: '1:1' },
         { flag: '--count', kind: 'int', default: 1 },
-        { flag: '--ref', kind: 'append', help: 'path:role，role∈identity/style/action' },
+        { flag: '--ref', kind: 'append', help: msg('path:role, role ∈ identity/style/action', 'path:role，role∈identity/style/action') },
       ],
     },
     run: async (a) =>
       emit(rt, await quoteSlot(rt, { prompt: a.req('prompt'), aspect: a.req('aspect'), refs: refsFromCli(a.list('ref')), count: a.number('count') ?? 1, provider: a.req('provider'), model: a.string('model'), config: a.string('config') })),
   },
   confirm: {
-    spec: { description: '第二段：用户已确认才提交', options: [{ flag: '--quote-id', required: true }, { flag: '--config' }, { flag: '--out-dir', required: true }, { flag: '--confirm', kind: 'flag' }] },
+    spec: {
+      description: msg('step two: submit, only once the user has confirmed', '第二段：用户已确认才提交'),
+      options: [{ flag: '--quote-id', required: true }, { flag: '--config' }, { flag: '--out-dir', required: true }, { flag: '--confirm', kind: 'flag' }],
+    },
     run: async (a) => emit(rt, await confirmGenerate(rt, a.req('quote-id'), a.req('out-dir'), { confirm: a.flag('confirm'), config: a.string('config') })),
   },
-  manual: { spec: { description: '登记本地素材', options: [{ flag: '--file', required: true }] }, run: async (a) => emit(rt, await registerManual(rt, a.req('file'))) },
+  manual: {
+    spec: { description: msg('register a local asset', '登记本地素材'), options: [{ flag: '--file', required: true }] },
+    run: async (a) => emit(rt, await registerManual(rt, a.req('file'))),
+  },
   'host-import': {
-    spec: { description: '登记宿主声明代供的素材（仅 declared）', options: [{ flag: '--file', required: true }, { flag: '--license', default: '' }, { flag: '--attribution', default: '' }] },
+    spec: {
+      description: msg('register an asset the host says it supplied (declared only)', '登记宿主声明代供的素材（仅 declared）'),
+      options: [{ flag: '--file', required: true }, { flag: '--license', default: '' }, { flag: '--attribution', default: '' }],
+    },
     run: async (a) => emit(rt, await importHostAsset(rt, a.req('file'), a.string('license') ?? '', a.string('attribution') ?? '')),
   },
 });
 
-const CLI_HELP = '  cli  the low-level two-step CLI (quote, generate, status, download, models, check, inventory): popost provider cli --help\n';
+const cliHelp = () =>
+  msg(
+    '  cli  the low-level two-step CLI (quote, generate, status, download, models, check, inventory): popost provider cli --help\n',
+    '  cli  底层两段式命令（quote、generate、status、download、models、check、inventory）：popost provider cli --help\n',
+  );
 
 /** `popost provider <check|quote|confirm|manual|host-import>`, or `provider cli …`; bad input is a `blocked` result with exit 1. */
 export const adapterMain = async (argv: readonly string[], rt: Runtime): Promise<number> => {
   try {
     if (argv[0] === 'cli') return await providerCliMain(argv.slice(1), rt);
-    return await runSubcommand('popost provider', entries(rt), argv, rt, CLI_HELP);
+    return await runSubcommand('popost provider', entries(rt), argv, rt, cliHelp());
   } catch (error) {
     if (!(error instanceof AdapterInputError)) throw error;
     printJson(rt, blocked(error.message), true);

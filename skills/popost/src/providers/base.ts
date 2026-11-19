@@ -3,7 +3,9 @@
  * Local references are hashed; an ambiguous submission never retries automatically.
  */
 import type { Runtime } from '../runtime';
+import { networkReason } from '../core/error-text';
 import { sha256File } from '../core/util';
+import { msg } from '../i18n';
 import { ImageProviderError } from './errors';
 import { timeoutSignal } from './time';
 
@@ -69,7 +71,7 @@ export const normalizeRefs = (refs: readonly unknown[] | null | undefined): Ref[
       const kind = (ref.kind as string | undefined) || (isUrl(String(ref.value ?? '')) ? 'url' : 'local');
       return { kind, value, sha256: (ref.sha256 as string | null | undefined) ?? null };
     }
-    throw new ImageProviderError(`非法参考图条目: ${JSON.stringify(ref)}`);
+    throw new ImageProviderError(msg(`invalid reference image entry: ${JSON.stringify(ref)}`, `非法参考图条目: ${JSON.stringify(ref)}`));
   });
 
 /** Python `urllib.request.url2pathname` on a posix `file://` URL tail. */
@@ -81,10 +83,19 @@ export const downloadUrl = async (rt: Runtime, url: string, dest: string, timeou
     await rt.fs.writeFile(dest, await rt.fs.readFile(fileUrlPath(url)));
     return;
   }
-  if (!isUrl(url)) throw new ImageProviderError(`不支持直接下载的引用协议: ${url.split('://')[0]}`);
+  if (!isUrl(url)) {
+    const scheme = url.split('://')[0];
+    throw new ImageProviderError(msg(`references with the scheme ${scheme} cannot be downloaded directly`, `不支持直接下载的引用协议: ${scheme}`));
+  }
   const signal = timeoutSignal(rt, timeoutSec * 1000);
-  const response = await rt.fetch(url, { headers: { 'User-Agent': 'social-post-studio/1.0' }, signal });
-  if (!response.ok) throw new ImageProviderError(`下载失败 HTTP ${response.status}`);
+  let response: Response;
+  try {
+    response = await rt.fetch(url, { headers: { 'User-Agent': 'social-post-studio/1.0' }, signal });
+  } catch (error) {
+    const reason = networkReason(error, url);
+    throw new ImageProviderError(msg(`download failed: ${reason}`, `下载失败：${reason}`));
+  }
+  if (!response.ok) throw new ImageProviderError(msg(`download failed: HTTP ${response.status}`, `下载失败 HTTP ${response.status}`));
   await rt.fs.writeFile(dest, new Uint8Array(await response.arrayBuffer()));
 };
 
@@ -119,8 +130,9 @@ export abstract class BaseImageProvider {
 
   async modelCredits(model: string): Promise<number | string> {
     const row = (await this.models()).find((r) => r.value === model);
-    if (!row) throw new ImageProviderError(`模型 ${model} 不在 ${this.name} 实时清单中`);
-    if (row.credits === null || row.credits === undefined) throw new ImageProviderError(`模型 ${model} 价格未知（无实时报价）`);
+    if (!row) throw new ImageProviderError(msg(`the model ${model} is not in the live list of ${this.name}`, `模型 ${model} 不在 ${this.name} 实时清单中`));
+    if (row.credits === null || row.credits === undefined)
+      throw new ImageProviderError(msg(`the price of the model ${model} is unknown (no live quote)`, `模型 ${model} 价格未知（无实时报价）`));
     return row.credits;
   }
 
@@ -133,28 +145,30 @@ export abstract class BaseImageProvider {
   }
 
   async submit(_prompt: string, _request: SubmitRequest = {}): Promise<JsonRecord> {
-    throw new ImageProviderError(`${this.name} 不支持提交`);
+    throw new ImageProviderError(msg(`${this.name} cannot submit`, `${this.name} 不支持提交`));
   }
   async status(_taskId: string): Promise<JsonRecord> {
-    throw new ImageProviderError(`${this.name} 不支持状态查询`);
+    throw new ImageProviderError(msg(`${this.name} has no status query`, `${this.name} 不支持状态查询`));
   }
   async result(_taskId: string): Promise<string[]> {
-    throw new ImageProviderError(`${this.name} 不支持结果查询`);
+    throw new ImageProviderError(msg(`${this.name} has no result query`, `${this.name} 不支持结果查询`));
   }
   async materialize(_taskId: string, _outDir: string, _filename?: string): Promise<JsonRecord[]> {
-    throw new ImageProviderError(`${this.name} 不支持结果落地`);
+    throw new ImageProviderError(msg(`${this.name} cannot save results`, `${this.name} 不支持结果落地`));
   }
   /** Polls until the task completes or fails; only providers that submit asynchronously have it. */
   wait?(taskId: string, intervalSec: number, timeoutSec: number): Promise<JsonRecord>;
 
   /** Shared argument checks of the BYOK channel. */
   validateSubmitArgs(prompt: string, aspect: string, refs: readonly unknown[] | null | undefined, count: number | null | undefined) {
-    if (!prompt || !prompt.trim()) throw new ImageProviderError('prompt 为空');
-    if (!this.aspects.includes(aspect)) throw new ImageProviderError(`不支持的画幅 ${aspect}（可选 ${this.aspects.join('/')}）`);
+    if (!prompt || !prompt.trim()) throw new ImageProviderError(msg('the prompt is empty', 'prompt 为空'));
+    if (!this.aspects.includes(aspect))
+      throw new ImageProviderError(msg(`unsupported aspect ratio ${aspect} (choose from ${this.aspects.join('/')})`, `不支持的画幅 ${aspect}（可选 ${this.aspects.join('/')}）`));
     const list = normalizeRefs(refs);
-    if (list.length > this.refLimit) throw new ImageProviderError(`参考图数量 ${list.length} 超过上限 ${this.refLimit}`);
+    if (list.length > this.refLimit)
+      throw new ImageProviderError(msg(`${list.length} reference images, more than the limit of ${this.refLimit}`, `参考图数量 ${list.length} 超过上限 ${this.refLimit}`));
     const n = Math.trunc(Number(count || 1));
-    if (n < 1) throw new ImageProviderError('count 必须 >=1');
+    if (n < 1) throw new ImageProviderError(msg('count must be >= 1', 'count 必须 >=1'));
     return { refs: list, count: n };
   }
 }

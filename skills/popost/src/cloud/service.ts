@@ -17,6 +17,7 @@ import type { DeckSession } from '../deck/types';
 import { canvasRevision } from '../editor/canvas-state';
 import { PopostClient } from '../providers/api';
 import { PopostApiError } from '../providers/errors';
+import { msg } from '../i18n';
 import type { Runtime } from '../runtime';
 import {
   authorizeTitle,
@@ -63,6 +64,10 @@ export interface CloudOptions {
 export const AUTO_PUSH_DELAY_MS = 3000;
 const MAX_PENDING = 4;
 const LOGIN_REQUIRED = 'LOGIN_REQUIRED';
+const loginRequired = () => ({
+  code: LOGIN_REQUIRED,
+  message: msg('log in on popost.ai to save this project to the cloud', '请先在 popost.ai 登录，才能把这个工程保存到云端'),
+});
 
 interface Pending {
   readonly verifier: string;
@@ -171,7 +176,8 @@ export class CloudService {
     const client = new PopostClient(this.rt);
     const project = await Project.load(this.rt, this.root);
     const projectId = project.manifest.projectId;
-    if (!/^[A-Za-z0-9-]{8,64}$/.test(projectId ?? '')) throw new CloudError('NO_PROJECT_ID', 'the project has no stable id, so it cannot be saved to the cloud');
+    if (!/^[A-Za-z0-9-]{8,64}$/.test(projectId ?? ''))
+      throw new CloudError('NO_PROJECT_ID', msg('the project has no stable id, so it cannot be saved to the cloud', '工程没有稳定的 id，无法保存到云端'));
     const state = newSecret(this.options.randomBytes);
     const verifier = newSecret(this.options.randomBytes);
     const authorizeUrl = buildAuthorizeUrl({
@@ -200,10 +206,10 @@ export class CloudService {
   callback(code: string | null, state: string | null): CallbackResult {
     this.sync();
     this.purgePending();
-    if (!code || !state || !SECRET_PATTERN.test(code) || !SECRET_PATTERN.test(state)) return { ok: false, error: 'bad callback' };
+    if (!code || !state || !SECRET_PATTERN.test(code) || !SECRET_PATTERN.test(state)) return { ok: false, error: msg('bad callback', '回调参数无效') };
     const key = [...this.pending.keys()].find((known) => safeEqual(known, state));
     const entry = key === undefined ? undefined : this.pending.get(key);
-    if (key === undefined || !entry) return { ok: false, error: 'unknown or expired login' };
+    if (key === undefined || !entry) return { ok: false, error: msg('unknown or expired login', '登录未知或已过期') };
     this.pending.delete(key);
     this.ticket = { bearer: ticketBearer(code, entry.verifier), expiresAt: this.now() + TICKET_TTL_MS, lang: entry.lang };
     this.lang = entry.lang;
@@ -231,7 +237,7 @@ export class CloudService {
     const client = this.clientFor(mode);
     if (!client) {
       this.phase = 'failed';
-      this.error = { code: LOGIN_REQUIRED, message: 'log in on popost.ai to save this project to the cloud' };
+      this.error = loginRequired();
       return;
     }
     this.phase = 'uploading';
@@ -253,7 +259,7 @@ export class CloudService {
     this.sync();
     if (options.lang) this.lang = options.lang;
     if (this.mode() === 'anonymous' && !this.liveTicket()) {
-      return { ...(await this.status()), ok: false, error: { code: LOGIN_REQUIRED, message: 'log in on popost.ai to save this project to the cloud' } };
+      return { ...(await this.status()), ok: false, error: loginRequired() };
     }
     clearTimeout(this.timer);
     this.phase = 'uploading';

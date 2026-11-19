@@ -2,7 +2,7 @@
  * `image quote`, `image run` and `image complete` (the delegating half of image_jobs.py). Quote and run call the provider
  * CLI in this process; the job file binds one quote id, one confirmed run and the reference hashes together.
  */
-import { sniffImage } from '../core/image';
+import { notPictureText, sniffImage } from '../core/image';
 import type { Project } from '../core/project';
 import { sha256File } from '../core/util';
 import { executeCli, type CliCommand, type CliInvocation, type CliOutcome } from '../providers/cli';
@@ -10,6 +10,8 @@ import { OFFICIAL_PROVIDER } from '../providers';
 import * as ledger from '../providers/ledger';
 import { JobError, saveJob, type Job, type JobProvider } from './jobs';
 import { adoptLegacyAttempt, ledgerPathOf, recordRun, refusedUncharged, submissionKey } from './retry';
+import { msg } from '../i18n';
+import { errorText } from '../core/error-text';
 
 type Rt = Project['rt'];
 
@@ -29,7 +31,7 @@ export const providerName = (provider: JobProvider): string => (provider.channel
 /** A reference file that changed since `prepare` would make the old quote describe another request. */
 const checkRefsUnchanged = async (rt: Rt, job: Job): Promise<void> => {
   for (const [file, digest] of Object.entries(job.refHashes ?? {}))
-    if ((await sha256File(rt, file)) !== digest) throw new JobError('reference changed; do not consume the old quote');
+    if ((await sha256File(rt, file)) !== digest) throw new JobError(msg('reference changed; do not consume the old quote', '参考图已变更；不要使用旧的报价'));
 };
 
 /** The provider CLI call for a job's channel; the job's own folders hold its quotes and ledger. */
@@ -51,18 +53,18 @@ const delegate = async (project: Project, inv: CliInvocation): Promise<CliOutcom
   try {
     return await executeCli(project.rt, inv);
   } catch (error) {
-    throw new JobError(error instanceof Error ? error.message : String(error));
+    throw new JobError(errorText(error));
   }
 };
 
 const quoteCommand = (job: Job): CliCommand => {
-  if (!ASPECT.test(job.aspect)) throw new JobError('画幅须为 W:H，例如 1:1、3:4、9:16');
+  if (!ASPECT.test(job.aspect)) throw new JobError(msg('the aspect ratio must be W:H, for example 1:1, 3:4, 9:16', '画幅须为 W:H，例如 1:1、3:4、9:16'));
   return { name: 'quote', args: { prompt: job.prompt, aspectRatio: job.aspect, model: job.provider.model || undefined, ref: job.refs, refUrl: [], count: 1, validSec: 600 } };
 };
 
 const generateCommand = (project: Project, job: Job, call: JobCall, idempotencyKey: string | undefined): CliCommand => {
-  if (job.status !== 'quoted' || !call.quoteId || call.quoteId !== job.quoteId) throw new JobError('quote this job first; run must use its bound quote id');
-  if (!call.confirm) throw new JobError('explicit fee authorization required');
+  if (job.status !== 'quoted' || !call.quoteId || call.quoteId !== job.quoteId) throw new JobError(msg('quote this job first; run must use its bound quote id', '请先给这个任务报价；run 必须使用它绑定的报价 id'));
+  if (!call.confirm) throw new JobError(msg('explicit fee authorization required', '需要明确的付费授权（--confirm）'));
   const outDir = project.rt.path.join(project.root, 'production', 'results', job.id);
   return { name: 'generate', args: { quoteId: call.quoteId, confirm: true, ref: [], refUrl: [], outDir, ...(idempotencyKey ? { idempotencyKey } : {}) } };
 };
@@ -82,20 +84,28 @@ const refusal = (error: string): CliOutcome => ({ code: 1, result: { ok: false, 
  */
 export const quoteProblem = async (project: Project, job: Job, quoteId: string): Promise<string | null> => {
   const { rt } = project;
-  const again = `quote the job again (image quote --dir ${project.root} --id ${job.id}), then run the new quote id`;
+  const again = (why: string, zh: string): string =>
+    msg(
+      `quote ${quoteId} ${why}; quote the job again (image quote --dir ${project.root} --id ${job.id}), then run the new quote id`,
+      `报价 ${quoteId} ${zh}；请重新给任务报价（image quote --dir ${project.root} --id ${job.id}），再运行新的报价 id`,
+    );
   const spent = await ledger.attempt(rt, ledgerPathOf(project), quoteId);
-  if (spent) return `quote ${quoteId} was already submitted${refusedUncharged(spent) ? ' and refused without a charge' : ''}; ${again}`;
+  if (spent)
+    return refusedUncharged(spent)
+      ? again('was already submitted and refused without a charge', '已经提交过，被拒绝且未扣费')
+      : again('was already submitted', '已经提交过');
   const file = rt.path.join(project.root, 'production', 'quotes', `${quoteId}.json`);
-  if (!(await rt.fs.stat(file))?.isFile) return `quote ${quoteId} has no quote file; ${again}`;
+  if (!(await rt.fs.stat(file))?.isFile) return again('has no quote file', '没有报价文件');
   let record: { status?: unknown; expiresAt?: unknown };
   try {
     record = JSON.parse(await rt.fs.readText(file)) as typeof record;
   } catch {
-    return `quote ${quoteId} cannot be read; ${again}`;
+    return again('cannot be read', '无法读取');
   }
-  if (record.status !== 'quoted') return `quote ${quoteId} is ${String(record.status)}, not open; ${again}`;
+  if (record.status !== 'quoted') return again(`is ${String(record.status)}, not open`, `状态为 ${String(record.status)}，不是有效报价`);
   const expires = Date.parse(String(record.expiresAt));
-  if (Number.isNaN(expires) || rt.now().getTime() > expires) return `quote ${quoteId} expired at ${String(record.expiresAt)}; ${again}`;
+  if (Number.isNaN(expires) || rt.now().getTime() > expires)
+    return again(`expired at ${String(record.expiresAt)}`, `已于 ${String(record.expiresAt)} 过期`);
   return null;
 };
 
@@ -134,8 +144,13 @@ const runJob = async (project: Project, job: Job, path: string, call: JobCall): 
  */
 export const quoteOrRun = async (project: Project, job: Job, path: string, action: 'quote' | 'run', call: JobCall): Promise<CliOutcome> => {
   await checkRefsUnchanged(project.rt, job);
-  if (job.status === 'completed') throw new JobError('job is complete; reuse its asset');
-  if (job.provider.channel === 'host') throw new JobError('host: call the actual available image tool with this job prompt, count=1, then complete with its real file');
+  if (job.status === 'completed') throw new JobError(msg('job is complete; reuse its asset', '任务已完成；请复用它的素材'));
+  if (job.provider.channel === 'host') throw new JobError(
+      msg(
+        'host: call the actual available image tool with this job prompt, count=1, then complete with its real file',
+        'host：用这个任务的 prompt 调用实际可用的图片工具（count=1），再用它生成的真实文件运行 complete',
+      ),
+    );
   return action === 'quote' ? quoteJob(project, job, path, call) : runJob(project, job, path, call);
 };
 
@@ -148,14 +163,14 @@ export interface CompleteCall {
 /** Registers a real image with the project: the composition reference, or a named material asset. */
 export const completeJob = async (project: Project, job: Job, path: string, call: CompleteCall): Promise<void> => {
   const { rt } = project;
-  if (job.status === 'completed') throw new JobError('already complete');
-  if (!call.file || !call.note) throw new JobError('real image file and inspection note required');
-  if (job.provider.channel === 'host' && !call.tool) throw new JobError('name the host tool actually called');
+  if (job.status === 'completed') throw new JobError(msg('already complete', '已完成'));
+  if (!call.file || !call.note) throw new JobError(msg('real image file and inspection note required', '需要真实的图片文件（--file）和查看记录（--note）'));
+  if (job.provider.channel === 'host' && !call.tool) throw new JobError(msg('name the host tool actually called', '请用 --tool 写明实际调用的宿主工具'));
   const data = await rt.fs.readFile(rt.path.resolve(rt.cwd, call.file));
   try {
     sniffImage(data);
   } catch {
-    throw new JobError(`cannot identify image file '${call.file}'`);
+    throw new JobError(notPictureText(call.file));
   }
   const asset =
     job.purpose === 'composition'

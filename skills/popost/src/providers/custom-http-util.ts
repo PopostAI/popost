@@ -2,6 +2,7 @@
 import type { Runtime } from '../runtime';
 import { isRecord, type JsonRecord, type ModelRow } from './base';
 import { ImageProviderError } from './errors';
+import { msg } from '../i18n';
 
 export type TemplateValues = { prompt: string; model: string; aspect: string; count: number; refs: string; baseUrl: string };
 
@@ -43,7 +44,7 @@ export const imageMimeByName = (name: string): string => MIME_BY_EXTENSION[/\.[^
 /** Model rows of a mock fixture: `imageModels` (`value`, `credits`) and the platform-shaped `models` (`id`, `creditsPerImage`). */
 export const customMockModels = async (rt: Runtime, modelsPath: unknown, mockDir: string | null): Promise<ModelRow[]> => {
   const path = (typeof modelsPath === 'string' && modelsPath) || rt.path.join(mockDir ?? '', 'mock_models.json');
-  if (!(await rt.fs.stat(path))?.isFile) throw new ImageProviderError(`mock 模式缺少模型清单: ${path}`);
+  if (!(await rt.fs.stat(path))?.isFile) throw new ImageProviderError(msg(`mock mode has no model list: ${path}`, `mock 模式缺少模型清单: ${path}`));
   const data = JSON.parse(await rt.fs.readText(path)) as JsonRecord;
   const list = (key: string) => (Array.isArray(data[key]) ? (data[key] as JsonRecord[]) : []);
   const known = (credits: unknown) => credits !== undefined && credits !== null;

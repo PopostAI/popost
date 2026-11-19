@@ -5,6 +5,7 @@
 import { FONT_LINK, fontLinkTag } from '../fonts/project-fonts';
 import { MODES, SAFE_ID, MAX_CANVAS, type PageEntry, type Project } from '../core/project';
 import { isFile, sha256 } from '../core/util';
+import { msg } from '../i18n';
 import { sanitizeHtml } from './sanitize';
 
 /** A request the caller got wrong (HTTP 400); named like the Python `ValueError` it replaces. */
@@ -21,12 +22,15 @@ type Raw = Record<string, unknown>;
 
 const isRecord = (value: unknown): value is Raw => typeof value === 'object' && value !== null && !Array.isArray(value);
 
+const badSize = (): string => msg('invalid canvas size', '画布尺寸非法');
+const badPageId = (): string => msg('invalid or duplicate page id', '页 id 非法或重复');
+
 /** Python `int(x)`: integers and integer-like strings; anything else is a bad request. */
 const toInt = (value: unknown, fallback: number): number => {
   if (value === undefined) return fallback;
   if (typeof value === 'number' && Number.isFinite(value)) return Math.trunc(value);
   if (typeof value === 'string' && /^\s*[-+]?\d+\s*$/.test(value)) return Number.parseInt(value, 10);
-  throw new SaveError('invalid canvas size');
+  throw new SaveError(badSize());
 };
 
 const escapeRegExp = (text: string): string => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -51,19 +55,19 @@ interface Prepared {
 }
 
 const prepare = (data: Raw, project: Project): Prepared[] => {
-  if (!MODES.includes((data.mode ?? project.manifest.mode) as never)) throw new SaveError('invalid project mode');
+  if (!MODES.includes((data.mode ?? project.manifest.mode) as never)) throw new SaveError(msg('invalid project mode', '工程模式非法'));
   const pages = data.pages;
-  if (!Array.isArray(pages) || !pages.length) throw new SaveError('project needs at least one page');
+  if (!Array.isArray(pages) || !pages.length) throw new SaveError(msg('project needs at least one page', '工程至少需要一页'));
   const seen = new Set<string>();
   return pages.map((raw: unknown) => {
-    if (!isRecord(raw) || typeof raw.id !== 'string') throw new SaveError('invalid or duplicate page id');
+    if (!isRecord(raw) || typeof raw.id !== 'string') throw new SaveError(badPageId());
     const id = raw.id;
-    if (!SAFE_ID.test(id) || seen.has(id)) throw new SaveError('invalid or duplicate page id');
+    if (!SAFE_ID.test(id) || seen.has(id)) throw new SaveError(badPageId());
     seen.add(id);
     const width = toInt(raw.width, 1080);
     const height = toInt(raw.height, 1350);
-    if (width < 1 || width > MAX_CANVAS || height < 1 || height > MAX_CANVAS) throw new SaveError('invalid canvas size');
-    if (typeof raw.html !== 'string') throw new SaveError('page html must be a string');
+    if (width < 1 || width > MAX_CANVAS || height < 1 || height > MAX_CANVAS) throw new SaveError(badSize());
+    if (typeof raw.html !== 'string') throw new SaveError(msg('page html must be a string', '页面 html 必须是字符串'));
     const html = withFontLinks(sanitizeHtml(raw.html), project.manifest.fonts);
     const entry = { id, name: String(raw.name ?? id), htmlPath: `pages/${id}.html`, width, height, role: String(raw.role ?? 'content') };
     return { entry, html };
@@ -80,7 +84,7 @@ const restore = async (project: Project, backups: Map<string, string | null>): P
 /** Validate and write all pages of `data` (`{pages: [{id, name?, width?, height?, role?, html}]}`). */
 export const savePayload = async (project: Project, data: unknown): Promise<SavedPage[]> => {
   const body = isRecord(data) && isRecord(data.manifest) ? data.manifest : data;
-  if (!isRecord(body)) throw new SaveError('project payload must be an object');
+  if (!isRecord(body)) throw new SaveError(msg('project payload must be an object', '工程数据必须是一个对象'));
   const prepared = prepare(body, project);
   const { rt } = project;
   const old = structuredClone(project.manifest);

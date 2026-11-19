@@ -1,15 +1,17 @@
-# Popost Skill 4.6.0
+# Popost Skill 4.6.1
 
 Create, reproduce and edit social image posts as editable HTML projects. The Agent entrypoint is [SKILL.md](SKILL.md); first-use and spending rules are in [onboarding](references/onboarding.md).
 
 ## Install and start
 
-Use the installation channel for the selected distribution. A supplied test/archive build includes a pinned companion package: keep using that executable rather than silently replacing it with a global/latest release. To install a downloaded package:
+Install from npm:
 
 ```sh
-npm install -g ./popost-4.6.0.tgz
+npm install -g popost
 popost install
 ```
+
+A supplied test/archive build includes a pinned companion package: install that file instead (`npm install -g ./popost-<version>.tgz`, then `popost install`) and keep using its executable rather than silently replacing it with a global/latest release.
 
 Use `--agent` to select a supported Agent or `--dir <skills-directory>` for another Agent. Start a new session and send a brief, pictures/screenshots, or a supported social post link. The Skill and executable have separate installation locations. Missing tools are prepared only as needed. Source development uses `npm ci && npm run build:skill` at the repository root; `dist/` is generated.
 
@@ -17,7 +19,7 @@ Use `--agent` to select a supported Agent or `--dir <skills-directory>` for anot
 
 Local references, layout, editing, rendering and export use no Popost image/parsing credits; the Agent itself may have separate fees. Popost hosted parsing retrieves supported pictures, titles and body text from TikTok, Instagram, X, Xiaohongshu and Douyin posts. Local screenshots and supplied text are an alternative to parsing.
 
-For hosted work, run `popost auth login`. Enter the device code in the browser and approve the connection. The CLI verifies the account before it reports success. Reuse the same profile for future chats and disconnect it from the account settings whenever needed. Use `--base-url` to select another site. Developers can still configure an API key through their host or `popost auth set --prompt`.
+For hosted work, run `popost auth login`. Enter the device code in the browser and approve the connection. The CLI verifies the account before it reports success. Reuse the same profile for future chats and disconnect it from the account settings whenever needed. To use another site, pass its full API address, for example `popost auth login --base-url https://<site>/api/open/v1` (`POPOST_BASE_URL` takes the same full address; the default is `https://popost.ai/api/open/v1`). Developers can still configure an API key through their host or `popost auth set --prompt`.
 
 `link quote` / `pricing` reads the live parsing tariff without creating a task. To save a supported post link directly to the account's My Inspirations, use `inspiration quote`, then `inspiration add URL --confirm --max-credits N` after authorization. This returns an inspiration ID without downloading files. `inspiration status TASK_ID` resumes an unfinished save. `link parse URL --confirm --max-credits N` also creates a local PostBundle for editing. Image jobs use `image prepare`, `image quote`, then `image run --quote-id Q --confirm`; their request caps, price recheck and idempotency remain in effect. The Agent shows stage fees and tracks commission scope/budget, including optional composition reference images. Cross-process server-wide project budgets are not provided by this CLI.
 
@@ -31,6 +33,6 @@ The canvas editor is maintained in `packages/canvas-editor`; its build is publis
 
 ## Maintainer verification
 
-From the repository root run `npm run check`, `npm run build` and `npm run build:skill`; packaging is checked with `npm run release:check`. Tests use in-memory API fixtures and do not establish real model quality or live billing. Rendering tests require local Chrome/Chromium. `SOURCE-MANIFEST.sha256` verifies tracked source and resources (excluding this README and the manifest).
+From the repository root run `npm run check`, `npm run build` and `npm run build:skill`; packaging is checked with `npm run release:check`. Tests use in-memory API fixtures and do not establish real model quality or live billing. Rendering tests require local Chrome/Chromium. In the repository, `skills/popost/SOURCE-MANIFEST.sha256` verifies tracked source and resources (excluding this README and the manifest); it is not part of the npm package.
 
 License scope is defined by [LICENSE](LICENSE) and [THIRD_PARTY_NOTICES](THIRD_PARTY_NOTICES); this update does not change licensing.

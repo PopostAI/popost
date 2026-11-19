@@ -50,16 +50,16 @@ describe('client and model list', () => {
   });
 
   it.each([
-    [401, 'UNAUTHORIZED', undefined, ['账户连接已失效', 'POPOST_API_KEY']],
-    [403, 'FORBIDDEN', undefined, ['无权']],
-    [402, 'INSUFFICIENT_CREDITS', { required: 24, balance: 5 }, ['积分不足', '24', '5']],
-    [409, 'CREDIT_LIMIT_EXCEEDED', { required: 30, balance: 99, maxCredits: 24 }, ['上限', '30', '24']],
-    [429, 'RATE_LIMITED', { retryAfterSeconds: 17 }, ['17 秒']],
-    [426, 'CLI_VERSION_TOO_OLD', { minVersion: '9.0.0' }, ['更新', '9.0.0', VERSION]],
+    [401, 'UNAUTHORIZED', undefined, ['no longer valid', 'POPOST_API_KEY']],
+    [403, 'FORBIDDEN', undefined, ['not allowed']],
+    [402, 'INSUFFICIENT_CREDITS', { required: 24, balance: 5 }, ['Not enough credits', '24', '5']],
+    [409, 'CREDIT_LIMIT_EXCEEDED', { required: 30, balance: 99, maxCredits: 24 }, ['limit', '30', '24']],
+    [429, 'RATE_LIMITED', { retryAfterSeconds: 17 }, ['17 seconds']],
+    [426, 'CLI_VERSION_TOO_OLD', { minVersion: '9.0.0' }, ['update', '9.0.0', VERSION]],
     [400, 'INVALID_REQUEST', { issues: [{ path: ['aspectRatio'], message: 'bad ratio' }] }, ['aspectRatio', 'bad ratio']],
-    [422, 'CONTENT_REJECTED', undefined, ['审核']],
-    [503, 'SERVICE_UNAVAILABLE', undefined, ['不可用']],
-    [501, 'NOT_IMPLEMENTED', undefined, ['尚未开放']],
+    [422, 'CONTENT_REJECTED', undefined, ['moderation']],
+    [503, 'SERVICE_UNAVAILABLE', undefined, ['unavailable']],
+    [501, 'NOT_IMPLEMENTED', undefined, ['does not offer']],
   ])('maps the %i %s envelope to a clear message, never to "ambiguous"', async (status, code, details, fragments) => {
     const { p, stub } = await provider();
     stub.set('POST', '/images/quote', err(status, code, 'srv says no', details));
@@ -198,7 +198,7 @@ describe('capabilities and generation', () => {
     expect(error).toBeInstanceOf(PopostApiError);
     expect(error).not.toBeInstanceOf(AmbiguousSubmitError);
     expect(error.code).toBe('NETWORK');
-    expect(error.message).toContain('不允许访问');
+    expect(error.message).toContain('does not allow connections');
     expect(error.message).not.toContain(KEY);
     expect(scene.stub.requests).toEqual([]);
     expect(error).not.toBeInstanceOf(BlockedFetchError); // reported as a normal provider error, not a crash
@@ -226,7 +226,7 @@ describe('capabilities and generation', () => {
 
   it('refuses a bad task id and a missing record', async () => {
     const { p } = await provider();
-    await expect(p.status('../etc/passwd')).rejects.toThrow('非法 taskId');
-    await expect(p.status('pt-missing')).rejects.toThrow('本地没有任务记录');
+    await expect(p.status('../etc/passwd')).rejects.toThrow('invalid taskId');
+    await expect(p.status('pt-missing')).rejects.toThrow('there is no local task record');
   });
 });

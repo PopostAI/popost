@@ -4,21 +4,26 @@ import { Project } from '../core/project';
 import { printJson } from '../core/util';
 import { listRoles } from '../fonts/palette';
 import { cjkFontWarnings, installedFontLinks, installFonts } from '../fonts/project-fonts';
+import { msg } from '../i18n';
 import type { CommandMain } from '../runtime';
 
-const SPEC: CommandSpec = {
+const spec = (): CommandSpec => ({
   prog: 'popost font',
-  description:
+  description: msg(
     'List the font library or install roles into a project (fonts/, css/, fonts-manifest.json). install prints warnings when a cjk-* role goes into a project whose copy language is not Chinese: install those only for copy that has Chinese text.',
-  positionals: [{ name: 'action', choices: ['list', 'install'], help: 'list the roles, or install some into a project' }],
-  options: [
-    { flag: '--dir', default: '.', help: 'project directory (install)' },
-    { flag: '--roles', default: '', help: 'install: comma-separated role ids' },
+    '列出字库，或把字体角色安装到工程里（fonts/、css/、fonts-manifest.json）。把 cjk-* 角色装进文案语言不是中文的工程时，install 会给出 warnings：只有文案里有中文时才安装它们。',
+  ),
+  positionals: [
+    { name: 'action', choices: ['list', 'install'], help: msg('list the roles, or install some into a project', '列出字体角色，或把其中一些安装到工程里') },
   ],
-};
+  options: [
+    { flag: '--dir', default: '.', help: msg('project directory (install)', '工程目录（install 用）') },
+    { flag: '--roles', default: '', help: msg('install: comma-separated role ids', 'install：逗号分隔的角色 id') },
+  ],
+});
 
 export const main: CommandMain = (argv, rt) =>
-  withArgs(argv, SPEC, rt, async (args) => {
+  withArgs(argv, spec(), rt, async (args) => {
     if (args.req('action') === 'list') {
       printJson(rt, { ok: true, roles: await listRoles(rt) }, true);
       return 0;

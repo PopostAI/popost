@@ -164,7 +164,7 @@ describe('quote then generate', () => {
     f.stub.set('POST', '/images/generations', err(409, 'CREDIT_LIMIT_EXCEEDED', 'over', { required: 40, balance: 500, maxCredits: 12 }));
     const { code, data } = await f.pcli('generate', '--quote-id', rec.quoteId, '--confirm', ...FLAGS, '--out-dir', OUT);
     expect(code).toBe(1);
-    expect(data.error).toContain('未扣费');
+    expect(data.error).toContain('nothing was charged');
     expect(data.error).toContain('CREDIT_LIMIT_EXCEEDED');
     const last = (await f.ledger()).at(-1);
     expect(last.state).toBe('ambiguous');
@@ -182,7 +182,7 @@ describe('quote refusals', () => {
     f.stub.set('GET', '/models', err(426, 'CLI_VERSION_TOO_OLD', 'old', { minVersion: '99.0.0' }));
     r = await f.pcli('quote', ...FLAGS, '--prompt', 'x');
     expect(r.code).toBe(1);
-    expect(r.data.error).toContain('更新 popost Skill');
+    expect(r.data.error).toContain('update the popost Skill');
     expect(await f.rt.fs.stat('/work/quotes')).toBeNull();
     await noSecret(f);
   });
@@ -192,12 +192,16 @@ describe('quote refusals', () => {
     f.stub.set('POST', '/images/quote', err(429, 'RATE_LIMITED', 'slow', { retryAfterSeconds: 9 }));
     let r = await f.pcli('quote', ...FLAGS, '--prompt', 'x');
     expect(r.code).toBe(1);
-    expect(r.data.error).toContain('9 秒');
+    expect(r.data.error).toContain('9 seconds');
     f.stub.clear('POST', '/images/quote');
     f.stub.balance = 5;
     r = await f.pcli('quote', ...FLAGS, '--prompt', 'x');
     expect(r.code).toBe(1);
-    expect(r.data.error).toContain('积分不足');
+    expect(r.data.error).toContain('Not enough credits');
+    // the price is still there for the user, as fields, and nothing was recorded as a quote
+    expect(r.data.billing).toMatchObject({ creditsPerImage: expect.any(String), totalCredits: expect.any(String), balance: 5, sufficient: false, charged: false });
+    expect(Number(r.data.billing.totalCredits)).toBeGreaterThan(5);
+    expect(await f.rt.fs.stat('/work/quotes')).toBeNull();
   });
 
   it('stops generation when the live price moved since the quote', async () => {
@@ -206,7 +210,7 @@ describe('quote refusals', () => {
     f.stub.models[0]!.creditsPerImage = 15;
     const { code, data } = await f.pcli('generate', '--quote-id', rec.quoteId, '--confirm', ...FLAGS, '--out-dir', OUT);
     expect(code).toBe(1);
-    expect(data.error).toContain('价格已变动');
+    expect(data.error).toContain('the price changed');
     expect(f.stub.calls('POST', '/images/generations')).toEqual([]);
     expect(await f.ledger()).toEqual([]);
   });
@@ -225,7 +229,7 @@ describe('quote refusals', () => {
     const f = await flow();
     let r = await f.pcli('quote', ...FLAGS, '--prompt', 'x', '--model', 'stub-model-b');
     expect(r.code).toBe(1);
-    expect(r.data.error).toContain('锁定');
+    expect(r.data.error).toContain('locked');
     await f.writeCfg({ providerOverrides: [{ provider: 'popost', model: 'stub-model-b' }] });
     r = await f.pcli('quote', ...FLAGS, '--prompt', 'x', '--model', 'stub-model-b', '--aspect-ratio', '1:1');
     expect(r.code, JSON.stringify(r.data)).toBe(0);
@@ -272,17 +276,17 @@ describe('quote files and the ledger', () => {
     await f.rt.fs.writeFile(path, original.replace('"totalCredits": "12"', '"totalCredits": "1"'));
     let r = await f.pcli('generate', '--quote-id', rec.quoteId, '--confirm', ...FLAGS, '--out-dir', OUT);
     expect(r.code).toBe(1);
-    expect(r.data.error).toContain('完整性');
+    expect(r.data.error).toContain('integrity');
     r = await f.pcli('generate', '--quote-id', 'q_nope', '--confirm', ...FLAGS, '--out-dir', OUT);
-    expect(r.data.error).toContain('不存在');
+    expect(r.data.error).toContain('does not exist');
     await f.rt.fs.writeFile(path, '{ not json');
     r = await f.pcli('generate', '--quote-id', rec.quoteId, '--confirm', ...FLAGS, '--out-dir', OUT);
-    expect([r.code, r.data.error]).toEqual([1, expect.stringContaining('不是合法 JSON')]);
+    expect([r.code, r.data.error]).toEqual([1, expect.stringContaining('not valid JSON')]);
     await f.rt.fs.writeFile(path, original);
     const later = { ...f.rt, now: () => new Date(Date.UTC(2027, 0, 1)) };
     r = await cli(later, 'provider', 'cli', 'generate', '--quote-id', rec.quoteId, '--confirm', ...FLAGS, '--out-dir', OUT);
     expect(r.code).toBe(1);
-    expect(r.data.error).toContain('已过期');
+    expect(r.data.error).toContain('expired');
     expect(f.stub.calls('POST', '/images/generations')).toEqual([]);
   });
 
@@ -291,7 +295,7 @@ describe('quote files and the ledger', () => {
     const rec = (await f.quote('--ref', '/work/ref.png')).quote;
     const base = ['generate', '--quote-id', rec.quoteId, '--confirm', ...FLAGS, '--out-dir', OUT];
     let r = await f.pcli(...base, '--prompt', 'something else entirely');
-    expect([r.code, r.data.error]).toEqual([1, expect.stringContaining('不一致')]);
+    expect([r.code, r.data.error]).toEqual([1, expect.stringContaining('differ')]);
     r = await f.pcli(...base, '--model', 'stub-model-b');
     expect(r.code).toBe(1);
     await f.rt.fs.writeFile('/work/ref.png', tinyPng([9, 9, 9], 3));
@@ -305,7 +309,7 @@ describe('quote files and the ledger', () => {
     const rec = (await f.quote()).quote;
     await f.writeCfg({ defaultModel: 'stub-model-a' });
     const r = await f.pcli('generate', '--quote-id', rec.quoteId, '--confirm', ...FLAGS, '--out-dir', OUT);
-    expect([r.code, r.data.error]).toEqual([1, expect.stringContaining('端点')]);
+    expect([r.code, r.data.error]).toEqual([1, expect.stringContaining('endpoint')]);
   });
 
   it('accepts a request that quotes, and the quote file has no secrets and a stable shape', async () => {

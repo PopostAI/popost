@@ -7,7 +7,9 @@
  */
 import { createHash } from 'node:crypto';
 import type { Runtime } from '../runtime';
+import { errorText } from '../core/error-text';
 import { sha256File, writeAtomic } from '../core/util';
+import { msg } from '../i18n';
 import { downloadResult, EXTENSIONS, sniffImageMime } from './api';
 import { isInt, isNumber, isRecord, type JsonRecord } from './base';
 import { AmbiguousSubmitError, ImageProviderError } from './errors';
@@ -44,30 +46,35 @@ export class TaskStore {
   /** Creates the task folder before the paid request goes out, so a result that cannot be saved is known in advance. */
   async prepare(taskId: string): Promise<string> {
     const root = this.taskRoot(taskId);
-    const fail = (kind: string) => new ImageProviderError(`任务记录目录不可写（${kind}），未提交: ${root}`);
-    if (await this.rt.fs.stat(root)) throw fail('FileExistsError');
+    const fail = (why: string) => new ImageProviderError(msg(`the task record folder cannot be written (${why}); nothing was submitted: ${root}`, `任务记录目录不可写（${why}），未提交: ${root}`));
+    if (await this.rt.fs.stat(root)) throw fail(msg('it already exists', '已存在'));
     try {
       await this.rt.fs.mkdir(root);
       const probe = this.rt.path.join(root, '.write-probe');
       await this.rt.fs.writeFile(probe, 'ok');
       await this.rt.fs.rm(probe);
     } catch (error) {
-      throw fail((error as { code?: string })?.code ?? 'OSError');
+      throw fail(errorText(error));
     }
     return root;
   }
 
   /** Saves the platform's answer. A usable image list is required; without one the outcome is unknown, not "free". */
   async store(taskId: string, root: string, data: unknown, model: string | null, aspect: string, count: number, idem: string): Promise<TaskRecord> {
-    const hint = `可能已扣费；幂等键 ${idem}，重试前先核对 popost.ai 生成记录`;
-    if (!isRecord(data) || !Array.isArray(data.images) || !data.images.length) throw new AmbiguousSubmitError(`生成响应缺少 images，结果不确定。${hint}`);
+    const hint = msg(
+      `It may have been charged; idempotency key ${idem}. Check the generation history on popost.ai before any retry`,
+      `可能已扣费；幂等键 ${idem}，重试前先核对 popost.ai 生成记录`,
+    );
+    if (!isRecord(data) || !Array.isArray(data.images) || !data.images.length)
+      throw new AmbiguousSubmitError(msg(`The generation answer has no images, so the outcome is unknown. ${hint}`, `生成响应缺少 images，结果不确定。${hint}`));
     const images: StoredImage[] = [];
     for (const [i, img] of data.images.entries()) {
       if (!isRecord(img)) continue;
       const entry = await this.storeImage(root, i, img);
       if (entry) images.push(entry);
     }
-    if (!images.length) throw new AmbiguousSubmitError(`生成响应里没有可用图片，结果不确定。${hint}`);
+    if (!images.length)
+      throw new AmbiguousSubmitError(msg(`The generation answer has no usable image, so the outcome is unknown. ${hint}`, `生成响应里没有可用图片，结果不确定。${hint}`));
     const usage = isRecord(data.usage) ? data.usage : {};
     const record: TaskRecord = {
       schema: 'popost-task.v1',
@@ -94,7 +101,7 @@ export class TaskStore {
     if (typeof img.data === 'string' && img.data) {
       const raw = new Uint8Array(Buffer.from(img.data, 'base64'));
       const mime = sniffImageMime(raw.subarray(0, 16));
-      if (!mime) throw new Error(`inline image ${index} is not a supported image`);
+      if (!mime) throw new Error(msg(`inline image ${index} is not a supported image`, `内联图片 ${index} 不是支持的图片格式`));
       const file = `${index}${EXTENSIONS[mime]}`;
       await this.rt.fs.writeFile(this.rt.path.join(root, file), raw);
       return Object.assign(entry, { file, mimeType: mime, sha256: createHash('sha256').update(raw).digest('hex') });
@@ -104,10 +111,15 @@ export class TaskStore {
   }
 
   async load(taskId: string): Promise<TaskRecord> {
-    if (!TASK_ID_RE.test(String(taskId ?? ''))) throw new ImageProviderError(`非法 taskId: ${JSON.stringify(taskId)}`);
+    if (!TASK_ID_RE.test(String(taskId ?? ''))) throw new ImageProviderError(msg(`invalid taskId: ${JSON.stringify(taskId)}`, `非法 taskId: ${JSON.stringify(taskId)}`));
     const path = this.recordPath(taskId);
     if (!(await this.rt.fs.stat(path))?.isFile)
-      throw new ImageProviderError(`本地没有任务记录 ${taskId}（popost 生图为同步接口，记录在 ${this.dir()}；用 --task-dir/--quote-dir 指向生成时的目录）`);
+      throw new ImageProviderError(
+        msg(
+          `there is no local task record ${taskId} (popost generates synchronously and keeps its records in ${this.dir()}; point --task-dir/--quote-dir at the folders used when generating)`,
+          `本地没有任务记录 ${taskId}（popost 生图为同步接口，记录在 ${this.dir()}；用 --task-dir/--quote-dir 指向生成时的目录）`,
+        ),
+      );
     return JSON.parse(await this.rt.fs.readText(path)) as TaskRecord;
   }
 
@@ -125,7 +137,8 @@ export class TaskStore {
   /** Copies the saved images to `outDir` (inline ones) or downloads them (url ones). Never regenerates. */
   async materialize(taskId: string, outDir: string, filename?: string): Promise<JsonRecord[]> {
     const rec = await this.load(taskId);
-    if (rec.status !== 'completed') throw new ImageProviderError(`任务 ${taskId} 未 completed（当前 ${String(rec.status)}）`);
+    if (rec.status !== 'completed')
+      throw new ImageProviderError(msg(`task ${taskId} is not completed (status: ${String(rec.status)})`, `任务 ${taskId} 未 completed（当前 ${String(rec.status)}）`));
     await this.rt.fs.mkdir(outDir);
     const images = rec.images ?? [];
     const base = filename ? this.rt.path.parse(this.rt.path.basename(filename)).name : taskId;
@@ -154,7 +167,7 @@ export class TaskStore {
     const mime = sniffImageMime(raw.subarray(0, 16));
     if (!mime) {
       await this.rt.fs.rm(tmp);
-      throw new ImageProviderError(`结果图 ${index} 下载内容不是图片`);
+      throw new ImageProviderError(msg(`the download of result image ${index} is not a picture`, `结果图 ${index} 下载内容不是图片`));
     }
     const dest = path.join(outDir, stem + EXTENSIONS[mime]);
     await this.rt.fs.rename(tmp, dest);
@@ -178,7 +191,7 @@ export class PopostMock {
   async catalog(): Promise<JsonRecord> {
     const candidates = [typeof this.modelsPath === 'string' ? this.modelsPath : null, this.mockDir ? this.rt.path.join(this.mockDir, 'mock_models.json') : null, this.rt.path.join(this.staticDir, 'mock_models.json')];
     for (const path of candidates) if (path && (await this.rt.fs.stat(path))?.isFile) return JSON.parse(await this.rt.fs.readText(path)) as JsonRecord;
-    throw new ImageProviderError('mock 模式缺少模型清单 mock_models.json');
+    throw new ImageProviderError(msg('mock mode has no model list mock_models.json', 'mock 模式缺少模型清单 mock_models.json'));
   }
 
   private async tasks(): Promise<JsonRecord[]> {
@@ -196,7 +209,7 @@ export class PopostMock {
 
   async status(taskId: string): Promise<JsonRecord> {
     const task = (await this.tasks()).find((t) => t.taskId === taskId);
-    if (!task) throw new ImageProviderError(`mock 任务 ${taskId} 不存在`);
+    if (!task) throw new ImageProviderError(msg(`the mock task ${taskId} does not exist`, `mock 任务 ${taskId} 不存在`));
     return { ...task, mock: true };
   }
 
@@ -217,6 +230,8 @@ export class PopostMock {
     const { path } = this.rt;
     const candidates = [...(this.mockDir ? [path.join(this.mockDir, path.basename(url)), path.join(this.mockDir, 'mock_result.png')] : []), path.join(this.staticDir, 'mock_result.png')];
     for (const candidate of candidates) if ((await this.rt.fs.stat(candidate))?.isFile) return candidate;
-    throw new ImageProviderError('mock 缺少结果图：包内 assets/mock/mock_result.png 缺失');
+    throw new ImageProviderError(
+      msg('mock has no result image: assets/mock/mock_result.png is missing from the package', 'mock 缺少结果图：包内 assets/mock/mock_result.png 缺失'),
+    );
   }
 }

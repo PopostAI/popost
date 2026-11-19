@@ -10,7 +10,9 @@
  * service that is unconfigured, unreachable or has no known price reports unavailable, never "connected".
  */
 import { createHash } from 'node:crypto';
+import { networkReason } from '../core/error-text';
 import { sha256File } from '../core/util';
+import { msg } from '../i18n';
 import { BaseImageProvider, downloadUrl, isRecord, type CheckResult, type JsonRecord, type ModelRow, type SubmitRequest } from './base';
 import { AmbiguousSubmitError, ImageProviderError } from './errors';
 import { isHostBlocked } from './api';
@@ -19,7 +21,13 @@ import { customMockModels, fillTemplate, getPath, imageMimeByName, type Template
 
 export const PROVIDER_NAME = 'custom';
 
-const errorMessage = (error: unknown): string => (error instanceof Error ? error.message : String(error));
+const hostOf = (url: string): string => {
+  try {
+    return new URL(url).host;
+  } catch {
+    return url;
+  }
+};
 
 interface SyncTask extends JsonRecord {
   status: string;
@@ -36,7 +44,7 @@ export class CustomHttpProvider extends BaseImageProvider {
   constructor(...args: ConstructorParameters<typeof BaseImageProvider>) {
     super(...args);
     this.mode = (this.config.mode as string | undefined) || 'openai-compatible';
-    if (!['openai-compatible', 'http'].includes(this.mode)) throw new ImageProviderError('custom.mode 仅支持 openai-compatible | http');
+    if (!['openai-compatible', 'http'].includes(this.mode)) throw new ImageProviderError(msg('custom.mode must be openai-compatible or http', 'custom.mode 仅支持 openai-compatible | http'));
     this.baseUrl = String(this.config.baseUrl || '').replace(/\/+$/, '');
   }
 
@@ -64,14 +72,20 @@ export class CustomHttpProvider extends BaseImageProvider {
     const envVar = auth.envVar as string | undefined;
     if (envVar) {
       const secret = this.rt.env[envVar];
-      if (secret === undefined) throw new ImageProviderError(`环境变量 ${envVar} 未设置（密钥只走环境变量，不写入配置）`);
+      if (secret === undefined)
+        throw new ImageProviderError(
+          msg(
+            `the environment variable ${envVar} is not set (keys are read only from environment variables, never from the config)`,
+            `环境变量 ${envVar} 未设置（密钥只走环境变量，不写入配置）`,
+          ),
+        );
       const scheme = auth.scheme === undefined ? 'Bearer' : auth.scheme ? String(auth.scheme) : '';
       headers[String(auth.header ?? 'Authorization')] = scheme ? `${scheme} ${secret}` : secret;
     }
     for (const [name, value] of Object.entries(extra ?? {})) {
       if (typeof value === 'string' && value.startsWith('$env:')) {
         const secret = this.rt.env[value.slice(5)];
-        if (secret === undefined) throw new ImageProviderError(`环境变量 ${value.slice(5)} 未设置`);
+        if (secret === undefined) throw new ImageProviderError(msg(`the environment variable ${value.slice(5)} is not set`, `环境变量 ${value.slice(5)} 未设置`));
         headers[name] = secret;
       } else headers[name] = String(value);
     }
@@ -85,19 +99,22 @@ export class CustomHttpProvider extends BaseImageProvider {
     if (model && this.config.skipModelDiscovery) return [{ value: model, label: model, credits: credits ?? null, known: credits !== undefined && credits !== null }];
     if (this.mock) return customMockModels(this.rt, this.config.mockModelsPath, this.mockDir);
     if (this.mode === 'openai-compatible') return this.discoverModels();
-    if (!model) throw new ImageProviderError('custom.http 配置缺少 model');
+    if (!model) throw new ImageProviderError(msg('the custom.http config has no model', 'custom.http 配置缺少 model'));
     return [{ value: model, label: model, credits: credits ?? null, known: credits !== undefined && credits !== null }];
   }
 
   private async discoverModels(): Promise<ModelRow[]> {
     let data: unknown;
+    const url = `${this.baseUrl}/v1/models`;
     try {
-      const response = await this.rt.fetch(`${this.baseUrl}/v1/models`, { method: 'GET', headers: this.authHeaders(), signal: timeoutSignal(this.rt, 30_000) });
-      if (!response.ok) throw new ImageProviderError(`GET /v1/models 被拒绝(${response.status})，未产生费用`);
+      const response = await this.rt.fetch(url, { method: 'GET', headers: this.authHeaders(), signal: timeoutSignal(this.rt, 30_000) });
+      if (!response.ok)
+        throw new ImageProviderError(msg(`GET /v1/models was refused (HTTP ${response.status}); nothing was charged`, `GET /v1/models 被拒绝(${response.status})，未产生费用`));
       data = await response.json();
     } catch (error) {
       if (error instanceof ImageProviderError) throw error;
-      throw new ImageProviderError(`GET /v1/models 不可达: ${this.redact(errorMessage(error))}`);
+      const reason = error instanceof SyntaxError ? msg('the answer is not JSON', '响应不是 JSON') : this.redact(networkReason(error, url));
+      throw new ImageProviderError(msg(`GET /v1/models failed: ${reason}`, `GET /v1/models 不可达: ${reason}`));
     }
     const items = isRecord(data) && Array.isArray(data.data) ? data.data : [];
     return items.filter((i): i is JsonRecord => isRecord(i) && Boolean(i.id)).map((item) => {
@@ -107,8 +124,8 @@ export class CustomHttpProvider extends BaseImageProvider {
   }
 
   async check(): Promise<CheckResult> {
-    if (this.mock) return [true, false, 'custom mock 模式（不联网，未实测连通）'];
-    if (!this.baseUrl) return [false, false, 'custom.baseUrl 未配置（BYOK 未设置）'];
+    if (this.mock) return [true, false, msg('custom mock mode (offline; the connection was not tested)', 'custom mock 模式（不联网，未实测连通）')];
+    if (!this.baseUrl) return [false, false, msg('custom.baseUrl is not configured (no own-key service is set up)', 'custom.baseUrl 未配置（BYOK 未设置）')];
     let rows: ModelRow[];
     try {
       rows = await this.models();
@@ -116,10 +133,15 @@ export class CustomHttpProvider extends BaseImageProvider {
       if (error instanceof ImageProviderError) return [false, true, error.message];
       throw error;
     }
-    if (this.mode === 'http' && !this.section('http').submit) return [false, true, 'custom.http.submit 未配置'];
+    if (this.mode === 'http' && !this.section('http').submit) return [false, true, msg('custom.http.submit is not configured', 'custom.http.submit 未配置')];
     const known = rows.filter((r) => r.known);
-    if (!known.length) return [rows.length > 0, true, 'custom 可列出模型；价格未知，需显式接受供应商费用后才能提交'];
-    return [true, true, `custom(${this.mode}) 配置可读，已知模型 ${known.length} 个`];
+    if (!known.length)
+      return [
+        rows.length > 0,
+        true,
+        msg("custom lists models but their prices are unknown: a submit needs explicit acceptance of the provider's charges", 'custom 可列出模型；价格未知，需显式接受供应商费用后才能提交'),
+      ];
+    return [true, true, msg(`custom (${this.mode}) config is readable; ${known.length} model(s) with a known price`, `custom(${this.mode}) 配置可读，已知模型 ${known.length} 个`)];
   }
 
   // ---------- HTTP ----------
@@ -128,26 +150,38 @@ export class CustomHttpProvider extends BaseImageProvider {
     try {
       new URL(url);
     } catch {
-      throw new ImageProviderError(`请求 URL 非法（本地配置错误，未发请求）: ${url}`);
+      throw new ImageProviderError(msg(`invalid request URL (a local config error; nothing was sent): ${url}`, `请求 URL 非法（本地配置错误，未发请求）: ${url}`));
     }
     let response: Response;
     try {
       response = await this.rt.fetch(url, { method, headers: this.authHeaders(headers), body: body === undefined ? undefined : JSON.stringify(body), signal: timeoutSignal(this.rt, timeoutSec * 1000) });
     } catch (error) {
       // A host that refuses the URL never sent anything: a plain refusal, not an unknown outcome.
-      if (isHostBlocked(error)) throw new ImageProviderError(`当前运行环境不允许访问该地址，未发请求（${this.redact(errorMessage(error))}）`);
-      throw new AmbiguousSubmitError(`网络错误/超时(${this.redact(errorMessage(error))})，受理状态不确定，禁止自动重试`);
+      if (isHostBlocked(error))
+        throw new ImageProviderError(msg(`this environment does not allow connections to ${hostOf(url)}; nothing was sent`, `当前运行环境不允许访问该地址，未发请求（${hostOf(url)}）`));
+      const reason = this.redact(networkReason(error, url));
+      throw new AmbiguousSubmitError(
+        msg(
+          `network error or timeout (${reason}): whether the order was accepted is unknown; do not retry automatically`,
+          `网络错误/超时(${reason})，受理状态不确定，禁止自动重试`,
+        ),
+      );
     }
     if (!response.ok) {
       await response.body?.cancel().catch(() => undefined);
-      if (response.status >= 400 && response.status < 500) throw new ImageProviderError(`HTTP ${response.status} 被拒绝（未建单）`);
-      throw new AmbiguousSubmitError(`HTTP ${response.status}，受理状态不确定，禁止自动重试`);
+      if (response.status >= 400 && response.status < 500)
+        throw new ImageProviderError(msg(`refused with HTTP ${response.status} (no order was created)`, `HTTP ${response.status} 被拒绝（未建单）`));
+      throw new AmbiguousSubmitError(
+        msg(`HTTP ${response.status}: whether the order was accepted is unknown; do not retry automatically`, `HTTP ${response.status}，受理状态不确定，禁止自动重试`),
+      );
     }
     const text = await response.text();
     try {
       return text.trim() ? (JSON.parse(text) as JsonRecord) : {};
     } catch {
-      throw new AmbiguousSubmitError('响应不是合法 JSON，受理状态不确定，禁止自动重试');
+      throw new AmbiguousSubmitError(
+        msg('the answer is not valid JSON: whether the order was accepted is unknown; do not retry automatically', '响应不是合法 JSON，受理状态不确定，禁止自动重试'),
+      );
     }
   }
 
@@ -158,9 +192,14 @@ export class CustomHttpProvider extends BaseImageProvider {
     this.aspects = Array.isArray(capabilities.aspects) ? (capabilities.aspects as string[]) : this.aspects;
     const { refs, count } = this.validateSubmitArgs(prompt, aspect, request.refs, request.count);
     if (refs.length && !capabilities.referenceImages)
-      throw new ImageProviderError('custom profile does not declare referenceImages support; configure its actual image-edit transport');
+      throw new ImageProviderError(
+        msg(
+          'custom profile does not declare referenceImages support; configure its actual image-edit transport',
+          'custom 配置未声明支持 referenceImages；请配置它实际的改图传输方式',
+        ),
+      );
     const model = request.model || (this.config.model as string | undefined);
-    if (!model) throw new ImageProviderError('custom 未指定 model');
+    if (!model) throw new ImageProviderError(msg('no model is set for custom', 'custom 未指定 model'));
     const values: TemplateValues = { prompt, model, aspect, count, refs: JSON.stringify(refs.map((r) => r.value)), baseUrl: this.baseUrl };
     if (this.dryRun) return this.dryRunPlan(values);
     if (this.mock) return this.mockSubmit(aspect, model, count);
@@ -178,7 +217,7 @@ export class CustomHttpProvider extends BaseImageProvider {
 
   private submitTemplate(): JsonRecord {
     const cfg = this.section('http').submit;
-    if (!isRecord(cfg)) throw new ImageProviderError('custom.http.submit 未配置');
+    if (!isRecord(cfg)) throw new ImageProviderError(msg('custom.http.submit is not configured', 'custom.http.submit 未配置'));
     return cfg;
   }
 
@@ -193,7 +232,10 @@ export class CustomHttpProvider extends BaseImageProvider {
     body.image = await Promise.all(
       refs.map(async (ref) => {
         if (!(await this.rt.fs.stat(ref))?.isFile) return ref;
-        if (transport !== 'data-uri') throw new ImageProviderError('Local reference requires a supported upload/data-uri adapter, never a filesystem path');
+        if (transport !== 'data-uri')
+          throw new ImageProviderError(
+            msg('Local reference requires a supported upload/data-uri adapter, never a filesystem path', '本地参考图需要受支持的上传 / data-uri 方式，不能直接传文件路径'),
+          );
         return `data:${imageMimeByName(ref)};base64,${Buffer.from(await this.rt.fs.readFile(ref)).toString('base64')}`;
       }),
     );
@@ -206,11 +248,11 @@ export class CustomHttpProvider extends BaseImageProvider {
     const { model, aspect, count } = values;
     if (asyncPath) {
       const taskId = getPath(data, asyncPath);
-      if (!taskId) throw new AmbiguousSubmitError(`异步响应缺少 taskId 字段 ${asyncPath}，状态不确定`);
+      if (!taskId) throw new AmbiguousSubmitError(msg(`the async answer has no taskId at ${asyncPath}; the state is unknown`, `异步响应缺少 taskId 字段 ${asyncPath}，状态不确定`));
       return { taskId, model, aspect, count, status: 'running', raw: data };
     }
     const items = Array.isArray(data.data) ? data.data.filter(isRecord) : [];
-    if (!items.length) throw new AmbiguousSubmitError('同步响应无 data 项，结果不确定');
+    if (!items.length) throw new AmbiguousSubmitError(msg('the synchronous answer has no data items; the outcome is unknown', '同步响应无 data 项，结果不确定'));
     const taskId = `sync-${createHash('sha256').update(values.prompt + model + aspect).digest('hex').slice(0, 12)}`;
     const urls = items.filter((i) => i.url).map((i) => String(i.url));
     const b64 = items.filter((i) => !i.url && i.b64_json).map((i) => String(i.b64_json));
@@ -222,7 +264,13 @@ export class CustomHttpProvider extends BaseImageProvider {
     const cfg = this.submitTemplate();
     const data = await this.call((cfg.method as string) || 'POST', String(fillTemplate(cfg.url, values)), fillTemplate(cfg.body, values), cfg.headers as Record<string, unknown>);
     const taskId = getPath(data, (cfg.taskIdPath as string) || 'data.task_id');
-    if (!taskId) throw new AmbiguousSubmitError(`提交响应缺少 taskId(${String(cfg.taskIdPath)})，状态不确定，禁止自动重试`);
+    if (!taskId)
+      throw new AmbiguousSubmitError(
+        msg(
+          `the submit answer has no taskId (${String(cfg.taskIdPath)}); the state is unknown, do not retry automatically`,
+          `提交响应缺少 taskId(${String(cfg.taskIdPath)})，状态不确定，禁止自动重试`,
+        ),
+      );
     return { taskId: String(taskId), status: 'running', raw: data };
   }
 
@@ -260,7 +308,7 @@ export class CustomHttpProvider extends BaseImageProvider {
     const cached = this.syncCache.get(taskId);
     if (cached) return { ...cached };
     const cfg = this.section('http').poll;
-    if (!isRecord(cfg)) throw new ImageProviderError('custom 未配置 poll（非同步模式必须配置）');
+    if (!isRecord(cfg)) throw new ImageProviderError(msg('custom has no poll config (required unless the mode is synchronous)', 'custom 未配置 poll（非同步模式必须配置）'));
     const data = await this.call((cfg.method as string) || 'GET', String(fillTemplate(cfg.url, { taskId, baseUrl: this.baseUrl })), undefined, cfg.headers as Record<string, unknown>, 60);
     const value = String(getPath(data, (cfg.statusPath as string) || 'data.status') || '').toLowerCase();
     const listed = (key: string, fallback: string[]) => (Array.isArray(cfg[key]) ? (cfg[key] as unknown[]) : fallback).map((x) => String(x).toLowerCase());
@@ -276,12 +324,13 @@ export class CustomHttpProvider extends BaseImageProvider {
       if (data.status === 'completed' || data.status === 'failed') return data;
       await sleep(this.rt, Math.max(intervalSec, 0) * 1000);
     }
-    throw new ImageProviderError(`轮询超时：任务 ${taskId} 未在 ${timeoutSec}s 内完成`);
+    throw new ImageProviderError(msg(`polling timed out: task ${taskId} did not finish within ${timeoutSec}s`, `轮询超时：任务 ${taskId} 未在 ${timeoutSec}s 内完成`));
   };
 
   override async result(taskId: string): Promise<string[]> {
     const data = await this.status(taskId);
-    if (data.status !== 'completed') throw new ImageProviderError(`任务 ${taskId} 未 completed（当前 ${String(data.status)}）`);
+    if (data.status !== 'completed')
+      throw new ImageProviderError(msg(`task ${taskId} is not completed (status: ${String(data.status)})`, `任务 ${taskId} 未 completed（当前 ${String(data.status)}）`));
     const outputs = Array.isArray(data.outputs) ? (data.outputs as JsonRecord[]) : [];
     const urls = Array.isArray(data.urls) && data.urls.length ? (data.urls as string[]) : outputs.filter((o) => o.url).map((o) => String(o.url));
     if (!urls.length && this.mode === 'http') {
@@ -289,7 +338,8 @@ export class CustomHttpProvider extends BaseImageProvider {
       const url = getPath(isRecord(data.raw) ? data.raw : {}, (download.urlPath as string) || 'data.result_url');
       if (url) urls.push(String(url));
     }
-    if (!urls.length && !(Array.isArray(data.b64) && data.b64.length)) throw new ImageProviderError(`任务 ${taskId} completed 但无结果`);
+    if (!urls.length && !(Array.isArray(data.b64) && data.b64.length))
+      throw new ImageProviderError(msg(`task ${taskId} is completed but has no result`, `任务 ${taskId} completed 但无结果`));
     return urls;
   }
 

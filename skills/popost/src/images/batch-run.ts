@@ -11,6 +11,7 @@ import { boundQuotes, failureOf, readEntries, runPool, worstCode, type BatchCall
 import { JobError } from './jobs';
 import { ledgerPathOf, submissionKey } from './retry';
 import { quoteOrRun } from './run';
+import { msg } from '../i18n';
 
 type Row = { id: string } & Record<string, unknown>;
 
@@ -18,11 +19,22 @@ type Row = { id: string } & Record<string, unknown>;
 const entriesForQuotes = (entries: readonly Entry[], quoteIds: readonly string[]): { entry: Entry; quoteId: string }[] => {
   const picked = quoteIds.map((quoteId) => {
     const holders = entries.filter((entry) => entry.job.quoteId === quoteId);
-    if (holders.length !== 1) throw new JobError(`${holders.length ? `quote ${quoteId} is bound to several jobs` : `no job is bound to quote ${quoteId}`}; quote the job first, and run the quote id it printed (jobs and their quotes: ${boundQuotes(entries)})`);
+    if (holders.length !== 1) {
+      const what = holders.length
+        ? msg(`quote ${quoteId} is bound to several jobs`, `报价 ${quoteId} 绑定了多个任务`)
+        : msg(`no job is bound to quote ${quoteId}`, `没有任务绑定报价 ${quoteId}`);
+      throw new JobError(
+        msg(
+          `${what}; quote the job first, and run the quote id it printed (jobs and their quotes: ${boundQuotes(entries)})`,
+          `${what}；请先给任务报价，再运行它输出的报价 id（任务及其报价：${boundQuotes(entries)}）`,
+        ),
+      );
+    }
     return { entry: holders[0]!, quoteId };
   });
   const twice = picked.find((p, i) => picked.findIndex((q) => q.entry.id === p.entry.id) !== i);
-  if (twice) throw new JobError(`two quote ids belong to job '${twice.entry.id}'; run one quote per job`);
+  if (twice)
+    throw new JobError(msg(`two quote ids belong to job '${twice.entry.id}'; run one quote per job`, `任务 '${twice.entry.id}' 对应了两个报价 id；每个任务只运行一个报价`));
   return picked;
 };
 
@@ -30,11 +42,12 @@ const entriesForQuotes = (entries: readonly Entry[], quoteIds: readonly string[]
 const notReady = async (project: Project, entry: Entry): Promise<string | null> => {
   const { job } = entry;
   const quoteId = job.quoteId;
-  if (job.provider.channel === 'host') return 'host channel: generate it with the host image tool, then image complete';
-  if (job.status === 'completed') return 'complete';
-  if (job.status === 'generated') return 'already generated';
-  if (job.status !== 'quoted' || !quoteId) return 'not quoted yet';
-  if (await ledger.get(project.rt, ledgerPathOf(project), quoteId)) return `quote ${quoteId} was already run`;
+  if (job.provider.channel === 'host')
+    return msg('host channel: generate it with the host image tool, then image complete', 'host 通道：用宿主的图片工具生成，再运行 image complete');
+  if (job.status === 'completed') return msg('complete', '已完成');
+  if (job.status === 'generated') return msg('already generated', '已生成');
+  if (job.status !== 'quoted' || !quoteId) return msg('not quoted yet', '还没报价');
+  if (await ledger.get(project.rt, ledgerPathOf(project), quoteId)) return msg(`quote ${quoteId} was already run`, `报价 ${quoteId} 已经运行过`);
   try {
     await submissionKey(project, job, { quoteId });
   } catch (error) {
@@ -52,7 +65,15 @@ const quotedJobs = async (project: Project): Promise<{ picked: { entry: Entry; q
     if (reason) skipped.push({ id: entry.id, reason });
     else picked.push({ entry, quoteId: String(entry.job.quoteId) });
   }
-  if (!picked.length) throw new JobError(`no quoted job is ready to run${skipped.length ? ` (${skipped.map((s) => `${s.id}: ${s.reason}`).join('; ')})` : ''}; quote first with image quote --all`);
+  if (!picked.length) {
+    const why = skipped.map((s) => `${s.id}: ${s.reason}`).join('; ');
+    throw new JobError(
+      msg(
+        `no quoted job is ready to run${why ? ` (${why})` : ''}; quote first with image quote --all`,
+        `没有可以运行的已报价任务${why ? `（${why}）` : ''}；请先运行 image quote --all 报价`,
+      ),
+    );
+  }
   return { picked, skipped };
 };
 
@@ -63,8 +84,18 @@ const quotedJobs = async (project: Project): Promise<{ picked: { entry: Entry; q
  */
 const alreadyRun = async (project: Project, entry: Entry, quoteId: string): Promise<string | null> =>
   (await ledger.get(project.rt, ledgerPathOf(project), quoteId))?.state === 'consumed'
-    ? `quote ${quoteId} was already run and made its picture (production/results/${entry.id}); register it with image complete, it is not run again`
+    ? msg(
+        `quote ${quoteId} was already run and made its picture (production/results/${entry.id}); register it with image complete, it is not run again`,
+        `报价 ${quoteId} 已经运行过并生成了图片（production/results/${entry.id}）；请用 image complete 登记，不会再次运行`,
+      )
     : null;
+
+/** What to do about runs whose outcome is unknown: check first, re-quote only if needed; the key is reused. */
+const ambiguousNext = (dir: string, ids: readonly string[]): string =>
+  msg(
+    `outcome unknown for ${ids.join(', ')}: check the account, then only if needed image quote --dir ${dir} --id ${ids.join(',')} and image run --quote-id <the new quotes> --confirm; the original key is reused, the platform charges once`,
+    `${ids.join(', ')} 的结果不明：先查看账号，确有需要再运行 image quote --dir ${dir} --id ${ids.join(',')} 和 image run --quote-id <新报价> --confirm；沿用原来的幂等键，平台只扣一次费`,
+  );
 
 /** What this run left behind in the ledger, which is what tells a refusal from an unknown outcome. */
 const standing = async (project: Project, quoteId: string): Promise<Pick<Row, 'outcome' | 'charged'>> => {
@@ -106,7 +137,7 @@ export const runBatch = async (project: Project, dir: string, target: readonly s
     picked,
     call.concurrency,
     ({ entry, quoteId }) => runOne(project, entry, quoteId, call),
-    ({ entry, quoteId }): Row => ({ id: entry.id, quoteId, outcome: 'failed', charged: false, ok: false, code: 1, error: 'cancelled before this job was submitted; nothing was sent or charged' }),
+    ({ entry, quoteId }): Row => ({ id: entry.id, quoteId, outcome: 'failed', charged: false, ok: false, code: 1, error: msg('cancelled before this job was submitted; nothing was sent or charged', '这个任务提交前已取消；未发送任何内容，也未扣费') }),
   );
   const code = worstCode(rows.map((row) => (row.ok ? 0 : Math.max(1, Number(row.code)))));
   const ambiguous = rows.filter((row) => row.outcome === 'ambiguous');
@@ -120,7 +151,7 @@ export const runBatch = async (project: Project, dir: string, target: readonly s
     concurrency: call.concurrency,
     jobs: rows,
     ...(skipped.length ? { skipped } : {}),
-    ...(ambiguous.length ? { next: `outcome unknown for ${ambiguous.map((row) => row.id).join(', ')}: check the account, then only if needed image quote --dir ${dir} --id ${ambiguous.map((row) => row.id).join(',')} and image run --quote-id <the new quotes> --confirm; the original key is reused, the platform charges once` } : {}),
+    ...(ambiguous.length ? { next: ambiguousNext(dir, ambiguous.map((row) => row.id)) } : {}),
   };
   return { document, code };
 };

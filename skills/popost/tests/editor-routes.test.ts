@@ -73,7 +73,8 @@ describe('GET routes', () => {
       expect(html).toContain(`file=pages%2F${project.manifest.projectId}.html&popost=1`);
       expect(html).toContain('lang=en');
     }
-    expect(bodyText(await get(rt, state, '/'))).toContain('lang=zh');
+    // no language in the URL: none is forced, the editor follows the browser
+    expect(bodyText(await get(rt, state, '/'))).not.toContain('lang=');
     const script = await get(rt, state, '/_editor/assets/app.js');
     expect(script.status).toBe(200);
     expect(script.headers['Content-Type']).toBe('text/javascript; charset=utf-8');
@@ -119,7 +120,7 @@ describe('GET routes', () => {
     expect(Object.keys(unzipSync(all.body as Uint8Array))).toEqual(['p1.png']);
     const missing = await get(rt, state, '/api/export', { query: 'page=nope' });
     expect(missing.status).toBe(500);
-    expect(bodyJson(missing)).toEqual({ ok: false, error: '页不存在: nope' });
+    expect(bodyJson(missing)).toEqual({ ok: false, error: 'no such page: nope' });
   });
 
   it('packages the project as a ZIP download', async () => {
@@ -161,7 +162,7 @@ describe('POST routes', () => {
 
     const stale = await post(rt, state, '/api/project', payload);
     expect(stale.status).toBe(409);
-    expect(bodyJson(stale).error).toContain('工程已被另一窗口或 Agent 修改');
+    expect(bodyJson(stale).error).toContain('The project was changed by another window or by the agent');
     const forced = await post(rt, state, '/api/project', { ...payload, force: true });
     expect(forced.status).toBe(200);
   });

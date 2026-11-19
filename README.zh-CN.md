@@ -56,19 +56,15 @@ Agent 侧边栏和 [popost.ai](https://popost.ai) 使用同一套画布。连接
 
 ## 开始创作
 
-从 GitHub 安装当前开发版：
+从 npm 安装 Skill 和命令行：
 
 <!-- install:start -->
 ~~~bash
-git clone --branch develop https://github.com/PopostAI/popost.git
-cd popost
-npm ci
-npm run build:skill
-npm install -g ./skills/popost
+npm install -g popost
 popost install
 ~~~
 
-需要 Node.js 20.19+；macOS、Windows、Linux 通用。<code>popost install</code> 会识别 Codex 和 Claude Code；其他 Agent 可用 <code>popost install --dir &lt;skills 目录&gt;</code>。npm 包尚未公开发布，请保留这个源码目录：全局 CLI 会指向它。
+需要 Node.js 20.19+；macOS、Windows、Linux 通用。<code>popost install</code> 会识别 Codex 和 Claude Code；其他 Agent 可用 <code>popost install --dir &lt;skills 目录&gt;</code>。想试开发版，就在本仓库的 <code>develop</code> 分支构建（<code>npm ci</code>、<code>npm run build:skill</code>、<code>npm install -g ./skills/popost</code>），并保留这个源码目录：全局 CLI 会指向它。
 <!-- install:end -->
 
 然后对 Agent 说：

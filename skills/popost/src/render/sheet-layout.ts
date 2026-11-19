@@ -7,6 +7,7 @@
  * above each cell a dark label bar whose text is large enough to survive that downsizing.
  */
 import { ValueError } from '../core/errors';
+import { msg } from '../i18n';
 
 export interface SheetImage {
   /** What the label bar says. */
@@ -156,9 +157,14 @@ export const fitLabel = (label: string, widthPx: number, fontPx: number): string
 export const layoutSheet = <T extends SheetImage>(bands: readonly (readonly T[])[]): SheetLayout<T> => {
   const groups = bands.filter((band) => band.length > 0);
   const all = groups.flat();
-  if (!all.length) throw new ValueError('there is nothing to put on the sheet');
+  if (!all.length) throw new ValueError(msg('there is nothing to put on the sheet', '没有可放进总览图的内容'));
   if (all.length > MAX_SHEET_IMAGES)
-    throw new ValueError(`a sheet holds at most ${MAX_SHEET_IMAGES} pictures (got ${all.length}); split them over several sheets`);
+    throw new ValueError(
+      msg(
+        `a sheet holds at most ${MAX_SHEET_IMAGES} pictures (got ${all.length}); split them over several sheets`,
+        `一张总览图最多放 ${MAX_SHEET_IMAGES} 张图片（现有 ${all.length} 张）；请分成几张总览图`,
+      ),
+    );
   const aspect = boxAspect(all);
   const columns =
     groups.length > 1

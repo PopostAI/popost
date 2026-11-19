@@ -11,6 +11,8 @@ import { MAX_REFERENCE_IMAGES } from '../providers/popost-validate';
 import type { Project } from '../core/project';
 import type { JobProvider } from './jobs';
 import { invocation, providerName } from './run';
+import { msg } from '../i18n';
+import { errorText } from '../core/error-text';
 
 export interface ModelLimits {
   /** The ratios the model declares (`16:9`); `undefined`: not known, or not restricted. */
@@ -38,13 +40,13 @@ const platformLimits = async (project: Project, provider: JobProvider, config: s
   const fallback: ModelLimits = { maxReferenceImages: MAX_REFERENCE_IMAGES };
   try {
     const outcome = await executeCli(project.rt, invocation(project, provider, { config, acceptUnknownCost: false }, { name: 'models' }));
-    if (outcome.code !== 0) return { ...fallback, unavailable: String(outcome.result.error ?? 'the model list could not be read') };
+    if (outcome.code !== 0) return { ...fallback, unavailable: String(outcome.result.error ?? msg('the model list could not be read', '无法读取模型列表')) };
     const settings = providerConfig(await loadConfig(project.rt, config), providerName(provider));
     const rows = Array.isArray(outcome.result.models) ? (outcome.result.models as ModelRow[]) : [];
     const row = pickRow(rows, wantedModel(provider, settings));
-    return { aspects: row?.aspectRatios?.length ? row.aspectRatios : undefined, maxReferenceImages: Math.min(MAX_REFERENCE_IMAGES, row?.maxReferenceImages ?? MAX_REFERENCE_IMAGES), unavailable: row ? undefined : 'no single model to read limits from' };
+    return { aspects: row?.aspectRatios?.length ? row.aspectRatios : undefined, maxReferenceImages: Math.min(MAX_REFERENCE_IMAGES, row?.maxReferenceImages ?? MAX_REFERENCE_IMAGES), unavailable: row ? undefined : msg('no single model to read limits from', '没有唯一的模型可读取限制') };
   } catch (error) {
-    return { ...fallback, unavailable: error instanceof Error ? error.message : String(error) };
+    return { ...fallback, unavailable: errorText(error) };
   }
 };
 

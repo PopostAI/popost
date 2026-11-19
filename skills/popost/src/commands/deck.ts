@@ -8,6 +8,7 @@ import { fail, printJson } from '../core/util';
 import { exportDeck } from '../deck/export-deck';
 import { importDeck } from '../deck/import-deck';
 import { BrowserUnavailableError } from '../render/browser';
+import { msg } from '../i18n';
 import type { CommandMain, Runtime } from '../runtime';
 import { failureText, isExpectedFailure } from '../workflow/errors';
 import { readUserText } from '../workflow/io';
@@ -32,10 +33,13 @@ const reporting =
     }
   };
 
-const exportCommand: Subcommand = {
+const exportCommand = (): Subcommand => ({
   spec: {
-    description: 'write the project as one editor document (top-level .slide[data-popost-page] pages)',
-    options: [DIR, { flag: '--out', help: 'default <dir>/exports/deck.html' }],
+    description: msg(
+      'write the project as one editor document (top-level .slide[data-popost-page] pages)',
+      '把工程写成一个编辑器文档（顶层的 .slide[data-popost-page] 页面）',
+    ),
+    options: [DIR, { flag: '--out', help: msg('default <dir>/exports/deck.html', '默认 <dir>/exports/deck.html') }],
   },
   run: reporting(async (args, rt) => {
     const out = args.string('out');
@@ -43,17 +47,20 @@ const exportCommand: Subcommand = {
     // like `render`: a path the user typed is printed as typed, a default one in full
     printJson(rt, { ok: true, file: out ?? result.file, pages: result.pages });
   }),
-};
+});
 
-const importCommand: Subcommand = {
+const importCommand = (): Subcommand => ({
   spec: {
-    description: 'bring an edited editor document back into the project (changed pages lose their review and render)',
-    options: [{ flag: '--file', required: true, help: 'the editor document' }, DIR],
+    description: msg(
+      'bring an edited editor document back into the project (changed pages lose their review and render)',
+      '把编辑过的编辑器文档导回工程（有改动的页面会失去评审和渲染结果）',
+    ),
+    options: [{ flag: '--file', required: true, help: msg('the editor document', '编辑器文档') }, DIR],
   },
   run: reporting(async (args, rt) => {
     const html = await readUserText(rt, args.req('file'));
     printJson(rt, { ok: true, ...(await importDeck(rt, args.req('dir'), html)) });
   }),
-};
+});
 
-export const main: CommandMain = (argv, rt) => runSubcommand('popost deck', { export: exportCommand, import: importCommand }, argv, rt);
+export const main: CommandMain = (argv, rt) => runSubcommand('popost deck', { export: exportCommand(), import: importCommand() }, argv, rt);

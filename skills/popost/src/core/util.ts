@@ -3,6 +3,8 @@ import { createHash } from 'node:crypto';
 import type { Runtime } from '../runtime';
 import { compareCodePoints } from './pyjson';
 
+export { errorText } from './error-text';
+
 /** One JSON document on stdout, like the Python Skill's `print(json.dumps(..., ensure_ascii=False))`. */
 export const printJson = (rt: Runtime, value: unknown, pretty = false): void =>
   rt.stdout(JSON.stringify(value, null, pretty ? 2 : undefined) + '\n');
@@ -12,10 +14,6 @@ export const fail = (rt: Runtime, error: string, code = 2, extra: Record<string,
   printJson(rt, { ok: false, error, ...extra });
   return code;
 };
-
-/** `TypeName: message`, the shape the Python CLI printed for caught exceptions. */
-export const errorText = (error: unknown): string =>
-  error instanceof Error ? `${error.name}: ${error.message}` : String(error);
 
 export const sha256 = (data: Uint8Array | string): string => createHash('sha256').update(data).digest('hex');
 

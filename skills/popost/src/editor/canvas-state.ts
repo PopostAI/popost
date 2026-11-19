@@ -6,6 +6,7 @@ import { hasComparison } from './project-tools';
  */
 import type { Manifest, Project } from '../core/project';
 import { isFile, readJson, sha256, writeJson } from '../core/util';
+import { msg } from '../i18n';
 
 export type ProjectPayload = Manifest & { pages: (Manifest['pages'][number] & { html: string })[] };
 
@@ -77,13 +78,13 @@ export interface NoteOperation {
 }
 
 const applyOperation = (rows: Note[], operation: NoteOperation): Note[] => {
-  if (typeof operation?.op !== 'string') throw new NoteError('note operation needs an op');
+  if (typeof operation?.op !== 'string') throw new NoteError(msg('note operation needs an op', '备注操作缺少 op'));
   if (operation.op === 'add') {
-    if (!operation.note || typeof operation.note !== 'object') throw new NoteError('add needs a note');
+    if (!operation.note || typeof operation.note !== 'object') throw new NoteError(msg('add needs a note', 'add 需要 note'));
     return [...rows, operation.note];
   }
   if (operation.op === 'update') {
-    if (!operation.patch || typeof operation.patch !== 'object') throw new NoteError('update needs a patch');
+    if (!operation.patch || typeof operation.patch !== 'object') throw new NoteError(msg('update needs a patch', 'update 需要 patch'));
     return rows.map((row) => (row.id === operation.id ? { ...row, ...operation.patch } : row));
   }
   if (operation.op === 'delete') return rows.filter((row) => row.id !== operation.id);
@@ -102,7 +103,7 @@ export const canvasNotes = async (
     for (const operation of operations) rows = applyOperation(rows, operation);
     await writeJson(rt, file, rows);
   }
-  return { notes: rows, command: 'Feedback stays in this local project.' };
+  return { notes: rows, command: msg('Feedback stays in this local project.', '反馈只保存在这个本地工程里。') };
 };
 
 /** JSON text safe inside a `<script>`: ASCII only, and no `<` that could close the tag. */
@@ -114,7 +115,7 @@ const scriptJson = (value: unknown): string =>
 /** The editor's `index.html` with this project's settings injected; the editor's own HTML/CSS/JS stays shared. */
 export const editorHtml = (project: Project, source: string, query = '', cloud: 'keyed' | 'anonymous' | 'off' = 'off'): string => {
   const page = project.manifest.pages[0];
-  if (!page) throw new Error('project has no page');
+  if (!page) throw new Error(msg('project has no page', '工程没有页面'));
   const projectId = project.manifest.projectId || sha256(project.root).slice(0, 32);
   const brief = typeof project.manifest.brief === 'string' ? project.manifest.brief : 'Popost';
   const config = {
@@ -129,7 +130,7 @@ export const editorHtml = (project: Project, source: string, query = '', cloud: 
   const params: Record<string, string> = {};
   for (const [key, value] of new URLSearchParams(query)) if (value && !(key in params)) params[key] = value;
   Object.assign(params, { file: `pages/${projectId}.html`, popost: '1' });
-  params.lang ??= 'zh';
+  // No default language: the editor follows the browser unless the URL names one (canvas-editor boot.ts resolveLang).
   const script =
     `<base href="/_editor/"><script>window.__POPOST_LOCAL__=${scriptJson(config)};` +
     `window.__POPOST_PARAMS__=${scriptJson(new URLSearchParams(params).toString())};</script>`;

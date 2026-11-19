@@ -1,6 +1,7 @@
 /** The project's pages in the form the converter takes (`DeckPage`). */
 import { ValueError } from '../core/errors';
 import type { PageEntry, Project } from '../core/project';
+import { msg } from '../i18n';
 import type { DeckPage } from './types';
 
 /** One manifest page with its HTML read from the project. */
@@ -9,7 +10,7 @@ export const loadDeckPage = async (project: Project, entry: PageEntry): Promise<
   try {
     html = await project.readPageHtml(entry.id);
   } catch {
-    throw new ValueError(`page ${entry.id}: ${entry.htmlPath} is missing or unreadable`);
+    throw new ValueError(msg(`page ${entry.id}: ${entry.htmlPath} is missing or unreadable`, `页面 ${entry.id}：${entry.htmlPath} 缺失或无法读取`));
   }
   return {
     id: entry.id,

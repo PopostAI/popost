@@ -6,6 +6,7 @@
  */
 import type { CloudLang } from '../cloud/service';
 import { CloudError } from '../cloud/errors';
+import { msg } from '../i18n';
 import { errorMessage, isBadRequest, jsonResponse, parseJsonObject, type ApiResponse, type Ctx } from './http-types';
 
 /** The callback carries a one-time code in its URL: keep it out of caches and Referer headers. */
@@ -22,6 +23,8 @@ const optionalBody = (ctx: Ctx): Record<string, unknown> => (ctx.req.body.byteLe
 
 const refuse = (ctx: Ctx, status: number, error: string): ApiResponse => jsonResponse(ctx.req, status, { ok: false, error });
 
+const cloudOff = (): string => msg('cloud save is turned off', '云端保存已关闭');
+
 export const cloudStatus = async (ctx: Ctx): Promise<ApiResponse> => {
   try {
     return jsonResponse(ctx.req, 200, await ctx.state.cloud.status());
@@ -33,7 +36,12 @@ export const cloudStatus = async (ctx: Ctx): Promise<ApiResponse> => {
 export const cloudStart = async (ctx: Ctx): Promise<ApiResponse> => {
   const { cloud } = ctx.state;
   const mode = cloud.mode();
-  if (mode !== 'anonymous') return refuse(ctx, 409, mode === 'off' ? 'cloud save is turned off' : 'a popost key is configured; the project syncs without a login');
+  if (mode !== 'anonymous')
+    return refuse(
+      ctx,
+      409,
+      mode === 'off' ? cloudOff() : msg('a popost key is configured; the project syncs without a login', '已配置 popost Key；工程会自动同步，无需登录'),
+    );
   try {
     const body = optionalBody(ctx);
     const started = await cloud.start(langOf(body.lang) ?? 'en', ctx.req.port);
@@ -45,7 +53,7 @@ export const cloudStart = async (ctx: Ctx): Promise<ApiResponse> => {
 
 export const cloudPush = async (ctx: Ctx): Promise<ApiResponse> => {
   const { cloud } = ctx.state;
-  if (cloud.mode() === 'off') return refuse(ctx, 409, 'cloud save is turned off');
+  if (cloud.mode() === 'off') return refuse(ctx, 409, cloudOff());
   try {
     const body = optionalBody(ctx);
     const status = await cloud.push({ force: body.force === true, lang: langOf(body.lang) });

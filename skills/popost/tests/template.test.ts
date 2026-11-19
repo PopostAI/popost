@@ -30,9 +30,9 @@ describe('locate', () => {
     expect(await plugins.locateSkill(rt, `${FIXTURES}/no-such-skill`)).toMatchObject({ ok: false, route: 'error' });
     await rt.fs.mkdir('/work/empty');
     const missing = await plugins.locateSkill(rt, 'empty');
-    expect(missing).toEqual({ ok: false, route: 'error', path: '/work/empty', error: 'SKILL.md 缺失：/work/empty/SKILL.md（资源错误，不静默替换）' });
+    expect(missing).toEqual({ ok: false, route: 'error', path: '/work/empty', error: 'SKILL.md is missing: /work/empty/SKILL.md (a resource error; nothing is silently substituted)' });
     await skill(rt, 'bad', new Uint8Array([0x2d, 0x2d, 0x2d, 0xff, 0xfe]));
-    expect(await plugins.locateSkill(rt, 'bad')).toMatchObject({ ok: false, error: 'SKILL.md 非合法 UTF-8（资源错误，不降级自由创作）' });
+    expect(await plugins.locateSkill(rt, 'bad')).toMatchObject({ ok: false, error: 'SKILL.md is not valid UTF-8 (a resource error; no fallback to free creation)' });
     expect((await runCli(rt, ['template', 'locate', '--path', 'empty'])).code).toBe(2);
     expect(rt.json()).toMatchObject({ ok: false, route: 'error' });
   });
@@ -97,11 +97,22 @@ describe('candidates', () => {
     const result = await plugins.recallCandidates(rt, 'compare travel-guide', ['roots'], 'xiaohongshu');
     expect(result).toMatchObject({ ok: true, platform_hint: 'xiaohongshu', count: 3 });
     expect(result.candidates.map((c) => [c.path.replace('/work/roots/', ''), c.score, c.matchedTokens])).toEqual([
-      ['a', 1, ['travel-guide']],
+      ['a', 3, ['guide', 'travel', 'travel-guide']],
       ['b/c', 1, ['compare']],
       ['b/c/d', 0, []], // three levels below the root is the limit: b/c/d/e is not scanned
     ]);
     expect(result.candidates.every((c) => c.verdict_authoritative === false)).toBe(true);
+  });
+
+  it('matches the words of a hyphenated name, as a brief writes them', async () => {
+    const rt = await newRuntime();
+    await skill(rt, 'roots/ranking', '---\nname: minimal-data-ranking\n---\n');
+    await skill(rt, 'roots/other', '---\nname: travel-guide\n---\n');
+    const result = await plugins.recallCandidates(rt, 'a minimal data ranking for this week', ['roots']);
+    expect(result.candidates.map((c) => [c.name, c.score, c.matchedTokens])).toEqual([
+      ['minimal-data-ranking', 3, ['data', 'minimal', 'ranking']],
+      ['travel-guide', 0, []],
+    ]);
   });
 
   it('finds the fixture by its structure words, and never scores a platform word', async () => {
@@ -202,15 +213,15 @@ describe('template-profile', () => {
     const project = await Project.load(rt, 'project');
     await runCli(rt, ['attach-template', '--dir', 'project', '--path', 'tpl']);
     let report = await buildProject(await Project.load(rt, 'project'), true);
-    expect(report.warnings).toEqual(['template 尚未绑定设计规则 profile']);
-    expect(report.reviewGaps).toContain('template: 设计规则尚未绑定');
+    expect(report.warnings).toEqual(['the template has no design-rule profile bound yet']);
+    expect(report.reviewGaps).toContain('template: the design rules are not bound yet');
     await write({ skillPath: 'tpl', rules: ['r'], pageTypes: ['c'] });
     await runCli(rt, ['template-profile', '--dir', 'project', '--file', 'profile.json']);
     report = await buildProject(await Project.load(rt, 'project'), true);
     expect(report.warnings).toEqual([]);
-    expect(report.blockers).not.toContain('template 来源已变更，请重读并更新规则');
+    expect(report.blockers).not.toContain('the template source changed: read it again and update the rules');
     await rt.fs.writeFile('/work/tpl/SKILL.md', '---\nname: tpl\n---\nchanged\n');
     report = await buildProject(await Project.load(rt, project.root), true);
-    expect(report.blockers).toContain('template 来源已变更，请重读并更新规则');
+    expect(report.blockers).toContain('the template source changed: read it again and update the rules');
   });
 });

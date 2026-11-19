@@ -108,7 +108,7 @@ describe('inspiration import', () => {
   });
 
   it('needs --allow-incomplete for a bundle that is not ready, then saves what is there', async () => {
-    const pending = bundleOf({ platform: 'x', sourceURL: 'https://x.com/someone/status/1', title: '', body: '', tags: [], pageOrder: [1], ratio: null, resources: [], parseStatus: 'pending', auth: { required: true, authorized: false, note: '' }, errors: ['parse service pending; 未抓取任何内容'], missing: ['title', 'body', 'resources'], author: undefined, stats: undefined, publishedAt: undefined });
+    const pending = bundleOf({ platform: 'x', sourceURL: 'https://x.com/someone/status/1', title: '', body: '', tags: [], pageOrder: [1], ratio: null, resources: [], parseStatus: 'pending', auth: { required: true, authorized: false, note: '' }, errors: ['parse service pending; nothing was fetched'], missing: ['title', 'body', 'resources'], author: undefined, stats: undefined, publishedAt: undefined });
     const t = await setup(pending);
     let r = await t.run();
     expect(r.code, JSON.stringify(r.data)).toBe(2);
@@ -123,11 +123,11 @@ describe('inspiration import', () => {
   it.each([
     ['a title over 500 characters', { title: '长'.repeat(501) }, 'title'],
     ['more than 50 tags', { tags: Array.from({ length: 51 }, (_, i) => `t${i}`) }, 'tags'],
-    ['a publishedAt without a zone', { publishedAt: '2026-10-01T08:00:00' }, '时区'],
+    ['a publishedAt without a zone', { publishedAt: '2026-10-01T08:00:00' }, 'time zone'],
     ['a publishedAt that is no date', { publishedAt: 'yesterday' }, 'ISO'],
-    ['a missing local image', { resources: [{ id: 'r1', kind: 'image', path: 'missing.png' }] }, '不存在'],
+    ['a missing local image', { resources: [{ id: 'r1', kind: 'image', path: 'missing.png' }] }, 'does not exist'],
     ['an http image url', { resources: [{ id: 'r1', kind: 'image', url: 'http://insecure.example/a.png' }] }, 'https'],
-    ['a local file that is not an image', { resources: [{ id: 'r1', kind: 'image', path: '/work/bundle.json' }] }, '不是 PNG'],
+    ['a local file that is not an image', { resources: [{ id: 'r1', kind: 'image', path: '/work/bundle.json' }] }, 'is not a PNG'],
     ['a wrong schema', { schema: 'nope' }, 'schema'],
   ])('rejects %s locally (exit 2) before any request', async (_label, changes, fragment) => {
     const t = await setup(changes as Record<string, unknown>);
@@ -161,7 +161,7 @@ describe('inspiration import', () => {
     t.stub.set('POST', '/inspirations', err(429, 'RATE_LIMITED', 'slow', { retryAfterSeconds: 30 }));
     r = await t.run();
     expect(r.code).toBe(1);
-    expect(r.data.error.msg).toContain('30 秒');
+    expect(r.data.error.msg).toContain('30 seconds');
     expect(r.data.uploaded).toHaveLength(2); // what did go up is reported
     const noKey = await setup({}, { env: { POPOST_API_KEY: undefined } });
     r = await noKey.run();
@@ -175,7 +175,7 @@ describe('inspiration import', () => {
     const { code, data } = await t.run();
     expect(code).toBe(1);
     expect(data.error.code).toBe('UPLOAD_FAILED');
-    expect(data.error.msg).toContain('不允许访问');
+    expect(data.error.msg).toContain('does not allow connections');
     expect(t.stub.calls('POST', '/inspirations')).toEqual([]);
     for (const blob of await everythingWritten(t.rt)) expect(blob).not.toContain(KEY);
   });

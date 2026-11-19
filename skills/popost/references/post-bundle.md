@@ -26,7 +26,7 @@ inspiration status <task id> [--timeout 600] [--config PRIVATE_CONFIG]
 inspiration import --file bundle.json [--note "为什么收藏"] [--dry-run] [--allow-incomplete] [--config PRIVATE_CONFIG]
 ```
 
-1. 先写好 bundle：`parseStatus=ready`，图片放在 `resources`（`kind=image`，`path` 相对 bundle 文件，或只有 https `url`），文字放 `title`/`body`/`tags`。实际打开每张图确认顺序与内容，不编造原帖文字、作者或数据。
+1. 先写好 bundle：`parseStatus=ready`，图片放在 `resources`（每项要有非空且不重复的 `id`，如 `"01"`、`"02"`；`kind=image`，`path` 相对 bundle 文件，或只有 https `url`），文字放 `title`/`body`/`tags`。实际打开每张图确认顺序与内容，不编造原帖文字、作者或数据。
 2. 可选扩展字段（validate 不要求）：`author{name,handle,profileUrl,avatarUrl}`、`stats{likes,comments,shares,saves,views}`（非负整数）、`publishedAt`（带时区的 ISO 时间）、`note`。
 3. 先 `--dry-run` 看计划（不联网、不需要密钥），再正式导入。使用浏览器连接的账户；手动配置也支持环境变量 `POPOST_API_KEY` 或 `popost auth set` 保存的 Key、私有配置 `popost.baseUrl` 或 `POPOST_BASE_URL`，见 [providers.md](providers.md)。
 

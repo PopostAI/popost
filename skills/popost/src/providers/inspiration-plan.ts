@@ -5,6 +5,7 @@
  */
 import { createHash } from 'node:crypto';
 import { sniffImage } from '../core/image';
+import { msg } from '../i18n';
 import type { Runtime } from '../runtime';
 import { PLATFORMS, validateBundle } from '../workflow/post-bundle';
 import { EXTENSIONS, MAX_UPLOAD_BYTES, sniffImageMime } from './api';
@@ -50,18 +51,22 @@ export interface PlanOptions {
 const length = (text: string): number => [...text].length; // Python `len`: code points
 
 const checkLen = (field: string, value: string | undefined, limit: number): void => {
-  if (value !== undefined && length(value) > limit) throw new InputError(`${field} 超过上限 ${limit}（当前 ${length(value)}）；请精简后再导入`);
+  if (value !== undefined && length(value) > limit)
+    throw new InputError(
+      msg(`${field} is longer than the limit of ${limit} (it has ${length(value)}); shorten it and import again`, `${field} 超过上限 ${limit}（当前 ${length(value)}）；请精简后再导入`),
+    );
 };
 
 const ISO = /^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2})(?::(\d{2})(?:\.\d{1,6})?)?)?(Z|[+-]\d{2}(?::?\d{2})?)?$/;
 
 export const publishedAt = (value: unknown): string | null => {
   if (value === null || value === undefined || value === '') return null;
-  if (typeof value !== 'string') throw new InputError('publishedAt 必须是带时区的 ISO 时间字符串');
+  if (typeof value !== 'string') throw new InputError(msg('publishedAt must be an ISO time string with a time zone', 'publishedAt 必须是带时区的 ISO 时间字符串'));
   const m = ISO.exec(value);
   const valid = m !== null && !Number.isNaN(Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3]), Number(m[4] ?? 0), Number(m[5] ?? 0))) && Number(m[2]) >= 1 && Number(m[2]) <= 12 && Number(m[3]) >= 1 && Number(m[3]) <= 31 && Number(m[4] ?? 0) < 24 && Number(m[5] ?? 0) < 60;
-  if (!valid) throw new InputError(`publishedAt 不是 ISO 时间：${JSON.stringify(value)}`);
-  if (m[7] === undefined) throw new InputError('publishedAt 需要时区偏移，例如 2026-05-01T12:00:00+08:00');
+  if (!valid) throw new InputError(msg(`publishedAt is not an ISO time: ${JSON.stringify(value)}`, `publishedAt 不是 ISO 时间：${JSON.stringify(value)}`));
+  if (m[7] === undefined)
+    throw new InputError(msg('publishedAt needs a time zone offset, for example 2026-05-01T12:00:00+08:00', 'publishedAt 需要时区偏移，例如 2026-05-01T12:00:00+08:00'));
   return value;
 };
 
@@ -71,7 +76,7 @@ const tagsOf = (raw: unknown): string[] => {
     const tag = String(item).trim().replace(/^#+/, '').trim();
     if (tag && !out.includes(tag)) out.push(tag);
   }
-  if (out.length > LIMITS.tags) throw new InputError(`tags 超过 ${LIMITS.tags} 个`);
+  if (out.length > LIMITS.tags) throw new InputError(msg(`more than ${LIMITS.tags} tags`, `tags 超过 ${LIMITS.tags} 个`));
   return out;
 };
 
@@ -95,11 +100,11 @@ const imageSize = (raw: Uint8Array): { width: number; height: number } | null =>
 const localImage = async (rt: Runtime, rid: unknown, path: string, baseDir: string, entry: PlanImage): Promise<PlanImage> => {
   const full = rt.path.isAbsolute(path) ? path : rt.path.join(baseDir, path);
   const stat = await rt.fs.stat(full);
-  if (!stat?.isFile) throw new InputError(`resource ${String(rid)} 本地图片不存在：${path}`);
-  if (stat.size > MAX_UPLOAD_BYTES) throw new InputError(`resource ${String(rid)} 超过 30 MiB 上传上限`);
+  if (!stat?.isFile) throw new InputError(msg(`resource ${String(rid)}: the local picture does not exist: ${path}`, `resource ${String(rid)} 本地图片不存在：${path}`));
+  if (stat.size > MAX_UPLOAD_BYTES) throw new InputError(msg(`resource ${String(rid)} is larger than the 30 MiB upload limit`, `resource ${String(rid)} 超过 30 MiB 上传上限`));
   const raw = await rt.fs.readFile(full);
   const mime = sniffImageMime(raw.subarray(0, 16));
-  if (!mime) throw new InputError(`resource ${String(rid)} 不是 PNG/JPEG/WebP/GIF 图片：${path}`);
+  if (!mime) throw new InputError(msg(`resource ${String(rid)} is not a PNG/JPEG/WebP/GIF picture: ${path}`, `resource ${String(rid)} 不是 PNG/JPEG/WebP/GIF 图片：${path}`));
   const stem = rt.path.basename(full).replace(/\.[^.]*$/, '');
   Object.assign(entry, { kind: 'local', path: rt.path.resolve(full), bytes: stat.size, mimeType: mime, sha256: createHash('sha256').update(raw).digest('hex'), fileName: stem + EXTENSIONS[mime] });
   return Object.assign(entry, imageSize(raw) ?? {});
@@ -112,7 +117,11 @@ const collectImages = async (rt: Runtime, bundle: JsonRecord, baseDir: string): 
   for (const res of (Array.isArray(bundle.resources) ? bundle.resources : []) as JsonRecord[]) {
     const rid = res.id;
     if (res.kind !== 'image') {
-      skipped.push({ resourceId: rid, kind: res.kind, reason: `灵感库只收录图片，${String(res.kind)} 未导入` });
+      skipped.push({
+        resourceId: rid,
+        kind: res.kind,
+        reason: msg(`the inspiration library keeps pictures only; the ${String(res.kind)} was not imported`, `灵感库只收录图片，${String(res.kind)} 未导入`),
+      });
       continue;
     }
     const entry: PlanImage = { kind: 'remote', resourceId: rid };
@@ -122,11 +131,14 @@ const collectImages = async (rt: Runtime, bundle: JsonRecord, baseDir: string): 
       Object.assign(entry, { kind: 'remote', url: res.url });
       for (const key of ['width', 'height'] as const) if (isInt(res[key]) && (res[key] as number) > 0) entry[key] = res[key] as number;
       images.push(entry);
-    } else if (res.url) throw new InputError(`resource ${String(rid)} 的 url 必须是 https：${String(res.url)}`);
-    else skipped.push({ resourceId: rid, kind: 'image', reason: '既无本地 path 也无 https url' });
+    } else if (res.url) throw new InputError(msg(`the url of resource ${String(rid)} must be https: ${String(res.url)}`, `resource ${String(rid)} 的 url 必须是 https：${String(res.url)}`));
+    else skipped.push({ resourceId: rid, kind: 'image', reason: msg('it has neither a local path nor an https url', '既无本地 path 也无 https url') });
   }
   const ordered = orderedImages(bundle, images);
-  if (ordered.length > LIMITS.images) throw new InputError(`图片 ${ordered.length} 张，超过灵感库单条 ${LIMITS.images} 张上限`);
+  if (ordered.length > LIMITS.images)
+    throw new InputError(
+      msg(`${ordered.length} pictures, more than the ${LIMITS.images} one inspiration can hold`, `图片 ${ordered.length} 张，超过灵感库单条 ${LIMITS.images} 张上限`),
+    );
   return { images: ordered, skipped };
 };
 
@@ -148,7 +160,7 @@ const postOf = (bundle: JsonRecord, options: PlanOptions): JsonRecord => {
   const title = String(bundle.title ?? '').trim();
   const text = String(bundle.body ?? '').trim();
   checkLen('title', title, LIMITS.title);
-  checkLen('text（body）', text, LIMITS.text);
+  checkLen(msg('text (body)', 'text（body）'), text, LIMITS.text);
   if (title) post.title = title;
   if (text) post.text = text;
   const tags = tagsOf(bundle.tags);
@@ -170,7 +182,7 @@ const postOf = (bundle: JsonRecord, options: PlanOptions): JsonRecord => {
 /** The id the platform de-duplicates on: from the content (not the note), so re-running one command saves one inspiration. */
 const clientIdOf = (post: JsonRecord, images: readonly PlanImage[], given: string | undefined): string => {
   if (given) {
-    if (length(given) > LIMITS.clientId) throw new InputError('--client-id 超过 64 字符');
+    if (length(given) > LIMITS.clientId) throw new InputError(msg('--client-id is longer than 64 characters', '--client-id 超过 64 字符'));
     return given;
   }
   const { note: _note, ...content } = post;
@@ -181,14 +193,22 @@ const clientIdOf = (post: JsonRecord, images: readonly PlanImage[], given: strin
 /** Validates the bundle and maps it to a plan; local images are read, hashed and size-checked here. */
 export const planImport = async (rt: Runtime, bundle: unknown, baseDir: string, options: PlanOptions = {}): Promise<ImportPlan> => {
   const [ok, errors] = validateBundle(bundle);
-  if (!ok) throw new InputError(`PostBundle 校验失败：${errors.join('；')}`);
+  if (!ok) throw new InputError(msg(`the PostBundle is not valid: ${errors.join('; ')}`, `PostBundle 校验失败：${errors.join('；')}`));
   const b = bundle as JsonRecord;
   if (b.parseStatus !== 'ready' && !options.allowIncomplete) {
-    const detail = [...((b.errors as string[] | undefined) ?? []), ...((b.missing as string[] | undefined) ?? []).map((m) => `缺 ${m}`)].join('；');
-    throw new InputError(`PostBundle parseStatus=${String(b.parseStatus)}，内容不完整（${detail || '未说明'}）。先用本地截图/文字补全并标 ready，或确认只保存现有内容时加 --allow-incomplete`);
+    const errorsOf = (b.errors as string[] | undefined) ?? [];
+    const missing = ((b.missing as string[] | undefined) ?? []).map((m) => msg(`missing ${m}`, `缺 ${m}`));
+    const detail = [...errorsOf, ...missing].join(msg('; ', '；')) || msg('no reason given', '未说明');
+    throw new InputError(
+      msg(
+        `PostBundle parseStatus=${String(b.parseStatus)}: the content is incomplete (${detail}). Complete it from local screenshots or text and mark it ready first, or, to save only what is there, add --allow-incomplete`,
+        `PostBundle parseStatus=${String(b.parseStatus)}，内容不完整（${detail}）。先用本地截图/文字补全并标 ready，或确认只保存现有内容时加 --allow-incomplete`,
+      ),
+    );
   }
   const { images, skipped } = await collectImages(rt, b, baseDir);
   const post = postOf(b, options);
-  if (!images.length && !post.title && !post.text && !('sourceUrl' in post)) throw new InputError('PostBundle 没有可保存的内容（无图片、标题、正文或来源链接）');
+  if (!images.length && !post.title && !post.text && !('sourceUrl' in post))
+    throw new InputError(msg('the PostBundle has nothing to save (no pictures, title, text or source link)', 'PostBundle 没有可保存的内容（无图片、标题、正文或来源链接）'));
   return { post, images, skipped, clientId: clientIdOf(post, images, options.clientId) };
 };

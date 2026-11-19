@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { Project, SCHEMA } from '../src/core/project';
 import { sha256 } from '../src/core/util';
 import { buildProject } from '../src/workflow/build';
+import { makePendingTicket } from '../src/workflow/post-bundle';
 import { newProject, newRuntime, PNG_1X1 } from './workflow-helpers';
 import { runCli } from '../src/testing/memory';
 
@@ -17,7 +18,7 @@ describe('init and design', () => {
     expect(project.manifest.workflowVersion).toBe(3);
     const design = await rt.fs.readText(project.designMd);
     expect(design).toContain('two bars after gym');
-    expect(design).toContain('init: design.md 初稿来自 brief');
+    expect(design).toContain('init: the design.md draft comes from the brief');
   });
 
   it('honours --width / --height and refuses a non-empty directory', async () => {
@@ -125,15 +126,29 @@ describe('attach-template and attach-bundle', () => {
     await rt.fs.mkdir('/work/empty');
     const { code } = await runCli(rt, ['attach-template', '--dir', 'project', '--path', 'empty']);
     expect(code).toBe(2);
-    expect(String(rt.json().error)).toContain('SKILL.md 缺失');
+    expect(String(rt.json().error)).toContain('SKILL.md is missing');
+  });
+
+  it('refuses a bundle that validate would refuse, and attaches nothing', async () => {
+    const rt = await newRuntime();
+    await newProject(rt);
+    await rt.fs.writeFile('/work/bundle.json', '{"x":1}');
+    expect((await runCli(rt, ['attach-bundle', '--dir', 'project', '--bundle', 'bundle.json'])).code).toBe(2);
+    expect(rt.json()).toMatchObject({ ok: false, error: expect.stringContaining('popost validate --file bundle.json') });
+    expect((rt.json().errors as string[]).length).toBeGreaterThan(0);
+    await rt.fs.writeFile('/work/bundle.json', '{not json');
+    expect((await runCli(rt, ['attach-bundle', '--dir', 'project', '--bundle', 'bundle.json'])).code).toBe(2);
+    expect(rt.json().errors).toEqual(['not a UTF-8 JSON file']);
+    expect((await Project.load(rt, 'project')).manifest.sources).toEqual([]);
   });
 
   it('records a post bundle file by hash', async () => {
     const rt = await newRuntime();
     await newProject(rt);
-    await rt.fs.writeFile('/work/bundle.json', '{"x":1}');
+    const text = JSON.stringify(makePendingTicket(rt, 'https://x.com/post/1', 'x'));
+    await rt.fs.writeFile('/work/bundle.json', text);
     expect((await runCli(rt, ['attach-bundle', '--dir', 'project', '--bundle', 'bundle.json'])).code).toBe(0);
-    const digest = sha256('{"x":1}');
+    const digest = sha256(text);
     expect((await Project.load(rt, 'project')).manifest.sources[0]).toEqual({
       kind: 'bundle-url',
       note: `bundle bundle.json sha=${digest.slice(0, 12)}`,
@@ -170,7 +185,7 @@ describe('doctor and usage', () => {
     await rt.fs.mkdir('/work/nothing');
     const { code } = await runCli(rt, ['design', '--dir', 'nothing', '--note', 'n']);
     expect(code).toBe(1);
-    expect(String(rt.json().error)).toContain('不是 v2 工程');
+    expect(String(rt.json().error)).toContain('not a v2 project');
   });
 });
 
@@ -179,8 +194,8 @@ describe('page HTML used by build', () => {
     const rt = await newRuntime();
     const project = await newProject(rt);
     await project.writePageHtml('p1', '<html><body><div class="post"><h1>x</h1></div></body></html>');
-    expect((await buildProject(project, true)).blockers.join('')).not.toContain('缺 class');
+    expect((await buildProject(project, true)).blockers.join('')).not.toContain('no class');
     await project.writePageHtml('p1', '<html><head><style>.post{color:red}</style></head><body><div><h1>x</h1></div></body></html>');
-    expect((await buildProject(project, true)).blockers.some((b) => b.includes('缺 class'))).toBe(true);
+    expect((await buildProject(project, true)).blockers.some((b) => b.includes('no class'))).toBe(true);
   });
 });

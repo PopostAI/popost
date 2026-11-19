@@ -7,6 +7,7 @@
 import type { Project } from '../core/project';
 import { isFile } from '../core/util';
 import { JobError } from './jobs';
+import { msg } from '../i18n';
 
 export const REF_ROLES = ['layout', 'identity', 'style', 'content'] as const;
 export const REF_ALL = 'all';
@@ -42,10 +43,18 @@ const unknownReference = (project: Project, given: string): JobError => {
   const stem = (file: string) => path.basename(file, path.extname(file));
   const known = registeredReferences(project);
   const close = known.filter((ref) => distance(stem(given), stem(ref.path)) <= 2);
+  const roles = `${REF_ROLES.join('|')}|${REF_ALL}`;
+  const guess = close.length === 1 ? close[0]!.path : null;
   const registered = known.length
-    ? ` Registered references: ${listRefs(known)}.${close.length === 1 ? ` Did you mean ${close[0]!.path}?` : ''} Use one of these paths, or --ref ${REF_ROLES.join('|')}|${REF_ALL}.`
-    : ' No reference is registered; register one with: reference --dir <project> --file <image> --role layout.';
-  return new JobError(`reference file not found: ${given}.${registered}`);
+    ? msg(
+        ` Registered references: ${listRefs(known)}.${guess ? ` Did you mean ${guess}?` : ''} Use one of these paths, or --ref ${roles}.`,
+        `已登记的参考图：${listRefs(known)}。${guess ? `你是不是要用 ${guess}？` : ''}请用其中一个路径，或 --ref ${roles}。`,
+      )
+    : msg(
+        ' No reference is registered; register one with: reference --dir <project> --file <image> --role layout.',
+        '还没有登记任何参考图；请用 reference --dir <project> --file <image> --role layout 登记。',
+      );
+  return new JobError(msg(`reference file not found: ${given}.${registered}`, `找不到参考图文件：${given}。${registered}`));
 };
 
 /** An explicit `--ref` path: as given when it exists from the working directory, else inside the project; stored as written. */
@@ -75,10 +84,19 @@ interface Candidate {
   readonly named: boolean;
 }
 
+const noRegistered = (token: string, role: string): string => {
+  const kind = role === REF_ALL ? '' : `${role} `;
+  const as = role === REF_ALL ? 'layout' : role;
+  return msg(
+    `--ref ${token}: no ${kind}reference is registered; register one with: reference --dir <project> --file <image> --role ${as}, or pass a file path.`,
+    `--ref ${token}：还没有登记 ${kind}参考图；请用 reference --dir <project> --file <image> --role ${as} 登记一张，或直接给文件路径。`,
+  );
+};
+
 const forRole = (project: Project, role: string, token: string | null): Candidate[] => {
   const matches = registeredReferences(project).filter((ref) => role === REF_ALL || ref.role === role);
   if (!matches.length && token)
-    throw new JobError(`--ref ${token}: no ${role === REF_ALL ? '' : `${role} `}reference is registered; register one with: reference --dir <project> --file <image> --role ${role === REF_ALL ? 'layout' : role}, or pass a file path.`);
+    throw new JobError(noRegistered(token, role));
   return matches.map((ref) => ({ file: project.abs(ref.path), role: ref.role, named: false }));
 };
 
@@ -131,7 +149,21 @@ export const resolveRefs = async (project: Project, given: readonly string[], op
   const { kept, dropped } = withinLimit(all, options.limit);
   const notes: string[] = [];
   const registered = kept.filter((c) => !c.named);
-  if (registered.length) notes.push(`references: ${registered.length} registered (${roleCounts(registered)})${given.length ? '' : ', the project defaults'}`);
-  if (dropped.length) notes.push(`left out ${dropped.length} reference${dropped.length === 1 ? '' : 's'} because the model takes at most ${options.limit}: ${dropped.map((c) => c.file).join(', ')}`);
+  const counts = roleCounts(registered);
+  if (registered.length)
+    notes.push(
+      msg(
+        `references: ${registered.length} registered (${counts})${given.length ? '' : ', the project defaults'}`,
+        `参考图：已登记 ${registered.length} 张（${counts}）${given.length ? '' : '，项目默认'}`,
+      ),
+    );
+  const files = dropped.map((c) => c.file).join(', ');
+  if (dropped.length)
+    notes.push(
+      msg(
+        `left out ${dropped.length} reference${dropped.length === 1 ? '' : 's'} because the model takes at most ${options.limit}: ${files}`,
+        `模型最多接受 ${options.limit} 张，因此略去了 ${dropped.length} 张参考图：${files}`,
+      ),
+    );
   return { files: kept.map((c) => c.file), notes };
 };

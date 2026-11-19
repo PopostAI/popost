@@ -119,7 +119,7 @@ const svgOf = (bytes: Uint8Array): PictureInfo | null => {
 };
 
 /**
- * Format, size and transparency of the picture in `bytes`. An `ImageError` (`cannot identify image file 'name'`) when the
+ * Format, size and transparency of the picture in `bytes`. An `ImageError` (`not a readable picture file: name`) when the
  * bytes are not a readable PNG, JPEG, WebP, GIF or SVG.
  */
 export const describePicture = (bytes: Uint8Array, name?: string): PictureInfo => {

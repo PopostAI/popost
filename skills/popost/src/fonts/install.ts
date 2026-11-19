@@ -4,6 +4,7 @@
  * aggregated in `css/chosen.css`. Re-installing a role replaces it; other roles stay.
  */
 import { isFile, readJson, writeAtomic, writeJson } from '../core/util';
+import { msg } from '../i18n';
 import type { Runtime } from '../runtime';
 import { FontError, loadLibrary, UnknownRoleError, type FontLibrary, type FontRole } from './palette';
 import { mapLimit, readFontAsset } from './source';
@@ -44,7 +45,7 @@ const installFiles = async (rt: Runtime, lib: FontLibrary, role: FontRole, proje
   });
   const total = sizes.reduce((sum, size) => sum + size, 0);
   if (names.length !== role.fileCount || total !== role.totalBytes)
-    throw new FontError(`font role ${role.id} is incomplete: ${names.length} files, ${total} bytes`);
+    throw new FontError(msg(`font role ${role.id} is incomplete: ${names.length} files, ${total} bytes`, `字体角色 ${role.id} 不完整：${names.length} 个文件，${total} 字节`));
   const license = await readFontAsset(rt, lib, `${role.id}/LICENSE`, role.license.sha256);
   await rt.fs.writeFile(rt.path.join(target, 'LICENSE'), license);
   const css = new TextDecoder().decode(await readFontAsset(rt, lib, role.cssPath));
@@ -95,7 +96,12 @@ export const installProject = async (rt: Runtime, rolesCsv: string, projectPath:
   const requested = rolesCsv.split(',').map((id) => id.trim());
   const unknown = requested.filter((id) => !valid.has(id));
   if (unknown.length)
-    throw new UnknownRoleError(`unknown font roles: ${unknown.join(', ')}; available: ${[...valid.keys()].join(', ')}`);
+    throw new UnknownRoleError(
+      msg(
+        `unknown font roles: ${unknown.join(', ')}; available: ${[...valid.keys()].join(', ')}`,
+        `未知的字体角色：${unknown.join(', ')}；可用的有：${[...valid.keys()].join(', ')}`,
+      ),
+    );
 
   const project = rt.path.resolve(rt.cwd, projectPath);
   await rt.fs.mkdir(rt.path.join(project, 'fonts'));

@@ -96,7 +96,7 @@ describe.skipIf(!chrome)('render with Chrome', () => {
     await created.writePageHtml('p1', pageHtml('with image', true));
     const missing = await runCli(rt, ['render', '--dir', 'P', '--page', 'p1']);
     expect(missing.code).toBe(2);
-    expect(rt.json().error).toBe('RuntimeError: page contains missing or unreadable images');
+    expect(rt.json().error).toBe('page contains missing or unreadable images');
     await created.addAssetBytes(PNG_1X1, 'local.png');
     expect((await runCli(rt, ['render', '--dir', 'P', '--page', 'p1'])).code).toBe(0);
   });

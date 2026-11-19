@@ -3,6 +3,8 @@ import { UsageError } from './args';
 import { credentialsDir, type CredentialsLocation } from './credentials';
 import { checkUrl, DEFAULT_BASE_URL } from './providers/api';
 import { printJson } from './core/util';
+import { msg } from './i18n';
+import { PROFILE_NAME, profileNameHint } from './profile';
 import type { Runtime } from './runtime';
 
 export interface DeviceGrant {
@@ -13,8 +15,7 @@ export interface DeviceGrant {
 }
 const profileName = (env: Runtime['env']): string => {
   const configured = env.POPOST_AGENT_PROFILE?.trim();
-  if (configured && !/^[a-z0-9][a-z0-9_-]{0,39}$/i.test(configured))
-    throw new UsageError('Use a short profile name containing letters, numbers, underscores or hyphens.');
+  if (configured && !PROFILE_NAME.test(configured)) throw new UsageError(profileNameHint());
   return (
     configured ||
     (env.CLAUDECODE || env.CLAUDE_CODE_ENTRYPOINT
@@ -61,11 +62,11 @@ export const deviceApi = async <T>(
     redirect: 'error',
   });
   if (result.status === 401 || result.status === 403)
-    throw new UsageError('Account connection is unavailable. Run popost auth login to reconnect.');
+    throw new UsageError(msg('Account connection is unavailable. Run popost auth login to reconnect.', '账号连接不可用。请运行 popost auth login 重新连接。'));
   if (!result.ok)
-    throw new UsageError('Could not reach the account service (' + result.status + '). Please try again.');
+    throw new UsageError(msg(`Could not reach the account service (${result.status}). Please try again.`, `无法连接账号服务（${result.status}）。请重试。`));
   const envelope = (await result.json()) as { success: boolean; data: T };
-  if (!envelope.success) throw new UsageError('The account service could not complete this request.');
+  if (!envelope.success) throw new UsageError(msg('The account service could not complete this request.', '账号服务无法完成这次请求。'));
   return envelope.data;
 };
 
@@ -86,13 +87,13 @@ export const deviceTokenProvider = (grant: DeviceGrant, fetcher: Runtime['fetch'
       signature,
     });
     if (!/^pat_device_[A-Za-z0-9_-]{43}$/.test(result.accessToken))
-      throw new UsageError('Unexpected connection response.');
+      throw new UsageError(msg('Unexpected connection response.', '连接返回了意料之外的结果。'));
     cached = { token: result.accessToken, until: Date.now() + (result.expiresIn - 30) * 1000 };
     return result.accessToken;
   };
   return async (baseUrl: string) => {
     if (baseUrl.replace(/\/+$/, '') !== grant.baseUrl)
-      throw new UsageError('This connection belongs to another site. Check the selected API address.');
+      throw new UsageError(msg('This connection belongs to another site. Check the selected API address.', '这个连接属于另一个站点。请检查所选的 API 地址。'));
     if (cached && cached.until > Date.now()) return cached.token;
     pending ??= renew().finally(() => {
       pending = undefined;
@@ -100,18 +101,28 @@ export const deviceTokenProvider = (grant: DeviceGrant, fetcher: Runtime['fetch'
     return pending;
   };
 };
+const codeExpired = (): string => msg('Code expired. Run popost auth login again.', '验证码已过期。请重新运行 popost auth login。');
+
 export const login = async (rt: Runtime, requestedBase?: string, noOpen = false): Promise<number> => {
   const file = deviceLocation(rt);
   if (!file)
     throw new UsageError(
-      'Browser sign-in needs persistent user storage. Use your host secret settings for this environment.',
+      msg(
+        'Browser sign-in needs persistent user storage. Use your host secret settings for this environment.',
+        '浏览器登录需要可持久保存的用户存储。当前环境请使用宿主的密钥设置。',
+      ),
     );
   if (rt.explicitApiKey)
-    throw new UsageError('POPOST_API_KEY is set and selects the account. Unset it before connecting another account.');
+    throw new UsageError(
+      msg(
+        'POPOST_API_KEY is set and selects the account. Unset it before connecting another account.',
+        '已设置 POPOST_API_KEY，账号由它决定。要连接其他账号，请先取消这个环境变量。',
+      ),
+    );
   const baseUrl = (requestedBase || rt.env.POPOST_BASE_URL || DEFAULT_BASE_URL).replace(/\/+$/, '');
   const site = new URL(checkUrl(baseUrl, '--base-url'));
   if (site.username || site.password || site.search || site.hash || site.pathname !== '/api/open/v1')
-    throw new UsageError('Use the full site API address ending in /api/open/v1.');
+    throw new UsageError(msg('Use the full site API address ending in /api/open/v1.', '请使用以 /api/open/v1 结尾的完整站点 API 地址。'));
   const pair = generateKeyPairSync('ed25519');
   const publicKey = pair.publicKey.export({ format: 'jwk' }).x!;
   const profile = profileName(rt.env);
@@ -132,7 +143,7 @@ export const login = async (rt: Runtime, requestedBase?: string, noOpen = false)
       verificationUrl: url,
       userCode: start.userCode,
       expiresIn: start.expiresIn,
-      next: 'Open the link and enter this code. Keep this command running.',
+      next: msg('Open the link and enter this code. Keep this command running.', '打开链接并输入这个验证码。保持这条命令运行。'),
     },
     true,
   );
@@ -149,7 +160,7 @@ export const login = async (rt: Runtime, requestedBase?: string, noOpen = false)
     if (result.status === 'pending') continue;
     if (result.status !== 'approved')
       throw new UsageError(
-        result.status === 'denied' ? 'Connection declined.' : 'Code expired. Run popost auth login again.',
+        result.status === 'denied' ? msg('Connection declined.', '连接已被拒绝。') : codeExpired(),
       );
     const grant: DeviceGrant = {
       deviceCode: start.deviceCode,
@@ -176,5 +187,5 @@ export const login = async (rt: Runtime, requestedBase?: string, noOpen = false)
     );
     return 0;
   }
-  throw new UsageError('Code expired. Run popost auth login again.');
+  throw new UsageError(codeExpired());
 };

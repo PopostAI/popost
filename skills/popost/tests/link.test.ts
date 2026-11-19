@@ -268,7 +268,7 @@ describe('link parse', () => {
 
   it('words a failed task that has no message from its code, and scrubs a key that the message echoes', async () => {
     const t = await linkScene({ polls: ['failed'], failure: { code: 'LINK_IMAGES_FAILED' } });
-    expect((await t.run('parse', LINK)).data).toMatchObject({ code: 'LINK_IMAGES_FAILED', error: '帖子的图片获取失败' });
+    expect((await t.run('parse', LINK)).data).toMatchObject({ code: 'LINK_IMAGES_FAILED', error: 'fetching the pictures of the post failed' });
     const echo = await linkScene({ polls: ['failed'], failure: { code: 'LINK_PARSE_FAILED', message: `bad token ${KEY}` } });
     const { stdout } = await echo.run('parse', LINK);
     expect(stdout).toContain('[REDACTED]');
@@ -276,10 +276,10 @@ describe('link parse', () => {
   });
 
   it.each([
-    [400, 'LINK_UNSUPPORTED', undefined, '不支持这个链接'],
-    [402, 'INSUFFICIENT_CREDITS', { required: 20, balance: 3 }, '积分不足'],
-    [429, 'RATE_LIMITED', { retryAfterSeconds: 30 }, '30 秒'],
-    [401, 'UNAUTHORIZED', undefined, '账户连接已失效'],
+    [400, 'LINK_UNSUPPORTED', undefined, 'does not support this link'],
+    [402, 'INSUFFICIENT_CREDITS', { required: 20, balance: 3 }, 'Not enough credits'],
+    [429, 'RATE_LIMITED', { retryAfterSeconds: 30 }, '30 seconds'],
+    [401, 'UNAUTHORIZED', undefined, 'no longer valid'],
     [426, 'CLI_VERSION_TOO_OLD', { minVersion: '9.9.9' }, '9.9.9'],
   ])('refuses %s %s at once: no task, no polling, nothing sent twice', async (status, errorCode, details, fragment) => {
     const t = await linkScene();
@@ -292,7 +292,7 @@ describe('link parse', () => {
     expect(data).not.toHaveProperty('resume');
     expect(t.stub.calls('POST', '/links/parse')).toHaveLength(1);
     expect(gets(t)).toEqual([]);
-    if (errorCode === 'INSUFFICIENT_CREDITS') expect(data.error).not.toContain('报价');
+    if (errorCode === 'INSUFFICIENT_CREDITS') expect(data.error).not.toContain('quote');
     await noKey(t);
   });
 
@@ -308,8 +308,8 @@ describe('link parse', () => {
     const { code, data } = await t.run('parse', LINK);
     expect(code).toBe(1);
     expect(data).toMatchObject({ ok: false, code: 'UNCERTAIN' });
-    expect(data.error).toMatch(/不确定|无法确定/);
-    expect(data.error).toContain('重新运行同一条命令是安全的');
+    expect(data.error).toMatch(/unknown|cannot be determined/);
+    expect(data.error).toContain('Running the same command again is safe');
     expect(data).not.toHaveProperty('task');
     expect(t.stub.calls('POST', '/links/parse')).toHaveLength(1);
     expect(gets(t)).toEqual([]);
@@ -322,7 +322,7 @@ describe('link parse', () => {
     const refusedScene = await linkScene({ fetchHandler: () => async () => refused() });
     r = await refusedScene.run('parse', LINK);
     expect([r.code, r.data.code]).toEqual([1, 'NETWORK']);
-    expect(r.data.error).toContain('未产生费用');
+    expect(r.data.error).toContain('nothing was charged');
   });
 
   it('stops at the timeout with the task id and how to resume; `link status` then finishes it without creating anything', async () => {
@@ -331,7 +331,7 @@ describe('link parse', () => {
     expect(code).toBe(1);
     expect(data).toMatchObject({ ok: false, code: 'WAIT_TIMEOUT', task: { id: TASK, status: 'running', chargedCredits: CHARGE }, resume: `popost link status ${TASK}` });
     expect(data.error).toContain(`popost link status ${TASK}`);
-    expect(data.error).toContain('仍会在平台完成');
+    expect(data.error).toContain('may still finish on the platform');
     expect(gets(t)).toHaveLength(5);
     expect(t.clock.sleeps).toEqual([2000, 2000, 2000, 2000, 2000]);
 
@@ -365,8 +365,8 @@ describe('link parse', () => {
     const { code, data } = await down.run('parse', LINK);
     expect(code).toBe(1);
     expect(data).toMatchObject({ ok: false, code: 'POLL_FAILED', task: { id: TASK, status: 'pending' }, resume: `popost link status ${TASK}` });
-    expect(data.error).toContain('5 次');
-    expect(data.error).toContain('仍会在平台完成');
+    expect(data.error).toContain('5 times');
+    expect(data.error).toContain('may still finish on the platform');
     expect(gets(down)).toHaveLength(5);
   });
 
@@ -400,10 +400,10 @@ describe('link parse', () => {
     const { code, data } = await t.run('parse', LINK);
     expect(code).toBe(1);
     expect(data).toMatchObject({ ok: false, code: 'DOWNLOAD_FAILED', task: { id: TASK, status: 'succeeded', chargedCredits: CHARGE }, images: [`${OUT}/01.png`], resume: `popost link status ${TASK}` });
-    expect(data.error).toContain('第 2 张图片');
+    expect(data.error).toContain('picture 2');
     expect(data.error).toContain('HTTP 404');
     expect(data.error).toContain(`popost link status ${TASK}`);
-    expect(data.error).toContain('重新签发');
+    expect(data.error).toContain('signed anew');
     expect(await files(t, OUT)).toEqual(['01.png']); // no bundle, no half-written file
     expect(JSON.stringify(data)).not.toContain('sig=');
     expect(JSON.stringify(data)).not.toContain('SECRETSIG');
@@ -421,7 +421,7 @@ describe('link parse', () => {
     const { code, data } = await t.run('parse', LINK);
     expect(code).toBe(1);
     expect(data).toMatchObject({ code: 'DOWNLOAD_FAILED', images: [`${OUT}/01.png`] });
-    expect(data.error).toContain('不是 PNG');
+    expect(data.error).toContain('is not a PNG');
     expect(await files(t, OUT)).toEqual(['01.png']);
   });
 
@@ -431,7 +431,7 @@ describe('link parse', () => {
     expect(code, JSON.stringify(data)).toBe(0);
     expect(data).toMatchObject({ ok: true, task: { id: TASK, status: 'succeeded' }, post: { platform: 'xiaohongshu', imageCount: 2, text: '第一天：白衬衫 + 西裤。', tags: ['穿搭', '通勤'] } });
     expect(data.post.images.map((i: Json) => [i.index, i.url])).toEqual([[1, signed('pic1.png')], [2, signed('pic2.webp')]]);
-    expect(data.note).toContain('很快失效');
+    expect(data.note).toContain('expire soon');
     expect(data.note).toContain(`popost link status ${TASK}`);
     expect(data).not.toHaveProperty('bundle');
     expect(await files(t, '/work/inputs')).toEqual([]);
@@ -453,7 +453,7 @@ describe('link parse', () => {
   it.each([
     ['a platform of none of the five', { platform: 'myspace' }, 'platform'],
     ['neither a source URL nor one the user gave', { sourceUrl: 'ftp://x', platform: 'x' }, 'sourceUrl'],
-    ['a picture without an address', { images: [{ mimeType: 'image/png' }] }, '第 1 张图片缺少地址'],
+    ['a picture without an address', { images: [{ mimeType: 'image/png' }] }, 'picture 1 of the parsed result has no address'],
   ])('refuses a task result with %s before downloading anything', async (_label, over, fragment) => {
     const t = await linkScene({ post: postOf(['pic1.png'], over) });
     const { code, data } = await t.run('status', TASK);
@@ -470,19 +470,19 @@ describe('link parse', () => {
     expect(data).toMatchObject({ ok: true, dryRun: true, request: { method: 'POST', url: `${BASE_URL}/links/parse`, body: { url: LINK, note: '备注' } } });
     expect(data.request.headers.Authorization).toBe('Bearer $POPOST_API_KEY');
     expect(data.then.url).toBe(`${BASE_URL}/links/parse?id=<task id>`);
-    expect(data.download.dir).toBe('/work/inputs/link-<task id 前 8 位>');
+    expect(data.download.dir).toBe('/work/inputs/link-<first 8 characters of the task id>');
     expect(t.stub.requests).toEqual([]);
     expect(t.clock.sleeps).toEqual([]);
   });
 
   it.each([
-    ['a link that is not http(s)', ['parse', 'ftp://example.com/post'], '链接必须是'],
-    ['text that is no link', ['parse', 'not a link'], '链接必须是'],
+    ['a link that is not http(s)', ['parse', 'ftp://example.com/post'], 'the link must be'],
+    ['text that is no link', ['parse', 'not a link'], 'the link must be'],
     ['a note over 2000 characters', ['parse', LINK, '--note', '长'.repeat(2001)], '--note'],
     ['a timeout of zero', ['parse', LINK, '--timeout', '0'], '--timeout'],
     ['a timeout over an hour', ['status', TASK, '--timeout', '3601'], '--timeout'],
     ['an output path that is a file', ['parse', LINK, '--out', '/work/file.txt'], '--out'],
-    ['a task id that is no id', ['status', '../etc/passwd'], '任务 id'],
+    ['a task id that is no id', ['status', '../etc/passwd'], 'task id'],
   ])('rejects %s locally (exit 2) before any request', async (_label, args, fragment) => {
     const t = await linkScene();
     await t.rt.fs.writeFile('/work/file.txt', 'x');
@@ -524,7 +524,7 @@ describe('link status', () => {
     const missing = await unknown.run('status', TASK);
     expect(missing.code).toBe(1);
     expect(missing.data).toMatchObject({ ok: false, code: 'LINK_IMPORT_NOT_FOUND', task: { id: TASK } });
-    expect(missing.data.error).toContain('找不到');
+    expect(missing.data.error).toContain('cannot find');
     expect(missing.data).not.toHaveProperty('resume');
   });
 

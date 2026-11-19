@@ -138,6 +138,18 @@ describe('image quote for several jobs', () => {
     expect(t.stub.requests).toEqual([]);
   });
 
+  it('still gives the price of each job and of all of them when the balance covers none', async () => {
+    const t = await setup(['a', 'b'], { balance: 5 });
+    const one = await t.image('quote', '--id', 'a');
+    expect(one.code).toBe(1);
+    expect(one.data.billing).toMatchObject({ creditsPerImage: String(PRICE), totalCredits: String(PRICE), balance: 5, sufficient: false, charged: false });
+    expect((await t.job('a')).status).toBe('prepared');
+    const all = await t.image('quote', '--all');
+    expect(all.code).toBe(1);
+    expect(all.data).toMatchObject({ ok: false, quoted: 0, failed: 2, balance: 5, requiredCredits: String(2 * PRICE) });
+    expect(all.data.jobs.map((row: Json) => [row.id, row.credits, row.insufficient])).toEqual([['a', String(PRICE), true], ['b', String(PRICE), true]]);
+  });
+
   it('says so when the quotes together cost more than the balance, although each one alone is covered', async () => {
     const t = await setup(['a', 'b'], { balance: 20 });
     const r = await t.image('quote', '--id', 'a,b');
@@ -239,7 +251,7 @@ describe('image run for several quotes', () => {
     expect(r.data).toMatchObject({ ok: false, total: 3, succeeded: 2, failed: 1, ambiguous: 0 });
     expect(r.data.jobs.map((row: Json) => [row.id, row.outcome])).toEqual([['a', 'ok'], ['b', 'failed'], ['c', 'ok']]);
     expect(r.data.jobs[1]).toMatchObject({ ok: false, code: 1, charged: false, quoteId: quoted.quoteIds[1] });
-    expect(r.data.jobs[1].error).toContain('提交被拒绝');
+    expect(r.data.jobs[1].error).toContain('the submit was refused');
     expect(t.tracker.sent).toHaveLength(3); // one request per job, none repeated
     expect(await t.job('b')).toMatchObject({ status: 'quoted', quoteId: quoted.quoteIds[1] });
     expect((await t.job('b')).runAttempted).toBeUndefined(); // exactly what a single refused run leaves: nothing was charged, the job is open

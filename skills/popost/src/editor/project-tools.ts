@@ -2,6 +2,7 @@
 import { sniffImage } from '../core/image';
 import type { Project } from '../core/project';
 import { readProjectFile } from '../render/offline';
+import { msg } from '../i18n';
 import { fileResponse, jsonResponse, type ApiResponse, type Ctx } from './http-types';
 
 const layoutPaths = (project: Project) =>
@@ -50,7 +51,7 @@ export const localReferenceImage = async (ctx: Ctx): Promise<ApiResponse> => {
   const project = await ctx.load();
   const source = layoutPaths(project).find((entry) => image(entry.path, '/api/comparison').src === ctx.req.path);
   const file = source && await readReference(project, source.path);
-  return file ? fileResponse(file.data, file.mime) : jsonResponse(ctx.req, 404, { ok: false, error: 'reference not found' });
+  return file ? fileResponse(file.data, file.mime) : jsonResponse(ctx.req, 404, { ok: false, error: msg('reference not found', '未找到参考图') });
 };
 
 export const localProjectAssets = async (ctx: Ctx): Promise<ApiResponse> => {

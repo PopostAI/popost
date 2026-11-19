@@ -12,6 +12,8 @@ import { downloadResult, EXTENSIONS, sniffImageMime } from './api';
 import { isInt, isRecord, type JsonRecord } from './base';
 import { ImageProviderError, PopostApiError } from './errors';
 import { authorOf, LIMITS, publishedAt, statsOf } from './inspiration-plan';
+import { msg } from '../i18n';
+import { errorText } from '../core/error-text';
 
 export interface RemoteImage {
   readonly url: string;
@@ -61,7 +63,7 @@ const tagsOf = (raw: unknown): string[] => {
 };
 
 const imageOf = (raw: unknown, index: number): RemoteImage => {
-  if (!isRecord(raw) || typeof raw.url !== 'string' || !raw.url) throw badResponse(`解析结果的第 ${index + 1} 张图片缺少地址`);
+  if (!isRecord(raw) || typeof raw.url !== 'string' || !raw.url) throw badResponse(msg(`picture ${index + 1} of the parsed result has no address`, `解析结果的第 ${index + 1} 张图片缺少地址`));
   const size = (key: 'width' | 'height') => (isInt(raw[key]) && (raw[key] as number) > 0 ? { [key]: raw[key] as number } : {});
   return { url: raw.url, ...(typeof raw.mimeType === 'string' ? { mimeType: raw.mimeType } : {}), ...size('width'), ...size('height'), ...(text(raw.alt) ? { alt: [...text(raw.alt)].slice(0, 500).join('') } : {}) };
 };
@@ -76,9 +78,10 @@ const validPublishedAt = (value: unknown): string | null => {
 
 /** The post of a succeeded task. `fallbackUrl` (the link the user gave) stands in for a missing `sourceUrl`. */
 export const planPost = (post: JsonRecord, fallbackUrl: string | undefined, note: string | undefined): PostPlan => {
-  if (!(PLATFORMS as readonly unknown[]).includes(post.platform)) throw badResponse('解析结果的 platform 不是 X、Instagram、TikTok、抖音、小红书之一');
+  if (!(PLATFORMS as readonly unknown[]).includes(post.platform))
+    throw badResponse(msg('the platform of the parsed result is not one of X, Instagram, TikTok, Douyin, Xiaohongshu', '解析结果的 platform 不是 X、Instagram、TikTok、抖音、小红书之一'));
   const sourceUrl = [text(post.sourceUrl), fallbackUrl ?? ''].find((u) => /^https?:\/\//.test(u));
-  if (!sourceUrl) throw badResponse('解析结果缺少 sourceUrl');
+  if (!sourceUrl) throw badResponse(msg('the parsed result has no sourceUrl', '解析结果缺少 sourceUrl'));
   const serverNote = text(post.note) || (note ?? '').trim();
   return {
     platform: post.platform as string,
@@ -137,7 +140,8 @@ export interface Downloaded {
   readonly failure: string | null;
 }
 
-const reason = (error: unknown): string => (error instanceof ImageProviderError ? error.message : `写入失败（${(error as { code?: string })?.code ?? (error as Error)?.name ?? 'Error'}）`);
+const reason = (error: unknown): string =>
+  error instanceof ImageProviderError ? error.message : msg(`writing failed (${errorText(error)})`, `写入失败（${errorText(error)}）`);
 
 /**
  * Downloads the pictures in order into `outDir` (no Authorization; each at most `MAX_DOWNLOAD_BYTES`; the type comes
@@ -149,14 +153,14 @@ export const downloadPictures = async (rt: Runtime, images: readonly RemoteImage
   await rt.fs.mkdir(outDir);
   for (const [i, image] of images.entries()) {
     const index = i + 1;
-    const what = `第 ${index} 张图片`;
+    const what = msg(`picture ${index}`, `第 ${index} 张图片`);
     const tmp = rt.path.join(outDir, `${String(index).padStart(2, '0')}.download`);
     try {
       const raw = await downloadResult(rt, image.url, tmp, undefined, undefined, { what, retry });
       const mime = sniffImageMime(raw.subarray(0, 16));
       if (!mime) {
         await rt.fs.rm(tmp);
-        return { saved, failure: `${what}下载的内容不是 PNG/JPEG/WebP/GIF 图片；${retry}` };
+        return { saved, failure: msg(`the download of ${what} is not a PNG/JPEG/WebP/GIF picture; ${retry}`, `${what}下载的内容不是 PNG/JPEG/WebP/GIF 图片；${retry}`) };
       }
       const file = fileName(index, mime);
       const path = rt.path.join(outDir, file);
@@ -166,7 +170,7 @@ export const downloadPictures = async (rt: Runtime, images: readonly RemoteImage
       await rt.fs.rm(tmp).catch(() => undefined);
       const message = reason(error);
       // a failed transfer already carries the advice
-      return { saved, failure: error instanceof PopostApiError && error.code === 'DOWNLOAD_FAILED' ? message : `${message}；${retry}` };
+      return { saved, failure: error instanceof PopostApiError && error.code === 'DOWNLOAD_FAILED' ? message : msg(`${message}; ${retry}`, `${message}；${retry}`) };
     }
   }
   return { saved, failure: null };
@@ -199,8 +203,12 @@ export const buildBundle = (rt: Runtime, plan: PostPlan, saved: readonly SavedIm
       ...(s.alt ? { alt: s.alt } : {}),
     })),
     parseStatus: complete ? 'ready' : 'missing_resources',
-    auth: { required: false, authorized: true, note: 'parsed by popost.ai from the public link; no login was needed' },
-    errors: complete ? [] : ['帖子里没有图片'],
+    auth: {
+      required: false,
+      authorized: true,
+      note: msg('parsed by popost.ai from the public link; no login was needed', '由 popost.ai 从公开链接解析；无需登录'),
+    },
+    errors: complete ? [] : [msg('the post has no pictures', '帖子里没有图片')],
     missing: complete ? [] : ['resources'],
     ...(Object.keys(plan.author).length ? { author: plan.author } : {}),
     ...(Object.keys(plan.stats).length ? { stats: plan.stats } : {}),

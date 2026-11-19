@@ -8,8 +8,10 @@
  * (`PopostClient`, the secret scrubber) keeps reading `rt.env`. A host that runs the CLI in-process and passes its own
  * `env` and no `homeDir` never touches the file.
  */
+import { msg } from './i18n';
 import type { Runtime } from './runtime';
 import { DEFAULT_KEY_ENV } from './providers/api-errors';
+import { errorText } from './core/error-text';
 
 export const BASE_URL_ENV = 'POPOST_BASE_URL';
 export const HOME_ENV = 'POPOST_HOME';
@@ -88,9 +90,9 @@ export const readStoredCredentials = async (rt: Runtime): Promise<StoredState> =
     const credentials = parseCredentials(await rt.fs.readText(file));
     return credentials
       ? { status: 'ok', file, credentials }
-      : { status: 'corrupt', file, reason: 'not a JSON object with an apiKey string' };
+      : { status: 'corrupt', file, reason: msg('not a JSON object with an apiKey string', '不是带 apiKey 字符串的 JSON 对象') };
   } catch (error) {
-    return { status: 'corrupt', file, reason: error instanceof Error ? error.message : String(error) };
+    return { status: 'corrupt', file, reason: errorText(error) };
   }
 };
 
@@ -124,4 +126,7 @@ export const keyPageUrl = (baseUrl?: string): string => {
 
 /** The one-line next step shown wherever a key is missing; `keyEnv` is the variable the channel reads. */
 export const keyGuidance = (page: string, keyEnv: string): string =>
-  `运行 popost auth login，把验证链接和设备码发给用户。连接后用 popost account 核对账户。管理连接：${page}。开发者也可通过宿主设置 ${keyEnv}，或在自己的终端使用 popost auth set --prompt`;
+  msg(
+    `Run popost auth login and send the user the verification link and the device code. Once connected, check the account with popost account. Manage connections: ${page}. Developers can also set ${keyEnv} in the host, or run popost auth set --prompt in their own terminal`,
+    `运行 popost auth login，把验证链接和设备码发给用户。连接后用 popost account 核对账户。管理连接：${page}。开发者也可通过宿主设置 ${keyEnv}，或在自己的终端使用 popost auth set --prompt`,
+  );

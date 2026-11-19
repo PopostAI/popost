@@ -47,11 +47,11 @@ describe('reference', () => {
     await newProject(rt);
     await rt.fs.writeFile('/work/notimg.png', 'not an image');
     expect((await runCli(rt, ['reference', '--dir', 'project', '--file', 'nope.png'])).code).toBe(2);
-    expect(rt.json().error).toBe("[Errno 2] No such file or directory: 'nope.png'");
+    expect(rt.json().error).toBe('file not found: nope.png');
     expect((await runCli(rt, ['reference', '--dir', 'project', '--file', 'notimg.png'])).code).toBe(2);
-    expect(rt.json().error).toBe("cannot identify image file 'notimg.png'");
+    expect(rt.json().error).toBe('not a readable picture file: notimg.png');
     expect((await runCli(rt, ['reference', '--dir', 'project', '--file', 'project'])).code).toBe(2);
-    expect(rt.json().error).toBe("[Errno 21] Is a directory: 'project'");
+    expect(rt.json().error).toBe('project is a folder, not a file');
     const role = await runCli(rt, ['reference', '--dir', 'project', '--file', 'notimg.png', '--role', 'bogus']);
     expect(role.code).toBe(2);
     expect(role.stderr).toContain("invalid choice: 'bogus'");
@@ -103,14 +103,14 @@ describe('review', () => {
     expect(rt.json().error).toBe('render is stale; rerender before actual visual review');
     await rt.fs.writeFile('/work/project/exports/p1.render.json', '{}');
     expect((await runCli(rt, ['review', '--dir', 'project', '--page', 'p1', '--note', 'n'])).code).toBe(2);
-    expect(rt.json().error).toBe("'fingerprint'");
+    expect(rt.json().error).toBe('exports/p1.render.json has no "fingerprint" field');
   });
 
   it('treats an unknown page as a broken invocation (exit 1), not as user input', async () => {
     const rt = await newRuntime();
     await newProject(rt);
     expect((await runCli(rt, ['review', '--dir', 'project', '--page', 'nope', '--note', 'n'])).code).toBe(1);
-    expect(String(rt.json().error)).toContain('页不存在: nope');
+    expect(String(rt.json().error)).toContain('no such page: nope');
   });
 
   it('reviews the sequence against the plan and every page fingerprint', async () => {
@@ -175,10 +175,10 @@ describe('build', () => {
       visualQa: 'pending',
       readyToDeliver: false,
       blockers: [
-        'starter 未完成：缺实际设计观察',
-        '缺 series-plan.json：先确定钩子、逐页增量、翻页理由、兑现与 CTA',
-        'concept pending：需要唯一整组构图参考，或记录关闭参考的原因',
-        '页 p1 仍含未替换骨架文字',
+        'the starter is not finished: design.md has no real design observation',
+        'no series-plan.json: settle the hook, what each page adds, why the reader swipes on, the payoff and the CTA first',
+        'concept pending: the series needs its one composition reference, or a recorded reason for going without one',
+        'page p1 still has placeholder text that was never replaced',
       ],
       reviewGaps: [
         'p1: no review of the current version: look at its current render (popost render --dir /work/project --page p1 first if the PNG is missing or stale), ' +
@@ -197,18 +197,18 @@ describe('build', () => {
     await runCli(rt, ['init', '--dir', 'strict', '--brief', 'b', '--mode', 'strict']);
     await runCli(rt, ['design', '--dir', 'strict', '--note', 'read png']);
     expect((await runCli(rt, ['build', '--dir', 'strict'])).code).toBe(2);
-    expect((rt.json().build as { blockers: string[] }).blockers).toContain('strict 缺本地参考素材');
+    expect((rt.json().build as { blockers: string[] }).blockers).toContain('strict mode has no local reference asset');
     await rt.fs.writeFile('/work/input.png', PNG_1X1);
     await runCli(rt, ['reference', '--dir', 'strict', '--file', 'input.png']);
     const reference = (rt.json().references as { path: string }[])[0]!.path;
     await runCli(rt, ['build', '--dir', 'strict']);
-    expect((rt.json().build as { blockers: string[] }).blockers).not.toContain('strict 缺本地参考素材');
+    expect((rt.json().build as { blockers: string[] }).blockers).not.toContain('strict mode has no local reference asset');
     await rt.fs.writeFile(`/work/strict/${reference}`, 'changed');
     await runCli(rt, ['build', '--dir', 'strict']);
-    expect((rt.json().build as { blockers: string[] }).blockers).toContain('reference 文件缺失或已变更，请重新观察并登记');
+    expect((rt.json().build as { blockers: string[] }).blockers).toContain('a reference file is missing or changed: look at it again and register it again');
     await rt.fs.rm(`/work/strict/${reference}`);
     await runCli(rt, ['build', '--dir', 'strict']);
-    expect((rt.json().build as { blockers: string[] }).blockers).toContain('reference 文件缺失或已变更，请重新观察并登记');
+    expect((rt.json().build as { blockers: string[] }).blockers).toContain('a reference file is missing or changed: look at it again and register it again');
   });
 
   it('flags scripts, missing layers, duplicate layer ids and leftover starter text', async () => {
@@ -216,15 +216,15 @@ describe('build', () => {
     const project = await newProject(rt);
     const blockersFor = async (html: string) => {
       await project.writePageHtml('p1', html);
-      return (await buildProject(project, true)).blockers.filter((b) => b.startsWith('页 p1'));
+      return (await buildProject(project, true)).blockers.filter((b) => b.startsWith('page p1'));
     };
-    expect(await blockersFor('<div class="post"><script>x()</script></div>')).toEqual(['页 p1 含 <script>', '页 p1 缺可编辑语义图层']);
-    expect(await blockersFor('<div class="post"><b data-layer-id="a"></b><i data-layer-id="a"></i></div>')).toEqual(['页 p1 图层 id 重复']);
+    expect(await blockersFor('<div class="post"><script>x()</script></div>')).toEqual(['page p1 contains <script>', 'page p1 has no editable semantic layers']);
+    expect(await blockersFor('<div class="post"><b data-layer-id="a"></b><i data-layer-id="a"></i></div>')).toEqual(['page p1 has duplicate layer ids']);
     expect(await blockersFor('<div class="post"><b data-layer-id="a">My Page 1 ok</b></div>')).toEqual([]);
-    expect(await blockersFor('<div class="post"><h1 data-layer-id="a">Page 1</h1></div>')).toEqual(['页 p1 仍含未替换骨架文字']);
-    expect(await blockersFor('<div class="post"><p data-layer-id="a">Edit this live text layer.</p></div>')).toEqual(['页 p1 仍含未替换骨架文字']);
+    expect(await blockersFor('<div class="post"><h1 data-layer-id="a">Page 1</h1></div>')).toEqual(['page p1 still has placeholder text that was never replaced']);
+    expect(await blockersFor('<div class="post"><p data-layer-id="a">Edit this live text layer.</p></div>')).toEqual(['page p1 still has placeholder text that was never replaced']);
     expect(await blockersFor('<div class=post data-layer-id=a><!-- <div class="x"> --></div>')).toEqual([]);
-    expect(await blockersFor('<div class="my-post" data-layer-id="a"></div>')).toEqual(['页 p1 缺 class=post/page 根']);
+    expect(await blockersFor('<div class="my-post" data-layer-id="a"></div>')).toEqual(['page p1 has no class=post/page root']);
     expect(await blockersFor('<div class="x  page" data-layer-id="a"></div>')).toEqual([]);
   });
 });

@@ -130,7 +130,7 @@ describe('prepare and status', () => {
     r = await t.image('prepare', '--prompt-file', '/work/prompt.txt', '--purpose', 'material', '--id', 'wide', '--aspect', '16:9');
     expect(r.data.job.aspect).toBe('16:9');
     r = await t.image('prepare', '--prompt-file', '/work/prompt.txt', '--purpose', 'material', '--id', 'bad id!');
-    expect([r.code, r.data.error]).toEqual([2, 'invalid job id']);
+    expect([r.code, r.data.error]).toEqual([2, 'invalid job id: bad id!']);
   });
 
   it('refuses a composition job in strict mode and without a prompt file', async () => {
@@ -260,8 +260,8 @@ describe('quote and run on the official channel', () => {
     t2.stub.set('POST', '/images/generations', [200, { success: true, data: { model: 'stub-model-a', images: [{ url: `${ORIGIN}/files/gen-1.png` }], usage: { credits: 12 }, balance: 488 }, error: null }]);
     const r = await t2.image('run', '--quote-id', q2, '--confirm');
     expect(r.code).toBe(1);
-    expect(r.data.error).toContain('已生成');
-    expect(r.data.error).toContain('不允许访问');
+    expect(r.data.error).toContain('generated (taskId');
+    expect(r.data.error).toContain('does not allow connections');
     const states = (await t2.rt.fs.readText('/work/project/production/ledger.jsonl')).split('\n').filter(Boolean).map((l) => JSON.parse(l).state);
     expect(states).toEqual(['reserved', 'consumed']); // charged: recorded as consumed, never regenerated
     // and the job stays closed: a new quote does not make a charged picture runnable again
@@ -286,7 +286,7 @@ describe('host channel and complete', () => {
     expect([r.code, r.data.error]).toEqual([2, 'real image file and inspection note required']);
     r = await t.image('complete', '--file', '/work/notes.txt', '--tool', 'image_gen', '--note', 'n');
     expect(r.code).toBe(2);
-    expect(r.data.error).toContain('cannot identify image file');
+    expect(r.data.error).toContain('not a readable picture file');
     r = await t.image('complete', '--file', '/work/result.png', '--tool', 'image_gen', '--note', '看过图，三条色带清晰');
     expect(r.code, JSON.stringify(r.data)).toBe(0);
     expect(r.data.job).toMatchObject({ status: 'completed', tool: 'image_gen', inspection: '看过图，三条色带清晰', asset: { kind: 'composition', role: 'style' } });
