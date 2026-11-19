@@ -10,6 +10,7 @@ import { errorText, fail, printJson, sha256 } from '../core/util';
 import type { CommandMain, Runtime } from '../runtime';
 import { buildProject, doctor } from '../workflow/build';
 import { readUserBytes } from '../workflow/io';
+import { validateBundle } from '../workflow/post-bundle';
 import { runSubcommand, type Subcommand } from '../workflow/subcommands';
 import { checkPages } from '../workflow/page-check';
 import { locateSkill } from '../workflow/template-plugins';
@@ -145,11 +146,26 @@ const attachTemplate = onProject(
   },
 );
 
+/** What `validate` would refuse in this file: a bundle that cannot be read now only fails later, at build time. */
+const bundleProblems = (bytes: Uint8Array): string[] => {
+  let data: unknown;
+  try {
+    data = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes));
+  } catch {
+    return ['not a UTF-8 JSON file'];
+  }
+  return validateBundle(data)[1];
+};
+
 const attachBundle = onProject(
   { description: 'record a post bundle file as a source', options: [{ flag: '--bundle', required: true }] },
   async (project, args, rt) => {
     const bundle = args.req('bundle');
-    const digest = sha256(await readUserBytes(rt, bundle));
+    const bytes = await readUserBytes(rt, bundle);
+    const errors = bundleProblems(bytes);
+    if (errors.length)
+      return fail(rt, `${bundle} is not a valid post bundle, nothing was attached: fix it (popost validate --file ${bundle} lists the problems), then attach it again`, 2, { errors });
+    const digest = sha256(bytes);
     await project.addSource('bundle-url', `bundle ${bundle} sha=${digest.slice(0, 12)}`);
     Object.assign(project.manifest.sources.at(-1)!, { bundlePath: bundle, sha256: digest });
     await project.saveManifest();

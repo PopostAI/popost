@@ -26,10 +26,49 @@ export const SERVICE_CONFIG = {
   note: '未来解析服务就绪前，用户 URL 只能产生 pending ticket；本对象仅是接口占位，无客户端、无 scrape、无 API 调用。',
 };
 
-const isPlatform = (value: unknown): boolean => typeof value === 'string' && (PLATFORMS as readonly string[]).includes(value);
+export type Platform = (typeof PLATFORMS)[number];
+const isPlatform = (value: unknown): value is Platform => typeof value === 'string' && (PLATFORMS as readonly string[]).includes(value);
 
 /** Python's `datetime.now(timezone.utc).isoformat(timespec="seconds")`. */
 const utcNow = (rt: Runtime): string => `${rt.now().toISOString().slice(0, 19)}+00:00`;
+
+/** The hosts of each platform's post links, short links included (the same list as popost.ai's link input). */
+export const PLATFORM_HOSTS: Readonly<Record<Platform, readonly string[]>> = {
+  douyin: ['douyin.com', 'iesdouyin.com'],
+  tiktok: ['tiktok.com'],
+  xiaohongshu: ['xiaohongshu.com', 'xhslink.com'],
+  instagram: ['instagram.com'],
+  x: ['x.com', 'twitter.com'],
+};
+
+const hostOf = (url: string): string | null => {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === 'https:' || parsed.protocol === 'http:' ? parsed.hostname.toLowerCase() : null;
+  } catch {
+    return null;
+  }
+};
+
+/** The platform a post link belongs to, or `null` for a link of none of them (or no web link at all). */
+export const platformOfUrl = (url: string): Platform | null => {
+  const host = hostOf(url);
+  if (!host) return null;
+  const match = PLATFORMS.find((name) => PLATFORM_HOSTS[name].some((domain) => host === domain || host.endsWith(`.${domain}`)));
+  return match ?? null;
+};
+
+/** Refuses a link that is not a post link of the platform the ticket names. */
+const checkTicketUrl = (url: string, platform: Platform): void => {
+  if (!hostOf(url)) throw new ValueError(`--url must be a web link (https://…), got ${pyRepr(url)}`);
+  const actual = platformOfUrl(url);
+  if (actual === platform) return;
+  throw new ValueError(
+    actual
+      ? `${url} is a ${actual} link, not ${platform}: pass --platform ${actual}`
+      : `${url} is not a ${platform} link (expected a host under ${PLATFORM_HOSTS[platform].join(' or ')})`,
+  );
+};
 
 /** A pending ticket for a URL the user gave. Never fetches anything. */
 export const makePendingTicket = (rt: Runtime, url: string, platform: string): Bundle => {
@@ -37,6 +76,7 @@ export const makePendingTicket = (rt: Runtime, url: string, platform: string): B
   const name = (platform ?? '').trim().toLowerCase();
   if (!sourceUrl) throw new ValueError('sourceURL 不能为空');
   if (!isPlatform(name)) throw new ValueError(`platform 必须是 ${PLATFORMS.join('/')} 之一，收到 ${pyRepr(name)}`);
+  checkTicketUrl(sourceUrl, name);
   return {
     schema: SCHEMA,
     platform: name,

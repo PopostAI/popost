@@ -3,6 +3,7 @@ import { UsageError } from './args';
 import { credentialsDir, type CredentialsLocation } from './credentials';
 import { checkUrl, DEFAULT_BASE_URL } from './providers/api';
 import { printJson } from './core/util';
+import { PROFILE_NAME, PROFILE_NAME_HINT } from './profile';
 import type { Runtime } from './runtime';
 
 export interface DeviceGrant {
@@ -13,8 +14,7 @@ export interface DeviceGrant {
 }
 const profileName = (env: Runtime['env']): string => {
   const configured = env.POPOST_AGENT_PROFILE?.trim();
-  if (configured && !/^[a-z0-9][a-z0-9_-]{0,39}$/i.test(configured))
-    throw new UsageError('Use a short profile name containing letters, numbers, underscores or hyphens.');
+  if (configured && !PROFILE_NAME.test(configured)) throw new UsageError(PROFILE_NAME_HINT);
   return (
     configured ||
     (env.CLAUDECODE || env.CLAUDE_CODE_ENTRYPOINT

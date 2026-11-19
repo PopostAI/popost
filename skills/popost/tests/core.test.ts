@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { Project, SCHEMA } from '../src/core/project';
 import { sha256 } from '../src/core/util';
 import { buildProject } from '../src/workflow/build';
+import { makePendingTicket } from '../src/workflow/post-bundle';
 import { newProject, newRuntime, PNG_1X1 } from './workflow-helpers';
 import { runCli } from '../src/testing/memory';
 
@@ -128,12 +129,26 @@ describe('attach-template and attach-bundle', () => {
     expect(String(rt.json().error)).toContain('SKILL.md 缺失');
   });
 
-  it('records a post bundle file by hash', async () => {
+  it('refuses a bundle that validate would refuse, and attaches nothing', async () => {
     const rt = await newRuntime();
     await newProject(rt);
     await rt.fs.writeFile('/work/bundle.json', '{"x":1}');
+    expect((await runCli(rt, ['attach-bundle', '--dir', 'project', '--bundle', 'bundle.json'])).code).toBe(2);
+    expect(rt.json()).toMatchObject({ ok: false, error: expect.stringContaining('popost validate --file bundle.json') });
+    expect((rt.json().errors as string[]).length).toBeGreaterThan(0);
+    await rt.fs.writeFile('/work/bundle.json', '{not json');
+    expect((await runCli(rt, ['attach-bundle', '--dir', 'project', '--bundle', 'bundle.json'])).code).toBe(2);
+    expect(rt.json().errors).toEqual(['not a UTF-8 JSON file']);
+    expect((await Project.load(rt, 'project')).manifest.sources).toEqual([]);
+  });
+
+  it('records a post bundle file by hash', async () => {
+    const rt = await newRuntime();
+    await newProject(rt);
+    const text = JSON.stringify(makePendingTicket(rt, 'https://x.com/post/1', 'x'));
+    await rt.fs.writeFile('/work/bundle.json', text);
     expect((await runCli(rt, ['attach-bundle', '--dir', 'project', '--bundle', 'bundle.json'])).code).toBe(0);
-    const digest = sha256('{"x":1}');
+    const digest = sha256(text);
     expect((await Project.load(rt, 'project')).manifest.sources[0]).toEqual({
       kind: 'bundle-url',
       note: `bundle bundle.json sha=${digest.slice(0, 12)}`,

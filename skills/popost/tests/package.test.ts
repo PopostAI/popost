@@ -119,7 +119,10 @@ describe('package', () => {
     expect(await attempt('<img src="//cdn/x.png">')).toEqual([2, 'external dependency in project: //cdn/x.png']);
     expect(await attempt('<img src="../assets/missing.png">')).toEqual([2, 'missing or external local dependency: ../assets/missing.png']);
     expect(await attempt('<img src="../../outside.png">')).toEqual([2, 'missing or external local dependency: ../../outside.png']);
-    expect(await attempt('<img src="../reference/ref.png">')).toEqual([2, 'internal reference cannot ship as artwork']);
+    expect(await attempt('<img src="../reference/ref.png">')).toEqual([
+      2,
+      'pages/p1.html uses reference/ref.png, a working file that does not ship (reference/ and production/ stay out of the package): copy the picture into assets/, point the page at the copy, then package again',
+    ]);
   });
 
   it('stores fonts as they are and, when this installation has them, ships the editor and the font bank', async () => {

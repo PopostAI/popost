@@ -63,7 +63,10 @@ const collectEntries = async (project: Project): Promise<Map<string, string>> =>
       const resource = await resolveLink(rt, root, source, raw);
       if (!resource) continue;
       const rel = relPosix(rt, root, resource);
-      if (INTERNAL.some((prefix) => rel.startsWith(prefix))) throw new ValueError('internal reference cannot ship as artwork');
+      if (INTERNAL.some((prefix) => rel.startsWith(prefix)))
+        throw new ValueError(
+          `${relPosix(rt, root, source)} uses ${rel}, a working file that does not ship (${INTERNAL.join(' and ')} stay out of the package): copy the picture into assets/, point the page at the copy, then package again`,
+        );
       entries.set(rel, resource);
       if (['.css', '.html'].includes(rt.path.extname(resource))) pending.push(resource);
     }

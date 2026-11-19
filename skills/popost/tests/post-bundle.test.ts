@@ -41,10 +41,33 @@ describe('pending ticket', () => {
 
   it('writes the file with --out and prints the bundle', async () => {
     const rt = await newRuntime();
-    const { code } = await runCli(rt, ['ticket', '--url', 'https://x.com/1', '--platform', 'douyin', '--out', 'out/ticket.json']);
+    const { code } = await runCli(rt, ['ticket', '--url', 'https://v.douyin.com/AbC/', '--platform', 'douyin', '--out', 'out/ticket.json']);
     expect(code).toBe(0);
     expect(rt.json()).toMatchObject({ ok: true, route: 'pending-ticket', bundle: { parseStatus: 'pending', platform: 'douyin' } });
     expect(JSON.parse(await rt.fs.readText('/work/out/ticket.json'))).toMatchObject({ parseStatus: 'pending' });
+  });
+
+  it('takes only a post link of the platform it names, short links and sub-domains included', async () => {
+    const rt = await newRuntime();
+    for (const [url, platform] of [
+      ['https://www.tiktok.com/@a/photo/1', 'tiktok'],
+      ['https://vm.tiktok.com/ZM1/', 'tiktok'],
+      ['http://xhslink.com/a/b', 'xiaohongshu'],
+      ['https://www.xiaohongshu.com/explore/1', 'xiaohongshu'],
+      ['https://www.iesdouyin.com/share/note/1', 'douyin'],
+      ['https://www.instagram.com/p/x/', 'instagram'],
+      ['https://twitter.com/a/status/1', 'x'],
+    ])
+      expect(bundles.makePendingTicket(rt, url, platform).platform).toBe(platform);
+    expect(() => bundles.makePendingTicket(rt, 'https://www.tiktok.com/@a/video/1', 'douyin')).toThrow(
+      'https://www.tiktok.com/@a/video/1 is a tiktok link, not douyin: pass --platform tiktok',
+    );
+    expect(() => bundles.makePendingTicket(rt, 'https://example.com/x', 'tiktok')).toThrow(
+      'https://example.com/x is not a tiktok link (expected a host under tiktok.com)',
+    );
+    expect(() => bundles.makePendingTicket(rt, 'https://notx.com/1', 'x')).toThrow('is not a x link');
+    expect(() => bundles.makePendingTicket(rt, 'ftp://x.com/1', 'x')).toThrow("--url must be a web link (https://…), got 'ftp://x.com/1'");
+    expect((await runCli(rt, ['ticket', '--url', 'https://example.com/x', '--platform', 'tiktok'])).code).toBe(2);
   });
 
   it('exits 2 on a platform outside the five, a blank URL or missing flags', async () => {
