@@ -97,11 +97,22 @@ describe('candidates', () => {
     const result = await plugins.recallCandidates(rt, 'compare travel-guide', ['roots'], 'xiaohongshu');
     expect(result).toMatchObject({ ok: true, platform_hint: 'xiaohongshu', count: 3 });
     expect(result.candidates.map((c) => [c.path.replace('/work/roots/', ''), c.score, c.matchedTokens])).toEqual([
-      ['a', 1, ['travel-guide']],
+      ['a', 3, ['guide', 'travel', 'travel-guide']],
       ['b/c', 1, ['compare']],
       ['b/c/d', 0, []], // three levels below the root is the limit: b/c/d/e is not scanned
     ]);
     expect(result.candidates.every((c) => c.verdict_authoritative === false)).toBe(true);
+  });
+
+  it('matches the words of a hyphenated name, as a brief writes them', async () => {
+    const rt = await newRuntime();
+    await skill(rt, 'roots/ranking', '---\nname: minimal-data-ranking\n---\n');
+    await skill(rt, 'roots/other', '---\nname: travel-guide\n---\n');
+    const result = await plugins.recallCandidates(rt, 'a minimal data ranking for this week', ['roots']);
+    expect(result.candidates.map((c) => [c.name, c.score, c.matchedTokens])).toEqual([
+      ['minimal-data-ranking', 3, ['data', 'minimal', 'ranking']],
+      ['travel-guide', 0, []],
+    ]);
   });
 
   it('finds the fixture by its structure words, and never scores a platform word', async () => {

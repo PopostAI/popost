@@ -126,10 +126,19 @@ export const locateSkill = async (rt: Runtime, userPath: string): Promise<SkillL
   };
 };
 
+/**
+ * Words of a brief or a template name. A hyphenated or underscored word counts whole and by its parts, so the brief
+ * "minimal data ranking" meets the template `minimal-data-ranking` (2026-11-19: every community template scored 0).
+ */
 const tokens = (text: string): Set<string> => {
   const out = new Set<string>();
-  for (const token of text.toLowerCase().match(/[A-Za-z][A-Za-z0-9_+-]*|[\u4e00-\u9fff]{2,}/g) ?? [])
-    if (!PLATFORM_WORDS.has(token) && !STOP.has(token)) out.add(token);
+  const keep = (token: string): void => {
+    if (token && !PLATFORM_WORDS.has(token) && !STOP.has(token)) out.add(token);
+  };
+  for (const token of text.toLowerCase().match(/[A-Za-z][A-Za-z0-9_+-]*|[\u4e00-\u9fff]{2,}/g) ?? []) {
+    keep(token);
+    for (const part of token.split(/[-_+]+/)) keep(part);
+  }
   return out;
 };
 
