@@ -21,9 +21,14 @@ jobs:
       - name: Dependencies come from the official npm registry
         run: |
           test ! -e .npmrc || { echo "Do not commit .npmrc; configure a mirror in your own ~/.npmrc"; exit 1; }
-          if grep -n '"resolved": "' package-lock.json | grep -v '"resolved": "https://registry.npmjs.org/'; then
-            echo "package-lock.json must resolve from https://registry.npmjs.org/"; exit 1
-          fi
+          # Every downloaded package resolves from the official registry; the workspace link to skills/popost
+          # ("resolved": "skills/popost", "link": true) is the repository itself, not a download.
+          node -e '
+            const lock = require("./package-lock.json");
+            const bad = Object.entries(lock.packages).filter(([, p]) => p.resolved && !p.link && !p.resolved.startsWith("https://registry.npmjs.org/"));
+            for (const [name, p] of bad) console.log(`${name}: ${p.resolved}`);
+            if (bad.length) { console.log("package-lock.json must resolve from https://registry.npmjs.org/"); process.exit(1); }
+          '
       - uses: actions/setup-node@v4
         with:
           node-version-file: .node-version
