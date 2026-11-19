@@ -75,12 +75,12 @@ export const executeCli = async (rt: Runtime, invocation: CliInvocation): Promis
   } catch (error) {
     const refusal = refusalOf(error);
     if (!refusal) throw error;
-    return { code: refusal.code, result: scrub({ ok: false, code: refusal.code, error: refusal.message }, secretValues(rt, cfg)) };
+    return { code: refusal.code, result: scrub({ ok: false, code: refusal.code, error: refusal.message, ...refusal.details }, secretValues(rt, cfg)) };
   }
 };
 
-const refusalOf = (error: unknown): { code: number; message: string } | null => {
-  if (error instanceof CliReject) return { code: error.code, message: error.message };
+const refusalOf = (error: unknown): { code: number; message: string; details?: Readonly<Record<string, unknown>> } | null => {
+  if (error instanceof CliReject) return { code: error.code, message: error.message, details: error.details };
   if (error instanceof ImageProviderError) return { code: exitCodeOf(error), message: error.message };
   return null;
 };

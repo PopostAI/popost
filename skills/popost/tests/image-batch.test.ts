@@ -138,6 +138,18 @@ describe('image quote for several jobs', () => {
     expect(t.stub.requests).toEqual([]);
   });
 
+  it('still gives the price of each job and of all of them when the balance covers none', async () => {
+    const t = await setup(['a', 'b'], { balance: 5 });
+    const one = await t.image('quote', '--id', 'a');
+    expect(one.code).toBe(1);
+    expect(one.data.billing).toMatchObject({ creditsPerImage: String(PRICE), totalCredits: String(PRICE), balance: 5, sufficient: false, charged: false });
+    expect((await t.job('a')).status).toBe('prepared');
+    const all = await t.image('quote', '--all');
+    expect(all.code).toBe(1);
+    expect(all.data).toMatchObject({ ok: false, quoted: 0, failed: 2, balance: 5, requiredCredits: String(2 * PRICE) });
+    expect(all.data.jobs.map((row: Json) => [row.id, row.credits, row.insufficient])).toEqual([['a', String(PRICE), true], ['b', String(PRICE), true]]);
+  });
+
   it('says so when the quotes together cost more than the balance, although each one alone is covered', async () => {
     const t = await setup(['a', 'b'], { balance: 20 });
     const r = await t.image('quote', '--id', 'a,b');

@@ -68,8 +68,13 @@ export const serverQuote = async (prov: PopostProvider, model: string | null | u
   }
   const unit = parseCredits(quote.creditsPerImage, allowFree);
   const total = parseCredits(quote.totalCredits, allowFree);
+  // The price still answers the user's question: it travels as fields, not only inside the error text.
   if (quote.sufficient === false)
-    throw new CliReject(1, `积分不足：本次需要 ${total} 积分，当前余额 ${quote.balance ?? 'None'}；这一步需要 popost 积分：可用 popost account 查看购买选项，或选择本地参考、自带 Key / Agent 生图（未提交、未扣费；popost account 可查余额和购买页面）`);
+    throw new CliReject(
+      1,
+      `积分不足：本次需要 ${total} 积分（每张 ${unit}），当前余额 ${quote.balance ?? '未知'}；这一步需要 popost 积分：可用 popost account 查看购买选项，或选择本地参考、自带 Key / Agent 生图（未提交、未扣费；popost account 可查余额和购买页面）`,
+      { billing: { model: quote.model, count, creditsPerImage: String(unit), totalCredits: String(total), balance: quote.balance, sufficient: false, charged: false } },
+    );
   return { quote, unit, total };
 };
 

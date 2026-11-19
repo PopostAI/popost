@@ -198,6 +198,10 @@ describe('quote refusals', () => {
     r = await f.pcli('quote', ...FLAGS, '--prompt', 'x');
     expect(r.code).toBe(1);
     expect(r.data.error).toContain('积分不足');
+    // the price is still there for the user, as fields, and nothing was recorded as a quote
+    expect(r.data.billing).toMatchObject({ creditsPerImage: expect.any(String), totalCredits: expect.any(String), balance: 5, sufficient: false, charged: false });
+    expect(Number(r.data.billing.totalCredits)).toBeGreaterThan(5);
+    expect(await f.rt.fs.stat('/work/quotes')).toBeNull();
   });
 
   it('stops generation when the live price moved since the quote', async () => {

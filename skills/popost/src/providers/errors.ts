@@ -43,6 +43,8 @@ export class CliReject extends Error {
   constructor(
     readonly code: number,
     message: string,
+    /** Fields the refusal carries next to `error`, e.g. the price and balance of a quote the balance does not cover. */
+    readonly details: Readonly<Record<string, unknown>> = {},
   ) {
     super(message);
   }

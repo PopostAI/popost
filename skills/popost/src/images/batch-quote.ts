@@ -60,12 +60,19 @@ interface Quoted {
   readonly balance: number | null;
 }
 
+const balanceOf = (billing: Record<string, unknown> | null): number | null => (typeof billing?.balance === 'number' ? billing.balance : null);
+
 const quotedRow = (id: string, code: number, result: Record<string, unknown>): Quoted => {
-  if (code !== 0) return { row: { id, ok: false, code, error: result.error }, balance: null };
+  if (code !== 0) {
+    // A quote the balance does not cover still says what it costs (cli-quote.ts serverQuote).
+    const billing = result.billing && typeof result.billing === 'object' ? (result.billing as Record<string, unknown>) : null;
+    const price = billing?.sufficient === false ? { credits: billing.totalCredits ?? null, insufficient: true } : {};
+    return { row: { id, ok: false, code, error: result.error, ...price }, balance: balanceOf(billing) };
+  }
   const quote = result.quote as Record<string, unknown>;
   const billing = result.billing as Record<string, unknown>;
   const row = { id, ok: true, quoteId: quote.quoteId, model: quote.model, aspect: quote.aspect, credits: billing.totalCredits ?? null, expiresAt: quote.expiresAt, quoteFile: result.quoteFile, billingUnit: billing.unit ?? null, provider: quote.provider };
-  return { row, balance: typeof billing.balance === 'number' ? billing.balance : null };
+  return { row, balance: balanceOf(billing) };
 };
 
 const quoteOne = async (project: Project, entry: Entry, call: JobCall): Promise<Quoted> => {
@@ -99,6 +106,9 @@ const summary = (dir: string, quoted: readonly Quoted[], skipped: readonly { id:
   const balances = quoted.map((q) => q.balance).filter((balance): balance is number => balance !== null);
   const balance = balances.length ? Math.min(...balances) : null;
   const short = total !== null && balance !== null && total.compare(Decimal.parse(String(balance))!) > 0;
+  // What all chosen jobs cost together, when some were refused only because the balance does not cover them.
+  const priced = rows.filter((row) => row.ok || row.insufficient);
+  const required = rows.some((row) => row.insufficient) ? sumCredits(priced) : null;
   const code = worstCode([...rows.filter((row) => !row.ok).map((row) => Number(row.code)), ...(short ? [1] : [])]);
   const document: Record<string, unknown> = {
     ok: code === 0,
@@ -109,6 +119,7 @@ const summary = (dir: string, quoted: readonly Quoted[], skipped: readonly { id:
     totalAmount: total === null ? null : String(total),
     billingUnit: good[0]?.billingUnit ?? null,
     balance,
+    ...(required !== null ? { requiredCredits: String(required) } : {}),
     concurrency,
     quoteIds: good.map((row) => row.quoteId),
     jobs: rows,
