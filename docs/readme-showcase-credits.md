@@ -9,7 +9,9 @@ The four showcase cases are independent adaptations. Source post images are show
 - Instagram travel reference: [madlertravel](https://www.instagram.com/p/DcgaornE46r/).
 - Instagram checklist reference: [themiagabriella](https://www.instagram.com/p/DZiXsfvjP3Z/).
 
-The gift, scooter, and creator examples use newly generated illustrative scenes. [Groovy Guy Gifts' bracelet](https://www.groovyguygifts.com/products/personalized-bracelet) and the [Segway MAX G3](https://store.segway.com/ninebot-kickscooter-max-g3) were product identity references; the examples are not endorsements by those brands.
+The gift reveal, scooter, and creator examples use newly generated illustrative scenes. The gift cover's photographic avatar uses [Allef Vinicius's portrait](https://commons.wikimedia.org/wiki/File:Smiling_woman_(Unsplash).jpg), released under [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/). The portrait is a design asset and does not identify a Popost user or imply an endorsement. The gift cover's reaction, comment, and share figures are sample interface values from the source layout, not results earned by the remake.
+
+[Groovy Guy Gifts' bracelet](https://www.groovyguygifts.com/products/personalized-bracelet) and the [Segway MAX G3](https://store.segway.com/ninebot-kickscooter-max-g3) were product identity references; the examples are not endorsements by those brands.
 
 ## Travel photographs
 
