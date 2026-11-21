@@ -22,47 +22,47 @@
 
 ## 从参考图文，到你的作品
 
-四组已完成案例分别展示原帖前两页、Popost 新作对应页面，以及 10 秒真实画布编辑录屏。每组都有完整成品和可编辑工程可下载。原帖图片只用于对照；新作品的文字与画面另行制作。[查看图片来源与署名](./docs/readme-showcase-credits.md)。
+四组已完成案例分别展示原帖前两页、Popost 新作对应页面，以及真实画布编辑录屏。每组都有完整成品和可编辑工程可下载。原帖图片只用于对照；新作品的文字与画面另行制作。[查看图片来源与署名](./docs/readme-showcase-credits.md)。
 
 ### TikTok · 情绪送礼：从项链改成手链故事
 
-原帖先用社交动态式的情绪文案抓住注意力，翻页后用商品近景兑现。新版保留 **情绪钩子 → 实物揭晓** 的两页节奏，重新写了送礼故事，并用新制作的手链概念场景呈现。账号、文案、商品和画面均已更换。
+原帖先用社交动态式的情绪文案抓住注意力，翻页后用商品近景兑现。新版保留 **情绪钩子 → 实物揭晓** 的两页节奏，重新写了送礼故事，并用新制作的手链概念场景呈现。封面改用真人照片头像，标题字重和底部互动栏按原帖的信息层级重做。图中的互动数字只是排版示例，不代表这篇新作品的真实成绩。
 
-| 参考原帖 · 前两页 | Popost 新作 · 前两页 | 画布编辑 · 10 秒 |
+| 参考原帖 · 前两页 | Popost 新作 · 前两页 | 画布编辑·持续修改 |
 | :---: | :---: | :---: |
-| <img src="https://static.popost.ai/readme/four-cases-20261120/gift/source-01-b4cab31b3b21.webp" width="125" alt="手链送礼故事 source-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/gift/source-02-983274cf66e4.webp" width="125" alt="手链送礼故事 source-02"> | <img src="https://static.popost.ai/readme/four-cases-20261120/gift/remake-01-c49c74333bb2.webp" width="125" alt="手链送礼故事 remake-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/gift/remake-02-878f89f14e9e.webp" width="125" alt="手链送礼故事 remake-02"> | <img src="https://static.popost.ai/readme/four-cases-20261120/gift/edit-10s-b2db4b4163e8.webp" width="260" alt="Popost 画布中编辑 手链送礼故事"> |
+| <img src="https://static.popost.ai/readme/four-cases-20261120/gift/source-01-b4cab31b3b21.webp" width="125" alt="手链送礼故事 source-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/gift/source-02-983274cf66e4.webp" width="125" alt="手链送礼故事 source-02"> | <img src="https://static.popost.ai/readme/four-cases-20261121/gift/remake-01-f6a5f09ca0b9.webp" width="125" alt="手链送礼故事 remake-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/gift/remake-02-878f89f14e9e.webp" width="125" alt="手链送礼故事 remake-02"> | <img src="https://static.popost.ai/readme/four-cases-20261121/gift/edit-current-dec4e5928a5a.webp" width="260" alt="Popost 画布中编辑 手链送礼故事"> |
 
-[查看原帖](https://www.tiktok.com/@veyla_gift/photo/7699494320675507469) · [下载完整 2 页 PNG](https://static.popost.ai/readme/four-cases-20261120/gift/images-ded681b64ebf.zip) · [下载可编辑工程](https://static.popost.ai/readme/four-cases-20261120/gift/project-f84e5351ae3a.popost.zip) · [观看 10 秒 MP4 录屏](https://static.popost.ai/readme/four-cases-20261120/gift/edit-10s-5d9e70cc4dca.mp4)
+[查看原帖](https://www.tiktok.com/@veyla_gift/photo/7699494320675507469) · [下载完整 2 页 PNG](https://static.popost.ai/readme/four-cases-20261121/gift/images-19aba70855f1.zip) · [下载可编辑工程](https://static.popost.ai/readme/four-cases-20261121/gift/project-7c4e3423a959.popost.zip) · [观看画布编辑 MP4](https://static.popost.ai/readme/four-cases-20261121/gift/edit-current-22a9b0a16abd.mp4)
 
 ### TikTok · 产品对比：用六页讲清智能滑板车
 
 原帖交替使用分屏痛点、功能对照与最后的产品收口。新版借用六页节奏，围绕 Segway MAX G3 组织通勤对比：一侧是普通骑行问题，另一侧是滑板车功能，最后用产品页收束。插画、文案和商品都重新制作；这是独立设计案例。
 
-| 参考原帖 · 前两页 | Popost 新作 · 前两页 | 画布编辑 · 10 秒 |
+| 参考原帖 · 前两页 | Popost 新作 · 前两页 | 画布编辑·持续修改 |
 | :---: | :---: | :---: |
 | <img src="https://static.popost.ai/readme/four-cases-20261120/scooter/source-01-78898fd6acf8.webp" width="125" alt="滑板车功能对比 source-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/scooter/source-02-5fed6c293b05.webp" width="125" alt="滑板车功能对比 source-02"> | <img src="https://static.popost.ai/readme/four-cases-20261120/scooter/remake-01-eb1dfbda5aa5.webp" width="125" alt="滑板车功能对比 remake-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/scooter/remake-02-5a44e434a7c5.webp" width="125" alt="滑板车功能对比 remake-02"> | <img src="https://static.popost.ai/readme/four-cases-20261120/scooter/edit-10s-30c3fbd95890.webp" width="260" alt="Popost 画布中编辑 滑板车功能对比"> |
 
-[查看原帖](https://www.tiktok.com/@gobuygobike/photo/7674850905254055182) · [下载完整 6 页 PNG](https://static.popost.ai/readme/four-cases-20261120/scooter/images-44d6fd335ca9.zip) · [下载可编辑工程](https://static.popost.ai/readme/four-cases-20261120/scooter/project-82bcf23f28ac.popost.zip) · [观看 10 秒 MP4 录屏](https://static.popost.ai/readme/four-cases-20261120/scooter/edit-10s-acc7cfd5fc6e.mp4)
+[查看原帖](https://www.tiktok.com/@gobuygobike/photo/7674850905254055182) · [下载完整 6 页 PNG](https://static.popost.ai/readme/four-cases-20261120/scooter/images-44d6fd335ca9.zip) · [下载可编辑工程](https://static.popost.ai/readme/four-cases-20261120/scooter/project-82bcf23f28ac.popost.zip) · [观看画布编辑 MP4](https://static.popost.ai/readme/four-cases-20261120/scooter/edit-10s-acc7cfd5fc6e.mp4)
 
 ### Instagram · 旅行清单：把低预算国家改成周末慢旅行
 
 原帖是十一页旅行目的地清单：封面点名人群，正文用实景图和固定信息栏推进，最后引导规划。新版保留页数与照片叙事节奏，把主题改成 **只有一个周末，也能慢慢逛**，为九座城市分别给出 START、WALK、PAUSE。城市照片另行取得并逐一署名。
 
-| 参考原帖 · 前两页 | Popost 新作 · 前两页 | 画布编辑 · 10 秒 |
+| 参考原帖 · 前两页 | Popost 新作 · 前两页 | 画布编辑·持续修改 |
 | :---: | :---: | :---: |
 | <img src="https://static.popost.ai/readme/four-cases-20261120/travel/source-01-823f07ab8719.webp" width="125" alt="周末城市旅行清单 source-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/travel/source-02-a5b9a9cb6a2a.webp" width="125" alt="周末城市旅行清单 source-02"> | <img src="https://static.popost.ai/readme/four-cases-20261120/travel/remake-01-18ea8965735e.webp" width="125" alt="周末城市旅行清单 remake-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/travel/remake-02-919deac40551.webp" width="125" alt="周末城市旅行清单 remake-02"> | <img src="https://static.popost.ai/readme/four-cases-20261120/travel/edit-10s-e5661ca8dd1e.webp" width="260" alt="Popost 画布中编辑 周末城市旅行清单"> |
 
-[查看原帖](https://www.instagram.com/p/DcgaornE46r/) · [下载完整 11 页 WebP](https://static.popost.ai/readme/four-cases-20261120/travel/images-0a9c251267bc.webp.zip) · [下载可编辑工程](https://static.popost.ai/readme/four-cases-20261120/travel/project-4cbb25213817.popost.zip) · [观看 10 秒 MP4 录屏](https://static.popost.ai/readme/four-cases-20261120/travel/edit-10s-02e8a7400242.mp4)
+[查看原帖](https://www.instagram.com/p/DcgaornE46r/) · [下载完整 11 页 WebP](https://static.popost.ai/readme/four-cases-20261120/travel/images-0a9c251267bc.webp.zip) · [下载可编辑工程](https://static.popost.ai/readme/four-cases-20261120/travel/project-4cbb25213817.popost.zip) · [观看画布编辑 MP4](https://static.popost.ai/readme/four-cases-20261120/travel/edit-10s-02e8a7400242.mp4)
 
 ### Instagram · 分类清单：把生活平衡改成内容创作系统
 
 原帖用封面和五页分组表格整理生活中的十二个方面。新版沿用这种编辑式清单结构，用六页整理创作者内容系统的十二个环节，从受众、素材到发布节奏和下一步行动。分类、例子和行动建议均重新撰写。
 
-| 参考原帖 · 前两页 | Popost 新作 · 前两页 | 画布编辑 · 10 秒 |
+| 参考原帖 · 前两页 | Popost 新作 · 前两页 | 画布编辑·持续修改 |
 | :---: | :---: | :---: |
 | <img src="https://static.popost.ai/readme/four-cases-20261120/creator/source-01-5695ce336177.webp" width="125" alt="创作者内容系统清单 source-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/creator/source-02-84972ce394d6.webp" width="125" alt="创作者内容系统清单 source-02"> | <img src="https://static.popost.ai/readme/four-cases-20261120/creator/remake-01-bb0293971928.webp" width="125" alt="创作者内容系统清单 remake-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/creator/remake-02-4393db3128c1.webp" width="125" alt="创作者内容系统清单 remake-02"> | <img src="https://static.popost.ai/readme/four-cases-20261120/creator/edit-10s-99de8f64105e.webp" width="260" alt="Popost 画布中编辑 创作者内容系统清单"> |
 
-[查看原帖](https://www.instagram.com/p/DZiXsfvjP3Z/) · [下载完整 6 页 PNG](https://static.popost.ai/readme/four-cases-20261120/creator/images-f84c72887a12.zip) · [下载可编辑工程](https://static.popost.ai/readme/four-cases-20261120/creator/project-88da8553c33d.popost.zip) · [观看 10 秒 MP4 录屏](https://static.popost.ai/readme/four-cases-20261120/creator/edit-10s-e465af0adc27.mp4)
+[查看原帖](https://www.instagram.com/p/DZiXsfvjP3Z/) · [下载完整 6 页 PNG](https://static.popost.ai/readme/four-cases-20261120/creator/images-f84c72887a12.zip) · [下载可编辑工程](https://static.popost.ai/readme/four-cases-20261120/creator/project-88da8553c33d.popost.zip) · [观看画布编辑 MP4](https://static.popost.ai/readme/four-cases-20261120/creator/edit-10s-e465af0adc27.mp4)
 
 喜欢这种「复刻后还能继续编辑」的方式？[⭐ Star Popost](https://github.com/PopostAI/popost)，收藏项目，开始制作你的下一篇。
 
