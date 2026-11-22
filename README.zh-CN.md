@@ -1,32 +1,86 @@
-<h1 align="center">Popost</h1>
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://static.popost.ai/readme/brand/logo-horizontal-dark-0f45507673d3.svg">
+    <img src="https://static.popost.ai/readme/brand/logo-horizontal-light-1d5f84bd6682.svg" alt="Popost" width="400">
+  </picture>
+</p>
 
-<h3 align="center">用 AI Agent 复刻爆款图文，生成后还能继续编辑。</h3>
+<h3 align="center">粘贴社媒链接，用 AI Agent 复刻任何爆款图文，生成后可以继续修改</h3>
 
-<p align="center"><strong>面向社媒图文的开源 Canva / 美图设计室替代方案。</strong></p>
+<p align="center"><strong>把已经验证过的爆款，换成你的内容</strong></p>
 
-<p align="center">粘贴社媒帖子链接，或上传本地参考图。告诉 Popost 你的产品、内容和风格。<br>它会创作属于你的单图或多页图文，完成后打开可编辑画布，继续改文字、换图片、拖动元素。</p>
-
-<p align="center"><strong>TikTok · Instagram · 小红书 · 抖音 · X · 本地图片 / 截图</strong></p>
+<p align="center">支持 ins、TikTok、X、小红书、抖音等平台的爆款帖子链接复刻，一键做同款爆款。</p>
 
 <p align="center">
-  <a href="https://popost.ai"><strong>体验 Popost</strong></a>
+  <a href="https://popost.ai"><strong>在线体验</strong></a>
   &nbsp;·&nbsp;
-  <a href="#开始创作"><strong>安装 Skill</strong></a>
+  <a href="#快速开始"><strong>快速开始</strong></a>
   &nbsp;·&nbsp;
-  <a href="#从参考图文到你的作品"><strong>查看真实案例</strong></a>
-  &nbsp;·&nbsp;
-  <a href="https://github.com/PopostAI/popost"><strong>⭐ 给仓库点个 Star</strong></a>
+  <a href="#四组真实案例"><strong>看作品</strong></a>
   &nbsp;·&nbsp;
   <a href="./README.md"><strong>English</strong></a>
 </p>
 
-## 从参考图文，到你的作品
+<p align="center">
+  <a href="https://github.com/PopostAI/popost/stargazers"><img alt="GitHub Stars" src="https://img.shields.io/github/stars/PopostAI/popost?style=flat-square&logo=github&label=Stars"></a>
+  <a href="https://www.npmjs.com/package/popost"><img alt="npm 版本" src="https://img.shields.io/npm/v/popost?style=flat-square&logo=npm&label=npm"></a>
+  <a href="./skills/popost/templates/community/"><img alt="200+ 爆款图文模板" src="https://img.shields.io/badge/爆款图文模板-200%2B-ef476f?style=flat-square"></a>
+  <a href="./LICENSE"><img alt="含附加条件的许可证" src="https://img.shields.io/badge/许可-含附加条件-e3b341?style=flat-square"></a>
+</p>
 
-四组已完成案例分别展示原帖前两页、Popost 新作对应页面，以及真实画布编辑录屏。每组都有完整成品和可编辑工程可下载。原帖图片只用于对照；新作品的文字与画面另行制作。[查看图片来源与署名](./docs/readme-showcase-credits.md)。
+<p align="center"><code>TikTok</code> <code>Instagram</code> <code>X</code> <code>小红书</code> <code>抖音</code> <code>本地图片</code></p>
 
-### TikTok · 情绪送礼：从项链改成手链故事
+## Popost 是什么
 
-原帖先用社交动态式的情绪文案抓住注意力，翻页后用商品近景兑现。新版保留 **情绪钩子 → 实物揭晓** 的两页节奏，重新写了送礼故事，并用新制作的手链概念场景呈现。封面改用真人照片头像，标题字重和底部互动栏按原帖的信息层级重做。图中的互动数字只是排版示例，不代表这篇新作品的真实成绩。
+Popost 是面向社媒爆款内容的创作 Skill，支持 ins、TikTok、X、小红书、抖音等平台的帖子链接复刻，支持 200+ 爆款模板 `SKILL.md`。你可以在 Codex、Claude Code、WorkBuddy、DeepSeek、豆包工作等 10+ AI Agent 中使用。
+
+它是面向社媒图文的开源 Canva / 美图设计室替代方案：Agent 负责理解参考和制作初稿，你继续在画布里改文字、图片、排版与图层。**生成初稿后，还能在同一工程里反复修改。**我们本次上线的版本支持社媒图文的爆款复刻；社媒视频的爆款复刻正在路上，很快开源。给 [Popost Star](https://github.com/PopostAI/popost)，更快收到新能力通知。
+
+<p align="center"><img src="https://static.popost.ai/readme/four-cases-20261121/gift/edit-current-dec4e5928a5a.webp" width="680" alt="在 Popost 画布中对照参考图，继续编辑标题和版式"><br><sub>真实画布编辑录屏：参考与作品并排，标题可以继续修改。</sub></p>
+
+### 三种起点，同一个可编辑画布
+
+| 你提供 | Popost 帮你完成 |
+| --- | --- |
+| TikTok、Instagram、X、小红书或抖音的可访问帖子链接 | 提取可用的图文参考，借鉴结构与节奏，制作属于你的新内容 |
+| 本地图片或截图 | 参考画面风格、版式和信息组织方式，制作新图或多页图文 |
+| 一个创作需求，或一套 [图文模板](./skills/popost/templates/community/) | 从主题、产品和目标平台出发，生成完整图文 |
+
+这三条路径都可以进入同一套画布：继续改字、换图、调整位置，保存可编辑工程，再按需导出成品。
+
+## 快速开始
+
+在 Codex 或 Claude Code 中安装 Popost Skill：
+
+<!-- install:start -->
+```bash
+npm install -g popost
+popost install
+```
+<!-- install:end -->
+
+需要 Node.js `^20.19.0 || >=22.12.0`。其他支持 Skill 的 Agent 可以通过 <code>popost install --dir &lt;skills 目录&gt;</code> 指定安装位置。也可以直接使用 [popost.ai](https://popost.ai) 网页版。
+
+安装后，把参考和要求一起告诉 Agent：
+
+```text
+/popost 参考这篇两页 TikTok 图文的“情绪钩子 → 商品揭晓”结构：
+https://www.tiktok.com/@veyla_gift/photo/7699494320675507469
+给我的手链写一篇新的送礼故事，只使用我上传的商品照片。
+完成后打开画布，我还要修改标题和第二页的排版。
+```
+
+没有链接时，上传参考图片或直接描述要做的图文也可以。完整流程见 [Skill 说明](./skills/popost/SKILL.md)。
+
+## 四组真实案例
+
+**保留结构，重写内容。** 找出开场钩子、页序、版式和收尾，再换上自己的主题、文案与素材。把链接和改写要求交给 Popost，一条指令生成可编辑初稿，之后在画布继续改。
+
+四组案例均展示 **原帖前两页 → Popost 新作前两页 → 画布编辑过程**，并附完整成品与可编辑工程。
+
+### 01 / TikTok · 从情绪钩子到手链揭晓
+
+**原帖：15,280 赞 · 1,929,266 播放。** 保留「情绪钩子 → 实物揭晓」的两页节奏，用 Popost 改写成手链故事；封面头像、标题和互动栏可继续调整。
 
 | 参考原帖 · 前两页 | Popost 新作 · 前两页 | 画布编辑·持续修改 |
 | :---: | :---: | :---: |
@@ -34,9 +88,9 @@
 
 [查看原帖](https://www.tiktok.com/@veyla_gift/photo/7699494320675507469) · [下载完整 2 页 PNG](https://static.popost.ai/readme/four-cases-20261121/gift/images-19aba70855f1.zip) · [下载可编辑工程](https://static.popost.ai/readme/four-cases-20261121/gift/project-7c4e3423a959.popost.zip) · [观看画布编辑 MP4](https://static.popost.ai/readme/four-cases-20261121/gift/edit-current-22a9b0a16abd.mp4)
 
-### TikTok · 产品对比：用六页讲清智能滑板车
+### 02 / TikTok · 六页讲清滑板车卖点
 
-原帖交替使用分屏痛点、功能对照与最后的产品收口。新版借用六页节奏，围绕 Segway MAX G3 组织通勤对比：一侧是普通骑行问题，另一侧是滑板车功能，最后用产品页收束。插画、文案和商品都重新制作；这是独立设计案例。
+**原帖：8 赞 · 519 播放。** 这是结构参考：保留「问题分屏 → 功能对照 → 产品收尾」的六页顺序，用 Popost 换成 Segway MAX G3 的新文案与插画。
 
 | 参考原帖 · 前两页 | Popost 新作 · 前两页 | 画布编辑·持续修改 |
 | :---: | :---: | :---: |
@@ -44,9 +98,9 @@
 
 [查看原帖](https://www.tiktok.com/@gobuygobike/photo/7674850905254055182) · [下载完整 6 页 PNG](https://static.popost.ai/readme/four-cases-20261120/scooter/images-44d6fd335ca9.zip) · [下载可编辑工程](https://static.popost.ai/readme/four-cases-20261120/scooter/project-82bcf23f28ac.popost.zip) · [观看画布编辑 MP4](https://static.popost.ai/readme/four-cases-20261120/scooter/edit-10s-acc7cfd5fc6e.mp4)
 
-### Instagram · 旅行清单：把低预算国家改成周末慢旅行
+### 03 / Instagram · 把目的地清单改成周末慢旅行
 
-原帖是十一页旅行目的地清单：封面点名人群，正文用实景图和固定信息栏推进，最后引导规划。新版保留页数与照片叙事节奏，把主题改成 **只有一个周末，也能慢慢逛**，为九座城市分别给出 START、WALK、PAUSE。城市照片另行取得并逐一署名。
+**原帖：159,796 赞。** 保留十一页照片叙事与固定信息栏，用 Popost 改写为九座城市的周末慢旅行。
 
 | 参考原帖 · 前两页 | Popost 新作 · 前两页 | 画布编辑·持续修改 |
 | :---: | :---: | :---: |
@@ -54,9 +108,9 @@
 
 [查看原帖](https://www.instagram.com/p/DcgaornE46r/) · [下载完整 11 页 WebP](https://static.popost.ai/readme/four-cases-20261120/travel/images-0a9c251267bc.webp.zip) · [下载可编辑工程](https://static.popost.ai/readme/four-cases-20261120/travel/project-4cbb25213817.popost.zip) · [观看画布编辑 MP4](https://static.popost.ai/readme/four-cases-20261120/travel/edit-10s-02e8a7400242.mp4)
 
-### Instagram · 分类清单：把生活平衡改成内容创作系统
+### 04 / Instagram · 用分类清单组织创作流程
 
-原帖用封面和五页分组表格整理生活中的十二个方面。新版沿用这种编辑式清单结构，用六页整理创作者内容系统的十二个环节，从受众、素材到发布节奏和下一步行动。分类、例子和行动建议均重新撰写。
+**原帖：1,920 赞。** 保留封面加分组表格的六页结构，用 Popost 改写为内容创作的十二个环节；分类、例子与行动建议均为新内容。
 
 | 参考原帖 · 前两页 | Popost 新作 · 前两页 | 画布编辑·持续修改 |
 | :---: | :---: | :---: |
@@ -64,78 +118,68 @@
 
 [查看原帖](https://www.instagram.com/p/DZiXsfvjP3Z/) · [下载完整 6 页 PNG](https://static.popost.ai/readme/four-cases-20261120/creator/images-f84c72887a12.zip) · [下载可编辑工程](https://static.popost.ai/readme/four-cases-20261120/creator/project-88da8553c33d.popost.zip) · [观看画布编辑 MP4](https://static.popost.ai/readme/four-cases-20261120/creator/edit-10s-e465af0adc27.mp4)
 
-喜欢这种「复刻后还能继续编辑」的方式？[⭐ Star Popost](https://github.com/PopostAI/popost)，收藏项目，开始制作你的下一篇。
+## 200+ 爆款图文模板，给创作一个具体起点
 
-## 复刻、创作、编辑，在同一个工程里完成
+Popost 提供 **200+ 爆款图文模板 `SKILL.md`**，覆盖 TikTok 电商、Instagram 轮播、杂志与极简版式。每套模板说明适用场景、信息节奏和页面组织方式。你可以直接指定模板，也可以让 Agent 根据主题挑选。
 
-- **复刻爆款图文。** 从可访问的帖子链接或参考图片开始，参考开场、页序和版式逻辑，换成自己的产品、文案与素材。
-- **从零创作图文。** 说出主题、目标平台与风格，上传产品图；也可以让 Agent 选择 [Skill 模板](./skills/popost/templates/community/)。
-- **编辑图片与排版。** 裁切、旋转、调整尺寸或替换图片；在画布中修改文字、字体、颜色、位置、图层和页面。需要新画面时，再让 Agent 生成或重绘素材。
-- **保存成品，也保留工程。** 导出完整页面，并把可编辑工程保存为 ZIP，之后继续打开和修改。
+[浏览全部模板](./skills/popost/templates/community/) · [查看模板目录](./skills/popost/templates/community/README.md)
 
-画布里的文字和独立排版元素可以继续编辑。照片中的人物、包装印字等仍属于图片内容；改变这些细节需要图片处理或重绘。
+## 画布编辑·持续修改
 
-Agent 侧边栏和 [popost.ai](https://popost.ai) 使用同一套画布。连接账户后，Skill 可以把工程同步到你的账号；未连接时也可以先在本地创作，之后再点**保存到云端**。
+生成的图文会保留为可编辑工程。你可以在画布中：
 
-## 开始创作
+- 改文字、字体、颜色、对齐、位置与图层；
+- 替换、裁切、旋转图片，继续增删或调整页面；
+- 保存工程，过几天再打开接着改；
+- 从画布导出 **PNG、JPG、SVG、HTML、PDF**，也可以导出 PSD。
 
-从 npm 安装 Skill 和命令行：
+页面中的文字和独立图层可以继续编辑。照片里的脸、包装上的印字等属于图片像素，修改这些细节需要图片编辑或重新制作素材。
 
-<!-- install:start -->
-~~~bash
-npm install -g popost
-popost install
-~~~
+Agent 侧边栏与 [popost.ai](https://popost.ai) 使用同一套画布。连接账户后可以同步工程；不连接账户也能先在本地完成编辑与导出。
 
-需要 Node.js 20.19+；macOS、Windows、Linux 通用。<code>popost install</code> 会识别 Codex 和 Claude Code；其他兼容的 Agent 可用 <code>popost install --dir &lt;skills 目录&gt;</code>。
-<!-- install:end -->
+## 支持哪些平台与 Agent？
 
-安装后，给 Agent 一个参考和你的要求：
+| 能力 | 当前公开版本 |
+| --- | --- |
+| 链接参考 | TikTok、Instagram、X、小红书、抖音的可访问图文帖子 |
+| 无链接参考 | 本地图片与截图 |
+| Agent 安装 | 自动识别 Codex、Claude Code；其他兼容 Skill 的 Agent 可指定技能目录安装 |
+| 导出 | 画布支持 PNG、JPG、SVG、HTML、PDF、PSD；命令行标准渲染导出 PNG |
 
-~~~text
-/popost 参考这篇两页的 TikTok 图文结构：
-https://www.tiktok.com/@veyla_gift/photo/7699494320675507469
-给我的手链做一篇新的送礼故事，保留“情绪钩子 → 商品揭晓”的节奏。
-文案重新写，商品只用 ./photos/bracelet.jpg 这张照片。
-做完打开完整画布，我要继续改字和版式。
-~~~
+链接解析取决于帖子是否公开、平台是否可访问。你也可以改用截图或本地图片继续创作。
 
-没有链接？上传本地图片或截图也可以：
-
-~~~text
-/popost 参考我上传的几张图片，做一组五页的周末读书计划小红书图文。
-保留温暖、简洁的感觉，内容换成我的计划，完成后打开画布。
-~~~
-
-也可以从需求创作，再继续改：
-
-~~~text
-/popost 给我的咖啡杯做一组 TikTok 带货图文。
-使用我上传的产品图，讲清三个卖点。
-做好后把第二页标题改短，换成新照片，再把说明移到右下角。
-~~~
-
-完整流程见 [Skill 说明](./skills/popost/SKILL.md)。
-
-## 哪些步骤用算力？
+## 费用如何计算？
 
 | 操作 | Popost 算力 |
 | --- | --- |
-| 解析帖子链接，或把帖子保存到「我的灵感」 | 使用；提交前先看实时报价 |
-| 用 Popost 模型生成图片 | 使用；运行前先报价 |
-| 写改文案、排版、渲染、画布编辑、导出 PNG | 不使用 |
+| 解析帖子链接，或将帖子保存到「我的灵感」 | 使用；运行前查看实时报价 |
+| 使用 Popost 模型生成图片 | 使用；运行前查看报价 |
+| 本地排版、渲染、画布编辑与基础导出 | 不使用 |
 
-首次使用站内服务时，运行 <code>popost auth login</code>，在浏览器输入设备码并允许连接。<code>popost link quote</code> 和 <code>popost inspiration quote</code> 可查看当下的链接费用。本地 Agent 也可使用自己的图片模型或宿主的生图工具；详见 [providers](./skills/popost/references/providers.md)。Agent 订阅或对话费用另计。网页版的服务费用与账号权益以站内实时说明为准。
+使用站内服务前可通过 `popost auth login` 连接账号。`popost link quote` 和 `popost inspiration quote` 会显示当前链接费用。本地 Agent 也可使用自己的图片模型或宿主提供的生图能力；Agent 和模型服务的费用另计。[查看模型接入说明](./skills/popost/references/providers.md)。
 
-## 公开的 Skill 与画布源码
+## 接下来：社媒视频复刻
 
-仓库包含 [Popost Skill 与命令行](./skills/popost/)和[画布编辑器源码](./packages/canvas-editor/)。网站、账号、算力和云端工程由 popost.ai 提供。源码使用[含附加条件的许可证](./LICENSE)；复用前请阅读许可条款。
+我们本次上线的版本支持社媒图文的爆款复刻。我们正在支持社媒视频的爆款复刻，正在路上，很快开源。
+
+## 源码与贡献
+
+仓库包含 [Popost Skill 与命令行](./skills/popost/) 和 [画布编辑器源码](./packages/canvas-editor/)。网站、账号、算力与云端工程由 [popost.ai](https://popost.ai) 提供。源码采用[含附加条件的许可证](./LICENSE)，复用前请阅读条款。
+
+欢迎提交问题、改进文档或贡献模板。开发与提交方式见 [CONTRIBUTING.md](./CONTRIBUTING.md)。[图片来源与署名](./docs/readme-showcase-credits.md)。
 
 <details>
-<summary>开发者：构建、测试与目录</summary>
+<summary>开发者：从源码构建</summary>
 
-运行 <code>npm ci</code>，再依次运行 <code>npm run check</code>、<code>npm run build</code> 和 <code>npm run build:skill</code>。<code>npm run check</code> 包含 Skill 与画布的类型检查、Lint 和测试。想体验开发版 Skill，可在 <code>develop</code> 分支运行 <code>npm run build:skill</code>，再安装本地的 <code>./skills/popost</code>。贡献前阅读 [CONTRIBUTING.md](./CONTRIBUTING.md)、[AGENTS.md](./AGENTS.md)；嵌入方式见[画布文档](./packages/canvas-editor/EMBEDDING.md)，第三方许可见 [NOTICE](./NOTICE)。
+```bash
+npm ci
+npm run check
+npm run build
+npm run build:skill
+```
+
+`npm run check` 包含 Skill 与画布的类型检查、Lint 和测试。嵌入方式见[画布文档](./packages/canvas-editor/EMBEDDING.md)，第三方许可见 [NOTICE](./NOTICE)。
 
 </details>
 
-<p align="center"><strong>刷到想借鉴的帖子？把链接交给 Popost。</strong><br><a href="https://github.com/PopostAI/popost">⭐ 在 GitHub 收藏 Popost</a> · <a href="https://popost.ai">体验网页版</a></p>
+<p align="center"><strong>刷到想借鉴的图文？把链接交给 Popost。</strong><br><a href="https://popost.ai">在线体验</a> · <a href="https://github.com/PopostAI/popost">⭐ Star Popost</a></p>

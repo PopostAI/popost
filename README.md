@@ -1,32 +1,86 @@
-<h1 align="center">Popost</h1>
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://static.popost.ai/readme/brand/logo-horizontal-dark-0f45507673d3.svg">
+    <img src="https://static.popost.ai/readme/brand/logo-horizontal-light-1d5f84bd6682.svg" alt="Popost" width="400">
+  </picture>
+</p>
 
-<h3 align="center">Remake standout social carousels with an AI agent. Edit every page afterward.</h3>
+<h3 align="center">Paste a social post link. Remake any viral carousel with an AI agent, then keep editing it.</h3>
 
-<p align="center"><strong>An open-source Canva-style Skill and canvas for social posts.</strong></p>
+<p align="center"><strong>Turn a proven viral format into content of your own.</strong></p>
 
-<p align="center">Paste a social post link or upload reference images. Tell Popost about your product, story, and style.<br>It makes a new single image or complete carousel, then opens an editable canvas to change text, replace images, and move elements.</p>
-
-<p align="center"><strong>TikTok · Instagram · Xiaohongshu · Douyin · X · Local images and screenshots</strong></p>
+<p align="center">Remake standout posts from Instagram, TikTok, X, Xiaohongshu, and Douyin with one prompt.</p>
 
 <p align="center">
   <a href="https://popost.ai"><strong>Try Popost</strong></a>
   &nbsp;·&nbsp;
-  <a href="#start-creating"><strong>Install the Skill</strong></a>
+  <a href="#quick-start"><strong>Quick start</strong></a>
   &nbsp;·&nbsp;
-  <a href="#from-a-reference-to-your-own-post"><strong>See real cases</strong></a>
-  &nbsp;·&nbsp;
-  <a href="https://github.com/PopostAI/popost"><strong>⭐ Star this repo</strong></a>
+  <a href="#four-real-examples"><strong>See examples</strong></a>
   &nbsp;·&nbsp;
   <a href="./README.zh-CN.md"><strong>简体中文</strong></a>
 </p>
 
-## From a reference to your own post
+<p align="center">
+  <a href="https://github.com/PopostAI/popost/stargazers"><img alt="GitHub Stars" src="https://img.shields.io/github/stars/PopostAI/popost?style=flat-square&logo=github&label=Stars"></a>
+  <a href="https://www.npmjs.com/package/popost"><img alt="npm version" src="https://img.shields.io/npm/v/popost?style=flat-square&logo=npm&label=npm"></a>
+  <a href="./skills/popost/templates/community/"><img alt="200+ viral carousel templates" src="https://img.shields.io/badge/viral%20templates-200%2B-ef476f?style=flat-square"></a>
+  <a href="./LICENSE"><img alt="License with additional conditions" src="https://img.shields.io/badge/license-with%20conditions-e3b341?style=flat-square"></a>
+</p>
 
-Four finished cases show the first two source pages, the matching pages remade in Popost, and a real canvas editing session. Each includes every finished page and the editable project. Source images appear only for comparison; the new copy and artwork were made separately. [Image sources and credits](./docs/readme-showcase-credits.md).
+<p align="center"><code>TikTok</code> <code>Instagram</code> <code>X</code> <code>Xiaohongshu</code> <code>Douyin</code> <code>Local images</code></p>
 
-### TikTok · A relationship gift, rewritten as a bracelet story
+## What is Popost?
 
-The reference opens with a social-style relationship hook and pays it off with a close product reveal. Our two-page version keeps that **hook → reveal** rhythm, but writes a new message and shows a bracelet gift concept in a new illustrative scene. The cover now uses a photographic portrait, a heavy six-line headline, and the source's two-tier reaction footer. The displayed counts are layout samples, not engagement earned by this demo.
+Popost is a creation Skill for standout social content. It remakes post links from Instagram, TikTok, X, Xiaohongshu, and Douyin, offers 200+ viral carousel template `SKILL.md` files, and works with Codex, Claude Code, WorkBuddy, DeepSeek, Doubao Work, and 10+ AI agents.
+
+It is an open-source Canva-style alternative for social carousels. Your agent understands a reference and creates the first draft; you keep editing text, images, layout, and layers on the canvas. **The same project stays editable after generation.** This release focuses on viral social carousels. Viral video remakes are on the way and will be open-sourced soon. [Star Popost](https://github.com/PopostAI/popost) to hear about new capabilities.
+
+<p align="center"><img src="https://static.popost.ai/readme/four-cases-20261121/gift/edit-current-dec4e5928a5a.webp" width="680" alt="Editing a Popost carousel alongside its reference"><br><sub>A real canvas editing session: reference and remake side by side.</sub></p>
+
+### Three ways in, one editable canvas
+
+| Your starting point | What Popost makes |
+| --- | --- |
+| An accessible TikTok, Instagram, X, Xiaohongshu, or Douyin post link | A new post based on the reference's hook, slide sequence, and layout logic |
+| Local images or screenshots | A new image or carousel guided by their composition and information structure |
+| A brief or a [carousel template](./skills/popost/templates/community/) | A complete carousel for your topic, product, and target platform |
+
+All three paths lead to an editable project. Change text and images, move elements, save the project, and export the finished pages.
+
+## Quick start
+
+Install the Popost Skill in Codex or Claude Code:
+
+<!-- install:start -->
+```bash
+npm install -g popost
+popost install
+```
+<!-- install:end -->
+
+Requires Node.js `^20.19.0 || >=22.12.0`. For another Skill-compatible agent, use <code>popost install --dir &lt;skills directory&gt;</code>. You can also use the [web app](https://popost.ai).
+
+Then give your agent a reference and your brief:
+
+```text
+/popost Use the emotional hook → product reveal structure of this two-slide TikTok post:
+https://www.tiktok.com/@veyla_gift/photo/7699494320675507469
+Write a new gift story for my bracelet. Use only the product photo I uploaded.
+Open the canvas when it is ready so I can edit the headline and slide two.
+```
+
+No link? Upload reference images or describe what you want. See the [Skill instructions](./skills/popost/SKILL.md) for the full workflow.
+
+## Four real examples
+
+**Keep the structure. Rewrite the content.** Identify the hook, slide sequence, layout, and close, then bring your own subject, copy, and visuals. Give Popost the link and the new brief to create an editable draft in one instruction; keep refining it on the canvas.
+
+Each example shows **the source's first two slides → the Popost remake's first two slides → a real canvas edit**, with downloads for every finished page and the editable project.
+
+### 01 / TikTok · From an emotional hook to a bracelet reveal
+
+**Source: 15,280 likes · 1,929,266 views.** Keep the two-slide emotional hook → product reveal, then use Popost to rewrite it as a bracelet story. Keep refining the portrait, headline, and reaction footer on the canvas.
 
 | Reference · first two pages | Popost remake · first two pages | Canvas editing · keep refining |
 | :---: | :---: | :---: |
@@ -34,9 +88,9 @@ The reference opens with a social-style relationship hook and pays it off with a
 
 [View source post](https://www.tiktok.com/@veyla_gift/photo/7699494320675507469) · [Download all 2 PNG pages](https://static.popost.ai/readme/four-cases-20261121/gift/images-19aba70855f1.zip) · [Download editable project](https://static.popost.ai/readme/four-cases-20261121/gift/project-7c4e3423a959.popost.zip) · [Watch the MP4 editing session](https://static.popost.ai/readme/four-cases-20261121/gift/edit-current-22a9b0a16abd.mp4)
 
-### TikTok · A six-page product comparison, rebuilt for a scooter
+### 02 / TikTok · Explain a scooter in six slides
 
-The source alternates split-screen problems, feature comparisons and a product close. We used that six-page pacing for a Segway MAX G3 concept: a basic commute on one side, specific scooter features on the other, and a product page at the end. The illustrations, copy and product are new. This is an independent design example.
+**Source: 8 likes · 519 views.** This is a structural reference: keep the six-slide problem split → feature comparison → product close, then use Popost to make new copy and illustrations for the Segway MAX G3.
 
 | Reference · first two pages | Popost remake · first two pages | Canvas editing · keep refining |
 | :---: | :---: | :---: |
@@ -44,9 +98,9 @@ The source alternates split-screen problems, feature comparisons and a product c
 
 [View source post](https://www.tiktok.com/@gobuygobike/photo/7674850905254055182) · [Download all 6 PNG pages](https://static.popost.ai/readme/four-cases-20261120/scooter/images-44d6fd335ca9.zip) · [Download editable project](https://static.popost.ai/readme/four-cases-20261120/scooter/project-82bcf23f28ac.popost.zip) · [Watch the MP4 editing session](https://static.popost.ai/readme/four-cases-20261120/scooter/edit-10s-acc7cfd5fc6e.mp4)
 
-### Instagram · From budget countries to slow weekends in nine cities
+### 03 / Instagram · Turn a destination list into slow weekends
 
-The reference is an eleven-page destination list with a strong audience hook, full-bleed travel photos and a planning close. The remake keeps the page count and photo-led rhythm, then changes the promise to **one unhurried weekend**, names nine cities, and gives each a start, a walk and a pause. All destination photos are separately sourced and credited.
+**Source: 159,796 likes.** Keep the eleven-slide photo narrative and repeated information panel, then use Popost to turn it into a slow-weekend guide to nine cities.
 
 | Reference · first two pages | Popost remake · first two pages | Canvas editing · keep refining |
 | :---: | :---: | :---: |
@@ -54,9 +108,9 @@ The reference is an eleven-page destination list with a strong audience hook, fu
 
 [View source post](https://www.instagram.com/p/DcgaornE46r/) · [Download all 11 WebP pages](https://static.popost.ai/readme/four-cases-20261120/travel/images-0a9c251267bc.webp.zip) · [Download editable project](https://static.popost.ai/readme/four-cases-20261120/travel/project-4cbb25213817.popost.zip) · [Watch the MP4 editing session](https://static.popost.ai/readme/four-cases-20261120/travel/edit-10s-02e8a7400242.mp4)
 
-### Instagram · A twelve-part checklist for a creator’s content system
+### 04 / Instagram · Organize a creator workflow as a checklist
 
-The source turns twelve areas of life into a cover and five grouped checklist pages. Our six-page version uses the same editorial mechanism for twelve parts of a creator’s content system, from audience and raw material to publishing rhythm and the next move. Every category, example and action is newly written.
+**Source: 1,920 likes.** Keep the cover-plus-grouped-checklist structure, then use Popost to write twelve steps for a creator content system with new categories and examples.
 
 | Reference · first two pages | Popost remake · first two pages | Canvas editing · keep refining |
 | :---: | :---: | :---: |
@@ -64,80 +118,68 @@ The source turns twelve areas of life into a cover and five grouped checklist pa
 
 [View source post](https://www.instagram.com/p/DZiXsfvjP3Z/) · [Download all 6 PNG pages](https://static.popost.ai/readme/four-cases-20261120/creator/images-f84c72887a12.zip) · [Download editable project](https://static.popost.ai/readme/four-cases-20261120/creator/project-88da8553c33d.popost.zip) · [Watch the MP4 editing session](https://static.popost.ai/readme/four-cases-20261120/creator/edit-10s-e465af0adc27.mp4)
 
-Like this way of working? [⭐ Star Popost](https://github.com/PopostAI/popost) and make your next post from a reference you love.
+## 200+ viral carousel templates
 
-## Remake, create, and edit in one project
+Popost offers **200+ viral carousel template `SKILL.md` files** across TikTok commerce posts, Instagram carousels, and editorial layouts. Each describes the scenario, content rhythm, and slide structure. Pick one yourself or let your agent choose one for the brief.
 
-- **Remake a social carousel.** Start from an accessible post link or reference image. Keep the hook, page rhythm, and layout logic; change the product, copy, and visuals to your own.
-- **Create from an idea.** Describe the topic, platform, and style, then add product photos or choose a [Skill template](./skills/popost/templates/community/).
-- **Edit images and layout.** Crop, rotate, resize, or replace images. On the canvas, edit text, type, colors, positions, layers, and pages. Ask the agent to generate or redraw an image when you need new visual content.
-- **Keep the result and the project.** Export the finished pages and save the editable project as a ZIP for later work.
+[Browse the templates](./skills/popost/templates/community/) · [Read the catalog](./skills/popost/templates/community/README.md)
 
-Text and separate layout elements stay editable. People, printed words on packaging, and other details inside a photograph are still pixels; changing those requires image editing or regeneration.
+## Canvas editing · keep refining
 
-The same canvas is available beside your agent and on [popost.ai](https://popost.ai). A connected Skill can sync a project to your account; you can also start locally and choose **Save to Cloud** later.
+Your carousel stays editable. On the canvas, you can:
 
-## Start creating
+- Change copy, type, color, alignment, position, and layers;
+- Replace, crop, or rotate images, and add or reorder slides;
+- Save the project and reopen it for another round;
+- Export **PNG, JPG, SVG, HTML, PDF**, or PSD.
 
-Install the Skill and its command line from npm:
+Text and separate layout elements remain editable. Details inside a photograph, such as a face or printed packaging, need image editing or a new asset.
 
-<!-- install:start -->
-~~~bash
-npm install -g popost
-popost install
-~~~
+The same canvas is available beside your agent and on [popost.ai](https://popost.ai). A connected account can sync the project; local editing and export also work without one.
 
-Node.js 20.19+ · macOS, Windows, and Linux. <code>popost install</code> detects Codex and Claude Code; for another compatible agent, use <code>popost install --dir &lt;skills directory&gt;</code>.
-<!-- install:end -->
+## Platforms and agents
 
-Then give your agent a reference and a brief:
+| Capability | Current release |
+| --- | --- |
+| Post links | Accessible TikTok, Instagram, X, Xiaohongshu, and Douyin image posts |
+| Without a link | Local images and screenshots |
+| Agent installation | Automatically detects Codex and Claude Code; other Skill-compatible agents can use a specified skills directory |
+| Export | Canvas: PNG, JPG, SVG, HTML, PDF, PSD. CLI standard render: PNG |
 
-~~~text
-/popost Use this two-page TikTok post as a structural reference:
-https://www.tiktok.com/@veyla_gift/photo/7699494320675507469
-Make a new gift story about my bracelet. Keep the emotional hook →
-product reveal rhythm, write fresh copy, and use ./photos/bracelet.jpg.
-Open the complete result in the canvas so I can edit it.
-~~~
+Post parsing depends on public access and platform availability. Screenshots or local images also work as references.
 
-No link? Upload screenshots or local reference images:
-
-~~~text
-/popost Use these images as a style reference for a five-page
-Xiaohongshu post about a slow weekend reading plan. Write my own
-content and open the result in the canvas.
-~~~
-
-Or create from a brief, then keep editing:
-
-~~~text
-/popost Create a TikTok product carousel for my coffee mug.
-Use the product photos I uploaded and explain the three main benefits.
-Then change page two's title, replace its photo, and move the caption
-to the lower right in the canvas.
-~~~
-
-See the [Skill instructions](./skills/popost/SKILL.md) for the full workflow.
-
-## What costs credits?
+## Credits and costs
 
 | Action | Popost credits |
 | --- | --- |
-| Parse or save a social post link to My Inspirations | Yes; check the live quote before confirming |
-| Generate pictures with Popost models | Yes; the agent shows the quote before the run |
-| Write and edit copy, adjust layout, render, use the canvas, export PNGs | No |
+| Parse a post link or save it to My Inspirations | Used; check the live quote before running |
+| Generate images with Popost models | Used; check the quote before running |
+| Local layout, rendering, canvas editing, and standard export | Not used |
 
-Run <code>popost auth login</code> to connect your agent in the browser. <code>popost link quote</code> and <code>popost inspiration quote</code> show current link costs. A local agent can use your own image provider or its image tool instead of Popost picture generation; see [providers](./skills/popost/references/providers.md). Your agent subscription or conversation costs are separate. The web app shows its own current usage and account terms.
+Run `popost auth login` before using hosted services. `popost link quote` and `popost inspiration quote` show current link costs. A local agent can use your own image provider or its image tools instead; agent and model-service charges are separate. See [providers](./skills/popost/references/providers.md).
 
-## Built in the open
+## Video remakes are on the way
 
-This repository contains the [Popost Skill and CLI](./skills/popost/) and the [canvas editor source](./packages/canvas-editor/). The hosted website, accounts, credits, and cloud projects are provided by popost.ai. Source is available under this repository's [license with additional terms](./LICENSE); read it before reuse.
+This release supports viral social carousel remakes. We are bringing the same workflow to viral social videos and plan to open-source it soon.
+
+## Source and contributions
+
+This repository contains the [Popost Skill and CLI](./skills/popost/) and [canvas editor source](./packages/canvas-editor/). The hosted website, accounts, credits, and cloud projects are provided by [popost.ai](https://popost.ai). The source uses a [license with additional conditions](./LICENSE); read it before reuse.
+
+Issues, documentation improvements, and template contributions are welcome. See [CONTRIBUTING.md](./CONTRIBUTING.md) for development and submission details. [Image sources and credits](./docs/readme-showcase-credits.md).
 
 <details>
-<summary>For contributors: build, tests, and repository layout</summary>
+<summary>For contributors: build from source</summary>
 
-Run <code>npm ci</code>, then <code>npm run check</code>, <code>npm run build</code>, and <code>npm run build:skill</code>. <code>npm run check</code> covers type checking, linting, and tests for the Skill and editor. To try the development Skill locally, build the <code>develop</code> branch with <code>npm run build:skill</code> and install <code>./skills/popost</code>. See [CONTRIBUTING.md](./CONTRIBUTING.md), [AGENTS.md](./AGENTS.md), and the editor's [embedding guide](./packages/canvas-editor/EMBEDDING.md). Third-party notices are in [NOTICE](./NOTICE).
+```bash
+npm ci
+npm run check
+npm run build
+npm run build:skill
+```
+
+`npm run check` covers types, linting, and tests for the Skill and canvas. See the [embedding guide](./packages/canvas-editor/EMBEDDING.md) and [third-party notices](./NOTICE).
 
 </details>
 
-<p align="center"><strong>Found a post worth remaking? Give Popost the link.</strong><br><a href="https://github.com/PopostAI/popost">⭐ Star Popost on GitHub</a> · <a href="https://popost.ai">Try the web app</a></p>
+<p align="center"><strong>Found a post worth remaking? Give Popost the link.</strong><br><a href="https://popost.ai">Try Popost</a> · <a href="https://github.com/PopostAI/popost">⭐ Star Popost</a></p>
