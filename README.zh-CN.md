@@ -94,8 +94,8 @@ https://www.tiktok.com/@veyla_gift/photo/7699494320675507469
     <th align="center" width="34%">画布编辑·持续修改</th>
   </tr>
   <tr>
-    <td align="center" width="33%"><img src="https://static.popost.ai/readme/four-cases-20261120/gift/source-01-b4cab31b3b21.webp" width="48%" alt="手链送礼故事 source-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/gift/source-02-983274cf66e4.webp" width="48%" alt="手链送礼故事 source-02"></td>
-    <td align="center" width="33%"><img src="https://static.popost.ai/readme/four-cases-20261121/gift/remake-01-f6a5f09ca0b9.webp" width="48%" alt="手链送礼故事 remake-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/gift/remake-02-878f89f14e9e.webp" width="48%" alt="手链送礼故事 remake-02"></td>
+    <td align="center" width="33%"><img src="https://static.popost.ai/readme/four-cases-20261120/gift/source-01-b4cab31b3b21.webp" width="65%" alt="手链送礼故事 source-01"><br><img src="https://static.popost.ai/readme/four-cases-20261120/gift/source-02-983274cf66e4.webp" width="65%" alt="手链送礼故事 source-02"></td>
+    <td align="center" width="33%"><img src="https://static.popost.ai/readme/four-cases-20261121/gift/remake-01-f6a5f09ca0b9.webp" width="65%" alt="手链送礼故事 remake-01"><br><img src="https://static.popost.ai/readme/four-cases-20261120/gift/remake-02-878f89f14e9e.webp" width="65%" alt="手链送礼故事 remake-02"></td>
     <td align="center" width="34%"><img src="https://static.popost.ai/readme/four-cases-20261121/gift/edit-current-dec4e5928a5a.webp" width="96%" alt="Popost 画布中编辑 手链送礼故事"></td>
   </tr>
 </table>
@@ -113,8 +113,8 @@ https://www.tiktok.com/@veyla_gift/photo/7699494320675507469
     <th align="center" width="34%">画布编辑·持续修改</th>
   </tr>
   <tr>
-    <td align="center" width="33%"><img src="https://static.popost.ai/readme/four-cases-20261120/scooter/source-01-78898fd6acf8.webp" width="48%" alt="滑板车功能对比 source-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/scooter/source-02-5fed6c293b05.webp" width="48%" alt="滑板车功能对比 source-02"></td>
-    <td align="center" width="33%"><img src="https://static.popost.ai/readme/four-cases-20261120/scooter/remake-01-eb1dfbda5aa5.webp" width="48%" alt="滑板车功能对比 remake-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/scooter/remake-02-5a44e434a7c5.webp" width="48%" alt="滑板车功能对比 remake-02"></td>
+    <td align="center" width="33%"><img src="https://static.popost.ai/readme/four-cases-20261120/scooter/source-01-78898fd6acf8.webp" width="65%" alt="滑板车功能对比 source-01"><br><img src="https://static.popost.ai/readme/four-cases-20261120/scooter/source-02-5fed6c293b05.webp" width="65%" alt="滑板车功能对比 source-02"></td>
+    <td align="center" width="33%"><img src="https://static.popost.ai/readme/four-cases-20261120/scooter/remake-01-eb1dfbda5aa5.webp" width="65%" alt="滑板车功能对比 remake-01"><br><img src="https://static.popost.ai/readme/four-cases-20261120/scooter/remake-02-5a44e434a7c5.webp" width="65%" alt="滑板车功能对比 remake-02"></td>
     <td align="center" width="34%"><img src="https://static.popost.ai/readme/four-cases-20261120/scooter/edit-10s-30c3fbd95890.webp" width="96%" alt="Popost 画布中编辑 滑板车功能对比"></td>
   </tr>
 </table>
@@ -132,8 +132,8 @@ https://www.tiktok.com/@veyla_gift/photo/7699494320675507469
     <th align="center" width="34%">画布编辑·持续修改</th>
   </tr>
   <tr>
-    <td align="center" width="33%"><img src="https://static.popost.ai/readme/four-cases-20261120/travel/source-01-823f07ab8719.webp" width="48%" alt="周末城市旅行清单 source-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/travel/source-02-a5b9a9cb6a2a.webp" width="48%" alt="周末城市旅行清单 source-02"></td>
-    <td align="center" width="33%"><img src="https://static.popost.ai/readme/four-cases-20261120/travel/remake-01-18ea8965735e.webp" width="48%" alt="周末城市旅行清单 remake-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/travel/remake-02-919deac40551.webp" width="48%" alt="周末城市旅行清单 remake-02"></td>
+    <td align="center" width="33%"><img src="https://static.popost.ai/readme/four-cases-20261120/travel/source-01-823f07ab8719.webp" width="65%" alt="周末城市旅行清单 source-01"><br><img src="https://static.popost.ai/readme/four-cases-20261120/travel/source-02-a5b9a9cb6a2a.webp" width="65%" alt="周末城市旅行清单 source-02"></td>
+    <td align="center" width="33%"><img src="https://static.popost.ai/readme/four-cases-20261120/travel/remake-01-18ea8965735e.webp" width="65%" alt="周末城市旅行清单 remake-01"><br><img src="https://static.popost.ai/readme/four-cases-20261120/travel/remake-02-919deac40551.webp" width="65%" alt="周末城市旅行清单 remake-02"></td>
     <td align="center" width="34%"><img src="https://static.popost.ai/readme/four-cases-20261120/travel/edit-10s-e5661ca8dd1e.webp" width="96%" alt="Popost 画布中编辑 周末城市旅行清单"></td>
   </tr>
 </table>
@@ -151,8 +151,8 @@ https://www.tiktok.com/@veyla_gift/photo/7699494320675507469
     <th align="center" width="34%">画布编辑·持续修改</th>
   </tr>
   <tr>
-    <td align="center" width="33%"><img src="https://static.popost.ai/readme/four-cases-20261120/creator/source-01-5695ce336177.webp" width="48%" alt="创作者内容系统清单 source-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/creator/source-02-84972ce394d6.webp" width="48%" alt="创作者内容系统清单 source-02"></td>
-    <td align="center" width="33%"><img src="https://static.popost.ai/readme/four-cases-20261120/creator/remake-01-bb0293971928.webp" width="48%" alt="创作者内容系统清单 remake-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/creator/remake-02-4393db3128c1.webp" width="48%" alt="创作者内容系统清单 remake-02"></td>
+    <td align="center" width="33%"><img src="https://static.popost.ai/readme/four-cases-20261120/creator/source-01-5695ce336177.webp" width="65%" alt="创作者内容系统清单 source-01"><br><img src="https://static.popost.ai/readme/four-cases-20261120/creator/source-02-84972ce394d6.webp" width="65%" alt="创作者内容系统清单 source-02"></td>
+    <td align="center" width="33%"><img src="https://static.popost.ai/readme/four-cases-20261120/creator/remake-01-bb0293971928.webp" width="65%" alt="创作者内容系统清单 remake-01"><br><img src="https://static.popost.ai/readme/four-cases-20261120/creator/remake-02-4393db3128c1.webp" width="65%" alt="创作者内容系统清单 remake-02"></td>
     <td align="center" width="34%"><img src="https://static.popost.ai/readme/four-cases-20261120/creator/edit-10s-99de8f64105e.webp" width="96%" alt="Popost 画布中编辑 创作者内容系统清单"></td>
   </tr>
 </table>
