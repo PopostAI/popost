@@ -32,9 +32,14 @@
 
 ## What is Popost?
 
-Popost is a creation Skill for standout social content. It remakes post links from Instagram, TikTok, X, Xiaohongshu, and Douyin, offers 200+ viral carousel template `SKILL.md` files, and works with Codex, Claude Code, WorkBuddy, DeepSeek, Doubao Work, and 10+ AI agents.
+Popost is a creation Skill for viral social content and an open-source Canva-style alternative for social carousels.
 
-It is an open-source Canva-style alternative for social carousels. Your agent understands a reference and creates the first draft; you keep editing text, images, layout, and layers on the canvas. **The same project stays editable after generation.** This release focuses on viral social carousels. Viral video remakes are on the way and will be open-sourced soon. [Star Popost](https://github.com/PopostAI/popost) to hear about new capabilities.
+- **Remake from a link:** Start with an Instagram, TikTok, X, Xiaohongshu, or Douyin image post.
+- **Create from a template:** Choose from 200+ viral carousel template `SKILL.md` files, then add your topic, copy, and visuals.
+- **Work in your agent:** Use Popost with Codex, Claude Code, WorkBuddy, DeepSeek, Doubao Work, and 10+ AI agents.
+- **Keep editing:** Once your agent makes a draft, change its text, images, layout, and layers in the same project.
+
+**Video remakes are on the way.** This release supports viral social carousel remakes; video support is in development and will be open-sourced soon. [⭐ Star Popost](https://github.com/PopostAI/popost) for updates.
 
 <p align="center"><img src="https://static.popost.ai/readme/four-cases-20261121/gift/edit-current-dec4e5928a5a.webp" width="680" alt="Editing a Popost carousel alongside its reference"><br><sub>A real canvas editing session: reference and remake side by side.</sub></p>
 
@@ -82,9 +87,18 @@ Each example shows **the source's first two slides → the Popost remake's first
 
 **Source: 15,280 likes · 1,929,266 views.** Keep the two-slide emotional hook → product reveal, then use Popost to rewrite it as a bracelet story. Keep refining the portrait, headline, and reaction footer on the canvas.
 
-| Reference · first two pages | Popost remake · first two pages | Canvas editing · keep refining |
-| :---: | :---: | :---: |
-| <img src="https://static.popost.ai/readme/four-cases-20261120/gift/source-01-b4cab31b3b21.webp" width="125" alt="gift story source-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/gift/source-02-983274cf66e4.webp" width="125" alt="gift story source-02"> | <img src="https://static.popost.ai/readme/four-cases-20261121/gift/remake-01-f6a5f09ca0b9.webp" width="125" alt="gift story remake-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/gift/remake-02-878f89f14e9e.webp" width="125" alt="gift story remake-02"> | <img src="https://static.popost.ai/readme/four-cases-20261121/gift/edit-current-dec4e5928a5a.webp" width="260" alt="Editing in the Popost canvas gift story"> |
+<table width="100%">
+  <tr>
+    <th align="center" width="33%">Reference · first two pages</th>
+    <th align="center" width="33%">Popost remake · first two pages</th>
+    <th align="center" width="34%">Canvas editing · keep refining</th>
+  </tr>
+  <tr>
+    <td align="center" width="33%"><img src="https://static.popost.ai/readme/four-cases-20261120/gift/source-01-b4cab31b3b21.webp" width="48%" alt="gift story source-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/gift/source-02-983274cf66e4.webp" width="48%" alt="gift story source-02"></td>
+    <td align="center" width="33%"><img src="https://static.popost.ai/readme/four-cases-20261121/gift/remake-01-f6a5f09ca0b9.webp" width="48%" alt="gift story remake-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/gift/remake-02-878f89f14e9e.webp" width="48%" alt="gift story remake-02"></td>
+    <td align="center" width="34%"><img src="https://static.popost.ai/readme/four-cases-20261121/gift/edit-current-dec4e5928a5a.webp" width="96%" alt="Editing in the Popost canvas gift story"></td>
+  </tr>
+</table>
 
 [View source post](https://www.tiktok.com/@veyla_gift/photo/7699494320675507469) · [Download all 2 PNG pages](https://static.popost.ai/readme/four-cases-20261121/gift/images-19aba70855f1.zip) · [Download editable project](https://static.popost.ai/readme/four-cases-20261121/gift/project-7c4e3423a959.popost.zip) · [Watch the MP4 editing session](https://static.popost.ai/readme/four-cases-20261121/gift/edit-current-22a9b0a16abd.mp4)
 
@@ -92,9 +106,18 @@ Each example shows **the source's first two slides → the Popost remake's first
 
 **Source: 8 likes · 519 views.** This is a structural reference: keep the six-slide problem split → feature comparison → product close, then use Popost to make new copy and illustrations for the Segway MAX G3.
 
-| Reference · first two pages | Popost remake · first two pages | Canvas editing · keep refining |
-| :---: | :---: | :---: |
-| <img src="https://static.popost.ai/readme/four-cases-20261120/scooter/source-01-78898fd6acf8.webp" width="125" alt="scooter comparison source-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/scooter/source-02-5fed6c293b05.webp" width="125" alt="scooter comparison source-02"> | <img src="https://static.popost.ai/readme/four-cases-20261120/scooter/remake-01-eb1dfbda5aa5.webp" width="125" alt="scooter comparison remake-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/scooter/remake-02-5a44e434a7c5.webp" width="125" alt="scooter comparison remake-02"> | <img src="https://static.popost.ai/readme/four-cases-20261120/scooter/edit-10s-30c3fbd95890.webp" width="260" alt="Editing in the Popost canvas scooter comparison"> |
+<table width="100%">
+  <tr>
+    <th align="center" width="33%">Reference · first two pages</th>
+    <th align="center" width="33%">Popost remake · first two pages</th>
+    <th align="center" width="34%">Canvas editing · keep refining</th>
+  </tr>
+  <tr>
+    <td align="center" width="33%"><img src="https://static.popost.ai/readme/four-cases-20261120/scooter/source-01-78898fd6acf8.webp" width="48%" alt="scooter comparison source-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/scooter/source-02-5fed6c293b05.webp" width="48%" alt="scooter comparison source-02"></td>
+    <td align="center" width="33%"><img src="https://static.popost.ai/readme/four-cases-20261120/scooter/remake-01-eb1dfbda5aa5.webp" width="48%" alt="scooter comparison remake-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/scooter/remake-02-5a44e434a7c5.webp" width="48%" alt="scooter comparison remake-02"></td>
+    <td align="center" width="34%"><img src="https://static.popost.ai/readme/four-cases-20261120/scooter/edit-10s-30c3fbd95890.webp" width="96%" alt="Editing in the Popost canvas scooter comparison"></td>
+  </tr>
+</table>
 
 [View source post](https://www.tiktok.com/@gobuygobike/photo/7674850905254055182) · [Download all 6 PNG pages](https://static.popost.ai/readme/four-cases-20261120/scooter/images-44d6fd335ca9.zip) · [Download editable project](https://static.popost.ai/readme/four-cases-20261120/scooter/project-82bcf23f28ac.popost.zip) · [Watch the MP4 editing session](https://static.popost.ai/readme/four-cases-20261120/scooter/edit-10s-acc7cfd5fc6e.mp4)
 
@@ -102,9 +125,18 @@ Each example shows **the source's first two slides → the Popost remake's first
 
 **Source: 159,796 likes.** Keep the eleven-slide photo narrative and repeated information panel, then use Popost to turn it into a slow-weekend guide to nine cities.
 
-| Reference · first two pages | Popost remake · first two pages | Canvas editing · keep refining |
-| :---: | :---: | :---: |
-| <img src="https://static.popost.ai/readme/four-cases-20261120/travel/source-01-823f07ab8719.webp" width="125" alt="weekend city guide source-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/travel/source-02-a5b9a9cb6a2a.webp" width="125" alt="weekend city guide source-02"> | <img src="https://static.popost.ai/readme/four-cases-20261120/travel/remake-01-18ea8965735e.webp" width="125" alt="weekend city guide remake-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/travel/remake-02-919deac40551.webp" width="125" alt="weekend city guide remake-02"> | <img src="https://static.popost.ai/readme/four-cases-20261120/travel/edit-10s-e5661ca8dd1e.webp" width="260" alt="Editing in the Popost canvas weekend city guide"> |
+<table width="100%">
+  <tr>
+    <th align="center" width="33%">Reference · first two pages</th>
+    <th align="center" width="33%">Popost remake · first two pages</th>
+    <th align="center" width="34%">Canvas editing · keep refining</th>
+  </tr>
+  <tr>
+    <td align="center" width="33%"><img src="https://static.popost.ai/readme/four-cases-20261120/travel/source-01-823f07ab8719.webp" width="48%" alt="weekend city guide source-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/travel/source-02-a5b9a9cb6a2a.webp" width="48%" alt="weekend city guide source-02"></td>
+    <td align="center" width="33%"><img src="https://static.popost.ai/readme/four-cases-20261120/travel/remake-01-18ea8965735e.webp" width="48%" alt="weekend city guide remake-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/travel/remake-02-919deac40551.webp" width="48%" alt="weekend city guide remake-02"></td>
+    <td align="center" width="34%"><img src="https://static.popost.ai/readme/four-cases-20261120/travel/edit-10s-e5661ca8dd1e.webp" width="96%" alt="Editing in the Popost canvas weekend city guide"></td>
+  </tr>
+</table>
 
 [View source post](https://www.instagram.com/p/DcgaornE46r/) · [Download all 11 WebP pages](https://static.popost.ai/readme/four-cases-20261120/travel/images-0a9c251267bc.webp.zip) · [Download editable project](https://static.popost.ai/readme/four-cases-20261120/travel/project-4cbb25213817.popost.zip) · [Watch the MP4 editing session](https://static.popost.ai/readme/four-cases-20261120/travel/edit-10s-02e8a7400242.mp4)
 
@@ -112,9 +144,18 @@ Each example shows **the source's first two slides → the Popost remake's first
 
 **Source: 1,920 likes.** Keep the cover-plus-grouped-checklist structure, then use Popost to write twelve steps for a creator content system with new categories and examples.
 
-| Reference · first two pages | Popost remake · first two pages | Canvas editing · keep refining |
-| :---: | :---: | :---: |
-| <img src="https://static.popost.ai/readme/four-cases-20261120/creator/source-01-5695ce336177.webp" width="125" alt="creator content checklist source-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/creator/source-02-84972ce394d6.webp" width="125" alt="creator content checklist source-02"> | <img src="https://static.popost.ai/readme/four-cases-20261120/creator/remake-01-bb0293971928.webp" width="125" alt="creator content checklist remake-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/creator/remake-02-4393db3128c1.webp" width="125" alt="creator content checklist remake-02"> | <img src="https://static.popost.ai/readme/four-cases-20261120/creator/edit-10s-99de8f64105e.webp" width="260" alt="Editing in the Popost canvas creator content checklist"> |
+<table width="100%">
+  <tr>
+    <th align="center" width="33%">Reference · first two pages</th>
+    <th align="center" width="33%">Popost remake · first two pages</th>
+    <th align="center" width="34%">Canvas editing · keep refining</th>
+  </tr>
+  <tr>
+    <td align="center" width="33%"><img src="https://static.popost.ai/readme/four-cases-20261120/creator/source-01-5695ce336177.webp" width="48%" alt="creator content checklist source-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/creator/source-02-84972ce394d6.webp" width="48%" alt="creator content checklist source-02"></td>
+    <td align="center" width="33%"><img src="https://static.popost.ai/readme/four-cases-20261120/creator/remake-01-bb0293971928.webp" width="48%" alt="creator content checklist remake-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/creator/remake-02-4393db3128c1.webp" width="48%" alt="creator content checklist remake-02"></td>
+    <td align="center" width="34%"><img src="https://static.popost.ai/readme/four-cases-20261120/creator/edit-10s-99de8f64105e.webp" width="96%" alt="Editing in the Popost canvas creator content checklist"></td>
+  </tr>
+</table>
 
 [View source post](https://www.instagram.com/p/DZiXsfvjP3Z/) · [Download all 6 PNG pages](https://static.popost.ai/readme/four-cases-20261120/creator/images-f84c72887a12.zip) · [Download editable project](https://static.popost.ai/readme/four-cases-20261120/creator/project-88da8553c33d.popost.zip) · [Watch the MP4 editing session](https://static.popost.ai/readme/four-cases-20261120/creator/edit-10s-e465af0adc27.mp4)
 
@@ -143,7 +184,7 @@ The same canvas is available beside your agent and on [popost.ai](https://popost
 | --- | --- |
 | Post links | Accessible TikTok, Instagram, X, Xiaohongshu, and Douyin image posts |
 | Without a link | Local images and screenshots |
-| Agent installation | Automatically detects Codex and Claude Code; other Skill-compatible agents can use a specified skills directory |
+| Agent installation | Works with Codex, Claude Code, WorkBuddy, DeepSeek, Doubao Work, and 10+ AI agents. |
 | Export | Canvas: PNG, JPG, SVG, HTML, PDF, PSD. CLI standard render: PNG |
 
 Post parsing depends on public access and platform availability. Screenshots or local images also work as references.

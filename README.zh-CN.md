@@ -32,9 +32,14 @@
 
 ## Popost 是什么
 
-Popost 是面向社媒爆款内容的创作 Skill，支持 ins、TikTok、X、小红书、抖音等平台的帖子链接复刻，支持 200+ 爆款模板 `SKILL.md`。你可以在 Codex、Claude Code、WorkBuddy、DeepSeek、豆包工作等 10+ AI Agent 中使用。
+Popost 是面向社媒爆款内容的创作 Skill，也是面向社媒图文的开源 Canva / 美图设计室替代方案。
 
-它是面向社媒图文的开源 Canva / 美图设计室替代方案：Agent 负责理解参考和制作初稿，你继续在画布里改文字、图片、排版与图层。**生成初稿后，还能在同一工程里反复修改。**我们本次上线的版本支持社媒图文的爆款复刻；社媒视频的爆款复刻正在路上，很快开源。给 [Popost Star](https://github.com/PopostAI/popost)，更快收到新能力通知。
+- **链接复刻：** 支持 Instagram（ins）、TikTok、X、小红书、抖音等平台的图文帖子。
+- **模板创作：** 选择 200+ 爆款模板 `SKILL.md`，换上你的主题、文案和素材。
+- **Agent 创作：** 可在 Codex、Claude Code、WorkBuddy、DeepSeek、豆包工作等 10+ AI Agent 中使用。
+- **画布修改：** Agent 制作初稿后，文字、图片、版式和图层都能在同一工程里继续修改。
+
+**视频复刻正在路上。** 当前版本支持社媒图文的爆款复刻；视频能力正在开发，很快开源。[⭐ Star Popost](https://github.com/PopostAI/popost) 关注后续更新。
 
 <p align="center"><img src="https://static.popost.ai/readme/four-cases-20261121/gift/edit-current-dec4e5928a5a.webp" width="680" alt="在 Popost 画布中对照参考图，继续编辑标题和版式"><br><sub>真实画布编辑录屏：参考与作品并排，标题可以继续修改。</sub></p>
 
@@ -82,9 +87,18 @@ https://www.tiktok.com/@veyla_gift/photo/7699494320675507469
 
 **原帖：15,280 赞 · 1,929,266 播放。** 保留「情绪钩子 → 实物揭晓」的两页节奏，用 Popost 改写成手链故事；封面头像、标题和互动栏可继续调整。
 
-| 参考原帖 · 前两页 | Popost 新作 · 前两页 | 画布编辑·持续修改 |
-| :---: | :---: | :---: |
-| <img src="https://static.popost.ai/readme/four-cases-20261120/gift/source-01-b4cab31b3b21.webp" width="125" alt="手链送礼故事 source-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/gift/source-02-983274cf66e4.webp" width="125" alt="手链送礼故事 source-02"> | <img src="https://static.popost.ai/readme/four-cases-20261121/gift/remake-01-f6a5f09ca0b9.webp" width="125" alt="手链送礼故事 remake-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/gift/remake-02-878f89f14e9e.webp" width="125" alt="手链送礼故事 remake-02"> | <img src="https://static.popost.ai/readme/four-cases-20261121/gift/edit-current-dec4e5928a5a.webp" width="260" alt="Popost 画布中编辑 手链送礼故事"> |
+<table width="100%">
+  <tr>
+    <th align="center" width="33%">参考原帖 · 前两页</th>
+    <th align="center" width="33%">Popost 新作 · 前两页</th>
+    <th align="center" width="34%">画布编辑·持续修改</th>
+  </tr>
+  <tr>
+    <td align="center" width="33%"><img src="https://static.popost.ai/readme/four-cases-20261120/gift/source-01-b4cab31b3b21.webp" width="48%" alt="手链送礼故事 source-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/gift/source-02-983274cf66e4.webp" width="48%" alt="手链送礼故事 source-02"></td>
+    <td align="center" width="33%"><img src="https://static.popost.ai/readme/four-cases-20261121/gift/remake-01-f6a5f09ca0b9.webp" width="48%" alt="手链送礼故事 remake-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/gift/remake-02-878f89f14e9e.webp" width="48%" alt="手链送礼故事 remake-02"></td>
+    <td align="center" width="34%"><img src="https://static.popost.ai/readme/four-cases-20261121/gift/edit-current-dec4e5928a5a.webp" width="96%" alt="Popost 画布中编辑 手链送礼故事"></td>
+  </tr>
+</table>
 
 [查看原帖](https://www.tiktok.com/@veyla_gift/photo/7699494320675507469) · [下载完整 2 页 PNG](https://static.popost.ai/readme/four-cases-20261121/gift/images-19aba70855f1.zip) · [下载可编辑工程](https://static.popost.ai/readme/four-cases-20261121/gift/project-7c4e3423a959.popost.zip) · [观看画布编辑 MP4](https://static.popost.ai/readme/four-cases-20261121/gift/edit-current-22a9b0a16abd.mp4)
 
@@ -92,9 +106,18 @@ https://www.tiktok.com/@veyla_gift/photo/7699494320675507469
 
 **原帖：8 赞 · 519 播放。** 这是结构参考：保留「问题分屏 → 功能对照 → 产品收尾」的六页顺序，用 Popost 换成 Segway MAX G3 的新文案与插画。
 
-| 参考原帖 · 前两页 | Popost 新作 · 前两页 | 画布编辑·持续修改 |
-| :---: | :---: | :---: |
-| <img src="https://static.popost.ai/readme/four-cases-20261120/scooter/source-01-78898fd6acf8.webp" width="125" alt="滑板车功能对比 source-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/scooter/source-02-5fed6c293b05.webp" width="125" alt="滑板车功能对比 source-02"> | <img src="https://static.popost.ai/readme/four-cases-20261120/scooter/remake-01-eb1dfbda5aa5.webp" width="125" alt="滑板车功能对比 remake-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/scooter/remake-02-5a44e434a7c5.webp" width="125" alt="滑板车功能对比 remake-02"> | <img src="https://static.popost.ai/readme/four-cases-20261120/scooter/edit-10s-30c3fbd95890.webp" width="260" alt="Popost 画布中编辑 滑板车功能对比"> |
+<table width="100%">
+  <tr>
+    <th align="center" width="33%">参考原帖 · 前两页</th>
+    <th align="center" width="33%">Popost 新作 · 前两页</th>
+    <th align="center" width="34%">画布编辑·持续修改</th>
+  </tr>
+  <tr>
+    <td align="center" width="33%"><img src="https://static.popost.ai/readme/four-cases-20261120/scooter/source-01-78898fd6acf8.webp" width="48%" alt="滑板车功能对比 source-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/scooter/source-02-5fed6c293b05.webp" width="48%" alt="滑板车功能对比 source-02"></td>
+    <td align="center" width="33%"><img src="https://static.popost.ai/readme/four-cases-20261120/scooter/remake-01-eb1dfbda5aa5.webp" width="48%" alt="滑板车功能对比 remake-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/scooter/remake-02-5a44e434a7c5.webp" width="48%" alt="滑板车功能对比 remake-02"></td>
+    <td align="center" width="34%"><img src="https://static.popost.ai/readme/four-cases-20261120/scooter/edit-10s-30c3fbd95890.webp" width="96%" alt="Popost 画布中编辑 滑板车功能对比"></td>
+  </tr>
+</table>
 
 [查看原帖](https://www.tiktok.com/@gobuygobike/photo/7674850905254055182) · [下载完整 6 页 PNG](https://static.popost.ai/readme/four-cases-20261120/scooter/images-44d6fd335ca9.zip) · [下载可编辑工程](https://static.popost.ai/readme/four-cases-20261120/scooter/project-82bcf23f28ac.popost.zip) · [观看画布编辑 MP4](https://static.popost.ai/readme/four-cases-20261120/scooter/edit-10s-acc7cfd5fc6e.mp4)
 
@@ -102,9 +125,18 @@ https://www.tiktok.com/@veyla_gift/photo/7699494320675507469
 
 **原帖：159,796 赞。** 保留十一页照片叙事与固定信息栏，用 Popost 改写为九座城市的周末慢旅行。
 
-| 参考原帖 · 前两页 | Popost 新作 · 前两页 | 画布编辑·持续修改 |
-| :---: | :---: | :---: |
-| <img src="https://static.popost.ai/readme/four-cases-20261120/travel/source-01-823f07ab8719.webp" width="125" alt="周末城市旅行清单 source-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/travel/source-02-a5b9a9cb6a2a.webp" width="125" alt="周末城市旅行清单 source-02"> | <img src="https://static.popost.ai/readme/four-cases-20261120/travel/remake-01-18ea8965735e.webp" width="125" alt="周末城市旅行清单 remake-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/travel/remake-02-919deac40551.webp" width="125" alt="周末城市旅行清单 remake-02"> | <img src="https://static.popost.ai/readme/four-cases-20261120/travel/edit-10s-e5661ca8dd1e.webp" width="260" alt="Popost 画布中编辑 周末城市旅行清单"> |
+<table width="100%">
+  <tr>
+    <th align="center" width="33%">参考原帖 · 前两页</th>
+    <th align="center" width="33%">Popost 新作 · 前两页</th>
+    <th align="center" width="34%">画布编辑·持续修改</th>
+  </tr>
+  <tr>
+    <td align="center" width="33%"><img src="https://static.popost.ai/readme/four-cases-20261120/travel/source-01-823f07ab8719.webp" width="48%" alt="周末城市旅行清单 source-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/travel/source-02-a5b9a9cb6a2a.webp" width="48%" alt="周末城市旅行清单 source-02"></td>
+    <td align="center" width="33%"><img src="https://static.popost.ai/readme/four-cases-20261120/travel/remake-01-18ea8965735e.webp" width="48%" alt="周末城市旅行清单 remake-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/travel/remake-02-919deac40551.webp" width="48%" alt="周末城市旅行清单 remake-02"></td>
+    <td align="center" width="34%"><img src="https://static.popost.ai/readme/four-cases-20261120/travel/edit-10s-e5661ca8dd1e.webp" width="96%" alt="Popost 画布中编辑 周末城市旅行清单"></td>
+  </tr>
+</table>
 
 [查看原帖](https://www.instagram.com/p/DcgaornE46r/) · [下载完整 11 页 WebP](https://static.popost.ai/readme/four-cases-20261120/travel/images-0a9c251267bc.webp.zip) · [下载可编辑工程](https://static.popost.ai/readme/four-cases-20261120/travel/project-4cbb25213817.popost.zip) · [观看画布编辑 MP4](https://static.popost.ai/readme/four-cases-20261120/travel/edit-10s-02e8a7400242.mp4)
 
@@ -112,9 +144,18 @@ https://www.tiktok.com/@veyla_gift/photo/7699494320675507469
 
 **原帖：1,920 赞。** 保留封面加分组表格的六页结构，用 Popost 改写为内容创作的十二个环节；分类、例子与行动建议均为新内容。
 
-| 参考原帖 · 前两页 | Popost 新作 · 前两页 | 画布编辑·持续修改 |
-| :---: | :---: | :---: |
-| <img src="https://static.popost.ai/readme/four-cases-20261120/creator/source-01-5695ce336177.webp" width="125" alt="创作者内容系统清单 source-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/creator/source-02-84972ce394d6.webp" width="125" alt="创作者内容系统清单 source-02"> | <img src="https://static.popost.ai/readme/four-cases-20261120/creator/remake-01-bb0293971928.webp" width="125" alt="创作者内容系统清单 remake-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/creator/remake-02-4393db3128c1.webp" width="125" alt="创作者内容系统清单 remake-02"> | <img src="https://static.popost.ai/readme/four-cases-20261120/creator/edit-10s-99de8f64105e.webp" width="260" alt="Popost 画布中编辑 创作者内容系统清单"> |
+<table width="100%">
+  <tr>
+    <th align="center" width="33%">参考原帖 · 前两页</th>
+    <th align="center" width="33%">Popost 新作 · 前两页</th>
+    <th align="center" width="34%">画布编辑·持续修改</th>
+  </tr>
+  <tr>
+    <td align="center" width="33%"><img src="https://static.popost.ai/readme/four-cases-20261120/creator/source-01-5695ce336177.webp" width="48%" alt="创作者内容系统清单 source-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/creator/source-02-84972ce394d6.webp" width="48%" alt="创作者内容系统清单 source-02"></td>
+    <td align="center" width="33%"><img src="https://static.popost.ai/readme/four-cases-20261120/creator/remake-01-bb0293971928.webp" width="48%" alt="创作者内容系统清单 remake-01"> <img src="https://static.popost.ai/readme/four-cases-20261120/creator/remake-02-4393db3128c1.webp" width="48%" alt="创作者内容系统清单 remake-02"></td>
+    <td align="center" width="34%"><img src="https://static.popost.ai/readme/four-cases-20261120/creator/edit-10s-99de8f64105e.webp" width="96%" alt="Popost 画布中编辑 创作者内容系统清单"></td>
+  </tr>
+</table>
 
 [查看原帖](https://www.instagram.com/p/DZiXsfvjP3Z/) · [下载完整 6 页 PNG](https://static.popost.ai/readme/four-cases-20261120/creator/images-f84c72887a12.zip) · [下载可编辑工程](https://static.popost.ai/readme/four-cases-20261120/creator/project-88da8553c33d.popost.zip) · [观看画布编辑 MP4](https://static.popost.ai/readme/four-cases-20261120/creator/edit-10s-e465af0adc27.mp4)
 
@@ -143,7 +184,7 @@ Agent 侧边栏与 [popost.ai](https://popost.ai) 使用同一套画布。连接
 | --- | --- |
 | 链接参考 | TikTok、Instagram、X、小红书、抖音的可访问图文帖子 |
 | 无链接参考 | 本地图片与截图 |
-| Agent 安装 | 自动识别 Codex、Claude Code；其他兼容 Skill 的 Agent 可指定技能目录安装 |
+| Agent 安装 | 可以在 Codex、Claude Code、WorkBuddy、DeepSeek、豆包工作等 10+ AI Agent 中使用。 |
 | 导出 | 画布支持 PNG、JPG、SVG、HTML、PDF、PSD；命令行标准渲染导出 PNG |
 
 链接解析取决于帖子是否公开、平台是否可访问。你也可以改用截图或本地图片继续创作。
