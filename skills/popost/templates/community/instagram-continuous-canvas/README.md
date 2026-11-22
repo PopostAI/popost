@@ -1,6 +1,6 @@
-# Continuous Canvas Showcase
+# Mosaic Portfolio Showcase
 
-跨页连续画布展示 · [Instructions](SKILL.md) · [Metadata](template.json)
+马赛克作品墙展示 · [Instructions](SKILL.md) · [Metadata](template.json)
 
 <img src="https://static.popost.ai/template-covers/c476d4055fc6e15df8fec1ef6e9fa57af6dfbe346258e01490920a78d3723d37.webp" width="180" alt="Animated cover">
 

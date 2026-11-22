@@ -5355,9 +5355,9 @@
           "artist style study"
         ],
         "imageCues": [
-          "全幅作品高清图，第一屏让全貌与一个可见疑点同在",
-          "后页按线索裁切到相关局部，白色描边短段36–46px放空处，2–4行，不加大框与无关画面",
-          "末页回到全貌与有依据的理解"
+          "同一作品满版细节裁切、小型粗白字黑描边旁白在对应细节附近，最后一页完整作品及真实创作归属",
+          "去掉统一奶油外框和大文学衬线标题",
+          "不能生成近似作品冒充局部"
         ],
         "exclusions": [
           "一件作品里的象征",
@@ -5366,7 +5366,7 @@
           "Photo and Technical Sketch"
         ]
       },
-      "revision": "496af93514c98b91f1431e87d711466b57d1145ce1dca5cb9d49753ff429b37d"
+      "revision": "b989c9218e5cde8ee1a9145a474d559c6b2f69c90576578c80474cd84fdd35b3"
     },
     {
       "id": "instagram-balanced-traits",
@@ -5527,10 +5527,9 @@
           "portfolio release"
         ],
         "imageCues": [
-          "封面主产品近景占70%，品牌色光带/场景与巨型品牌主题字叠排",
-          "第二页白底多模块品牌板：主标志、字体、色板、图标、包装、应用",
-          "第三页深品牌色底，产品多视角与材质细节网格",
-          "模块标题24–30px，主说明32–38px"
+          "原创新品牌摄影广告封面、密集而清楚的标志／字型／色彩系统页、多种实际纸品与原生数字应用同页、最后一张广告尺度大字应用",
+          "共享同一可控品牌标识、主色与字体角色",
+          "使用用户真实品牌资产，原创虚构品牌则明确为概念设计"
         ],
         "exclusions": [
           "配色到实际物料灵感板",
@@ -5539,7 +5538,7 @@
           "Brand Personification Showcase"
         ]
       },
-      "revision": "a7c01d087c1413be6cb491a842054033826b2510fac985de006bc3904415b7ff"
+      "revision": "d16a0ab5f5dc1777b89711ddb34f26e8b3bdde2d7870f9cdeb3e5b63adb06095"
     },
     {
       "id": "instagram-calendar-cheat-sheet",
@@ -5572,17 +5571,15 @@
           "daypart option grid"
         ],
         "imageCues": [
-          "浅藕紫外底，中央略倾斜奶油纸卡占85%宽，顶部两个圆孔与小品牌栏",
-          "大衬线标题70–90px，日期行动按4–6行分组，日期以珊瑚色加粗，说明32–38px",
-          "下部一行边界条件",
-          "第二页可放说明与入口，保持信息层级"
+          "粉紫纸底，首屏奶油纸排期表含大衬线标题、日期35–42px与活动名38–44px，行距约130px",
+          "说明页回到薰衣草底、紧凑日程预览与一个可执行下一步，禁止第二张相同大表"
         ],
         "exclusions": [
           "限期行动与挑战计划",
           "Timed Action Plan"
         ]
       },
-      "revision": "7b8bd69e653fdb99dcd8252d661bbd3be6e9563b5875d06854c6292e2de716dd"
+      "revision": "e6d9a14c074af598ffecaa8b429d57154c738f83b0983f807fa735bb8d2edff3"
     },
     {
       "id": "instagram-capacity-planning",
@@ -5743,8 +5740,11 @@
           "illustrated dialogue"
         ],
         "imageCues": [
-          "白/纸白底，每页中间一条细竖分镜线，两位原创墨绿素描角色各占一格，人物站在下半部",
-          "上方手绘多边形对白框，尾巴指向对应角色，字38–48px，行距1.25"
+          "极简青绿色铅笔漫画：圈形／椭圆头、少量躯干和手臂线、稀疏排线，不做动漫五官或精细服饰",
+          "可用可控原创矢量铅笔图形，保留各人发型／围巾等最小识别特征",
+          "手绘竖分格与不规则原生对白气泡",
+          "对白用真实手写大写40–48px",
+          "气泡尾指向对应人物且不穿脸，四次对话推进保持人物左右身份"
         ],
         "exclusions": [
           "访谈原话分镜故事",
@@ -5753,7 +5753,7 @@
           "Illustrated Story Explainer"
         ]
       },
-      "revision": "afcdc336beb8565753063c16b279aeda2f1e21417a689ccc9f66f9e866d4c1e7"
+      "revision": "5c126b12d0cc2062a2ae959238b22d58e9820a06fd44b660e2d40c7d88a80e7c"
     },
     {
       "id": "instagram-command-shortcuts",
@@ -5785,17 +5785,16 @@
           "prompt shortcode cheatsheet"
         ],
         "imageCues": [
-          "暖白纸/浅方格底",
-          "封面居中斜体衬线分行题目76–96px，单词下用2–3处低饱和荧光笔条",
-          "内页左上“编号—指令”56–68px，说明32–38px",
-          "中部真实对话/编辑器截图占60–70%宽，底部留呼吸空间"
+          "暖白薄方格纸",
+          "封面居中粗斜体衬线分行标题90–116px，2–3个词下有低饱和荧光笔",
+          "内页左上“编号—快捷语”60–78px、短解释32–38px，中部为宽55–65%的黑色手机对话示例界面，屏幕内有明确输入／输出和一致工具栏，底部留白"
         ],
         "exclusions": [
           "可搜索素材索引",
           "Searchable Asset Index"
         ]
       },
-      "revision": "1455055c8e0a964a385a47dd89e6649fb6a04b6f48f7058ded3172536822ce46"
+      "revision": "c2bcf581785c77bc89ddca070fdebd4f2d7f14c91fcc6814394fb4c55c569407"
     },
     {
       "id": "instagram-context-changes-meaning",
@@ -5829,8 +5828,9 @@
           "matched scene comparison"
         ],
         "imageCues": [
-          "封面全幅人物/环境，奶油色窄高衬线标题72–90px置上中",
-          "内页浅方格纸底，顶部酒红衬线主张56–70px，中部左右或上下两种情境的真实例子，下面对应短解释30–36px，结论淡粉底条"
+          "方格奶油纸、酒红衬线题头",
+          "先给相同短答的两种具体摄影情境与背景条件，再以粉色旧／新措辞表展示原文和询问方法，不能只留抽象概念字",
+          "照片明确为情境示意"
         ],
         "exclusions": [
           "相似概念对照指南",
@@ -5839,7 +5839,7 @@
           "Visual Analogy Opinion"
         ]
       },
-      "revision": "99f5733695abf165dfe851d77538caad9de13f7dd43b6eb31b0889c621bec37c"
+      "revision": "ccd66a50797387a6ca714b744a8ff6919d4145ead5847f6c60e45b7c1b4f6d74"
     },
     {
       "id": "instagram-continuous-canvas",
@@ -5847,39 +5847,44 @@
       "categories": [],
       "copy": {
         "zh": {
-          "name": "跨页连续画布展示",
-          "summary": "把同一条视觉轨道延续到相邻页，利用图形或画面跨越页边建立滑动连续感。",
-          "useWhen": "跨页连接承担信息关系，不能仅把任意长图切开；不是一种题材模板。",
+          "name": "马赛克作品墙展示",
+          "summary": "以密集重复的原创作品墙为背景，每页突出一个项目或一组细节，用完整短钩子串起系列。",
+          "useWhen": "适合把多个作品放进同一视觉世界逐页展示；每页主题独立完整，不把一句大标题切成跨页画布。",
           "instructions": "有连续关系的内容、宽画布结构、裁切边界与手机安全区",
           "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
         },
         "en": {
-          "name": "Continuous Canvas Showcase",
-          "summary": "Create an Instagram showcase carousel using the continuous canvas showcase structure. Preserve its visual hierarchy, sequence and opening payoff.",
-          "useWhen": "Use when your content needs the continuous canvas showcase format.",
+          "name": "Mosaic Portfolio Showcase",
+          "summary": "Create an Instagram showcase carousel using the mosaic portfolio showcase structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the mosaic portfolio showcase format.",
           "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
           "output": "An editable Instagram carousel with this template’s sequence and visual style."
         }
       },
       "match": {
         "goals": [
-          "跨页连续画布展示",
-          "Continuous Canvas Showcase",
-          "跨页画布",
-          "连续拼图",
-          "continuous carousel",
-          "continuous canvas carousel"
+          "马赛克作品墙展示",
+          "Mosaic Portfolio Showcase",
+          "作品墙逐页展示",
+          "马赛克作品集",
+          "突出不同作品",
+          "mosaic portfolio showcase",
+          "featured project wall",
+          "mosaic portfolio",
+          "featured project",
+          "repeated hook"
         ],
         "imageCues": [
-          "建立一个跨全部页面的连续大画布，再按页切出视口",
-          "背景小图马赛克跨边界严格连续，顶部/中部巨型奶油黄粗标题110–150px持续跨页，中央内容带/示例图依翻页推进，避免每页重新开始的封面"
+          "密集重复的原创作品马赛克墙为背景，每页突出一个项目／一组局部，以完整短感叹钩子贯穿每页",
+          "不是将大句切成跨页长画布",
+          "每页钩子必须独立完整可读"
         ],
         "exclusions": [
           "选一种风格或组个搭配",
           "Style Choice Quiz"
         ]
       },
-      "revision": "bf63d2af56eb1e5628c5094c00f133624859cffa0917cacfec4b578ffa115445"
+      "revision": "c1fcd15c634c88d0943216a0245a398ab21d8b20c7e79e2e338a5407be0d987a"
     },
     {
       "id": "instagram-conversation-questions",
@@ -5911,16 +5916,16 @@
           "physical question card deck"
         ],
         "imageCues": [
-          "首屏生活中共同活动实拍，亮红粗体问题宣言64–82px置中部",
-          "后页手持/桌面奶油白实体问题卡，卡片占70–85%宽，圆角适中",
-          "红色居中大写问题42–54px，周围保留真实手部与卡盒环境"
+          "默认横向1080×810",
+          "红字直接落在摄影封面，内页真实圆角卡片上的居中红色小型大写问题，字体约36–46px，桌放与手持卡变化",
+          "卡面正对相机，允许跳过的短句保留"
         ],
         "exclusions": [
           "越不让翻越想翻",
           "Reverse Instruction Quiz"
         ]
       },
-      "revision": "6426d44c90c0578571d34ff4cd9a68bce294717b10b0879cfe11b2e7ee219250"
+      "revision": "384480412a1fa7733a9eb14d5c737ef06bb1ff229cf2c52c301cce96ff4204ac"
     },
     {
       "id": "instagram-copy-alternatives",
@@ -5953,16 +5958,15 @@
           "expression alternatives bank"
         ],
         "imageCues": [
-          "封面黑底，大衬线主题居中82–108px，下部可编辑线图/文案样本表达阅读转折",
-          "内页近似文档页：白底、简洁工具栏或文稿抬头，左对齐编号、方法名36–42px，下面一条实际句子30–36px",
-          "一页4–6组，不塞十条小字"
+          "深黑绿封面居中窄列高对比衬线，数量引子、超大关键词、较小结尾形成三档字阶，下方配原创对话示意",
+          "内页为明确的文档工具栏＋连续编号的具体前后句，灰色划线旧句与黑色替换句紧密成对，不把九条内容拆成稀疏卡片"
         ],
         "exclusions": [
           "说出口的话与真正含义",
           "Said and Meant Opinion"
         ]
       },
-      "revision": "c4642a1c184fe62b4fe73a6f0843838272a281e0713f43a06e46917a312fae0d"
+      "revision": "7882d330167416bbb08d26538f336350fe9a3930e9dbef089b38d8c7a9ef143d"
     },
     {
       "id": "instagram-copyable-notes",
@@ -6035,18 +6039,17 @@
           "curated discovery digest"
         ],
         "imageCues": [
-          "奶油色纸张底，深蓝色居中衬线",
-          "封面主题位于中部偏上，60–82px",
-          "上下角落分布2–4件与主题有关的剪贴实物",
-          "内页上方约35%放资源名66–80px和居中理由32–38px",
-          "下方50–60%放可识别的真实预览，不统一改成等大圆角卡"
+          "奶油色褶皱纸底和钴蓝文字",
+          "封面中部偏上两至三行粗衬线标题90–116px，四角2–4件实物剪贴，不把它们框成照片",
+          "内页上方资源名80–100px，理由32–38px",
+          "下方真实资源预览接近满宽，占下部50–60%，可自然延伸至页底"
         ],
         "exclusions": [
           "按任务选工具清单",
           "Tools by Task List"
         ]
       },
-      "revision": "ff0b57673f7ae7751e671a0061fb3451e8ff0c82c817cc7c616326a444e57637"
+      "revision": "800666585c2e6a1ef426fa0927c10f29ca984fa4ababeaa269c11ccf2fe80c5c"
     },
     {
       "id": "instagram-destination-costs",
@@ -6078,16 +6081,16 @@
           "destination cost cards"
         ],
         "imageCues": [
-          "全幅目的地实景，封面白色大写粗体标题66–86px，关键词亮黄，可用一个圆形细节图",
-          "内页顶部目的地名72–90px亮黄，以下固定四行预算、住宿、餐食、交通34–42px白色大写",
-          "景色占下部65%"
+          "照片满版，混合白／黄粗大写封面钩子，添加原照片的圆形情境小窗",
+          "内页标题与每日预算紧密居中，费用分解有明确行距和统一币种",
+          "不要将样例预算包装成实时旅游报价"
         ],
         "exclusions": [
           "同样预算的不同选择",
           "Same-budget Choice Opinion"
         ]
       },
-      "revision": "02bda3175a28e81277f20c6054eae2263f56d0ca242efa3bd2fe358521d6baea"
+      "revision": "da825c40cc1361033fcc40be6ef7e507eb27cc1a36c8246ed1c0d456ff98632a"
     },
     {
       "id": "instagram-diagram-reference",
@@ -6123,16 +6126,15 @@
           "content repurposing map"
         ],
         "imageCues": [
-          "奶油白底，顶部紧缩粗体标题54–66px，关键词蓝/绿",
-          "中央是占70–80%高度的原生关系图：框28–38px、连接线2–3px、箭头与分支标签准确",
-          "底部一行解释/来源，不放装饰性大插图"
+          "奶油纸上一页一图，顶部紧凑两色粗紧缩标题，关系图占主页面约65–75%",
+          "标签与动作说明直接进入节点或相邻对齐栏，箭头起终点明确，分支足够展开"
         ],
         "exclusions": [
           "同一数据的两种视角",
           "Two Views of One Dataset"
         ]
       },
-      "revision": "3c74b4cbcf87a0835c6cf0baf843d867aa258a0a12bcaae2a30ee81e93e403be"
+      "revision": "c7859fada1465c81ec69f7f148bcf43cf16e3c001d6788a8dfbe04dddc7c67a4"
     },
     {
       "id": "instagram-different-perspectives",
@@ -6165,16 +6167,16 @@
           "role based decision panel"
         ],
         "imageCues": [
-          "上下两帧同一讲述者/环境，白色字幕36–44px分别放在下中部",
-          "上半提出“如果问[角色]”，下半给该角色基于利益/经历的看法",
-          "固定机位，手势可随说话改变"
+          "同一讲述者同一位置的上下问答摄影，提问／解释／反思姿态与手势真实变化，小型白字幕",
+          "六个面板可以裁切不同但不能全用同一帧",
+          "虚构角色观点不装成调研"
         ],
         "exclusions": [
           "用场景插画表达观点",
           "Illustrated Opinion Scenes"
         ]
       },
-      "revision": "bdc1ae1fccc8a56f70b96b9afda70965330cd6d8e658228cedf89e0043ecdebc"
+      "revision": "000bb25493ed22d7800352a7743bebab1c474340268a684001967b6501d56b90"
     },
     {
       "id": "instagram-document-reveal",
@@ -6206,16 +6208,15 @@
           "proof document reveal"
         ],
         "imageCues": [
-          "首屏全幅人物/工作场景，上方白底黑字短承诺54–68px，必要时周围放真实相关标记",
-          "第二页展示完整文档，浅灰/白底与细黑边，文档占90%以上宽",
-          "必要时第三页局部放大，不把正文缩到不可读"
+          "首屏真人／持板摄影，顶部紧包白色圆角钩子标签，周围少量与实际文件主题有关的原生标记",
+          "第二页直接展示完整五项可编辑清单，不能只给封面承诺"
         ],
         "exclusions": [
           "成果证据到执行方法",
           "Evidence-to-method Case Study"
         ]
       },
-      "revision": "9105b574eaea99743cd6aa12cae10d51b018f9b576bdf47f72169b50720276de"
+      "revision": "6ffba6499fe1cb77f30fa39c14b846986444615e663e3b7e058fedb5288fa23b"
     },
     {
       "id": "instagram-effect-breakdown",
@@ -6249,17 +6250,16 @@
           "render quality breakdown"
         ],
         "imageCues": [
-          "暖白纸底，上方左对齐黑色标题64–80px，重点词加粗",
-          "封面中央大效果图占55%，角落小原图+手绘箭头说明前后",
-          "内页交替大效果图、可复制方法块和局部注释",
-          "注释28–36px沿画面空白放，箭头指向高光/阴影/网点等具体变化"
+          "封面以实际转化结果占主导，小原图嵌窗与弯箭头建立前后关系",
+          "黑／奶油／钴蓝页交替，详情将同一原图与结果并列，手绘引线指向实际高光／颗粒／阴影",
+          "完整真实提示词另页活字保存"
         ],
         "exclusions": [
           "例子加做法教程",
           "Worked Example Tutorial"
         ]
       },
-      "revision": "700532cb2a20250d7c7441a2bc707cf97195d7c90c9d8106cd6a1c5d77922a52"
+      "revision": "e9bc018dc0e0754e08cbb12b2e2f43b5c8afd8721baf89f1325d41f9ddb06651"
     },
     {
       "id": "instagram-effort-and-outcome",
@@ -6293,16 +6293,16 @@
           "environment outcome pairs"
         ],
         "imageCues": [
-          "每页上下连续训练/制作画面，短白色全大写句子34–44px居中",
-          "上半说出真实感受或可见困难，下半给出对目标有帮助的具体回应",
-          "可重复同一收束句形成节奏，但动作必须推进"
+          "上下摄影为冷暗行动场景，较小粗白字对照",
+          "下半反复出现同一个学习导向短句，具体动作作为小注释",
+          "保留手部与工具，疼痛、伤害与耗竭不作为值得坚持的证据"
         ],
         "exclusions": [
           "损失一段仍有余量",
           "Remaining Capacity Reframe"
         ]
       },
-      "revision": "4aa809e224e9c6e5ec9c593084d9fb174abdf645d004a83a7a8c163b363319ca"
+      "revision": "4bc51d8d340d89948412c74e151f0a8958c80f0aa94ce678de1037de6849dae8"
     },
     {
       "id": "instagram-emotion-and-meaning",
@@ -6334,16 +6334,17 @@
           "emotion meaning pairs"
         ],
         "imageCues": [
-          "上下两张生活近景，白色居中短句34–42px：一种情绪与一个可自问的需要",
-          "每半图保持留白与人物姿态",
-          "不单独做大字标题页"
+          "上下独立人像／生活摄影，每半幅都包含完整的第一人称情绪＋思考提示，情绪词粗斜体强调",
+          "冷暗摄影与小白字",
+          "末页用整幅摄影收束",
+          "不是把一个情绪和它的问题拆在上下两半"
         ],
         "exclusions": [
           "有这个特质也保留边界",
           "Balanced Traits Opinion"
         ]
       },
-      "revision": "6106b3180ab5ab4f713e512d09165bb5c471d8df575457ec564bceb2997fdc1e"
+      "revision": "ad9be731cb6bfa14fa577a9293b5947ab1659c56f1ddf962a13e8ad70a9b020c"
     },
     {
       "id": "instagram-everyday-interface-story",
@@ -6376,16 +6377,15 @@
           "social interface collage"
         ],
         "imageCues": [
-          "首屏自拍/生活场景与白色标题48–62px",
-          "后页纯黑底，中央一张浅灰日程/便签信息窗占80–88%宽，真实UI语法的彩色小点、标题、日期和小工具栏",
-          "标题38–48px，元信息28–34px，留黑至少一半"
+          "首屏为原创讲述者随手自拍与短白字日常情境",
+          "内页纹理黑底上紧凑浅色日历事件弹窗，保留具体好笑的标题／日期／时段，非纯黑文字封面"
         ],
         "exclusions": [
           "真实界面步骤教程",
           "Screenshot Walkthrough"
         ]
       },
-      "revision": "bf4803cd86a736870d3bb57183f55a7d9c476de55db356e66c1c3d16662d4b78"
+      "revision": "0720c472ee48510c9f2e0418d79b7807aec8c5859ae43b3efa3e84fef67e116f"
     },
     {
       "id": "instagram-everyday-photo-diary",
@@ -6420,8 +6420,8 @@
           "event photo collage"
         ],
         "imageCues": [
-          "首屏全幅自拍/生活场景，大衬线“Day X”90–120px在上，主题70–90px在下",
-          "后页交替一张全幅近景与2–3格细节拼贴，小型白色随拍注释30–38px，角落细箭头"
+          "暖调日记摄影，封面大号高挑斜体日期／主题，内页小型粗无衬线场景注释、少量倾斜短字与细手绘翻页箭头",
+          "保留配对照片差异，最后明确一句当天反思"
         ],
         "exclusions": [
           "按精力与容量排计划",
@@ -6432,7 +6432,7 @@
           "Character-led Tour Story"
         ]
       },
-      "revision": "4ff065ba344d9b1fb12ba553fff168728161ca44b23e7521da79aac2a61b45bb"
+      "revision": "be297d071aedb1a36910d4c2e3a2b0186dfc8cb771a4bbff8c1f235fd2342da7"
     },
     {
       "id": "instagram-evidence-to-method",
@@ -6466,9 +6466,9 @@
           "evidence collage pitch"
         ],
         "imageCues": [
-          "封面深炭色底，粉色撕纸短条承载大衬线标题72–96px，四角生活物件剪贴",
-          "内页牛皮灰底，白色手写/无衬线标题50–64px，中部证据截图用胶带角、圈线标重点",
-          "后页以同样拼贴说明步骤，正文32–38px"
+          "炭黑剪贴簿封面为逐行粉色撕纸衬线词条，搭原创文具剪贴、胶带与随手圈线",
+          "内页实际前后海报与注释箭头关联，标题用圆润／手写字",
+          "不以浅棕文学衬线卡片替代"
         ],
         "exclusions": [
           "具体成果倒推做法",
@@ -6477,7 +6477,7 @@
           "Document Reveal Case Study"
         ]
       },
-      "revision": "a71df89532b3e8699055ed589939b8800e79e726be5117b5a8298e0ddc89945a"
+      "revision": "72e8ecdb273ef4b2fa383d6e067ac2596de410dd8c1d86c4aca422b5b74cc93d"
     },
     {
       "id": "instagram-expectation-reality-review",
@@ -6509,17 +6509,16 @@
           "expectation reality scorecards"
         ],
         "imageCues": [
-          "暖白纸底、手写风标题78–100px，期待用珊瑚色、现实用亮蓝",
-          "每项详情上部小图标/实物，名称50–64px",
-          "中部两条粗黑框横条，标签36–42px、色条长度对比",
-          "下部短解释32–38px与小型原创像素角色"
+          "奶油纸、直立手写字、原创像素角色／道具与顶部图标小块",
+          "两条像素边框横条，标签在条内左侧，珊瑚期待／蓝色实际沿同一0–5主观量尺",
+          "封面先给一组真实例子，不只有标题"
         ],
         "exclusions": [
           "同样预算的不同选择",
           "Same-budget Choice Opinion"
         ]
       },
-      "revision": "8c02748467bd10effbbe1cd4c88ead8ad4150d42c650d20bb1f0812faca3966b"
+      "revision": "eb6ac707f689f8c6d7f00ecae640775dd3b7e8c1898d646ac9a98a50b2840a9b"
     },
     {
       "id": "instagram-experiment-story",
@@ -6551,16 +6550,15 @@
           "experiment story explainer"
         ],
         "imageCues": [
-          "白底，封面中上部黑色标题70–88px与短疑问，下面一幅细致黑白铅笔情境图占45%",
-          "内页交替大留白短叙事与下半人物场景插画",
-          "正文34–42px，关键发现加粗，不一页塞整篇论文"
+          "白纸铅笔研究故事交替大幅裁切开场插画、居中纯文字停顿、小段叙事插画＋下方字，不每页大题头小插画",
+          "用阅读／回想／等待的真实流程组织，结论粗体强调且仅定性"
         ],
         "exclusions": [
           "亲自试过的实验记录",
           "Personal Experiment Case Study"
         ]
       },
-      "revision": "e4f213353ac19e5fa63949b9540c12acdd462ec37dc8d282162756dab42fe95a"
+      "revision": "64b10e0c9e13f1b1d134a42096b03b222b886bff5833f99fb913dfff8f501e84"
     },
     {
       "id": "instagram-fill-in-speech",
@@ -6592,16 +6590,16 @@
           "fill in speech outline"
         ],
         "imageCues": [
-          "封面黑白活动照加居中白色无衬线标题56–72px",
-          "内页暖浅灰底，章节名34–42px居中置上中，示例段落32–38px斜体，宽约72%，舒适行距1.55",
-          "字段用方括号并有明显替换提示"
+          "摄影封面后接中性浅灰文本页",
+          "小型粗无衬线大写段落标签，居中斜体填空脚本约42–50px，窄列与自然段落间距",
+          "保留真实可填写的空位，不加装饰卡框"
         ],
         "exclusions": [
           "边读边填练习册",
           "Fill-in Workbook"
         ]
       },
-      "revision": "59ea69ec819b79ca6bcbfa4b50cc5fcf0b69fb11034d2615ec3cdf7958d22d66"
+      "revision": "8b6ac7a5749b6d3e8fa60e07873d19583b2632e525e7cd8ce55bcf1dba9754f6"
     },
     {
       "id": "instagram-fill-in-workbook",
@@ -6634,9 +6632,8 @@
           "guided imagination exercise"
         ],
         "imageCues": [
-          "封面高饱和橙红满版，巨型斜体衬线关键词150–200px与黑色无衬线副标题交错，原创人物/场景剪贴占中下部",
-          "内页纸白底，左上齿形序号章，章节名90–115px，下面斜体定义40–48px",
-          "“Template”字段在正文上方，用户示例放深墨色矩形中，正文32–38px"
+          "封面橙底大号混合衬线／粗无衬线字与原创桌面摄影结合",
+          "详情有波浪边编号徽章，标题和定义集中上部，随后填空字段和深色实例区，保留奶油／橙／黑节奏"
         ],
         "exclusions": [
           "填空式发言提纲",
@@ -6645,7 +6642,7 @@
           "Learning Path"
         ]
       },
-      "revision": "1d6a7f6ddddad6a9248236b3fd09752f95535bd4bf42414e3965a774276e2146"
+      "revision": "3370cd520fd83e0873ee744c7a7954784acb4a1df0d3a5a170c7c31939f92bef"
     },
     {
       "id": "instagram-font-pairing",
@@ -6677,17 +6674,16 @@
           "font pairing specimen"
         ],
         "imageCues": [
-          "封面全幅生活摄影，上部叠大号斜体衬线与粗无衬线“字体搭配”主题",
-          "内页上方约40%为两种实际字体的大字号样张，第一字体70–95px，第二字体120–160px",
-          "下面一行真实字体名称30–36px",
-          "底部细页序导航"
+          "封面为巨大衬线与粗无衬线互嵌的摄影字样",
+          "每组详情上半为超大斜体衬线试排、下半为超大粗无衬线试排，最高字阶约170–240px",
+          "细编号导航和实际字体名称置底，背景与明暗随组合改变"
         ],
         "exclusions": [
           "从照片提取配色",
           "Image-to-palette Showcase"
         ]
       },
-      "revision": "6590cde23dd3948d835aaca63327dd2c08d40cc186a72fa42c71b65656bf59ee"
+      "revision": "635acf17a149c12c4d162e5e37168500aa0e9de7e99be3dd00e441e2538497a8"
     },
     {
       "id": "instagram-goal-benchmarks",
@@ -6719,16 +6715,16 @@
           "goal to benchmarks"
         ],
         "imageCues": [
-          "白底，窄高衬线标题90–120px居中，关键目标数字130–180px以钴蓝突出",
-          "下部黑白人物/物件抠像占35–50%",
-          "详情大数字72–110px与短解释34–40px居中，留白占一半左右"
+          "白底超大钴蓝目标数字为主，黑白完整手部／卡片抠像每页变化",
+          "100→25→5的算术同时用原生计划量示意，明确邀请张数、周数和天数",
+          "结尾将寄出与出席两个不同单位拆开"
         ],
         "exclusions": [
           "限期行动与挑战计划",
           "Timed Action Plan"
         ]
       },
-      "revision": "779000f05a41c1caa21ef4a41c5ab73a2d9aee48c0fd9a6e0076c1d77d37831a"
+      "revision": "3d193b7e3ef11d5263b8bdfa02e4da361499f71f13ee73cbb67d063ca35b9a3b"
     },
     {
       "id": "instagram-identity-match",
@@ -6764,9 +6760,9 @@
           "three tier identity grid"
         ],
         "imageCues": [
-          "封面全幅奇幻空间/物件，上中部白字黑描边主题50–64px，明确一个分配规则",
-          "后页一标签对应一完整场景，标签42–56px放相同位置",
-          "环境和物件占全幅，不加解释长文"
+          "满版幻想空间，图像中心附近只有小型紧缩白色描边身份标签，开头identity＝scene短钩子",
+          "删掉重复解释与上方巨大字",
+          "只声明趣味配色匹配"
         ],
         "exclusions": [
           "看图猜答案",
@@ -6775,7 +6771,7 @@
           "Style Choice Quiz"
         ]
       },
-      "revision": "a720cfa0adcccf0a223aa60f35df03ef1110e0a57097e733058717a2abf7629e"
+      "revision": "ac702d1524a4b576742e6de7c703599d96b80c4ffbc9393be981a1cc4f97b053"
     },
     {
       "id": "instagram-illustrated-opinion",
@@ -6808,15 +6804,16 @@
           "illustrated action sequence"
         ],
         "imageCues": [
-          "全幅原创编辑插画，人物关系占70–85%，场景中两段手写文字36–44px分别隶属公开判断与被忽略的处境",
-          "文字置天空/墙面等留白，可用细尾线，不另加大面板"
+          "低饱和平涂墨线的同时观点场景，原生不规则大写手写文字嵌入画面空处，留清关键动作",
+          "不是大米色横幅承托的油画故事",
+          "结尾用安静的一句话明确先问背景"
         ],
         "exclusions": [
           "同一问题的不同角色视角",
           "Different Perspectives Opinion"
         ]
       },
-      "revision": "2f1bdfcff5929775837a17a64c3a823a47d6d692c00ec27293d20d80e484187e"
+      "revision": "38aebac4b5db6358610790c4e3da343e0a0c53942729c05f0a3c642459e59e30"
     },
     {
       "id": "instagram-illustrated-story-explainer",
@@ -6848,16 +6845,18 @@
           "illustrated story essay"
         ],
         "imageCues": [
-          "封面手绘大标题90–120px占上半，人物场景占下半",
-          "详情2–3个横向分镜，黑细边，顶部小叙述条28–34px，人物与对白作为一组",
-          "关键人物用蓝/桃色，其余人物灰线"
+          "封面超高橙色手写窄字，角色为青／桃色平涂细黑线、轻网点",
+          "正文用多个不同动作分镜组织准备过多→困惑→减到一个→开始分享，裁切到完整头部与实际动作，不把带大量上方留白的原图缩成小人物",
+          "原生短旁白可与分镜并排",
+          "末页炭黑底橙色手写结论",
+          "不要重复单张米色插画卡片"
         ],
         "exclusions": [
           "两个人的一段漫画对话",
           "Comic Dialogue Story"
         ]
       },
-      "revision": "b539d1757080d43286e5cf4e2086ede5f849282fa8a8d7fe4a918b0283e19554"
+      "revision": "e5b57de7a6424630e071abb0bcfb35bc6f27a933e13a5561a80bcd509d4156e5"
     },
     {
       "id": "instagram-image-to-palette",
@@ -6889,10 +6888,9 @@
           "image to palette"
         ],
         "imageCues": [
-          "封面全幅自然纹理，底部白色衬线主题62–78px",
-          "内页暖灰米底，上半两条厚涂颜料笔触交叠，各显示一个关键色",
-          "下半为自然物体/照片样本占40–50%，保持留白",
-          "色值可在笔触旁用28–34px小标签标注"
+          "封面情境摄影后回到连续奶油底",
+          "详情上方两条独立真实颜料肌理，下方独立源物件，不能带矩形照片背景",
+          "短标题和说明克制，颜色只作视觉灵感，不冒充精确取色"
         ],
         "exclusions": [
           "字体搭配样张",
@@ -6901,7 +6899,7 @@
           "Palette Application Board"
         ]
       },
-      "revision": "6f6d649fc45a5b55138b4ea6248ceb1c9666ad8331fbaadf97daa86da15637cd"
+      "revision": "12fd3448bd70288a9bc95d40a26e11e5d9f82bf497c668f48327430ca471719e"
     },
     {
       "id": "instagram-incremental-assembly",
@@ -6933,9 +6931,8 @@
           "incremental assembly recipe"
         ],
         "imageCues": [
-          "全幅固定俯拍，一只器皿/同一工作台贯穿，机位、光线、主体中心与边界保持一致",
-          "居中粗白字配2–3px黑描边，54–68px",
-          "每页只增加一个物料/动作，成品页展示完整结果"
+          "累积组装图满版，重粗紧缩白字加黑描边，短标题落在中间可读空位，避开本页新增物",
+          "每页须看得见保留物与新加物，不能为满版裁掉托盘或物件"
         ],
         "exclusions": [
           "成品加配方卡教程",
@@ -6944,7 +6941,7 @@
           "Behind-the-scenes Story"
         ]
       },
-      "revision": "1e7dde85c6f4c8667adbcef720f64fb056b118a505774b17021b2ea5dadd418b"
+      "revision": "f4ae86b533947776609a18eb2b1562051bdaebf067ca26f19c41582913cd1d5c"
     },
     {
       "id": "instagram-interview-storyboard",
@@ -6976,10 +6973,8 @@
           "quote storyboard"
         ],
         "imageCues": [
-          "页面上下2格或3格无缝纪实画面，同一采访环境与两位说话人",
-          "每格字幕30–38px，回答用黄字/提问用白字，细黑描边",
-          "字幕靠下不挡口型",
-          "首屏直接进入有悬念的一问一答"
+          "上下两条采访分镜，提问者白字、回答者黄字，字幕贴近对应人物",
+          "用同一实际双人场景重新取景为提问者／回答者／反应特写，按对话节奏可切整幅或三条，不能每条重复宽双人镜头"
         ],
         "exclusions": [
           "两个人的一段漫画对话",
@@ -6988,7 +6983,7 @@
           "Reader Question and Answer"
         ]
       },
-      "revision": "8ff62c0febcc2349e5e3acf94f828e572ed2eadb2df9f5a81794272ffe48ddac"
+      "revision": "29c62350becefca01571490360a1a380808d11554b7b36a9a82f6a67ddaf98af"
     },
     {
       "id": "instagram-launch-news",
@@ -7026,16 +7021,17 @@
           "collaboration open call"
         ],
         "imageCues": [
-          "通常三页：首屏黑白肖像/品牌场景占全幅，底部窄高衬线发布标题62–80px",
-          "第二页浅底棚拍产品/资源大图，底部2–4行介绍32–38px",
-          "第三页黑底，大号衬线原话48–62px，下面说话人和身份28–34px"
+          "三段黑白发布序列：摄影封面带小型类别kicker与下方窄高衬线标题",
+          "产品页满版实物摄影与底部短字",
+          "黑页仅左上窄栏提案陈述",
+          "可通过真实高对比衬线角色配窄列实现，不写不存在字体名"
         ],
         "exclusions": [
           "更新了什么与该怎么做",
           "Product Change News"
         ]
       },
-      "revision": "1c722abb658569f571f0123c06f2a9ee663cd21f43b2246e6957761b6fd6d92c"
+      "revision": "eaa1e5700eb358bb5b45f57f3e2d5b588f372af8224267da00abbfc979c69035"
     },
     {
       "id": "instagram-layout-anatomy",
@@ -7111,9 +7107,9 @@
           "learning path"
         ],
         "imageCues": [
-          "封面为学习桌面/工作环境，手写亮色目标居中，下方可有相关真实工具符号",
-          "内页背景为实际代码/学习照片，中央单一笔记窗占70–80%宽",
-          "顶部小导航、步骤名44–56px，下面“学什么/做什么/达到什么条件”32–38px"
+          "满版学习实景之上是紧凑笔记界面，深浅笔记交替",
+          "顶栏、返回、分享和菜单细节齐全，黄色阶段标签，对应折纸实物小插图",
+          "正文不缩成不可读小字"
         ],
         "exclusions": [
           "边读边填练习册",
@@ -7122,7 +7118,7 @@
           "Timed Action Plan"
         ]
       },
-      "revision": "af18fe84aea1e38e7dfcf425aaa71539300e0d966859c3996d151a642eea53a9"
+      "revision": "1e6aac76126a1f0edb7cdc9bad2c15be577694f0b76e7432d0268504e8a23944"
     },
     {
       "id": "instagram-local-picks",
@@ -7154,17 +7150,16 @@
           "local picks guide"
         ],
         "imageCues": [
-          "全幅地点实景，画面不加外框",
-          "封面左下窄列大写紧缩无衬线72–90px，3–5行",
-          "内页地点名放右下60–78px，下面斜体短评30–36px",
-          "底部可加轻暗渐变，保留店面/空间主体",
-          "角落小标记整组同位置"
+          "全幅暖调地点实景，无外框",
+          "封面左下窄列大写粗紧缩标题，约85–110px、3–5行、列宽不超过55%",
+          "内页地点名放右下，粗紧缩字72–96px，下接斜体短评30–36px",
+          "暗渐变只服务文字，不遮空间主体"
         ],
         "exclusions": [
           "unrelated format"
         ]
       },
-      "revision": "db439008a3627cbe0bcdb4e5cce29593759cd82e59ea2e4dbe3bf66482a090a2"
+      "revision": "6db8c158c04b68e54ae442e44e498923699127ca68a2866a67cb3478512e9ed8"
     },
     {
       "id": "instagram-matched-test",
@@ -7196,15 +7191,16 @@
           "fixed benchmark comparison"
         ],
         "imageCues": [
-          "封面为人物生活照，上方白色无衬线与斜体衬线两行对照题目，下接浅色圆角条件条",
-          "内页用低对比黑白同一背景，顶部比较对象名，中央真实结果证据，底部相同单位/周期32–42px，合计值单独强调"
+          "满版照片上混合粗体／斜体标题，比较周期为紧包圆角胶囊",
+          "各版本的可编辑证据片段布局有区别，百分比与分子分母紧靠",
+          "总览将两份数据并列，明确虚构小样本与非因果范围"
         ],
         "exclusions": [
           "亲自试过的实验记录",
           "Personal Experiment Case Study"
         ]
       },
-      "revision": "2062dd0e28a92989a23923d0d8a303ddc6d74c2fed8421862292a1e662de9da6"
+      "revision": "e6f04119a332aa7f3b71c61a6a9141d27932024c40e4eac77d9762cab115d93a"
     },
     {
       "id": "instagram-metric-formulas",
@@ -7283,16 +7279,15 @@
           "year by year work archive"
         ],
         "imageCues": [
-          "全幅生活照，顶部黄色细序号与横线，阶段名大衬线72–92px，关键数值以手写/粗体48–60px",
-          "中下部“HOW I SPENT / HOW I FELT”两段撕纸注释，正文30–36px",
-          "照片留可识别人和环境"
+          "照片上的黄色衬线里程碑标题、细线与描边编号胶囊，白色手写spent／felt标签配短小不规则纸条，注释随场景分布",
+          "可用三段周进度收束，不为补页重复同一里程碑"
         ],
         "exclusions": [
           "真实收支案例档案",
           "Personal Budget Case Study"
         ]
       },
-      "revision": "b01caeea8d94c45d62882d64d4f1d9f5698ba9125c4d3a52169c33617adefd8f"
+      "revision": "9530c18d0db6045322d6e87c7977bedf913a4fe528fd13877c4e545f4ac81b11"
     },
     {
       "id": "instagram-mistakes-and-alternatives",
@@ -7325,17 +7320,17 @@
           "real cost saving alternatives"
         ],
         "imageCues": [
-          "全幅生活/活动实拍",
-          "封面上部白色紧包文字条写数量与错误，54–68px，下接较小说明",
-          "内页上部居中序号与错误名48–62px",
-          "中下部按场景空处放2–3条白底黑字短句，分别说明后果与替代动作，不遮关键证据"
+          "满版生活实拍",
+          "封面上方紧包文字的白底黑字数量钩子，54–70px，下方独立短说明",
+          "内页序号与错误名为浮在照片上的白色粗大写字48–64px、细黑描边",
+          "原因与替代动作放2–3条短白底标签，随场景放置，不统一铺成满宽大横条"
         ],
         "exclusions": [
           "旧版与新版逐项检查",
           "Version Change Audit"
         ]
       },
-      "revision": "33295bc442fcec112182d2717388e04af20bfa1e9a5b88909af6e6f842b5dd7d"
+      "revision": "8c57d8708e9abac6e40607cd719a7b19e4fb3ff3cbb10ece1d0fbe991d8abd25"
     },
     {
       "id": "instagram-myth-and-fact",
@@ -7368,16 +7363,15 @@
           "source check rebuttal"
         ],
         "imageCues": [
-          "首屏全幅主题实景/肖像，左上一个小栏目符号，底部白色衬线标题60–76px",
-          "内页黑底，窄列宽约72%",
-          "先小写栏目标“说法”，下接斜体引用42–52px，再“事实/证据”与正文32–38px，页脚来源24–28px"
+          "摄影类别封面接黑底紧凑衬线论证栏，引用与事实修正为同一左对齐窄列，间距按段落而非大空洞",
+          "加原创小红角标、来源短行，禁止借用新闻机构标志"
         ],
         "exclusions": [
           "新研究到实际意义",
           "Research Brief"
         ]
       },
-      "revision": "ce0eb5a5222cbc2389c1c3c513b081106cea64b009e5bf2be5dc10509028fc3f"
+      "revision": "272e3c2ae9e3c9acc4b0d59329cdfd7943069fe8196307d295c23c61b5740e6c"
     },
     {
       "id": "instagram-news-digest",
@@ -7410,15 +7404,15 @@
           "trend application cards"
         ],
         "imageCues": [
-          "封面上半为本期3–4件新闻相关图片拼贴，下半奶油白底大衬线主题74–94px，中间窄粉条重复栏目名",
-          "内页酒红满版，中央奶油白圆角纸卡占75–82%宽，彩色小标题44–54px、正文32–38px，角落相关物件剪贴，底部来源24–28px"
+          "酒红／奶油的轻松资讯拼贴，封面上半用实际事件相关独立物件与短标注，粉色细新闻带分隔下方轻衬线主题，不让剪贴遮住字",
+          "新闻带在内页重复，圆润彩色无衬线卡题与居中简短事件说明"
         ],
         "exclusions": [
           "一件事的新闻图文",
           "Single-event News"
         ]
       },
-      "revision": "ab0e78f6e39cfa182d7c49e4cfaff02186c944c059a36e5a0da6a02efa9e6063"
+      "revision": "b95963e321c927d0d2dc8d6c310e2de4cd3d66141784cc4e6325bb85cef2ed0f"
     },
     {
       "id": "instagram-numbers-at-human-scale",
@@ -7450,17 +7444,17 @@
           "metric to human scale"
         ],
         "imageCues": [
-          "每页上下两个无缝摄影区，约50/50",
-          "上半为说出抽象数字的人/场景，下半为对应规模的群体/空间",
-          "白色粗无衬线30–40px贴各半区靠中缝位置，上为原话，下为数值单位",
-          "最后一页可回到单幅场景承接结论"
+          "每页为上下各约50%的无缝摄影区",
+          "上半保持同一人物／讲述场景，下半用具有明显不同规模的群体或空间照片回应同一个数字",
+          "短白色粗字置于各半区靠近中缝的空处，32–42px",
+          "摄影对摄影是核心，原生点阵仅能作为辅助核对图，不能替代下半区"
         ],
         "exclusions": [
           "同一数据的两种视角",
           "Two Views of One Dataset"
         ]
       },
-      "revision": "4ff15427cb1c7bb7ad1bafbca35bf490f09a0b9f727bde7b98de92806fc80d9c"
+      "revision": "cfb7f56fa9b8f17d4da0e5aa013afbac69426293c8015181238d3ce52e638121"
     },
     {
       "id": "instagram-object-led-activities",
@@ -7493,15 +7487,16 @@
           "role based life framework"
         ],
         "imageCues": [
-          "全幅随手拍物件与手部",
-          "封面居中奶油黄衬线标题78–96px，短斜体情境36–42px",
-          "内页主体占画面70–90%，右下/下中仅1–3行白色短动作30–38px，底部细手绘箭头朝右"
+          "满版物件与手部摄影",
+          "封面居中奶油黄粗衬线标题90–116px、2–4行，字重明显厚实，短斜体情境36–42px",
+          "内页主体占70–90%，只在空处放1–3行短动作30–38px，底部右侧细长手绘翻页箭头",
+          "不用大型动作标题压住照片"
         ],
         "exclusions": [
           "unrelated format"
         ]
       },
-      "revision": "3002ccca2c669ef1bb2ee4ed55637f6e0ce26d2f258f3387e54b095c53e19489"
+      "revision": "b29a631fd76632739eba5a44ea0d92a65f0f3357a36b71af953e8482cba0fbe2"
     },
     {
       "id": "instagram-object-name-origins",
@@ -7535,15 +7530,16 @@
           "insider dictionary"
         ],
         "imageCues": [
-          "封面4×4或3×3实物网格，上方小标题",
-          "详情页2×2同尺度样本，实物占单元上半，名称30–38px白字，来源说明28–34px暖金色，底部不加泛用CTA"
+          "深炭黑背景，实物金属／珐琅徽章为主，四件概览采用2×2网格",
+          "详情保持四件完整标本阵列，每件下方小无衬线名称28–34px与金色命名解释28–32px",
+          "原生标志可作为实物生成的身份依据，不能用平面圆图标代替金属标本"
         ],
         "exclusions": [
           "指标公式速查",
           "Metric Formula Reference"
         ]
       },
-      "revision": "75a5dbf60edac5b63117b01f8a9d0459090b6ab27e954c69fcbd5cad5d08017a"
+      "revision": "79c476db0c2151018e6a4920ccb636aff1d1372d1bfad3492d0ab0a64995e6c8"
     },
     {
       "id": "instagram-one-input-many-results",
@@ -7575,16 +7571,15 @@
           "image remix comparison"
         ],
         "imageCues": [
-          "封面全幅输入相关照片，上部亮黄色胖体大标题82–105px",
-          "内页使用同图柔化背景，中央两张并排等大图槽，上方before/after标签32–40px，底部变量/风格名40–48px",
-          "图片保持相同对象身份与裁切口径"
+          "实际场景照片放大模糊形成蓝色底，封面圆润粗展示字，结果页黄色标签与输入／输出等大对齐，处理名称紧靠下方",
+          "所有结果必须来自实际原图任务，禁止更换样本"
         ],
         "exclusions": [
           "提示词与效果对照",
           "Prompt and Result Reference"
         ]
       },
-      "revision": "5e8b4a7f4445e9719b0175fa8a9a0378212a95168dccba09453f1cccbd27758b"
+      "revision": "3a5b7ff00af9261aa1c2620400b1a00dde7bb3d50c3de810ad94ae56b1dc31a7"
     },
     {
       "id": "instagram-one-variable-comparison",
@@ -7619,16 +7614,15 @@
           "prototype to refined"
         ],
         "imageCues": [
-          "纸白底，顶部黑色粗标题48–62px，关键词荧光黄下划线",
-          "中部两例上下或并列，保留同一主体、图形与取景，只改变一个明确变量",
-          "细手绘箭头连接变化处，说明32–38px"
+          "开头同时出现同一字标的两种配色，随后以海报、卡片、包装三种原生活字应用展示颜色解释",
+          "结尾紧凑并列同一个标志，固定字号、间距和形状，只有颜色是变量"
         ],
         "exclusions": [
           "旧版与新版逐项检查",
           "Version Change Audit"
         ]
       },
-      "revision": "4ff76d03ac491cdcf7073d32c476da0a111007f788eccc42e9777233b8219bf6"
+      "revision": "0a93474c0b6a39d4cdf55747389f0ae6fc3b4b719b68eacdeb7a4b5be855b4da"
     },
     {
       "id": "instagram-opportunity-guide",
@@ -7661,15 +7655,15 @@
           "minimal opportunity list"
         ],
         "imageCues": [
-          "封面为旅行/环境实景与纸票剪贴，大写手写标题在中部白纸条",
-          "内页全幅地点照片，中间放宽70%的米白信息窗，黑色1–2px描边、浅黄窄标题栏与三点",
-          "名称40–46px，条件、投入、收益32–36px，来源/日期24–28px"
+          "封面明亮实景，中央撕纸／票据拼贴承托大写手写主题80–110px，保留照片至少一半",
+          "内页照片满版，中央信息窗宽70–78%、高约32–42%，奶油白底、细黑描边、窄浅黄标题栏与三点",
+          "名称44–56px，各固定字段30–36px，时间条件独立小行"
         ],
         "exclusions": [
           "unrelated format"
         ]
       },
-      "revision": "58b85bafacbe1f267669627c27b37b2051186bd44452a395b6ccc83695ab1d9e"
+      "revision": "be00e421bc9d7722bb70ed9035987c78350547c9f8101b232d715f079040b946"
     },
     {
       "id": "instagram-palette-application-board",
@@ -7701,8 +7695,9 @@
           "palette to material board"
         ],
         "imageCues": [
-          "封面全幅氛围实拍，底部粗白标题72–92px",
-          "每张内页是满版拼贴：4–6张真实物料图按矩形网格拼合，中央品牌色纸条写配色名56–70px及一条情绪说明32–36px，侧边两块颜色样本与准确色值"
+          "原创应用拼贴上浮一个带细奶油边的紧凑配色卡，圆润重标题、手写短解释",
+          "两片纸质色卡嵌入实际拼贴空处并写原始hex值",
+          "不要把卡铺成通边长带"
         ],
         "exclusions": [
           "品牌系统与应用展示",
@@ -7711,7 +7706,7 @@
           "Image-to-palette Showcase"
         ]
       },
-      "revision": "5c5bddb493353ef7c1aa26061182a3fccdbb06792dab9481d71993d3755df753"
+      "revision": "42c42a6da889195b535d9f37e1021fc9edc624d5c7208bb3d3db7e1d6942636e"
     },
     {
       "id": "instagram-personal-budget-case",
@@ -7784,8 +7779,9 @@
           "experiment results"
         ],
         "imageCues": [
-          "封面全幅个人情境，白色衬线主题70–90px偏下，角落可叠真实记录缩略图",
-          "内页米白，大段留白，顶部短述实验阶段32–38px，中央2–3张实际记录/结果，底部一句观察，不把图表挤成小截图"
+          "摄影封面叠一张倾斜的原生记录片段",
+          "详情用连续的场次记录条、可读6／6／8／8结果、前后操作示意和并排比较说明流程改变",
+          "所有片段明确为虚构教学记录"
         ],
         "exclusions": [
           "同条件实测对照案例",
@@ -7794,7 +7790,7 @@
           "Experiment Story Explainer"
         ]
       },
-      "revision": "446236ee5828ef0fc32cd4dc9d22c173fab225928003279adbfcdeff520aa6a9"
+      "revision": "bc097eea050707882ad6d3581119b36946477ba5c935e41325b6bd4c63fa4111"
     },
     {
       "id": "instagram-photo-and-technical-sketch",
@@ -7826,15 +7822,16 @@
           "photo and technical sketch"
         ],
         "imageCues": [
-          "浅灰/白色棚拍底，人物/产品实拍占中间60–70%，同一对象的细线技术图在右下或局部叠合，名字以手写48–62px置左上",
-          "3–4条手写注释30–38px及细弧箭头指向真实结构"
+          "浅灰纸底完整大幅独立托盘为主，旁边按实际轮廓画松手线稿、弯箭头和手写细节标注",
+          "详情用同一实物局部而非整页重复，负空间充足",
+          "不推断尺寸／内部结构"
         ],
         "exclusions": [
           "一件作品的细节解读",
           "Artwork Detail Story"
         ]
       },
-      "revision": "4997fec95decea2b2e9998c2087ee2b9c1147da1c2ea678fd9bc15ac9138d680"
+      "revision": "f929cf0c7d375ca8d1d6a94cfaa63eca938ec6f24f81f9bf818ebb68b4af7c6c"
     },
     {
       "id": "instagram-photo-moment-story",
@@ -7869,16 +7866,15 @@
           "photo detail reveal"
         ],
         "imageCues": [
-          "首屏全幅环境与主体，短句30–38px放天空/墙面空处",
-          "中页可上下两张近景/远景，最后一页以更开阔的环境照收束",
-          "主体占比随页变化，不统一加标题区"
+          "保留整幅与上下两幅摄影节奏，照片承担故事",
+          "仅开头／结尾放场景空位里的很小粗无衬线旁白约30–36px，其余画面可静默，不给每张都加大衬线底部标题"
         ],
         "exclusions": [
           "我的日常与工作之外",
           "Everyday Photo Diary"
         ]
       },
-      "revision": "2c4cfdf13a4611e9821c3d33385297f85590aaeceb2461b2066fc6c739fb3e41"
+      "revision": "db6e7bb0dd449ccd92400375b24e8130d07751e1a7c3a10f13c1a8087d54d17a"
     },
     {
       "id": "instagram-product-change",
@@ -7913,9 +7909,9 @@
           "interface feature tour"
         ],
         "imageCues": [
-          "封面深蓝/黑底加实际产品或合作场景，上方小型NEW胶囊，下部粗白标题80–100px",
-          "内页白底，顶部小作者栏，深蓝横条上荧光黄标题48–60px",
-          "正文36–42px，中央真实界面或可控示意图，底部一行适用边界"
+          "摄影产品变更封面、大号白色大写钩子与真实相关的原生界面元素",
+          "内页深蓝底上紧凑青柠标题条、解释条目与暗色可编辑原型",
+          "仅依据原帖已取得前缀与单独标明的补充参考，不宣称真实上线集成"
         ],
         "exclusions": [
           "回看旧帖与公开修正",
@@ -7924,7 +7920,7 @@
           "Launch News"
         ]
       },
-      "revision": "4378d7cc414c5dd1e2ba56bf609d3242e8836b69db79c68f4e4fc6606d76bbf3"
+      "revision": "5c65a6e8dc97deeee94fda37cd053b8f6679acbee0121e07a6570421672af1aa"
     },
     {
       "id": "instagram-prompt-result-reference",
@@ -7957,17 +7953,18 @@
           "photo with prompt overlay"
         ],
         "imageCues": [
-          "白底效果页与黑底提示词页成对交替",
-          "效果页左上双行标题52–68px、右上序号，中央两张并排作品占55–65%，底部解释30–36px",
-          "提示词页上方小衬线标签，中央深灰代码区呈现完整可复制提示词28–34px",
-          "参数/模型从真实任务记录取值"
+          "独立封面建立提示词／效果主题，随后白色结果页与纯黑提示词页成对交替",
+          "结果页左上双行标题52–68px、右上编号",
+          "作品处在明确白色留边的中央展示区，占页面55–65%，底部短说明",
+          "黑页上方小黄绿衬线“Prompt”标签，下接完整可复制提示词28–34px",
+          "不使用墨绿／奶油色替代强黑白切换"
         ],
         "exclusions": [
           "同一输入的多种创作结果",
           "One Input, Multiple Outcomes"
         ]
       },
-      "revision": "ab5df0b4b64ce94d0a2d64cad1ee99eb95d65f512f3d1869628b0163c6453d38"
+      "revision": "f8d34592bc7b618bea764b95e1cadca06896bac1d8f13ed0fe205abca2ecd5a4"
     },
     {
       "id": "instagram-public-follow-up",
@@ -8040,17 +8037,15 @@
           "reader question expert answer"
         ],
         "imageCues": [
-          "淡紫背景和深靛蓝栏目条",
-          "首屏左侧来信正文30–36px以深色短高亮条分段，右侧回应者半身肖像占45%",
-          "第二页深靛蓝底、奶油白衬线回答36–44px与同人另一姿态",
-          "第三页浅紫细网格，大衬线关键句62–78px，底部一致刊头"
+          "薰衣草／深蓝交替的来信编辑专栏，固定双段原创报头、真实透明人物剪贴与另一回答姿态，窄条逐行高亮来信",
+          "结尾可见方格上大摘句逐行深色高亮，与回复逐字对应"
         ],
         "exclusions": [
           "访谈原话分镜故事",
           "Interview Quote Storyboard"
         ]
       },
-      "revision": "1246c3b553e27cdae8806980ace148f1e2409d0bb30e9e34f4a8c90805e20059"
+      "revision": "7fd6cf85599720d2fb9399c7b6dd3df9dc0c6c85343946e81ff21ef6bda2820b"
     },
     {
       "id": "instagram-remaining-capacity",
@@ -8125,16 +8120,15 @@
           "research to implication brief"
         ],
         "imageCues": [
-          "暖白纸纹底，黑色紧缩无衬线大段标题/主张52–66px，左对齐占上半",
-          "中央放研究原图或按同一数据重画图表，下方解读32–38px，页脚明确论文/日期24–28px",
-          "可穿插一张大引语页改变节奏"
+          "纸纹上的密集粗体段落式研究说明：大段黑字、紧行距、少量词句强调，方法／定性结果／适用边界分区",
+          "把研究流程和延迟时点原生图放入论证中，不做凭空效应量柱形图"
         ],
         "exclusions": [
           "常见说法与事实核查",
           "Myth and Fact Opinion"
         ]
       },
-      "revision": "7367846f81c146a0c8c2e23d52ed7fb3105ae5347eb10f3685bf028e2b50b3c2"
+      "revision": "4e9274756a69058f5be3a8acb244b2ea99bff88a28babebb688403c6d6f47e87"
     },
     {
       "id": "instagram-result-and-recipe",
@@ -8207,16 +8201,15 @@
           "result to exact steps"
         ],
         "imageCues": [
-          "全幅生活/成果照片，封面白色紧包大字标签置中上，下面具体成果短句44–56px",
-          "详情页每张实景中部放2–4行白色描边字42–52px，逐步解释从结果倒推的行动",
-          "不要统一加顶部章节条"
+          "封面白色短钩子标签紧包主句，结果说明独立落在照片上",
+          "内页以粗白字黑描边短句为主，偶尔紧凑黑底标签，落位按实际场景变化，不能全组同一位置大横条"
         ],
         "exclusions": [
           "成果证据到执行方法",
           "Evidence-to-method Case Study"
         ]
       },
-      "revision": "8ea48e025f8ded8d92a09550cb491bf9cd24826060880b94d7be9eaf4286e8fa"
+      "revision": "e4f08b3a641508daa2311871190d48de8428f9665569560487eabef5d11f1312"
     },
     {
       "id": "instagram-reverse-instruction",
@@ -8248,16 +8241,16 @@
           "reverse instruction reveal"
         ],
         "imageCues": [
-          "同一人物同机位的全幅手机自拍，顶部粗白黑描边大字82–105px",
-          "每页表情/手势随“别翻→你还在翻→好吧揭晓”递进",
-          "人物脸、手、室内环境保持连续，文字不盖眉眼"
+          "同一人物手机自拍，stop／困惑／惊讶／让步的姿态递进",
+          "黑色重描边白标题，落位随场景避让眼睛与手势，最后兑现小阅读笑点",
+          "不能前两页几乎同一表情"
         ],
         "exclusions": [
           "值得互相问的问题卡",
           "Conversation Question Cards"
         ]
       },
-      "revision": "7e37111e3fc177403a079b6e3b70a766121da4fe729d4b3961470f3d9660f2bc"
+      "revision": "88587b1e2c1db1624551e009a2bf95f8d013953cc7741055a29ca9697a957129"
     },
     {
       "id": "instagram-said-and-meant",
@@ -8288,16 +8281,15 @@
           "said versus meant"
         ],
         "imageCues": [
-          "上下两幅相同或连续人物场景，顶部黑色小情境条30–36px",
-          "中缝附近一段白底黑字“说出口的话”与另一段彩色底“想表达的需要”，38–48px",
-          "可在第二页重复上一页后把旧文字划掉、突出新的理解"
+          "仅承诺已观察到的前三页机制：相同讲述者场景上下两区，顶部稍去饱和，小型黑／白／红字幕气泡、场景标签与克制指针",
+          "所说句与第一人称想补充的话分别独立，不推断缺失后15页"
         ],
         "exclusions": [
           "表达替换句库",
           "Copy Alternatives Reference"
         ]
       },
-      "revision": "2acb1a6b529a1718624e97838ca9af6ffcbdfa230dda6d5ce6eb9ac8a1e1ef4b"
+      "revision": "026e4aa33e0fb55b5058484d8545c68181b8ec90cf76f76931998dd51b0558f6"
     },
     {
       "id": "instagram-same-budget-choices",
@@ -8329,10 +8321,8 @@
           "same price value comparison"
         ],
         "imageCues": [
-          "白底，大窄高衬线主题90–120px居中上部",
-          "中间两件不同选择的实物抠像同一基线、相近视觉重量，各占35%",
-          "下方对应价格52–66px，必要时加币种/条件28–34px",
-          "每页一组选择"
+          "白底反复出现紧凑窄列高对比衬线钩子，两个独立实物同基线同重量，价格粗无衬线，短条件",
+          "保留币种、样例预算与具体用途，减少重复解释"
         ],
         "exclusions": [
           "目的地花费对照卡",
@@ -8341,7 +8331,7 @@
           "Expectation and Reality Review"
         ]
       },
-      "revision": "94c848680ea953770dc29674f6ab1bf6b7116c7b680a2f3345e521a9fd3b46e3"
+      "revision": "4a7609336cd7565a23b428e1eb2340197e3f2e35ce8abf6047c85a6ebcb3dbc8"
     },
     {
       "id": "instagram-screenshot-walkthrough",
@@ -8376,10 +8366,9 @@
           "photo anchored tutorial"
         ],
         "imageCues": [
-          "暖米白底，顶栏年份/作者/页码22–28px，细线分隔",
-          "封面公式式大标题76–96px和真实相关对象剪贴",
-          "内页上部胶囊STEP编号、黑橙相间标题64–78px，下方一行说明30–36px",
-          "截图占中下55%，圆角和轻阴影，橙色细箭头指向实际操作"
+          "封面奶油底黑／橙公式式组合：起点＋下一步动作＝准备完成，搭配原创相关物件与界面",
+          "教程页橙色步骤胶囊、黑橙标题强调，解释下方直接接大号示范界面",
+          "控件、箭头与动作一一对应"
         ],
         "exclusions": [
           "可复制笔记清单",
@@ -8390,7 +8379,7 @@
           "Everyday Interface Story"
         ]
       },
-      "revision": "07146f428c15fa4e45f8c6c7f070dff4ef796e530331473219c7d238a6acc904"
+      "revision": "382daf38bbfe690c5f821be1e7d91f5e5b3104ae389e01dcdaf056765e749dd0"
     },
     {
       "id": "instagram-searchable-asset-index",
@@ -8422,16 +8411,17 @@
           "searchable asset index"
         ],
         "imageCues": [
-          "蓝色牛仔布/有纹理底，封面白色粗描边胖体分层叠排，黄色强调关键词",
-          "四角零散文具剪贴",
-          "内页标题70–90px位于左上或中央，6–10件同类样本散布但不重叠主体，底部撕纸形标签展示检索词32–38px"
+          "真实蓝色牛仔布质感满版",
+          "封面胖厚展示字100–135px，深棕填色、厚奶油白描边，关键字亮黄，四角散落独立原生／自有实物剪贴",
+          "内页标题80–108px，6件原始素材直接散布在布面上，彼此不遮挡",
+          "底部撕纸标签写可复制检索词32–40px"
         ],
         "exclusions": [
           "指令快捷语速查",
           "Command Shortcut Cheat Sheet"
         ]
       },
-      "revision": "102f397d5fbf7fa351e0171783303a3ef86988b8127fc2c2a71b41b0c95cbac1"
+      "revision": "248804e67227473bf59c64ed7628c084f494cc3fa2c2a2ebaf7f276368625f36"
     },
     {
       "id": "instagram-similar-concepts",
@@ -8463,16 +8453,16 @@
           "lookalike concept comparison"
         ],
         "imageCues": [
-          "白底上下留白",
-          "封面两项名称用不同浅色圆角高亮，72–90px，下面并排同一个原创角色的两种状态",
-          "内页顶部同一比较问题34–42px，中部双栏同尺度角色，各栏下方小彩色标签和2–4行解释32–38px"
+          "纯白底，封面手写主题与角色双态",
+          "内页上方一个短问题60–72px，中部同一原创角色两种与概念相符的动作／道具，下方粉／蓝色紧包概念标签48–56px，再接各自一句解释30–36px",
+          "三种比较维度必须真的改变角色状态"
         ],
         "exclusions": [
           "同一行为换个情境看",
           "Context Comparison Opinion"
         ]
       },
-      "revision": "477d8535d5645a021c86bc2780a9de9e8d4a8657bfbd0bb628a674bfa675441e"
+      "revision": "452916b51e5a7c1faf961fb6c3ad6a6de1a91ed13ffe456e7e983ffc7ed50ac6"
     },
     {
       "id": "instagram-single-event-news",
@@ -8549,16 +8539,16 @@
           "scrapbook technique recipe"
         ],
         "imageCues": [
-          "封面全幅氛围空间，左下白色斜体衬线与金黄色重点词72–90px交错",
-          "内页暖浅米底，上方65%为4–7件同风格物件抠像拼贴，保留自然比例与空隙",
-          "下方居中衬线说明36–44px，点出这组元素怎样构成风格"
+          "奶油背景与独立实物材质／配色／灯具拼贴，不带矩形素材板背景",
+          "顶部小型大写衬线分类，实物占中部约60%，底部一行解释",
+          "封面用斜体与颜色强调风格钩子"
         ],
         "exclusions": [
           "品类与用途指南",
           "Category and Use Guide"
         ]
       },
-      "revision": "2035e811c2d64714dd1a80bc4d2327f3ca68b74c63b694049d0db35a6f2fb823"
+      "revision": "7e4dd0325b52e51b15f7ffd8277525a52a58fd734793e0faeb602bb491bdcd8e"
     },
     {
       "id": "instagram-style-choice",
@@ -8593,18 +8583,18 @@
           "gesture choice prompt"
         ],
         "imageCues": [
-          "页面上下各占50%的两种视觉选项，中缝小白色“OR”标签",
-          "封面上下用不同材质/配色的大号斜体“This/That”",
-          "内页各半区放完整风格样本与居中白底名称标签32–40px，作者/来源次级24–28px"
+          "上下平等摄影选择，封面巨大黄色描边脚本／展示字铺在两半，OR小字在中缝",
+          "详情白色标签仅紧包实际物件名，避免通宽条",
+          "两种选择同尺度，不暗示优劣答案"
         ],
         "exclusions": [
-          "跨页连续画布展示",
-          "Continuous Canvas Showcase",
+          "马赛克作品墙展示",
+          "Mosaic Portfolio Showcase",
           "哪种设定像你",
           "Identity Match Quiz"
         ]
       },
-      "revision": "d059e3d61d70898b8de982ae675a673fd290ade95da9011a4c24becf311537e2"
+      "revision": "0db4ef40d51fadfd11436a9ee6cf2552c18e62263e0ee97f3f566d506d20e271"
     },
     {
       "id": "instagram-symbolism-in-artifact",
@@ -8636,16 +8626,15 @@
           "artifact symbolism story"
         ],
         "imageCues": [
-          "封面作品实拍占全幅，底部黑色窄区放白色衬线解释50–64px，局部用一个圆形放大框",
-          "第二页完整设计/作品与旁注，第三页干净完整展示",
-          "注释28–36px，细线指向实际细节"
+          "摄影封面加真实局部圆形嵌窗，下一页转奶油色设计说明纸，放同一作品的放大细节、引线与创作者说明，最后一页干净完整作品回看",
+          "没有背面资料就不编背面或文化出处"
         ],
         "exclusions": [
           "一件作品的细节解读",
           "Artwork Detail Story"
         ]
       },
-      "revision": "cf8a455fba0875382c46e4497109193fb28748119e49ace53f4104775efd0778"
+      "revision": "31a38186e9076a3b2913a2f21a332938d5bd737d7e7d5fb4f409c6ec486fbe01"
     },
     {
       "id": "instagram-taste-matched-recommendations",
@@ -8677,17 +8666,16 @@
           "taste matched recommendations"
         ],
         "imageCues": [
-          "浅青色满版底",
-          "封面大幅黑白主体抠像占中上65%，底部左对齐两行推荐标题70–84px",
-          "内页顶端放“如果喜欢[维度]”30–36px",
-          "中间约55%为大幅横向样图，黑白图只保留一处青色强调",
-          "底部左列作品名/作者年份，右列45%宽的匹配理由"
+          "低饱和灰青满版底",
+          "封面上中部大幅黑白主体抠像约65%高，主体轮廓直接落在底色上",
+          "左下两行黑色粗无衬线标题80–100px",
+          "内页顶部留约25%青色呼吸区放匹配维度，中央大横图约45%高，底部左列名称／资料、右列匹配理由"
         ],
         "exclusions": [
           "unrelated format"
         ]
       },
-      "revision": "07b3ad9ffd5fb49b1f358b3c28c11dbefc6ee28a5744c95818d8d82e1ac91c31"
+      "revision": "5965a76320678a61ba04a5362b8684540c5b28ca63f6bba6fcffc85f5f233b10"
     },
     {
       "id": "instagram-then-now-pairs",
@@ -8719,16 +8707,15 @@
           "childhood present photo pairs"
         ],
         "imageCues": [
-          "每页上下各一幅图：上方小时候的爱好场景/原创插画，下方现在的真实对应物/活动",
-          "中缝附近两段白色手写大写短句36–46px，上为“那份喜欢还在”，下为“换了一种形式”等承接",
-          "不加独立封面"
+          "上下时间对照保留对应动作与物件，插画为复古平涂墨线、低饱和多色，非金黄童话光",
+          "字幕为有明显字距的大写手写，约42–52px，按场景空位落位"
         ],
         "exclusions": [
           "同一瞬间的两个视角",
           "Two Perspectives Story"
         ]
       },
-      "revision": "2bc79506967afa71dd0367e3abb2ba9109ac5b3fb0ae0ade5d3d57d3e5e1fb01"
+      "revision": "25c9664fc1c307099f2c73df5e25555a79c10f6aa7d9a70632223f2c1608970c"
     },
     {
       "id": "instagram-timed-action-plan",
@@ -8762,9 +8749,9 @@
           "daily prompt calendar"
         ],
         "imageCues": [
-          "封面为真实人/工作场景，红底短问题与粗白标题64–80px靠中下部",
-          "内页纸白底，红色大写标题52–68px",
-          "总览分阶段列出，详情页左上浅蓝日期段28–34px，下面行动、产出、核对条件32–38px"
+          "摄影红色钩子封面后接七日总览，再按三阶段展示蓝色日期标记、红色大标题、具体动作与活字输出样例",
+          "结尾用红色结果清单总结交付物",
+          "保留计划性质，不能把示意输出说成真实活动成果"
         ],
         "exclusions": [
           "日期安排速查表",
@@ -8775,7 +8762,7 @@
           "Goal-to-benchmarks Guide"
         ]
       },
-      "revision": "c464683eada47445fb448b28b66328a6085e81a883bb480c00f09b9fb0e7f678"
+      "revision": "e730d6c14d3a872edefe207c649b43ade35499958c0d81e79f4b02ea3b647589"
     },
     {
       "id": "instagram-tools-by-task",
@@ -8810,17 +8797,18 @@
         ],
         "imageCues": [
           "1080×1350 起点",
-          "封面暖光书房/桌面场景占全幅，巨型珊瑚色数量在左上",
-          "左下叠三行白色与珊瑚色斜体衬线主题，标题90–125px，短承诺40–48px",
-          "内页顶部居中两行斜体任务名72–88px、下接32–38px用途",
-          "中下部占70%宽的深色终端窗，窄标题栏、三色窗口点、等宽说明30–36px，条目之间留明显间距"
+          "满版暖棕桌面实景必须出现与正文任务相关的工具",
+          "封面左上珊瑚色数量以约550–650px字阶主导，左下三行粗斜体衬线标题105–140px，数量与普通词形成珊瑚／奶油白分工",
+          "内页上方居中粗斜体大写任务标题90–112px，下接用途32–38px",
+          "中下部深色半透明终端窗占宽82%、高42–48%，橙金细边、暖光晕、窄栏和三色窗口点",
+          "正文等宽32–38px"
         ],
         "exclusions": [
           "主题资源收藏清单",
           "Curated Resource List"
         ]
       },
-      "revision": "fc6c6d635f1a78dedfe02e01173870e65bee6e1cf5ae656c12867a39fe1cf9ed"
+      "revision": "5943177b924e7fa177e0a4a052bc8cf6183262dee6723c4039a0464195fd614f"
     },
     {
       "id": "instagram-two-perspectives",
@@ -8939,10 +8927,8 @@
           "design era comparison"
         ],
         "imageCues": [
-          "白底，上部居中一句旧认知40–48px及酒红色修正34–40px",
-          "中间细竖分隔线，左右同尺度旧版/新版实物各占35%",
-          "下面对应字段列表30–36px，改变项加粗",
-          "箭头连到“Then/Now”，底部日期与来源"
+          "同一产品的实物版本核对，旧／新样本同尺度并排，薄竖线、酒红版本标签，规格直接紧接图下",
+          "六张纸不变，一根到两根线是唯一变化，只有一个产品时合并为完整密集比较，不重复三张稀疏示意"
         ],
         "exclusions": [
           "常见错误与替代做法",
@@ -8951,7 +8937,7 @@
           "One-variable Comparison"
         ]
       },
-      "revision": "14d918bec8960ff613117a7796dc803aca5349c42f3ef9d618c6f0751430d449"
+      "revision": "6527ab339b6ce06f851b2c51e36f77b8dcb1b661f8ced91c1b3859b6c83b8334"
     },
     {
       "id": "instagram-visual-analogy",
@@ -9025,15 +9011,16 @@
           "visual guess reveal"
         ],
         "imageCues": [
-          "封面暖白底，上方混合衬线/无衬线问题72–92px，下面大图占65%，右下大序号40–50px",
-          "后页交替全幅题图与小型问题/时限，答案页单独给出图源/依据，避免提前暴露"
+          "挑战封面粗体／斜体混合，大照片区",
+          "谜题满版、紧凑题签与清楚大题号，末页摄影上给正确答案和下一步观察问题",
+          "以实际阴影方向核对答案，不按提示词猜"
         ],
         "exclusions": [
           "哪种设定像你",
           "Identity Match Quiz"
         ]
       },
-      "revision": "2c0ffd2656294a0997b1014e5be1e1f3e873f60d0af6a2210d88babdde38a934"
+      "revision": "8efb8a000fadd604f3130c4e69dcfa499c8efb0d35eb4d1f9fd0e5f935cd7da0"
     },
     {
       "id": "instagram-visual-technique-reference",
@@ -9067,16 +9054,17 @@
           "texture pattern sampler"
         ],
         "imageCues": [
-          "封面全幅实景加高对比黄色粗无衬线标题，标题约70–90px置左下或视线空处",
-          "内页使用深色实景压暗，纵向3–4行：黄色序号占左8%，中间样图占35%，右侧名称40–48px与解释26–32px占45%",
-          "每个样图宽高比一致"
+          "封面满版实景，黄字粗无衬线大标题70–100px置于画面空处",
+          "图鉴详情页采用纵向3–4条目录：每行左侧黄色编号约8%宽，中间缩略样图约35%，右侧名称40–48px与说明28–34px约45%",
+          "行距统一、编号连续",
+          "三个样本应组成一页三行目录，不因条目少而拆成三页单图"
         ],
         "exclusions": [
           "构图与版式标注教程",
           "Layout Anatomy Tutorial"
         ]
       },
-      "revision": "7859258c376c65a12c2b19471061f218c924c3fd9415b33ef5b538ae87e7bcf2"
+      "revision": "73f0671c38c2e578fbfa8728b29e71c82eb552e62bb7893cc5999bf202c4b59e"
     },
     {
       "id": "instagram-worked-examples",
@@ -9111,8 +9099,9 @@
           "narrative framework breakdown"
         ],
         "imageCues": [
-          "封面暖白，大型衬线分行主题100–135px，少量贴纸为点缀",
-          "内页淡粉窄竖条底，顶部序号与衬线方法名58–72px，中央完整作品缩略图占50%，两侧手写注释28–34px，底部虚线框放可执行步骤30–36px"
+          "封面采用窄高多行衬线堆叠，少量贴纸／星形原生注释",
+          "两张例题仍用条纹底、中央完整实例与底部虚线方法说明",
+          "标题不改成普通无衬线横条"
         ],
         "exclusions": [
           "真实界面步骤教程",
@@ -9121,7 +9110,7 @@
           "Visual Effect Breakdown"
         ]
       },
-      "revision": "abf297d6f37fe439e872ae68fee1150f141734f625e89ee7e2e9dc3718599bdd"
+      "revision": "bece863024f0f10dc14ade714bc8a0fb1bb13f2c720a3454d59c43a3528ae1ec"
     }
   ]
 }
