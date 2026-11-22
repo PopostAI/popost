@@ -5,16 +5,16 @@
   "categories": [],
   "copy": {
     "zh": {
-      "name": "跨页连续画布展示",
-      "summary": "把同一条视觉轨道延续到相邻页，利用图形或画面跨越页边建立滑动连续感。",
-      "useWhen": "跨页连接承担信息关系，不能仅把任意长图切开；不是一种题材模板。",
+      "name": "马赛克作品墙展示",
+      "summary": "以密集重复的原创作品墙为背景，每页突出一个项目或一组细节，用完整短钩子串起系列。",
+      "useWhen": "适合把多个作品放进同一视觉世界逐页展示；每页主题独立完整，不把一句大标题切成跨页画布。",
       "instructions": "有连续关系的内容、宽画布结构、裁切边界与手机安全区",
       "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
     },
     "en": {
-      "name": "Continuous Canvas Showcase",
-      "summary": "Create an Instagram showcase carousel using the continuous canvas showcase structure. Preserve its visual hierarchy, sequence and opening payoff.",
-      "useWhen": "Use when your content needs the continuous canvas showcase format.",
+      "name": "Mosaic Portfolio Showcase",
+      "summary": "Create an Instagram showcase carousel using the mosaic portfolio showcase structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the mosaic portfolio showcase format.",
       "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
       "output": "An editable Instagram carousel with this template’s sequence and visual style."
     }
@@ -33,16 +33,21 @@
   ],
   "match": {
     "goals": [
-      "跨页连续画布展示",
-      "Continuous Canvas Showcase",
-      "跨页画布",
-      "连续拼图",
-      "continuous carousel",
-      "continuous canvas carousel"
+      "马赛克作品墙展示",
+      "Mosaic Portfolio Showcase",
+      "作品墙逐页展示",
+      "马赛克作品集",
+      "突出不同作品",
+      "mosaic portfolio showcase",
+      "featured project wall",
+      "mosaic portfolio",
+      "featured project",
+      "repeated hook"
     ],
     "imageCues": [
-      "建立一个跨全部页面的连续大画布，再按页切出视口",
-      "背景小图马赛克跨边界严格连续，顶部/中部巨型奶油黄粗标题110–150px持续跨页，中央内容带/示例图依翻页推进，避免每页重新开始的封面"
+      "密集重复的原创作品马赛克墙为背景，每页突出一个项目／一组局部，以完整短感叹钩子贯穿每页",
+      "不是将大句切成跨页长画布",
+      "每页钩子必须独立完整可读"
     ],
     "exclusions": [
       "选一种风格或组个搭配",

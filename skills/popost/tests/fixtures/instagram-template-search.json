@@ -762,12 +762,12 @@
       "expected": "instagram-palette-application-board"
     },
     {
-      "query": "跨页画布",
+      "query": "马赛克作品墙",
       "lang": "zh",
       "expected": "instagram-continuous-canvas"
     },
     {
-      "query": "continuous carousel",
+      "query": "mosaic portfolio showcase",
       "lang": "en",
       "expected": "instagram-continuous-canvas"
     },

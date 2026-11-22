@@ -42,13 +42,13 @@
       "gesture choice prompt"
     ],
     "imageCues": [
-      "页面上下各占50%的两种视觉选项，中缝小白色“OR”标签",
-      "封面上下用不同材质/配色的大号斜体“This/That”",
-      "内页各半区放完整风格样本与居中白底名称标签32–40px，作者/来源次级24–28px"
+      "上下平等摄影选择，封面巨大黄色描边脚本／展示字铺在两半，OR小字在中缝",
+      "详情白色标签仅紧包实际物件名，避免通宽条",
+      "两种选择同尺度，不暗示优劣答案"
     ],
     "exclusions": [
-      "跨页连续画布展示",
-      "Continuous Canvas Showcase",
+      "马赛克作品墙展示",
+      "Mosaic Portfolio Showcase",
       "哪种设定像你",
       "Identity Match Quiz"
     ]

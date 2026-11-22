@@ -458,9 +458,9 @@ Shortlist 1–3 templates by subject and intended layout. Read each linked SKILL
 - [同一行为换个情境看 / Context Comparison Opinion](./instagram-context-changes-meaning/SKILL.md)
   - 情境变化是比较轴；期待与实际作为变体，不按题材各算一个。
   - Use when your content needs the context comparison opinion format.
-- [跨页连续画布展示 / Continuous Canvas Showcase](./instagram-continuous-canvas/SKILL.md)
-  - 跨页连接承担信息关系，不能仅把任意长图切开；不是一种题材模板。
-  - Use when your content needs the continuous canvas showcase format.
+- [马赛克作品墙展示 / Mosaic Portfolio Showcase](./instagram-continuous-canvas/SKILL.md)
+  - 适合把多个作品放进同一视觉世界逐页展示；每页主题独立完整，不把一句大标题切成跨页画布。
+  - Use when your content needs the mosaic portfolio showcase format.
 - [值得互相问的问题卡 / Conversation Question Cards](./instagram-conversation-questions/SKILL.md)
   - 问题本身是可用产物；区别于有标准答案的测试和引导填写的工作表。
   - Use when your content needs the conversation question cards format.
