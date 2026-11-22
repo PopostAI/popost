@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-timed-action-plan",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "限期行动与挑战计划",
+      "summary": "用清楚期限组织动作，先总览日历，再按日期或阶段给任务。",
+      "useWhen": "日期推动递进；区别于按可用容量分配的一般周计划。",
+      "instructions": "目标、期限、阶段动作、所需材料与完成条件",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Timed Action Plan",
+      "summary": "Create an Instagram how-to carousel using the timed action plan structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the timed action plan format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-timed-action-plan/page-01-9b1bab132468.webp",
+    "https://static.popost.ai/templates/instagram-timed-action-plan/page-02-4237c3cab202.webp",
+    "https://static.popost.ai/templates/instagram-timed-action-plan/page-03-dc51ae08370f.webp",
+    "https://static.popost.ai/templates/instagram-timed-action-plan/page-04-d07bf4c0adce.webp",
+    "https://static.popost.ai/templates/instagram-timed-action-plan/page-05-858e05dbc862.webp",
+    "https://static.popost.ai/templates/instagram-timed-action-plan/page-06-aa846de190c9.webp",
+    "https://static.popost.ai/templates/instagram-timed-action-plan/page-07-719b10094fee.webp",
+    "https://static.popost.ai/templates/instagram-timed-action-plan/page-08-2c364175fef7.webp",
+    "https://static.popost.ai/templates/instagram-timed-action-plan/page-09-4392fd8c63ee.webp"
+  ],
+  "match": {
+    "goals": [
+      "限期行动与挑战计划",
+      "Timed Action Plan",
+      "挑战计划",
+      "限期行动",
+      "timed challenge",
+      "timed action plan",
+      "monthly creative challenge",
+      "daily prompt calendar"
+    ],
+    "imageCues": [
+      "封面为真实人/工作场景，红底短问题与粗白标题64–80px靠中下部",
+      "内页纸白底，红色大写标题52–68px",
+      "总览分阶段列出，详情页左上浅蓝日期段28–34px，下面行动、产出、核对条件32–38px"
+    ],
+    "exclusions": [
+      "日期安排速查表",
+      "Calendar Cheat Sheet",
+      "从入门到进阶路线",
+      "Learning Path",
+      "大目标拆成可核对指标",
+      "Goal-to-benchmarks Guide"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/617e05dafda04206219dea8fc93656ae8925c7b44f3ea8c30766ede8e3466846.webp"
+}

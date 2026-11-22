@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-two-perspectives",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "同一瞬间的两个视角",
+      "summary": "先展示一个人的所见，再翻页揭晓另一人的视角，让同一时刻获得新的意义。",
+      "useWhen": "两图必须属于同一真实关系或情境；区别于任意两张感性配图。",
+      "instructions": "同一情境的双视角照片、视角归属与实际关系",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Two Perspectives Story",
+      "summary": "Create an Instagram story carousel using the two perspectives story structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the two perspectives story format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-two-perspectives/page-01-baf5ee82db9a.webp",
+    "https://static.popost.ai/templates/instagram-two-perspectives/page-02-175931e1d791.webp"
+  ],
+  "match": {
+    "goals": [
+      "同一瞬间的两个视角",
+      "Two Perspectives Story",
+      "双视角照片",
+      "同一瞬间两种视角",
+      "two perspectives",
+      "two perspective photo reveal"
+    ],
+    "imageCues": [
+      "通常两页全幅照片，同一瞬间两个互相对应的视角",
+      "上部一行小标签32–40px“我的视角/对方的视角”",
+      "人物在各自视角中的位置关系可还原，保留自然现场，不加说明卡"
+    ],
+    "exclusions": [
+      "小时候与现在的同一种热爱",
+      "Then and Now Photo Pairs"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/3bea92e50457806a719da65acfb75c35ec6069b1c28a9ac4047f43bbe02909b4.webp"
+}

@@ -1,10 +1,12 @@
 /** Baseline of the keyword search on the labelled set: it must not get worse (it is only an optional shortcut). */
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { loadCatalog, loadEvalQueries, runEval } from './template-search-eval';
 
 describe('template search evaluation set', () => {
   const catalog = loadCatalog();
   const queries = loadEvalQueries();
+  const { platforms } = JSON.parse(readFileSync(new URL('./fixtures/template-search-eval.json', import.meta.url), 'utf8')) as { platforms: string[] };
 
   it('is well formed: ids exist, both languages and all kinds are covered', () => {
     const ids = new Set(catalog.map((entry) => entry.id));
@@ -17,7 +19,8 @@ describe('template search evaluation set', () => {
   });
 
   it('does not fall below the recorded baseline (61/122 top-1, 77/122 top-3)', () => {
-    const report = runEval(catalog, queries);
+    // Preserve the labelled platform scope; new platforms have independent relevance labels.
+    const report = runEval(catalog.filter((entry) => platforms.includes(entry.platform)), queries);
     expect(report.overall.total).toBe(122);
     expect(report.overall.top1).toBeGreaterThanOrEqual(61);
     expect(report.overall.top3).toBeGreaterThanOrEqual(77);

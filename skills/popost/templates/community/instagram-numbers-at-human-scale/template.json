@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-numbers-at-human-scale",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "把数字换成看得见的规模",
+      "summary": "把抽象数字对应到有依据的真实空间或人群规模，让读者先看到数量意味着什么。",
+      "useWhen": "换算后的场景帮助理解同一个数；区别于条形排行和无数值依据的视觉类比。",
+      "instructions": "真实数字、单位、可靠换算关系、对应规模图与来源",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Numbers at Human Scale",
+      "summary": "Create an Instagram reference carousel using the numbers at human scale structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the numbers at human scale format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-numbers-at-human-scale/page-01-d725ef792f06.webp",
+    "https://static.popost.ai/templates/instagram-numbers-at-human-scale/page-02-88cce7b31cae.webp",
+    "https://static.popost.ai/templates/instagram-numbers-at-human-scale/page-03-063474dd1f49.webp",
+    "https://static.popost.ai/templates/instagram-numbers-at-human-scale/page-04-14be3abfc5e3.webp",
+    "https://static.popost.ai/templates/instagram-numbers-at-human-scale/page-05-cbc3298651db.webp",
+    "https://static.popost.ai/templates/instagram-numbers-at-human-scale/page-06-035a819bd41a.webp"
+  ],
+  "match": {
+    "goals": [
+      "把数字换成看得见的规模",
+      "Numbers at Human Scale",
+      "数字可视化",
+      "规模换算",
+      "human scale numbers",
+      "metric to human scale"
+    ],
+    "imageCues": [
+      "每页上下两个无缝摄影区，约50/50",
+      "上半为说出抽象数字的人/场景，下半为对应规模的群体/空间",
+      "白色粗无衬线30–40px贴各半区靠中缝位置，上为原话，下为数值单位",
+      "最后一页可回到单幅场景承接结论"
+    ],
+    "exclusions": [
+      "同一数据的两种视角",
+      "Two Views of One Dataset"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/c22792c18a1d9afe93804392570d0f589fbf7d20962c54df186a2c3c526a0f71.webp"
+}

@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-document-reveal",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "原始文件证据揭晓",
+      "summary": "先讲一个可核查结果，再展示简历、来信或榜单等原始文件，并指出关键位置。",
+      "useWhen": "文件本身是核心证据，不能只放仿造界面；区别于普通成果图或观点引语。",
+      "instructions": "允许展示的真实文件、对应结果、关键位置与必要遮隐",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Document Reveal Case Study",
+      "summary": "Create an Instagram case study carousel using the document reveal case study structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the document reveal case study format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-document-reveal/page-01-6537e23750d9.webp",
+    "https://static.popost.ai/templates/instagram-document-reveal/page-02-4888fb1f7685.webp"
+  ],
+  "match": {
+    "goals": [
+      "原始文件证据揭晓",
+      "Document Reveal Case Study",
+      "文件揭晓",
+      "原始文件证据",
+      "document reveal",
+      "proof document reveal"
+    ],
+    "imageCues": [
+      "首屏全幅人物/工作场景，上方白底黑字短承诺54–68px，必要时周围放真实相关标记",
+      "第二页展示完整文档，浅灰/白底与细黑边，文档占90%以上宽",
+      "必要时第三页局部放大，不把正文缩到不可读"
+    ],
+    "exclusions": [
+      "成果证据到执行方法",
+      "Evidence-to-method Case Study"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/8f8ced3017d22b275ab179796d4309536053bd33d4e722df1e42889fafa66393.webp"
+}

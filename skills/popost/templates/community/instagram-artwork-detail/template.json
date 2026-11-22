@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-artwork-detail",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "一件作品的细节解读",
+      "summary": "先看完整作品，再逐页放大能改变理解的细节，让读者沿画面发现意义。",
+      "useWhen": "局部必须来自可核对作品；多件作品的风格例子作为变体，不虚构作者意图。",
+      "instructions": "完整作品、高清局部、可靠说明与解释归属",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Artwork Detail Story",
+      "summary": "Create an Instagram story carousel using the artwork detail story structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the artwork detail story format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-artwork-detail/page-01-cfed7891b2f5.webp",
+    "https://static.popost.ai/templates/instagram-artwork-detail/page-02-8bd093921b57.webp",
+    "https://static.popost.ai/templates/instagram-artwork-detail/page-03-6f72132c1f56.webp",
+    "https://static.popost.ai/templates/instagram-artwork-detail/page-04-838ef8fc2fae.webp",
+    "https://static.popost.ai/templates/instagram-artwork-detail/page-05-de4e72fee110.webp",
+    "https://static.popost.ai/templates/instagram-artwork-detail/page-06-4723386a3cfe.webp",
+    "https://static.popost.ai/templates/instagram-artwork-detail/page-07-b48941b3fc1d.webp",
+    "https://static.popost.ai/templates/instagram-artwork-detail/page-08-c3f47b5bee0f.webp",
+    "https://static.popost.ai/templates/instagram-artwork-detail/page-09-68c00bdf2ad8.webp",
+    "https://static.popost.ai/templates/instagram-artwork-detail/page-10-04da486207f9.webp",
+    "https://static.popost.ai/templates/instagram-artwork-detail/page-11-a71e75fc1a12.webp",
+    "https://static.popost.ai/templates/instagram-artwork-detail/page-12-1211df9deac0.webp",
+    "https://static.popost.ai/templates/instagram-artwork-detail/page-13-55f69da3ea2b.webp"
+  ],
+  "match": {
+    "goals": [
+      "一件作品的细节解读",
+      "Artwork Detail Story",
+      "作品细节",
+      "画作解读",
+      "artwork details",
+      "painting narrative close read",
+      "artist style study"
+    ],
+    "imageCues": [
+      "全幅作品高清图，第一屏让全貌与一个可见疑点同在",
+      "后页按线索裁切到相关局部，白色描边短段36–46px放空处，2–4行，不加大框与无关画面",
+      "末页回到全貌与有依据的理解"
+    ],
+    "exclusions": [
+      "一件作品里的象征",
+      "Symbolism in an Artifact",
+      "实拍与技术草图对照",
+      "Photo and Technical Sketch"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/2356dcf8edc949fe06c9ee8f7b2105fe25fc16f70905eb3a6b0ba14c026e0e41.webp"
+}

@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-effort-and-outcome",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "看得见的成果与背后付出",
+      "summary": "用成对照片把困难、准备或投入与可见成果联系起来，表达一项有条件的判断。",
+      "useWhen": "必须解释两图关系；不把励志配图推断成确定因果。物件磨损隐喻也合并在此。",
+      "instructions": "真实投入与结果、可说明关系、配对照片",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Effort and Outcome Opinion",
+      "summary": "Create an Instagram opinion carousel using the effort and outcome opinion structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the effort and outcome opinion format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-effort-and-outcome/page-01-11dd71345340.webp",
+    "https://static.popost.ai/templates/instagram-effort-and-outcome/page-02-08501d1ac470.webp",
+    "https://static.popost.ai/templates/instagram-effort-and-outcome/page-03-bf0db53ab2f6.webp",
+    "https://static.popost.ai/templates/instagram-effort-and-outcome/page-04-a32906b3b32b.webp",
+    "https://static.popost.ai/templates/instagram-effort-and-outcome/page-05-d7d857e5ee5a.webp",
+    "https://static.popost.ai/templates/instagram-effort-and-outcome/page-06-84542cb95b17.webp",
+    "https://static.popost.ai/templates/instagram-effort-and-outcome/page-07-2f0e1ce241a0.webp"
+  ],
+  "match": {
+    "goals": [
+      "看得见的成果与背后付出",
+      "Effort and Outcome Opinion",
+      "成果与付出",
+      "背后努力",
+      "effort and outcome",
+      "effort outcome pairs",
+      "achievement effort pairs",
+      "environment outcome pairs"
+    ],
+    "imageCues": [
+      "每页上下连续训练/制作画面，短白色全大写句子34–44px居中",
+      "上半说出真实感受或可见困难，下半给出对目标有帮助的具体回应",
+      "可重复同一收束句形成节奏，但动作必须推进"
+    ],
+    "exclusions": [
+      "损失一段仍有余量",
+      "Remaining Capacity Reframe"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/b2c77a386538916dc82aab9c0a49104b00b10c11b4a9a36775836c9ce151eded.webp"
+}

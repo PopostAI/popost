@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-research-brief",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "新研究到实际意义",
+      "summary": "从一项可追溯研究进入，分清研究问题、方法、结果与可以支持的实际含义。",
+      "useWhen": "研究设计与局限不可省略；不把相关性改写成确定因果。",
+      "instructions": "原始研究、样本、方法、结果、图表和限制",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Research Brief",
+      "summary": "Create an Instagram news carousel using the research brief structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the research brief format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-research-brief/page-01-0ea06751e679.webp",
+    "https://static.popost.ai/templates/instagram-research-brief/page-02-1f3485c35727.webp",
+    "https://static.popost.ai/templates/instagram-research-brief/page-03-dbecfbe7e824.webp",
+    "https://static.popost.ai/templates/instagram-research-brief/page-04-803f564f9b72.webp",
+    "https://static.popost.ai/templates/instagram-research-brief/page-05-f782564c2911.webp",
+    "https://static.popost.ai/templates/instagram-research-brief/page-06-f4f9b14aa39f.webp",
+    "https://static.popost.ai/templates/instagram-research-brief/page-07-c9076f1196c6.webp",
+    "https://static.popost.ai/templates/instagram-research-brief/page-08-9ca0884eb8da.webp",
+    "https://static.popost.ai/templates/instagram-research-brief/page-09-6b61228e8b5a.webp",
+    "https://static.popost.ai/templates/instagram-research-brief/page-10-d5ae4d34f6b1.webp"
+  ],
+  "match": {
+    "goals": [
+      "新研究到实际意义",
+      "Research Brief",
+      "研究简报",
+      "新研究解读",
+      "research brief",
+      "research to implication brief"
+    ],
+    "imageCues": [
+      "暖白纸纹底，黑色紧缩无衬线大段标题/主张52–66px，左对齐占上半",
+      "中央放研究原图或按同一数据重画图表，下方解读32–38px，页脚明确论文/日期24–28px",
+      "可穿插一张大引语页改变节奏"
+    ],
+    "exclusions": [
+      "常见说法与事实核查",
+      "Myth and Fact Opinion"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/cef7f97906739ee774e3a5225436fec6eae5854388771f71a70dba4c2f5768ce.webp"
+}

@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-local-picks",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "本地精选去处清单",
+      "summary": "按同一筛选理由推荐一个地方的一组去处，以实景照片、地点名和短评逐页展开。",
+      "useWhen": "每项可单独选择，不编造相邻交通；与现有按天串联的旅游攻略区分。",
+      "instructions": "地点、实景、推荐理由、地址与核验日期",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Local Picks List",
+      "summary": "Create an Instagram list carousel using the local picks list structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the local picks list format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-local-picks/page-01-0bbc1b8cb0d6.webp",
+    "https://static.popost.ai/templates/instagram-local-picks/page-02-4c4fb80a9416.webp",
+    "https://static.popost.ai/templates/instagram-local-picks/page-03-d429c8ad7706.webp",
+    "https://static.popost.ai/templates/instagram-local-picks/page-04-4f0ea2d9166e.webp",
+    "https://static.popost.ai/templates/instagram-local-picks/page-05-19b016a4b4d0.webp",
+    "https://static.popost.ai/templates/instagram-local-picks/page-06-355b6ed4197b.webp",
+    "https://static.popost.ai/templates/instagram-local-picks/page-07-b77e991089af.webp",
+    "https://static.popost.ai/templates/instagram-local-picks/page-08-a0a2cc6c5604.webp",
+    "https://static.popost.ai/templates/instagram-local-picks/page-09-f15f52e7c928.webp",
+    "https://static.popost.ai/templates/instagram-local-picks/page-10-1ee440c3ed6f.webp"
+  ],
+  "match": {
+    "goals": [
+      "本地精选去处清单",
+      "Local Picks List",
+      "本地推荐",
+      "城市去处",
+      "local recommendations",
+      "local picks guide"
+    ],
+    "imageCues": [
+      "全幅地点实景，画面不加外框",
+      "封面左下窄列大写紧缩无衬线72–90px，3–5行",
+      "内页地点名放右下60–78px，下面斜体短评30–36px",
+      "底部可加轻暗渐变，保留店面/空间主体",
+      "角落小标记整组同位置"
+    ],
+    "exclusions": [
+      "unrelated format"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/7dc6b248632eac09abe49711088a7868d786935203671d8ae4f0c90920703078.webp"
+}

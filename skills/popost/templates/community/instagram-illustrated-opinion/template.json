@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-illustrated-opinion",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "用场景插画表达观点",
+      "summary": "每页用一个完整场景将观点具体化，让细节揭示容易被忽略的处境。",
+      "useWhen": "每页场景可独立理解；区别于连续人物事件构成的漫画故事。",
+      "instructions": "明确观点、独立场景、角色处境与可确认事实",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Illustrated Opinion Scenes",
+      "summary": "Create an Instagram opinion carousel using the illustrated opinion scenes structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the illustrated opinion scenes format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-illustrated-opinion/page-01-7a5eb3d5e7bc.webp",
+    "https://static.popost.ai/templates/instagram-illustrated-opinion/page-02-569964d036ba.webp",
+    "https://static.popost.ai/templates/instagram-illustrated-opinion/page-03-8a2543d5e0ea.webp",
+    "https://static.popost.ai/templates/instagram-illustrated-opinion/page-04-b194075e2765.webp",
+    "https://static.popost.ai/templates/instagram-illustrated-opinion/page-05-2d8518ae9a17.webp",
+    "https://static.popost.ai/templates/instagram-illustrated-opinion/page-06-f4856d6df9ff.webp",
+    "https://static.popost.ai/templates/instagram-illustrated-opinion/page-07-4b881d5f11a4.webp",
+    "https://static.popost.ai/templates/instagram-illustrated-opinion/page-08-43f5d998adc0.webp",
+    "https://static.popost.ai/templates/instagram-illustrated-opinion/page-09-68ee74b3866e.webp",
+    "https://static.popost.ai/templates/instagram-illustrated-opinion/page-10-61cba0df0ad7.webp"
+  ],
+  "match": {
+    "goals": [
+      "用场景插画表达观点",
+      "Illustrated Opinion Scenes",
+      "插画观点",
+      "场景表达观点",
+      "illustrated opinion",
+      "illustrated principle essay",
+      "illustrated action sequence"
+    ],
+    "imageCues": [
+      "全幅原创编辑插画，人物关系占70–85%，场景中两段手写文字36–44px分别隶属公开判断与被忽略的处境",
+      "文字置天空/墙面等留白，可用细尾线，不另加大面板"
+    ],
+    "exclusions": [
+      "同一问题的不同角色视角",
+      "Different Perspectives Opinion"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/083ea64d916b08587a29e94e999955260fb18d8360e3f559ece9fa51d1e99cec.webp"
+}

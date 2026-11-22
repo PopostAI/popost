@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-experiment-story",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "一个实验是怎样发生的",
+      "summary": "用故事方式复述一个可追溯实验，依次交代问题、设置、任务、结果与解释。",
+      "useWhen": "讲的是一项实验的完整经过；区别于多项亲身尝试记录或刚发布的研究简报。",
+      "instructions": "原始实验来源、设置、任务、实际结果与可解释图像",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Experiment Story Explainer",
+      "summary": "Create an Instagram story carousel using the experiment story explainer structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the experiment story explainer format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-experiment-story/page-01-dd7a1b2cd806.webp",
+    "https://static.popost.ai/templates/instagram-experiment-story/page-02-ba29c76d47cf.webp",
+    "https://static.popost.ai/templates/instagram-experiment-story/page-03-740c167d539b.webp",
+    "https://static.popost.ai/templates/instagram-experiment-story/page-04-a49d6679a24f.webp",
+    "https://static.popost.ai/templates/instagram-experiment-story/page-05-8a9401186572.webp",
+    "https://static.popost.ai/templates/instagram-experiment-story/page-06-ceb88d8cdb81.webp",
+    "https://static.popost.ai/templates/instagram-experiment-story/page-07-6feec31c0408.webp",
+    "https://static.popost.ai/templates/instagram-experiment-story/page-08-9b773791ee76.webp",
+    "https://static.popost.ai/templates/instagram-experiment-story/page-09-fe333d9d4cc4.webp",
+    "https://static.popost.ai/templates/instagram-experiment-story/page-10-e1c3f4f4275c.webp",
+    "https://static.popost.ai/templates/instagram-experiment-story/page-11-fbc8d2923416.webp",
+    "https://static.popost.ai/templates/instagram-experiment-story/page-12-9c6bef10822a.webp",
+    "https://static.popost.ai/templates/instagram-experiment-story/page-13-91c45ae9652d.webp",
+    "https://static.popost.ai/templates/instagram-experiment-story/page-14-608551c49cf1.webp"
+  ],
+  "match": {
+    "goals": [
+      "一个实验是怎样发生的",
+      "Experiment Story Explainer",
+      "实验过程故事",
+      "研究实验故事",
+      "experiment story",
+      "experiment story explainer"
+    ],
+    "imageCues": [
+      "白底，封面中上部黑色标题70–88px与短疑问，下面一幅细致黑白铅笔情境图占45%",
+      "内页交替大留白短叙事与下半人物场景插画",
+      "正文34–42px，关键发现加粗，不一页塞整篇论文"
+    ],
+    "exclusions": [
+      "亲自试过的实验记录",
+      "Personal Experiment Case Study"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/8503f0e8953e2c8fb6dc8f00e553e63eac41ceb1cd3f740d269959f8c8cfb806.webp"
+}

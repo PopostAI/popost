@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-comic-dialogue",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "两个人的一段漫画对话",
+      "summary": "保持角色和场景连续，用提问、回应和追问构成一段有变化的对话。",
+      "useWhen": "对话关系决定页序；区别于相互独立的插画金句。",
+      "instructions": "对话目标、角色设定、逐句对白与真实或创作属性",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Comic Dialogue Story",
+      "summary": "Create an Instagram story carousel using the comic dialogue story structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the comic dialogue story format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-comic-dialogue/page-01-e1533232df96.webp",
+    "https://static.popost.ai/templates/instagram-comic-dialogue/page-02-dfe2793480b0.webp",
+    "https://static.popost.ai/templates/instagram-comic-dialogue/page-03-ed5f5df0f75a.webp",
+    "https://static.popost.ai/templates/instagram-comic-dialogue/page-04-74943d006827.webp",
+    "https://static.popost.ai/templates/instagram-comic-dialogue/page-05-4a279e97bdd2.webp",
+    "https://static.popost.ai/templates/instagram-comic-dialogue/page-06-b74cb77317f4.webp",
+    "https://static.popost.ai/templates/instagram-comic-dialogue/page-07-f8579b1f88a6.webp",
+    "https://static.popost.ai/templates/instagram-comic-dialogue/page-08-35af314c338b.webp",
+    "https://static.popost.ai/templates/instagram-comic-dialogue/page-09-f500b39c4ca2.webp",
+    "https://static.popost.ai/templates/instagram-comic-dialogue/page-10-0002249f0024.webp"
+  ],
+  "match": {
+    "goals": [
+      "两个人的一段漫画对话",
+      "Comic Dialogue Story",
+      "漫画对话",
+      "双人对话",
+      "comic dialogue",
+      "illustrated dialogue"
+    ],
+    "imageCues": [
+      "白/纸白底，每页中间一条细竖分镜线，两位原创墨绿素描角色各占一格，人物站在下半部",
+      "上方手绘多边形对白框，尾巴指向对应角色，字38–48px，行距1.25"
+    ],
+    "exclusions": [
+      "访谈原话分镜故事",
+      "Interview Quote Storyboard",
+      "用故事讲懂一个道理",
+      "Illustrated Story Explainer"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/3ff2255c66df3ba2cc4a9c0b9bfc20e988a8ee5ffe44552a6f286ac5644ded83.webp"
+}

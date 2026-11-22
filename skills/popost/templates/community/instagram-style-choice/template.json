@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-style-choice",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "选一种风格或组个搭配",
+      "summary": "给读者清楚的视觉选项和编号，邀请选偏好或组合出自己的版本。",
+      "useWhen": "没有伪造正确答案；组合、二选一和风格投票合并，区别于现有商品揭晓式双路选择。",
+      "instructions": "可比选项、编号、组合规则与对应图像",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Style Choice Quiz",
+      "summary": "Create an Instagram quiz carousel using the style choice quiz structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the style choice quiz format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-style-choice/page-01-feadc7d4998f.webp",
+    "https://static.popost.ai/templates/instagram-style-choice/page-02-d6ce307da185.webp",
+    "https://static.popost.ai/templates/instagram-style-choice/page-03-92f99a758da2.webp",
+    "https://static.popost.ai/templates/instagram-style-choice/page-04-780ea6d0ff61.webp",
+    "https://static.popost.ai/templates/instagram-style-choice/page-05-00489b60243d.webp",
+    "https://static.popost.ai/templates/instagram-style-choice/page-06-93a83d359919.webp",
+    "https://static.popost.ai/templates/instagram-style-choice/page-07-ae9d643012e4.webp",
+    "https://static.popost.ai/templates/instagram-style-choice/page-08-d7b2fcd1917b.webp"
+  ],
+  "match": {
+    "goals": [
+      "选一种风格或组个搭配",
+      "Style Choice Quiz",
+      "风格二选一",
+      "搭配投票",
+      "style vote",
+      "visual style vote",
+      "build your combination game",
+      "two path choice",
+      "gesture choice prompt"
+    ],
+    "imageCues": [
+      "页面上下各占50%的两种视觉选项，中缝小白色“OR”标签",
+      "封面上下用不同材质/配色的大号斜体“This/That”",
+      "内页各半区放完整风格样本与居中白底名称标签32–40px，作者/来源次级24–28px"
+    ],
+    "exclusions": [
+      "跨页连续画布展示",
+      "Continuous Canvas Showcase",
+      "哪种设定像你",
+      "Identity Match Quiz"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/2c4f4f67311c93cece507d5427ad3355914846efc193c062c0f504a2398b2ba9.webp"
+}

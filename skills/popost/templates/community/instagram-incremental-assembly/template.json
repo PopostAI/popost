@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-incremental-assembly",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "固定机位逐步累加教程",
+      "summary": "保持容器和机位不变，逐页增加一个组成部分，让读者看见成品如何累积。",
+      "useWhen": "连续画面的空间位置必须可对照；不同食谱或物件不另拆模板。",
+      "instructions": "固定机位的真实步骤图、材料名称、分量与顺序",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Incremental Assembly Tutorial",
+      "summary": "Create an Instagram how-to carousel using the incremental assembly tutorial structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the incremental assembly tutorial format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-incremental-assembly/page-01-276ea9199440.webp",
+    "https://static.popost.ai/templates/instagram-incremental-assembly/page-02-22eb484663d3.webp",
+    "https://static.popost.ai/templates/instagram-incremental-assembly/page-03-d846b8b8b8b8.webp",
+    "https://static.popost.ai/templates/instagram-incremental-assembly/page-04-87bb159d1ca3.webp",
+    "https://static.popost.ai/templates/instagram-incremental-assembly/page-05-195bb5f5d47a.webp",
+    "https://static.popost.ai/templates/instagram-incremental-assembly/page-06-ed573b9ec88f.webp",
+    "https://static.popost.ai/templates/instagram-incremental-assembly/page-07-ffa5f80f1c4e.webp",
+    "https://static.popost.ai/templates/instagram-incremental-assembly/page-08-fd8b23f4412c.webp",
+    "https://static.popost.ai/templates/instagram-incremental-assembly/page-09-6b59647d091b.webp"
+  ],
+  "match": {
+    "goals": [
+      "固定机位逐步累加教程",
+      "Incremental Assembly Tutorial",
+      "逐步累加",
+      "固定机位",
+      "incremental assembly",
+      "incremental assembly recipe"
+    ],
+    "imageCues": [
+      "全幅固定俯拍，一只器皿/同一工作台贯穿，机位、光线、主体中心与边界保持一致",
+      "居中粗白字配2–3px黑描边，54–68px",
+      "每页只增加一个物料/动作，成品页展示完整结果"
+    ],
+    "exclusions": [
+      "成品加配方卡教程",
+      "Result and Recipe Card",
+      "幕后制作纪实",
+      "Behind-the-scenes Story"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/c626c0f78295d932301866b0d65d0a2db73d776fc721957f49d31187d2f47718.webp"
+}

@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-age-expectations",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "年龄期待与真实节奏",
+      "summary": "将社会期待的年龄与有依据的真实情况成对放置，讨论人生节奏的误解。",
+      "useWhen": "年龄比较是固定语法；不能用未经核查的统计来制造安慰。",
+      "instructions": "明确年龄期待、可靠事实或个人经历、来源与对应照片",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Age Expectations Reframed",
+      "summary": "Create an Instagram opinion carousel using the age expectations reframed structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the age expectations reframed format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-age-expectations/page-01-b1ad95ca7c61.webp",
+    "https://static.popost.ai/templates/instagram-age-expectations/page-02-366624be654c.webp",
+    "https://static.popost.ai/templates/instagram-age-expectations/page-03-2494eb59456e.webp",
+    "https://static.popost.ai/templates/instagram-age-expectations/page-04-23b2851aefe1.webp",
+    "https://static.popost.ai/templates/instagram-age-expectations/page-05-cdb2f80a0f42.webp",
+    "https://static.popost.ai/templates/instagram-age-expectations/page-06-b6faed980085.webp",
+    "https://static.popost.ai/templates/instagram-age-expectations/page-07-526251f73e29.webp",
+    "https://static.popost.ai/templates/instagram-age-expectations/page-08-0cf7853d3a9c.webp"
+  ],
+  "match": {
+    "goals": [
+      "年龄期待与真实节奏",
+      "Age Expectations Reframed",
+      "年龄焦虑",
+      "自己的节奏",
+      "age expectations",
+      "age expectation reframe"
+    ],
+    "imageCues": [
+      "每页上下两幅生活照，边界无框",
+      "上图一句外界时间期待，下图一句具体个人节奏，白色粗无衬线36–46px位于各半区中下",
+      "照片适度压暗，短句之间有直接语义对应"
+    ],
+    "exclusions": [
+      "损失一段仍有余量",
+      "Remaining Capacity Reframe"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/b463545b5e4ad2ec3d9b073d73aed8fd38d1389fb7bde0cc8a9b97b9e6dbd97e.webp"
+}

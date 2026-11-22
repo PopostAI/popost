@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-object-led-activities",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "实物带出行动清单",
+      "summary": "让一本书、一杯饮品或一种器具作为动作入口，用真实物件照片说明现在可以做什么。",
+      "useWhen": "对象必须对应可执行动作；区别于纯物品展示和仅写励志句子的图集。",
+      "instructions": "可执行活动、对应物件、时间或准备条件、实拍图",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Object-led Activity List",
+      "summary": "Create an Instagram list carousel using the object-led activity list structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the object-led activity list format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-object-led-activities/page-01-9800e38310df.webp",
+    "https://static.popost.ai/templates/instagram-object-led-activities/page-02-f97e4f13ca22.webp",
+    "https://static.popost.ai/templates/instagram-object-led-activities/page-03-cf1193444fac.webp",
+    "https://static.popost.ai/templates/instagram-object-led-activities/page-04-97422d331590.webp",
+    "https://static.popost.ai/templates/instagram-object-led-activities/page-05-067778b959f5.webp",
+    "https://static.popost.ai/templates/instagram-object-led-activities/page-06-e244a90aab23.webp",
+    "https://static.popost.ai/templates/instagram-object-led-activities/page-07-ab285b126579.webp",
+    "https://static.popost.ai/templates/instagram-object-led-activities/page-08-1bab9e4a3228.webp",
+    "https://static.popost.ai/templates/instagram-object-led-activities/page-09-84899933ee78.webp",
+    "https://static.popost.ai/templates/instagram-object-led-activities/page-10-7cc9f95f929a.webp"
+  ],
+  "match": {
+    "goals": [
+      "实物带出行动清单",
+      "Object-led Activity List",
+      "活动点子",
+      "实物行动",
+      "activity ideas",
+      "object led action menu",
+      "role based life framework"
+    ],
+    "imageCues": [
+      "全幅随手拍物件与手部",
+      "封面居中奶油黄衬线标题78–96px，短斜体情境36–42px",
+      "内页主体占画面70–90%，右下/下中仅1–3行白色短动作30–38px，底部细手绘箭头朝右"
+    ],
+    "exclusions": [
+      "unrelated format"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/5bb502d923e2ecce944c6242a4eb5eb2b443ece3b1d8ec4e43763011ae623545.webp"
+}

@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-taste-matched-recommendations",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "喜欢这个也会喜欢清单",
+      "summary": "先点名读者熟悉的作品，再按具体相似特征推荐其他作品，每页解释匹配点。",
+      "useWhen": "推荐理由必须与锚点作品对应；区别于没有匹配条件的普通片单或资源合集。",
+      "instructions": "锚点作品、相似维度、候选作品与可用剧照",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Taste-matched Recommendations",
+      "summary": "Create an Instagram list carousel using the taste-matched recommendations structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the taste-matched recommendations format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-taste-matched-recommendations/page-01-950eb480c097.webp",
+    "https://static.popost.ai/templates/instagram-taste-matched-recommendations/page-02-5308b5301bdb.webp",
+    "https://static.popost.ai/templates/instagram-taste-matched-recommendations/page-03-b6a7b22e49a2.webp",
+    "https://static.popost.ai/templates/instagram-taste-matched-recommendations/page-04-0cc506898d4a.webp",
+    "https://static.popost.ai/templates/instagram-taste-matched-recommendations/page-05-07411a5751b9.webp",
+    "https://static.popost.ai/templates/instagram-taste-matched-recommendations/page-06-e7bb6d74c2fb.webp",
+    "https://static.popost.ai/templates/instagram-taste-matched-recommendations/page-07-810a87fd9bce.webp",
+    "https://static.popost.ai/templates/instagram-taste-matched-recommendations/page-08-161abd08f3b0.webp",
+    "https://static.popost.ai/templates/instagram-taste-matched-recommendations/page-09-56d76773b434.webp",
+    "https://static.popost.ai/templates/instagram-taste-matched-recommendations/page-10-f0c4c6c88185.webp",
+    "https://static.popost.ai/templates/instagram-taste-matched-recommendations/page-11-6e663f461a87.webp"
+  ],
+  "match": {
+    "goals": [
+      "喜欢这个也会喜欢清单",
+      "Taste-matched Recommendations",
+      "相似推荐",
+      "喜好推荐",
+      "if you like this",
+      "taste matched recommendations"
+    ],
+    "imageCues": [
+      "浅青色满版底",
+      "封面大幅黑白主体抠像占中上65%，底部左对齐两行推荐标题70–84px",
+      "内页顶端放“如果喜欢[维度]”30–36px",
+      "中间约55%为大幅横向样图，黑白图只保留一处青色强调",
+      "底部左列作品名/作者年份，右列45%宽的匹配理由"
+    ],
+    "exclusions": [
+      "unrelated format"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/6e8d98f7d1bdc024df1336ecb50fd1426304d56300b13061236ed21ac8c4c41c.webp"
+}

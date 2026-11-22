@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-everyday-interface-story",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "用熟悉界面讲自己的事",
+      "summary": "把真实日历、便签或旧手机界面中的文字作为叙事载体，让界面内容与照片互相补充。",
+      "useWhen": "界面里的内容承担故事，不是只拿软件界面作背景；区别于现有短信商品推荐。",
+      "instructions": "可使用的界面、真实或明确创作的文字、照片及顺序",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Everyday Interface Story",
+      "summary": "Create an Instagram story carousel using the everyday interface story structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the everyday interface story format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-everyday-interface-story/page-01-a9ee00496527.webp",
+    "https://static.popost.ai/templates/instagram-everyday-interface-story/page-02-1d90d83decb6.webp",
+    "https://static.popost.ai/templates/instagram-everyday-interface-story/page-03-94cffd407de4.webp",
+    "https://static.popost.ai/templates/instagram-everyday-interface-story/page-04-6a58616ad2c1.webp",
+    "https://static.popost.ai/templates/instagram-everyday-interface-story/page-05-e7bf970b9384.webp",
+    "https://static.popost.ai/templates/instagram-everyday-interface-story/page-06-e574eaea99b3.webp"
+  ],
+  "match": {
+    "goals": [
+      "用熟悉界面讲自己的事",
+      "Everyday Interface Story",
+      "日常界面",
+      "界面讲故事",
+      "interface story",
+      "everyday ui copy remix",
+      "social interface collage"
+    ],
+    "imageCues": [
+      "首屏自拍/生活场景与白色标题48–62px",
+      "后页纯黑底，中央一张浅灰日程/便签信息窗占80–88%宽，真实UI语法的彩色小点、标题、日期和小工具栏",
+      "标题38–48px，元信息28–34px，留黑至少一半"
+    ],
+    "exclusions": [
+      "真实界面步骤教程",
+      "Screenshot Walkthrough"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/ab28127b0e24d13baedbc4a7fdb84de0140a8c20d559c4fb37ef4a0a389b5cf5.webp"
+}

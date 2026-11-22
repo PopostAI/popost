@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-personal-budget-case",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "真实收支案例档案",
+      "summary": "从真实人物或场景的条件出发，逐项呈现支出、收入和背后的选择。",
+      "useWhen": "每项数字有场景和口径；区别于只用总数做阶段盘点。逐笔余额作为变体。",
+      "instructions": "匿名条件、收支记录、周期、币种与可用实景",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Personal Budget Case Study",
+      "summary": "Create an Instagram case study carousel using the personal budget case study structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the personal budget case study format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-personal-budget-case/page-01-47e77b61e985.webp",
+    "https://static.popost.ai/templates/instagram-personal-budget-case/page-02-614c04c30d31.webp",
+    "https://static.popost.ai/templates/instagram-personal-budget-case/page-03-30e66ca288ec.webp",
+    "https://static.popost.ai/templates/instagram-personal-budget-case/page-04-2c6ea8a1a230.webp",
+    "https://static.popost.ai/templates/instagram-personal-budget-case/page-05-4b895df42cca.webp",
+    "https://static.popost.ai/templates/instagram-personal-budget-case/page-06-c8837182a9f2.webp",
+    "https://static.popost.ai/templates/instagram-personal-budget-case/page-07-9eb3acfccb87.webp",
+    "https://static.popost.ai/templates/instagram-personal-budget-case/page-08-060e011ce3a4.webp"
+  ],
+  "match": {
+    "goals": [
+      "真实收支案例档案",
+      "Personal Budget Case Study",
+      "个人收支",
+      "真实账单",
+      "personal budget",
+      "personal budget case file",
+      "photo expense ledger"
+    ],
+    "imageCues": [
+      "封面粉红底，倾斜深酒红档案卡露在白色信封中，收入大衬线90–115px",
+      "内页纸白浅方格，一张淡粉/橄榄黄纸片占75–85%，顶部衬线栏目60–82px，下面固定字段/金额32–38px与细虚线"
+    ],
+    "exclusions": [
+      "每个阶段的数字与感受",
+      "Milestone and Feeling Log"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/1c5b71de45d3d9a7712f108744a59d96733438edc6744984733e8a0a567e24f7.webp"
+}

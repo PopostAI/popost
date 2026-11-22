@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-character-led-tour",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "跟着角色逛一天",
+      "summary": "用同一个角色作为导览主角，让它在不同真实地点完成连续活动。",
+      "useWhen": "角色是跨页叙事线，地点为被导览对象；区别于普通场所相册。",
+      "instructions": "角色参照、导览地点、实际活动与场景素材",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Character-led Tour Story",
+      "summary": "Create an Instagram story carousel using the character-led tour story structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the character-led tour story format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-character-led-tour/page-01-3fef41fb640d.webp",
+    "https://static.popost.ai/templates/instagram-character-led-tour/page-02-337af26c0dc7.webp",
+    "https://static.popost.ai/templates/instagram-character-led-tour/page-03-44ddf0ee9ef5.webp",
+    "https://static.popost.ai/templates/instagram-character-led-tour/page-04-7030705f712b.webp",
+    "https://static.popost.ai/templates/instagram-character-led-tour/page-05-3cf27c6769ee.webp",
+    "https://static.popost.ai/templates/instagram-character-led-tour/page-06-aefd0ee8a0a9.webp",
+    "https://static.popost.ai/templates/instagram-character-led-tour/page-07-6a80d5181775.webp",
+    "https://static.popost.ai/templates/instagram-character-led-tour/page-08-4d0ed710e1b3.webp",
+    "https://static.popost.ai/templates/instagram-character-led-tour/page-09-2eabb1e9f99f.webp",
+    "https://static.popost.ai/templates/instagram-character-led-tour/page-10-eceb3b597d89.webp",
+    "https://static.popost.ai/templates/instagram-character-led-tour/page-11-394e860f95e7.webp"
+  ],
+  "match": {
+    "goals": [
+      "跟着角色逛一天",
+      "Character-led Tour Story",
+      "角色导览",
+      "跟着角色逛",
+      "character tour",
+      "mascot guided tour"
+    ],
+    "imageCues": [
+      "全幅角色在真实/原创场所中的近景",
+      "首屏上部居中白色黑描边标题56–72px",
+      "后页标题42–56px与一条小对白32–38px随场景空处放，镜头从入口、活动、交流到离开推进"
+    ],
+    "exclusions": [
+      "我的日常与工作之外",
+      "Everyday Photo Diary"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/4481ea5c2e0472dd7093f541229091e036554d0f1c9ced13baae24c2a6375bfb.webp"
+}

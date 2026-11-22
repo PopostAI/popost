@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-said-and-meant",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "说出口的话与真正含义",
+      "summary": "用上下或左右两个画面，将字面表达与本人想表达的含义配对。",
+      "useWhen": "真实含义须由说话人提供或明确作为创作；区别于原句润色句库。",
+      "instructions": "表达原话、经确认的含义、关系和配图",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Said and Meant Opinion",
+      "summary": "Create an Instagram opinion carousel using the said and meant opinion structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the said and meant opinion format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-said-and-meant/page-01-ca57dbfd4a19.webp",
+    "https://static.popost.ai/templates/instagram-said-and-meant/page-02-3ea709b7669e.webp",
+    "https://static.popost.ai/templates/instagram-said-and-meant/page-03-1b8623db5369.webp"
+  ],
+  "match": {
+    "goals": [
+      "说出口的话与真正含义",
+      "Said and Meant Opinion",
+      "话外之意",
+      "说与想",
+      "said versus meant"
+    ],
+    "imageCues": [
+      "上下两幅相同或连续人物场景，顶部黑色小情境条30–36px",
+      "中缝附近一段白底黑字“说出口的话”与另一段彩色底“想表达的需要”，38–48px",
+      "可在第二页重复上一页后把旧文字划掉、突出新的理解"
+    ],
+    "exclusions": [
+      "表达替换句库",
+      "Copy Alternatives Reference"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/d3afc3131fab2c93bc09904c76b99e146afff87bc0958a44c27ef17a7de8821c.webp"
+}

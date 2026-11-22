@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-capacity-planning",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "按精力与容量排计划",
+      "summary": "先盘点时间、精力或资源，再分配主次任务，落到能执行的安排和例外规则。",
+      "useWhen": "容量先于安排；兴趣、内容、账户分工是同一结构的领域变体。",
+      "instructions": "真实容量、任务优先级、约束、时间表与例外",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Capacity-based Planning",
+      "summary": "Create an Instagram how-to carousel using the capacity-based planning structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the capacity-based planning format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-capacity-planning/page-01-4ef40c445236.webp",
+    "https://static.popost.ai/templates/instagram-capacity-planning/page-02-002dd1e7582e.webp",
+    "https://static.popost.ai/templates/instagram-capacity-planning/page-03-4b9c4b4be9d1.webp",
+    "https://static.popost.ai/templates/instagram-capacity-planning/page-04-2e4211356b32.webp",
+    "https://static.popost.ai/templates/instagram-capacity-planning/page-05-9d20ed0ddff7.webp",
+    "https://static.popost.ai/templates/instagram-capacity-planning/page-06-614276885dba.webp"
+  ],
+  "match": {
+    "goals": [
+      "按精力与容量排计划",
+      "Capacity-based Planning",
+      "精力安排",
+      "容量计划",
+      "capacity planning",
+      "capacity based schedule",
+      "capacity audit plan",
+      "planning system walkthrough",
+      "role budget blueprint",
+      "schedule and exception guide"
+    ],
+    "imageCues": [
+      "封面三格生活照拼贴，中央分隔处白色衬线主题62–80px",
+      "内页全幅日常场景，顶部/中上方小衬线步骤名42–52px，下面可读的分组与时间块32–38px，照片适度压暗",
+      "计划表只在需要时出现"
+    ],
+    "exclusions": [
+      "我的日常与工作之外",
+      "Everyday Photo Diary"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/d09f24a89353a716bcc35cb151079f0e39fa88fcb08b3ca14fe675eb49b60aee.webp"
+}

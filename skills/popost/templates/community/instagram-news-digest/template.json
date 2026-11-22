@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-news-digest",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "本期值得知道的更新",
+      "summary": "用一期主题统领多条独立更新，每页一条消息，固定事实、影响和来源字段。",
+      "useWhen": "逐条卡片适合翻页阅读；与现有同页多栏新闻网格区分，风格差异不单独计数。",
+      "instructions": "本期范围、各条更新、图片、实际影响及出处",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "News Digest",
+      "summary": "Create an Instagram news carousel using the news digest structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the news digest format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-news-digest/page-01-f5720a57cb77.webp",
+    "https://static.popost.ai/templates/instagram-news-digest/page-02-48072cba9294.webp",
+    "https://static.popost.ai/templates/instagram-news-digest/page-03-70c64dd452f1.webp",
+    "https://static.popost.ai/templates/instagram-news-digest/page-04-dc964ba94e5c.webp",
+    "https://static.popost.ai/templates/instagram-news-digest/page-05-b45800ab4fb0.webp",
+    "https://static.popost.ai/templates/instagram-news-digest/page-06-4b5c0dd9e1be.webp",
+    "https://static.popost.ai/templates/instagram-news-digest/page-07-14b17af4bf4c.webp"
+  ],
+  "match": {
+    "goals": [
+      "本期值得知道的更新",
+      "News Digest",
+      "资讯摘要",
+      "本期更新",
+      "news digest",
+      "newsletter feature digest",
+      "trend application cards"
+    ],
+    "imageCues": [
+      "封面上半为本期3–4件新闻相关图片拼贴，下半奶油白底大衬线主题74–94px，中间窄粉条重复栏目名",
+      "内页酒红满版，中央奶油白圆角纸卡占75–82%宽，彩色小标题44–54px、正文32–38px，角落相关物件剪贴，底部来源24–28px"
+    ],
+    "exclusions": [
+      "一件事的新闻图文",
+      "Single-event News"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/ba53237b75a139050572f75be6dc231eef2048ca06e542bfcc74a45a6a1dd61b.webp"
+}

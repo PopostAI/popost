@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-effect-breakdown",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "视觉效果拆解教程",
+      "summary": "先展示一个明确效果，再拆出生成它的材质、光线、处理或步骤。",
+      "useWhen": "每一解释都指向可见效果；AI、平面、像素插画是表达变体。",
+      "instructions": "成品、处理前素材、关键参数与操作依据",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Visual Effect Breakdown",
+      "summary": "Create an Instagram how-to carousel using the visual effect breakdown structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the visual effect breakdown format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-effect-breakdown/page-01-d67bae945c87.webp",
+    "https://static.popost.ai/templates/instagram-effect-breakdown/page-02-6e9530208ab2.webp",
+    "https://static.popost.ai/templates/instagram-effect-breakdown/page-03-1af26ca34824.webp",
+    "https://static.popost.ai/templates/instagram-effect-breakdown/page-04-d44839acaf6f.webp",
+    "https://static.popost.ai/templates/instagram-effect-breakdown/page-05-e19c610ebbf1.webp",
+    "https://static.popost.ai/templates/instagram-effect-breakdown/page-06-7cfcb9e8ff50.webp",
+    "https://static.popost.ai/templates/instagram-effect-breakdown/page-07-7f3efbc89a8a.webp",
+    "https://static.popost.ai/templates/instagram-effect-breakdown/page-08-8cf2d4749138.webp"
+  ],
+  "match": {
+    "goals": [
+      "视觉效果拆解教程",
+      "Visual Effect Breakdown",
+      "效果拆解",
+      "视觉效果教程",
+      "visual effect tutorial",
+      "design effect breakdown",
+      "pixel process explainer",
+      "render quality breakdown"
+    ],
+    "imageCues": [
+      "暖白纸底，上方左对齐黑色标题64–80px，重点词加粗",
+      "封面中央大效果图占55%，角落小原图+手绘箭头说明前后",
+      "内页交替大效果图、可复制方法块和局部注释",
+      "注释28–36px沿画面空白放，箭头指向高光/阴影/网点等具体变化"
+    ],
+    "exclusions": [
+      "例子加做法教程",
+      "Worked Example Tutorial"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/7265e7f1d6c4bda75ca7e3a8afd4b8238a89c7a6ecc4a03d42723fe6615bbc16.webp"
+}

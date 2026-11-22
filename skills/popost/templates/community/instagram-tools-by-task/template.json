@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-tools-by-task",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "按任务选工具清单",
+      "summary": "把工具放回具体任务，每页用真实界面、适用工作和选择理由说明该用哪个。",
+      "useWhen": "任务是比较轴；区别于只罗列网址的资源清单。入门与进阶、任务排名合并为同一模板的变体。",
+      "instructions": "任务、候选工具、实际界面、使用条件与价格核验日期",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Tools by Task List",
+      "summary": "Create an Instagram list carousel using the tools by task list structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the tools by task list format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-tools-by-task/page-01-fb83820364aa.webp",
+    "https://static.popost.ai/templates/instagram-tools-by-task/page-02-b52615b24984.webp",
+    "https://static.popost.ai/templates/instagram-tools-by-task/page-03-ade7c3de561e.webp",
+    "https://static.popost.ai/templates/instagram-tools-by-task/page-04-9a5fc9f186cd.webp",
+    "https://static.popost.ai/templates/instagram-tools-by-task/page-05-26ac387221a6.webp",
+    "https://static.popost.ai/templates/instagram-tools-by-task/page-06-5e77578b7ff4.webp",
+    "https://static.popost.ai/templates/instagram-tools-by-task/page-07-fc277e57b2f4.webp"
+  ],
+  "match": {
+    "goals": [
+      "按任务选工具清单",
+      "Tools by Task List",
+      "工具推荐",
+      "按任务选工具",
+      "tool recommendations",
+      "tool usecase cards",
+      "task based tool ranking",
+      "beginner pro tool comparison"
+    ],
+    "imageCues": [
+      "1080×1350 起点",
+      "封面暖光书房/桌面场景占全幅，巨型珊瑚色数量在左上",
+      "左下叠三行白色与珊瑚色斜体衬线主题，标题90–125px，短承诺40–48px",
+      "内页顶部居中两行斜体任务名72–88px、下接32–38px用途",
+      "中下部占70%宽的深色终端窗，窄标题栏、三色窗口点、等宽说明30–36px，条目之间留明显间距"
+    ],
+    "exclusions": [
+      "主题资源收藏清单",
+      "Curated Resource List"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/1c6f756caaaf122da921ced9c0f8cf6f3535308ea46224aae45859f309832338.webp"
+}

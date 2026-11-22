@@ -1,4 +1,5 @@
 {
+  "platforms": ["tiktok", "xiaohongshu"],
   "description": "Labelled queries for the local template search. expected = acceptable template ids (any of them counts as a hit). kind: keyword = short product/format words; paraphrase = natural sentence avoiding the template's own name words; cross = the distinctive words of the query are in the other language than the template's wording for them.",
   "queries": [
     { "query": "口红试色", "lang": "zh", "kind": "keyword", "expected": ["tiktok-makeup-shade-swatches"] },

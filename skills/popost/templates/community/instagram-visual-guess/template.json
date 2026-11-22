@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-visual-guess",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "看图猜答案",
+      "summary": "用编号图片提出可以作答的问题，先保留答案，再提供依据和揭晓。",
+      "useWhen": "必须有可核验答案；区别于没有标准答案的偏好投票。",
+      "instructions": "问题、候选图、真实答案、判定依据与揭晓素材",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Visual Guess Quiz",
+      "summary": "Create an Instagram quiz carousel using the visual guess quiz structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the visual guess quiz format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-visual-guess/page-01-237bea529489.webp",
+    "https://static.popost.ai/templates/instagram-visual-guess/page-02-8106fd80dacc.webp",
+    "https://static.popost.ai/templates/instagram-visual-guess/page-03-3f18b50c4125.webp",
+    "https://static.popost.ai/templates/instagram-visual-guess/page-04-7352ad367e64.webp",
+    "https://static.popost.ai/templates/instagram-visual-guess/page-05-2fd83b037440.webp",
+    "https://static.popost.ai/templates/instagram-visual-guess/page-06-165bc67ee885.webp",
+    "https://static.popost.ai/templates/instagram-visual-guess/page-07-d17ad0d93d9a.webp",
+    "https://static.popost.ai/templates/instagram-visual-guess/page-08-9267841cd318.webp",
+    "https://static.popost.ai/templates/instagram-visual-guess/page-09-fc93c85a0f52.webp"
+  ],
+  "match": {
+    "goals": [
+      "看图猜答案",
+      "Visual Guess Quiz",
+      "看图猜题",
+      "视觉谜题",
+      "visual quiz",
+      "visual guess reveal"
+    ],
+    "imageCues": [
+      "封面暖白底，上方混合衬线/无衬线问题72–92px，下面大图占65%，右下大序号40–50px",
+      "后页交替全幅题图与小型问题/时限，答案页单独给出图源/依据，避免提前暴露"
+    ],
+    "exclusions": [
+      "哪种设定像你",
+      "Identity Match Quiz"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/32a64e4706ddcde1e99d54c403b6c43c5086e3b809c8513b9f5386d259104491.webp"
+}

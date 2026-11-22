@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-one-variable-comparison",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "只改一个变量的对照",
+      "summary": "保留可辨认的共同参照，让一个变量改变前后的差别可以直接被看见。",
+      "useWhen": "变量需明确，不能用无关照片冒充对照；区别于现有空间改造前后实拍。",
+      "instructions": "共同主体、改变变量、真实前后图、相同展示条件",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "One-variable Comparison",
+      "summary": "Create an Instagram case study carousel using the one-variable comparison structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the one-variable comparison format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-one-variable-comparison/page-01-13ed80bf6fdf.webp",
+    "https://static.popost.ai/templates/instagram-one-variable-comparison/page-02-7be67b7f962d.webp",
+    "https://static.popost.ai/templates/instagram-one-variable-comparison/page-03-06d2f0233e76.webp",
+    "https://static.popost.ai/templates/instagram-one-variable-comparison/page-04-ea758a465a35.webp",
+    "https://static.popost.ai/templates/instagram-one-variable-comparison/page-05-71e788f6a2d5.webp"
+  ],
+  "match": {
+    "goals": [
+      "只改一个变量的对照",
+      "One-variable Comparison",
+      "单变量对照",
+      "只改一个变量",
+      "one variable test",
+      "controlled variable comparison",
+      "enhancement comparison",
+      "control condition photo pairs",
+      "prototype to refined"
+    ],
+    "imageCues": [
+      "纸白底，顶部黑色粗标题48–62px，关键词荧光黄下划线",
+      "中部两例上下或并列，保留同一主体、图形与取景，只改变一个明确变量",
+      "细手绘箭头连接变化处，说明32–38px"
+    ],
+    "exclusions": [
+      "旧版与新版逐项检查",
+      "Version Change Audit"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/a4f0a1d771e12d026cf08106485549e881b876d3a0ad5eb055887a551d42273c.webp"
+}

@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-searchable-asset-index",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "可搜索素材索引",
+      "summary": "将素材预览与可搜索的名称或关键词绑定，读者能照着找到所见的元素。",
+      "useWhen": "必须有检索键和平台条件；区别于只供欣赏的灵感拼贴。",
+      "instructions": "素材预览、关键词或编号、平台、授权与可用版本",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Searchable Asset Index",
+      "summary": "Create an Instagram reference carousel using the searchable asset index structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the searchable asset index format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-searchable-asset-index/page-01-3cdc1b14f1c0.webp",
+    "https://static.popost.ai/templates/instagram-searchable-asset-index/page-02-cf9c3c7dc472.webp",
+    "https://static.popost.ai/templates/instagram-searchable-asset-index/page-03-dd75c95466e4.webp",
+    "https://static.popost.ai/templates/instagram-searchable-asset-index/page-04-b0698f2617ee.webp",
+    "https://static.popost.ai/templates/instagram-searchable-asset-index/page-05-14dfcacb8720.webp",
+    "https://static.popost.ai/templates/instagram-searchable-asset-index/page-06-82aff718b5d0.webp",
+    "https://static.popost.ai/templates/instagram-searchable-asset-index/page-07-8662fb7bfc0b.webp"
+  ],
+  "match": {
+    "goals": [
+      "可搜索素材索引",
+      "Searchable Asset Index",
+      "素材检索",
+      "素材关键词",
+      "asset keywords",
+      "searchable asset index"
+    ],
+    "imageCues": [
+      "蓝色牛仔布/有纹理底，封面白色粗描边胖体分层叠排，黄色强调关键词",
+      "四角零散文具剪贴",
+      "内页标题70–90px位于左上或中央，6–10件同类样本散布但不重叠主体，底部撕纸形标签展示检索词32–38px"
+    ],
+    "exclusions": [
+      "指令快捷语速查",
+      "Command Shortcut Cheat Sheet"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/e93502c67003c04d0197b263ff495bae9d2709d5f102a22cb60a920060af5458.webp"
+}

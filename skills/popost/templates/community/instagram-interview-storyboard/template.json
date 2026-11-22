@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-interview-storyboard",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "访谈原话分镜故事",
+      "summary": "将一次真实访谈的原话切成连续对话节拍，用说话人画面与字幕分镜推进。",
+      "useWhen": "原话连续而有前后文；区别于单句金句解读和多人名言合集。",
+      "instructions": "授权采访画面、可核对逐字稿、说话人及上下文",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Interview Quote Storyboard",
+      "summary": "Create an Instagram story carousel using the interview quote storyboard structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the interview quote storyboard format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-interview-storyboard/page-01-928ee2ae1976.webp",
+    "https://static.popost.ai/templates/instagram-interview-storyboard/page-02-2578e0c22df4.webp",
+    "https://static.popost.ai/templates/instagram-interview-storyboard/page-03-8a2f54cb71a6.webp",
+    "https://static.popost.ai/templates/instagram-interview-storyboard/page-04-55665a143a51.webp",
+    "https://static.popost.ai/templates/instagram-interview-storyboard/page-05-b129f03a61f2.webp",
+    "https://static.popost.ai/templates/instagram-interview-storyboard/page-06-3546bd7cb31d.webp",
+    "https://static.popost.ai/templates/instagram-interview-storyboard/page-07-f04a08632330.webp",
+    "https://static.popost.ai/templates/instagram-interview-storyboard/page-08-514ecf312712.webp",
+    "https://static.popost.ai/templates/instagram-interview-storyboard/page-09-9cd99deffe8c.webp",
+    "https://static.popost.ai/templates/instagram-interview-storyboard/page-10-4924898d0500.webp",
+    "https://static.popost.ai/templates/instagram-interview-storyboard/page-11-ed25f7416270.webp",
+    "https://static.popost.ai/templates/instagram-interview-storyboard/page-12-8e21ee5ac78e.webp",
+    "https://static.popost.ai/templates/instagram-interview-storyboard/page-13-3c20a78716af.webp",
+    "https://static.popost.ai/templates/instagram-interview-storyboard/page-14-5a6ed6a2790d.webp",
+    "https://static.popost.ai/templates/instagram-interview-storyboard/page-15-908b24f6c0e5.webp",
+    "https://static.popost.ai/templates/instagram-interview-storyboard/page-16-5ed7d383511c.webp",
+    "https://static.popost.ai/templates/instagram-interview-storyboard/page-17-ed6e3f3a050a.webp",
+    "https://static.popost.ai/templates/instagram-interview-storyboard/page-18-5bf7992ad537.webp",
+    "https://static.popost.ai/templates/instagram-interview-storyboard/page-19-683f9281ba55.webp"
+  ],
+  "match": {
+    "goals": [
+      "访谈原话分镜故事",
+      "Interview Quote Storyboard",
+      "访谈分镜",
+      "原话故事",
+      "interview quotes",
+      "quote storyboard"
+    ],
+    "imageCues": [
+      "页面上下2格或3格无缝纪实画面，同一采访环境与两位说话人",
+      "每格字幕30–38px，回答用黄字/提问用白字，细黑描边",
+      "字幕靠下不挡口型",
+      "首屏直接进入有悬念的一问一答"
+    ],
+    "exclusions": [
+      "两个人的一段漫画对话",
+      "Comic Dialogue Story",
+      "读者来信与专家回应",
+      "Reader Question and Answer"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/435eaa53c4ffd453f734eaaea1118f783a35d8df3edaefcf9271e3f3fee97980.webp"
+}

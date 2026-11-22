@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-destination-costs",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "目的地花费对照卡",
+      "summary": "为每个目的地使用同样费用字段，让预算、住宿、饮食和交通能横向比较。",
+      "useWhen": "按目的地比较费用，不负责按天串联路线；区别于现有旅游攻略。",
+      "instructions": "地点实景、费用口径、币种、日期、人数与来源",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Destination Cost Reference",
+      "summary": "Create an Instagram reference carousel using the destination cost reference structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the destination cost reference format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-destination-costs/page-01-39ac7c056072.webp",
+    "https://static.popost.ai/templates/instagram-destination-costs/page-02-727ac3058b7f.webp",
+    "https://static.popost.ai/templates/instagram-destination-costs/page-03-110c12869593.webp",
+    "https://static.popost.ai/templates/instagram-destination-costs/page-04-d55b13f75080.webp",
+    "https://static.popost.ai/templates/instagram-destination-costs/page-05-c454591c9b4a.webp",
+    "https://static.popost.ai/templates/instagram-destination-costs/page-06-93fef4973a35.webp",
+    "https://static.popost.ai/templates/instagram-destination-costs/page-07-443f0656e55d.webp",
+    "https://static.popost.ai/templates/instagram-destination-costs/page-08-ce21347aa6d7.webp",
+    "https://static.popost.ai/templates/instagram-destination-costs/page-09-092b8f449e01.webp",
+    "https://static.popost.ai/templates/instagram-destination-costs/page-10-d021e59d705d.webp",
+    "https://static.popost.ai/templates/instagram-destination-costs/page-11-ce6b4a488f0a.webp"
+  ],
+  "match": {
+    "goals": [
+      "目的地花费对照卡",
+      "Destination Cost Reference",
+      "旅行花费",
+      "目的地预算",
+      "destination costs",
+      "destination cost cards"
+    ],
+    "imageCues": [
+      "全幅目的地实景，封面白色大写粗体标题66–86px，关键词亮黄，可用一个圆形细节图",
+      "内页顶部目的地名72–90px亮黄，以下固定四行预算、住宿、餐食、交通34–42px白色大写",
+      "景色占下部65%"
+    ],
+    "exclusions": [
+      "同样预算的不同选择",
+      "Same-budget Choice Opinion"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/1d767088113035c187e5b5eab82ddd73692a89f44994ba1a6e954882842633b2.webp"
+}

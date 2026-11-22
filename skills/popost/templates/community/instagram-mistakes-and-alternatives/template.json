@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-mistakes-and-alternatives",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "常见错误与替代做法",
+      "summary": "每页指出一个具体失误，展示实际影响，再给能执行的替代方案。",
+      "useWhen": "必须出现失误、后果、替代三项；个人省钱替代做法作为同一结构的经验变体。",
+      "instructions": "具体场景、失误、后果证据、替代方案和实景照片",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Mistakes and Better Alternatives",
+      "summary": "Create an Instagram list carousel using the mistakes and better alternatives structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the mistakes and better alternatives format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-mistakes-and-alternatives/page-01-b86838183e19.webp",
+    "https://static.popost.ai/templates/instagram-mistakes-and-alternatives/page-02-5be9d27669db.webp",
+    "https://static.popost.ai/templates/instagram-mistakes-and-alternatives/page-03-aeeefa3b1c5e.webp",
+    "https://static.popost.ai/templates/instagram-mistakes-and-alternatives/page-04-97a013630fa5.webp",
+    "https://static.popost.ai/templates/instagram-mistakes-and-alternatives/page-05-6518854be662.webp",
+    "https://static.popost.ai/templates/instagram-mistakes-and-alternatives/page-06-5d0f2ccd6e96.webp"
+  ],
+  "match": {
+    "goals": [
+      "常见错误与替代做法",
+      "Mistakes and Better Alternatives",
+      "常见错误",
+      "避坑指南",
+      "common mistakes",
+      "mistake impact alternative",
+      "real cost saving alternatives"
+    ],
+    "imageCues": [
+      "全幅生活/活动实拍",
+      "封面上部白色紧包文字条写数量与错误，54–68px，下接较小说明",
+      "内页上部居中序号与错误名48–62px",
+      "中下部按场景空处放2–3条白底黑字短句，分别说明后果与替代动作，不遮关键证据"
+    ],
+    "exclusions": [
+      "旧版与新版逐项检查",
+      "Version Change Audit"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/11fdba3cd91c9bab758f33d556869cd3d138c987d4b22487180ae4c72a48225a.webp"
+}

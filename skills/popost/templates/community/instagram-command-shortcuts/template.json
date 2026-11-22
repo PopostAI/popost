@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-command-shortcuts",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "指令快捷语速查",
+      "summary": "每页围绕一个短指令，用语法、作用和实际对话示例说明怎么调用。",
+      "useWhen": "按命令语法查找，不是长篇创作提示词合集；不得把传言中的隐藏指令写成官方能力。",
+      "instructions": "验证过的指令、使用环境、语法与实际输出",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Command Shortcut Cheat Sheet",
+      "summary": "Create an Instagram reference carousel using the command shortcut cheat sheet structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the command shortcut cheat sheet format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-command-shortcuts/page-01-91886df03aed.webp",
+    "https://static.popost.ai/templates/instagram-command-shortcuts/page-02-3ca52c2b3546.webp",
+    "https://static.popost.ai/templates/instagram-command-shortcuts/page-03-d23a50694883.webp",
+    "https://static.popost.ai/templates/instagram-command-shortcuts/page-04-b3da216f6eb0.webp",
+    "https://static.popost.ai/templates/instagram-command-shortcuts/page-05-80d1dc7bed6d.webp",
+    "https://static.popost.ai/templates/instagram-command-shortcuts/page-06-d084d0c1c3db.webp",
+    "https://static.popost.ai/templates/instagram-command-shortcuts/page-07-ff0f89e11b1d.webp"
+  ],
+  "match": {
+    "goals": [
+      "指令快捷语速查",
+      "Command Shortcut Cheat Sheet",
+      "快捷指令",
+      "提示词速查",
+      "command shortcuts",
+      "prompt shortcode cheatsheet"
+    ],
+    "imageCues": [
+      "暖白纸/浅方格底",
+      "封面居中斜体衬线分行题目76–96px，单词下用2–3处低饱和荧光笔条",
+      "内页左上“编号—指令”56–68px，说明32–38px",
+      "中部真实对话/编辑器截图占60–70%宽，底部留呼吸空间"
+    ],
+    "exclusions": [
+      "可搜索素材索引",
+      "Searchable Asset Index"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/5aadd672b945733ed152763130302e5cdf2ba7d9f03e5e7df15957bf08aa603c.webp"
+}

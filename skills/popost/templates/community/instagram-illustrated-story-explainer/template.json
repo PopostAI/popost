@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-illustrated-story-explainer",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "用故事讲懂一个道理",
+      "summary": "先讲具体人物遭遇，再用连续场景和转折引出一个可以理解的道理。",
+      "useWhen": "道理来自事件推进；区别于开头给观点、后面罗列理由的观点模板。",
+      "instructions": "完整故事、转折、场景、可支持的含义与出处",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Illustrated Story Explainer",
+      "summary": "Create an Instagram story carousel using the illustrated story explainer structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the illustrated story explainer format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-illustrated-story-explainer/page-01-95b60168eac4.webp",
+    "https://static.popost.ai/templates/instagram-illustrated-story-explainer/page-02-1795cf36725c.webp",
+    "https://static.popost.ai/templates/instagram-illustrated-story-explainer/page-03-e4521b60c674.webp",
+    "https://static.popost.ai/templates/instagram-illustrated-story-explainer/page-04-f0de23162477.webp",
+    "https://static.popost.ai/templates/instagram-illustrated-story-explainer/page-05-b3dc357f03a3.webp",
+    "https://static.popost.ai/templates/instagram-illustrated-story-explainer/page-06-6455c7539edb.webp",
+    "https://static.popost.ai/templates/instagram-illustrated-story-explainer/page-07-c3adb0daafeb.webp",
+    "https://static.popost.ai/templates/instagram-illustrated-story-explainer/page-08-e8798ca71337.webp"
+  ],
+  "match": {
+    "goals": [
+      "用故事讲懂一个道理",
+      "Illustrated Story Explainer",
+      "故事讲道理",
+      "插画解释",
+      "illustrated lesson",
+      "illustrated story essay"
+    ],
+    "imageCues": [
+      "封面手绘大标题90–120px占上半，人物场景占下半",
+      "详情2–3个横向分镜，黑细边，顶部小叙述条28–34px，人物与对白作为一组",
+      "关键人物用蓝/桃色，其余人物灰线"
+    ],
+    "exclusions": [
+      "两个人的一段漫画对话",
+      "Comic Dialogue Story"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/2c2a9d1d6a07aa4e03c26eb527a17986d8c688def5d9de7e9c5da27c4110fd15.webp"
+}

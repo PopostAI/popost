@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-identity-match",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "哪种设定像你",
+      "summary": "用清楚的标签把不同视觉设定与个人偏好相连，让读者挑选认同的一项。",
+      "useWhen": "月份、角色和兴趣是娱乐设定，不能写成人格测量或身份高低判断。",
+      "instructions": "娱乐匹配规则、标签、各项视觉设定与说明",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Identity Match Quiz",
+      "summary": "Create an Instagram quiz carousel using the identity match quiz structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the identity match quiz format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-identity-match/page-01-20ebb80ba4e6.webp",
+    "https://static.popost.ai/templates/instagram-identity-match/page-02-84a120358888.webp",
+    "https://static.popost.ai/templates/instagram-identity-match/page-03-fcf8d36d89f3.webp",
+    "https://static.popost.ai/templates/instagram-identity-match/page-04-cdf6d9895be1.webp",
+    "https://static.popost.ai/templates/instagram-identity-match/page-05-ce33059b02d1.webp",
+    "https://static.popost.ai/templates/instagram-identity-match/page-06-bc6064a4c767.webp",
+    "https://static.popost.ai/templates/instagram-identity-match/page-07-04fdaada5550.webp",
+    "https://static.popost.ai/templates/instagram-identity-match/page-08-dda66df3f63b.webp",
+    "https://static.popost.ai/templates/instagram-identity-match/page-09-987f9a6ec294.webp",
+    "https://static.popost.ai/templates/instagram-identity-match/page-10-ad23a5379845.webp",
+    "https://static.popost.ai/templates/instagram-identity-match/page-11-70ed1ac3eb67.webp",
+    "https://static.popost.ai/templates/instagram-identity-match/page-12-7bef4a93ba27.webp",
+    "https://static.popost.ai/templates/instagram-identity-match/page-13-1c29f1d16fe7.webp"
+  ],
+  "match": {
+    "goals": [
+      "哪种设定像你",
+      "Identity Match Quiz",
+      "趣味身份",
+      "设定匹配",
+      "identity match",
+      "calendar identity match",
+      "archetype moodboard",
+      "persona trait cards",
+      "identity preference series",
+      "three tier identity grid"
+    ],
+    "imageCues": [
+      "封面全幅奇幻空间/物件，上中部白字黑描边主题50–64px，明确一个分配规则",
+      "后页一标签对应一完整场景，标签42–56px放相同位置",
+      "环境和物件占全幅，不加解释长文"
+    ],
+    "exclusions": [
+      "看图猜答案",
+      "Visual Guess Quiz",
+      "选一种风格或组个搭配",
+      "Style Choice Quiz"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/134052bb1c306efc0d4c083dfda4d639ad64127f5ef16524df4c3d4d3ff5354e.webp"
+}

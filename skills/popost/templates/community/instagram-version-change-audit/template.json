@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-version-change-audit",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "旧版与新版逐项检查",
+      "summary": "对照有日期或版本的同一对象，按固定字段逐项指出实际变化与仍未变化的部分。",
+      "useWhen": "需要真实两版本证据；区别于只改一个变量的受控对照。",
+      "instructions": "真实旧新版、版本时间、共享字段和可核对图片",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Version Change Audit",
+      "summary": "Create an Instagram case study carousel using the version change audit structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the version change audit format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-version-change-audit/page-01-8a1e5d788b7d.webp",
+    "https://static.popost.ai/templates/instagram-version-change-audit/page-02-2f3f47de5114.webp",
+    "https://static.popost.ai/templates/instagram-version-change-audit/page-03-478f8e6ae100.webp",
+    "https://static.popost.ai/templates/instagram-version-change-audit/page-04-50da583c61be.webp"
+  ],
+  "match": {
+    "goals": [
+      "旧版与新版逐项检查",
+      "Version Change Audit",
+      "版本变化",
+      "新旧检查",
+      "version audit",
+      "version change audit",
+      "design era comparison"
+    ],
+    "imageCues": [
+      "白底，上部居中一句旧认知40–48px及酒红色修正34–40px",
+      "中间细竖分隔线，左右同尺度旧版/新版实物各占35%",
+      "下面对应字段列表30–36px，改变项加粗",
+      "箭头连到“Then/Now”，底部日期与来源"
+    ],
+    "exclusions": [
+      "常见错误与替代做法",
+      "Mistakes and Better Alternatives",
+      "只改一个变量的对照",
+      "One-variable Comparison"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/6854ca02d0287847a95ade3a51bcab012a25fafa1004d045984d8a8e807e7065.webp"
+}

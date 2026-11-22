@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-palette-application-board",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "配色到实际物料灵感板",
+      "summary": "把一组命名配色、色签和实际物料或空间照片放在一起，展示如何落地。",
+      "useWhen": "展示色彩应用，不声称全部来自同一照片；与照片取色区分。",
+      "instructions": "配色值、应用领域、对应材质或场景图",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Palette Application Board",
+      "summary": "Create an Instagram showcase carousel using the palette application board structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the palette application board format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-palette-application-board/page-01-4e9d3c3db85f.webp",
+    "https://static.popost.ai/templates/instagram-palette-application-board/page-02-9bfb466a43c5.webp",
+    "https://static.popost.ai/templates/instagram-palette-application-board/page-03-61cb7dbe823d.webp",
+    "https://static.popost.ai/templates/instagram-palette-application-board/page-04-949dd0c77620.webp",
+    "https://static.popost.ai/templates/instagram-palette-application-board/page-05-c9df8a78a8a8.webp"
+  ],
+  "match": {
+    "goals": [
+      "配色到实际物料灵感板",
+      "Palette Application Board",
+      "配色物料",
+      "配色灵感板",
+      "palette moodboard",
+      "palette to material board"
+    ],
+    "imageCues": [
+      "封面全幅氛围实拍，底部粗白标题72–92px",
+      "每张内页是满版拼贴：4–6张真实物料图按矩形网格拼合，中央品牌色纸条写配色名56–70px及一条情绪说明32–36px，侧边两块颜色样本与准确色值"
+    ],
+    "exclusions": [
+      "品牌系统与应用展示",
+      "Brand System Showcase",
+      "从照片提取配色",
+      "Image-to-palette Showcase"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/d44794d9a7e832bcf534910fb77b74b904a7f14def78bfa688f74650be293927.webp"
+}

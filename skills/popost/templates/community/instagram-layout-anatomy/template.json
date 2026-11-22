@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-layout-anatomy",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "构图与版式标注教程",
+      "summary": "在具体作品上叠加网格、区域或引线，说明画面结构和修改动作。",
+      "useWhen": "解释发生在同一原图上；区别于只用成品说明抽象设计原则。",
+      "instructions": "原作、可用分区或网格、具体判断、修改后参照",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Layout Anatomy Tutorial",
+      "summary": "Create an Instagram how-to carousel using the layout anatomy tutorial structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the layout anatomy tutorial format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-layout-anatomy/page-01-932cb83b1bd0.webp",
+    "https://static.popost.ai/templates/instagram-layout-anatomy/page-02-ea58b8f34dff.webp",
+    "https://static.popost.ai/templates/instagram-layout-anatomy/page-03-f92adc47acf2.webp",
+    "https://static.popost.ai/templates/instagram-layout-anatomy/page-04-ac11e1ea4d09.webp",
+    "https://static.popost.ai/templates/instagram-layout-anatomy/page-05-a19b06f86907.webp",
+    "https://static.popost.ai/templates/instagram-layout-anatomy/page-06-75410f687c0a.webp"
+  ],
+  "match": {
+    "goals": [
+      "构图与版式标注教程",
+      "Layout Anatomy Tutorial",
+      "构图标注",
+      "版式拆解",
+      "layout anatomy",
+      "composition overlay guide",
+      "annotated editing breakdown",
+      "layout anatomy guide",
+      "annotated design details"
+    ],
+    "imageCues": [
+      "全幅摄影，每页同一套白色细辅助线约2px：三分网格、水平线或弧线依具体构图，辅助线要准确穿过观察点",
+      "封面亮黄粗标题72–92px置上中",
+      "详情仅小标签/箭头30–36px，不大段盖住画面"
+    ],
+    "exclusions": [
+      "视觉手法参考图鉴",
+      "Visual Technique Reference"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/ae80eac3387d248dd591132c16cad6b3915cba0ca92a5fbd1b46579680af035f.webp"
+}

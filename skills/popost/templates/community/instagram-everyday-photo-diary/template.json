@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-everyday-photo-diary",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "我的日常与工作之外",
+      "summary": "用个人真实照片和贴近画面的短注，组织一天、一次活动或工作之外的生活切面。",
+      "useWhen": "有明确时间或主题边界；不把不同人物、职业和城市拆成新模板。",
+      "instructions": "本人生活照片、顺序、时段或主题与真实短注",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Everyday Photo Diary",
+      "summary": "Create an Instagram story carousel using the everyday photo diary structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the everyday photo diary format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-everyday-photo-diary/page-01-0a845a224e1a.webp",
+    "https://static.popost.ai/templates/instagram-everyday-photo-diary/page-02-bd5d4f7e8131.webp",
+    "https://static.popost.ai/templates/instagram-everyday-photo-diary/page-03-911fe79e055c.webp",
+    "https://static.popost.ai/templates/instagram-everyday-photo-diary/page-04-7d538b85d7f5.webp",
+    "https://static.popost.ai/templates/instagram-everyday-photo-diary/page-05-ba24a17a85bd.webp",
+    "https://static.popost.ai/templates/instagram-everyday-photo-diary/page-06-94048598ccec.webp",
+    "https://static.popost.ai/templates/instagram-everyday-photo-diary/page-07-3902ec963b9e.webp",
+    "https://static.popost.ai/templates/instagram-everyday-photo-diary/page-08-c06b34a9ccbc.webp",
+    "https://static.popost.ai/templates/instagram-everyday-photo-diary/page-09-9e8739c45c47.webp",
+    "https://static.popost.ai/templates/instagram-everyday-photo-diary/page-10-bf40a8316dee.webp"
+  ],
+  "match": {
+    "goals": [
+      "我的日常与工作之外",
+      "Everyday Photo Diary",
+      "日常相册",
+      "工作之外",
+      "everyday diary",
+      "annotated life diary",
+      "day in life profile",
+      "off duty portrait diary",
+      "event photo collage"
+    ],
+    "imageCues": [
+      "首屏全幅自拍/生活场景，大衬线“Day X”90–120px在上，主题70–90px在下",
+      "后页交替一张全幅近景与2–3格细节拼贴，小型白色随拍注释30–38px，角落细箭头"
+    ],
+    "exclusions": [
+      "按精力与容量排计划",
+      "Capacity-based Planning",
+      "一个真实片刻的照片故事",
+      "Photo Story",
+      "跟着角色逛一天",
+      "Character-led Tour Story"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/d22a98db585f10cc9822faaf7a4ed39b40ed918363e0d71020060b6f275fa6d3.webp"
+}

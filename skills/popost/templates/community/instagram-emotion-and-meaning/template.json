@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-emotion-and-meaning",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "情绪在提醒我什么",
+      "summary": "用同一套双画面结构，把一种情绪与一种可能的个人需要配对，引导自我观察。",
+      "useWhen": "只呈现可能解释，不诊断他人；区别于说话含义翻译。",
+      "instructions": "本人体验、情绪、可能需要、对应场景",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Emotion and Meaning Opinion",
+      "summary": "Create an Instagram opinion carousel using the emotion and meaning opinion structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the emotion and meaning opinion format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-emotion-and-meaning/page-01-ba7c81860547.webp",
+    "https://static.popost.ai/templates/instagram-emotion-and-meaning/page-02-2c11363a08bd.webp",
+    "https://static.popost.ai/templates/instagram-emotion-and-meaning/page-03-670db599252c.webp",
+    "https://static.popost.ai/templates/instagram-emotion-and-meaning/page-04-04f20c6f92ad.webp",
+    "https://static.popost.ai/templates/instagram-emotion-and-meaning/page-05-42154ea931ff.webp",
+    "https://static.popost.ai/templates/instagram-emotion-and-meaning/page-06-f08fa78f9f58.webp",
+    "https://static.popost.ai/templates/instagram-emotion-and-meaning/page-07-35384cf8f1c3.webp",
+    "https://static.popost.ai/templates/instagram-emotion-and-meaning/page-08-518c8908d3f4.webp",
+    "https://static.popost.ai/templates/instagram-emotion-and-meaning/page-09-a80966cd8c66.webp",
+    "https://static.popost.ai/templates/instagram-emotion-and-meaning/page-10-9091118bf38d.webp"
+  ],
+  "match": {
+    "goals": [
+      "情绪在提醒我什么",
+      "Emotion and Meaning Opinion",
+      "情绪提醒",
+      "情绪含义",
+      "emotion meaning",
+      "emotion meaning pairs"
+    ],
+    "imageCues": [
+      "上下两张生活近景，白色居中短句34–42px：一种情绪与一个可自问的需要",
+      "每半图保持留白与人物姿态",
+      "不单独做大字标题页"
+    ],
+    "exclusions": [
+      "有这个特质也保留边界",
+      "Balanced Traits Opinion"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/74cf2d906188b231a7509369ee968a89c7357b306c4ec0f5d1b46dfd2b2a5416.webp"
+}

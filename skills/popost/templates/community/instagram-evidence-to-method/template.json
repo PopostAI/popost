@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-evidence-to-method",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "成果证据到执行方法",
+      "summary": "把结果截图与实际执行记录连接起来，说明哪个动作支持哪个结果判断。",
+      "useWhen": "必须建立证据到动作的对应；与现有案例成果的三页前后对照区分。",
+      "instructions": "真实结果、平台口径、执行记录、案例背景和边界",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Evidence-to-method Case Study",
+      "summary": "Create an Instagram case study carousel using the evidence-to-method case study structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the evidence-to-method case study format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-evidence-to-method/page-01-b075e5c2c46c.webp",
+    "https://static.popost.ai/templates/instagram-evidence-to-method/page-02-92c1d4d51af6.webp",
+    "https://static.popost.ai/templates/instagram-evidence-to-method/page-03-5c7fac6ebacc.webp",
+    "https://static.popost.ai/templates/instagram-evidence-to-method/page-04-03a30d202f64.webp",
+    "https://static.popost.ai/templates/instagram-evidence-to-method/page-05-ca02439c1fa0.webp",
+    "https://static.popost.ai/templates/instagram-evidence-to-method/page-06-ec1a6b5c4599.webp",
+    "https://static.popost.ai/templates/instagram-evidence-to-method/page-07-0b3051b9b22c.webp"
+  ],
+  "match": {
+    "goals": [
+      "成果证据到执行方法",
+      "Evidence-to-method Case Study",
+      "成果证据",
+      "案例方法",
+      "evidence to method",
+      "workflow results proof",
+      "client case notes",
+      "evidence collage pitch"
+    ],
+    "imageCues": [
+      "封面深炭色底，粉色撕纸短条承载大衬线标题72–96px，四角生活物件剪贴",
+      "内页牛皮灰底，白色手写/无衬线标题50–64px，中部证据截图用胶带角、圈线标重点",
+      "后页以同样拼贴说明步骤，正文32–38px"
+    ],
+    "exclusions": [
+      "具体成果倒推做法",
+      "Result-to-steps Tutorial",
+      "原始文件证据揭晓",
+      "Document Reveal Case Study"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/0a25c9893420da45bd36171fce36cbc06edd5050bdb1df0a7723e1b439026ec7.webp"
+}

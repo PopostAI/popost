@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-personal-experiment",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "亲自试过的实验记录",
+      "summary": "用真实试验或亲身尝试记录，交代尝试内容、过程证据和实际体验。",
+      "useWhen": "区别于复述他人的研究；不同尝试能沿同一字段比较，未测结果不补造。",
+      "instructions": "试验问题、真实过程图、日期、实际体验与记录",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Personal Experiment Case Study",
+      "summary": "Create an Instagram case study carousel using the personal experiment case study structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the personal experiment case study format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-personal-experiment/page-01-de52154915bc.webp",
+    "https://static.popost.ai/templates/instagram-personal-experiment/page-02-c9a66d7dd548.webp",
+    "https://static.popost.ai/templates/instagram-personal-experiment/page-03-e18abd550dae.webp",
+    "https://static.popost.ai/templates/instagram-personal-experiment/page-04-cb386b1e3667.webp",
+    "https://static.popost.ai/templates/instagram-personal-experiment/page-05-fe94c50e0297.webp"
+  ],
+  "match": {
+    "goals": [
+      "亲自试过的实验记录",
+      "Personal Experiment Case Study",
+      "个人实验",
+      "实验记录",
+      "personal experiment",
+      "experiment results"
+    ],
+    "imageCues": [
+      "封面全幅个人情境，白色衬线主题70–90px偏下，角落可叠真实记录缩略图",
+      "内页米白，大段留白，顶部短述实验阶段32–38px，中央2–3张实际记录/结果，底部一句观察，不把图表挤成小截图"
+    ],
+    "exclusions": [
+      "同条件实测对照案例",
+      "Matched Test Case Study",
+      "一个实验是怎样发生的",
+      "Experiment Story Explainer"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/66ff2c4e2c3a2ab7961e96948ad4ca510bf8ca91981101adbae4aab4fe21c704.webp"
+}

@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-context-changes-meaning",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "同一行为换个情境看",
+      "summary": "固定一个行为或对象，改变情境或观察立场，呈现为什么会有不同理解。",
+      "useWhen": "情境变化是比较轴；期待与实际作为变体，不按题材各算一个。",
+      "instructions": "同一行为、两种情境、对应图像与可解释差别",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Context Comparison Opinion",
+      "summary": "Create an Instagram opinion carousel using the context comparison opinion structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the context comparison opinion format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-context-changes-meaning/page-01-4fb4944bd0a5.webp",
+    "https://static.popost.ai/templates/instagram-context-changes-meaning/page-02-57b178b4a027.webp",
+    "https://static.popost.ai/templates/instagram-context-changes-meaning/page-03-a5c0f5e06b9a.webp",
+    "https://static.popost.ai/templates/instagram-context-changes-meaning/page-04-94341cc4890e.webp",
+    "https://static.popost.ai/templates/instagram-context-changes-meaning/page-05-60b53360eb0a.webp"
+  ],
+  "match": {
+    "goals": [
+      "同一行为换个情境看",
+      "Context Comparison Opinion",
+      "情境对比",
+      "换个情境看",
+      "context comparison",
+      "context dependent comparison",
+      "expectation reality pairs",
+      "matched scene comparison"
+    ],
+    "imageCues": [
+      "封面全幅人物/环境，奶油色窄高衬线标题72–90px置上中",
+      "内页浅方格纸底，顶部酒红衬线主张56–70px，中部左右或上下两种情境的真实例子，下面对应短解释30–36px，结论淡粉底条"
+    ],
+    "exclusions": [
+      "相似概念对照指南",
+      "Similar Concepts Compared",
+      "用可见类比回应质疑",
+      "Visual Analogy Opinion"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/1df14277fe111981a35c69c42eb31001f708d5bfa4c9130a98d77869bc2e4803.webp"
+}

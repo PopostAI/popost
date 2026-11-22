@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-opportunity-guide",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "机会与申请条件指南",
+      "summary": "一项机会一页，固定交代适用人、进入条件、付出与收益，方便读者判断是否值得了解。",
+      "useWhen": "条件是核心字段；区别于只给入口的网址清单。金额、资格与政策必须另行核验。",
+      "instructions": "机会、资格、工作或申请要求、真实入口、截至日期",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Opportunity Guide",
+      "summary": "Create an Instagram reference carousel using the opportunity guide structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the opportunity guide format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-opportunity-guide/page-01-e035141654d8.webp",
+    "https://static.popost.ai/templates/instagram-opportunity-guide/page-02-203ff2f6579d.webp",
+    "https://static.popost.ai/templates/instagram-opportunity-guide/page-03-d6acee728470.webp",
+    "https://static.popost.ai/templates/instagram-opportunity-guide/page-04-0dbd69794c55.webp",
+    "https://static.popost.ai/templates/instagram-opportunity-guide/page-05-1f65ca69bbd6.webp",
+    "https://static.popost.ai/templates/instagram-opportunity-guide/page-06-4318ecae7cc7.webp",
+    "https://static.popost.ai/templates/instagram-opportunity-guide/page-07-c78f06fcd550.webp",
+    "https://static.popost.ai/templates/instagram-opportunity-guide/page-08-f23dd4f939f8.webp",
+    "https://static.popost.ai/templates/instagram-opportunity-guide/page-09-9caf77e36296.webp",
+    "https://static.popost.ai/templates/instagram-opportunity-guide/page-10-7f9ebbc83767.webp",
+    "https://static.popost.ai/templates/instagram-opportunity-guide/page-11-be0dcb02da8c.webp",
+    "https://static.popost.ai/templates/instagram-opportunity-guide/page-12-48ee9617eb62.webp"
+  ],
+  "match": {
+    "goals": [
+      "机会与申请条件指南",
+      "Opportunity Guide",
+      "申请指南",
+      "招募条件",
+      "application guide",
+      "opportunity guide cards",
+      "minimal opportunity list"
+    ],
+    "imageCues": [
+      "封面为旅行/环境实景与纸票剪贴，大写手写标题在中部白纸条",
+      "内页全幅地点照片，中间放宽70%的米白信息窗，黑色1–2px描边、浅黄窄标题栏与三点",
+      "名称40–46px，条件、投入、收益32–36px，来源/日期24–28px"
+    ],
+    "exclusions": [
+      "unrelated format"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/76b93b7bab6d0caa5fd963ef221ee4205a9000a70092fa67ba698f43d5f1b0c6.webp"
+}
