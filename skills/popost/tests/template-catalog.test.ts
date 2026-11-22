@@ -19,7 +19,7 @@ describe('community template catalog', () => {
       expect(readme).toContain(entry.copy.zh.useWhen);
       expect(readme).toContain(entry.copy.en.useWhen);
     }
-    // The 101-entry bilingual catalog retains a bounded single-pass reading budget.
-    expect(Buffer.byteLength(readme)).toBeLessThan(30 * 1024);
+    // The expanded bilingual catalog retains a bounded single-pass reading budget.
+    expect(Buffer.byteLength(readme)).toBeLessThan(70 * 1024);
   });
 });

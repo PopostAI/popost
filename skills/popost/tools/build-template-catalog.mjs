@@ -12,6 +12,7 @@ const root = fileURLToPath(new URL('../templates/community/', import.meta.url));
 
 const groupLabel = (entries) => {
   const [first] = entries;
+  if (first.platform === 'instagram') return { zh: 'Instagram 图文', en: 'Instagram Carousels' };
   const [zh, en] = [first.match.goals[2], first.match.goals[4]];
   return first.categories.length === 0 || !zh || !en ? { zh: '杂志风', en: 'Editorial' } : { zh, en };
 };
@@ -19,14 +20,14 @@ const groupLabel = (entries) => {
 export const renderCatalog = (index) => {
   const groups = new Map();
   for (const entry of index.templates) {
-    const key = entry.categories[0] ?? 'editorial';
+    const key = entry.categories[0] ?? (entry.platform === 'xiaohongshu' ? 'editorial' : entry.platform);
     groups.set(key, [...(groups.get(key) ?? []), entry]);
   }
   const count = (platform) => index.templates.filter((entry) => entry.platform === platform).length;
   const lines = [
     '# Community templates',
     '',
-    `${index.templates.length} creation recipes: ${count('tiktok')} TikTok commerce formats and ${count('xiaohongshu')} editorial layouts. Search index schema: ${index.schemaVersion}.`,
+    `${index.templates.length} creation recipes: ${count('tiktok')} TikTok commerce formats, ${count('xiaohongshu')} editorial layouts and ${count('instagram')} Instagram carousels. Search index schema: ${index.schemaVersion}.`,
     '',
     'Shortlist 1–3 templates by subject and intended layout. Read each linked SKILL.md before choosing. Keyword lookup: `popost template search`.',
     '',

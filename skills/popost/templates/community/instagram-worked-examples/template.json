@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-worked-examples",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "例子加做法教程",
+      "summary": "每页放一个具体样例，旁边说明为什么这样做，以及读者如何改成自己的版本。",
+      "useWhen": "样例与指令同页配对；区别于只给抽象步骤或只展示作品。",
+      "instructions": "真实样例、操作指令、可替换变量与适用场景",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Worked Example Tutorial",
+      "summary": "Create an Instagram how-to carousel using the worked example tutorial structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the worked example tutorial format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-worked-examples/page-01-3c28c4efec89.webp",
+    "https://static.popost.ai/templates/instagram-worked-examples/page-02-df4d28da9436.webp",
+    "https://static.popost.ai/templates/instagram-worked-examples/page-03-3f082c78d9f1.webp",
+    "https://static.popost.ai/templates/instagram-worked-examples/page-04-fb5019c0ea7b.webp",
+    "https://static.popost.ai/templates/instagram-worked-examples/page-05-7a5924445828.webp",
+    "https://static.popost.ai/templates/instagram-worked-examples/page-06-345bbdd72ac1.webp",
+    "https://static.popost.ai/templates/instagram-worked-examples/page-07-fb8a742f31b0.webp"
+  ],
+  "match": {
+    "goals": [
+      "例子加做法教程",
+      "Worked Example Tutorial",
+      "实例教程",
+      "例子加步骤",
+      "worked example",
+      "example and instruction cards",
+      "shot planning guide",
+      "brand workflow guide",
+      "narrative framework breakdown"
+    ],
+    "imageCues": [
+      "封面暖白，大型衬线分行主题100–135px，少量贴纸为点缀",
+      "内页淡粉窄竖条底，顶部序号与衬线方法名58–72px，中央完整作品缩略图占50%，两侧手写注释28–34px，底部虚线框放可执行步骤30–36px"
+    ],
+    "exclusions": [
+      "真实界面步骤教程",
+      "Screenshot Walkthrough",
+      "视觉效果拆解教程",
+      "Visual Effect Breakdown"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/4d16718e85d6e9735429d088957962a9de309cda9ec1ccc380d7576ae62c9c5a.webp"
+}

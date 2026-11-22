@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-product-change",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "更新了什么与该怎么做",
+      "summary": "把产品或平台变化对应到实际界面、受影响人群和下一步操作。",
+      "useWhen": "变化与行动必须一一对应；区别于单纯产品截图展示。",
+      "instructions": "官方变更依据、版本日期、前后界面、受众影响",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Product Change News",
+      "summary": "Create an Instagram news carousel using the product change news structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the product change news format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-product-change/page-01-f77622588628.webp",
+    "https://static.popost.ai/templates/instagram-product-change/page-02-2dbb0a43c157.webp",
+    "https://static.popost.ai/templates/instagram-product-change/page-03-a5bc854e070b.webp"
+  ],
+  "match": {
+    "goals": [
+      "更新了什么与该怎么做",
+      "Product Change News",
+      "产品更新",
+      "功能变化",
+      "product update",
+      "product update impact",
+      "sourced change brief",
+      "integration feature tour",
+      "interface feature tour"
+    ],
+    "imageCues": [
+      "封面深蓝/黑底加实际产品或合作场景，上方小型NEW胶囊，下部粗白标题80–100px",
+      "内页白底，顶部小作者栏，深蓝横条上荧光黄标题48–60px",
+      "正文36–42px，中央真实界面或可控示意图，底部一行适用边界"
+    ],
+    "exclusions": [
+      "回看旧帖与公开修正",
+      "Public Follow-up Case Study",
+      "新品或资源发布图文",
+      "Launch News"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/d6c08373a5b542be834c7f233ca291aa6283f62b4fba32d797bd811769302112.webp"
+}

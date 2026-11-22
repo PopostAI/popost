@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-result-to-steps",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "具体成果倒推做法",
+      "summary": "先给自己的具体成果和证据，再逐页说明得到它的实际操作条件。",
+      "useWhen": "可核对成果是入口；区别于没有结果证据的普通步骤教学。",
+      "instructions": "真实结果、证据、操作记录、成本与限制",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Result-to-steps Tutorial",
+      "summary": "Create an Instagram how-to carousel using the result-to-steps tutorial structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the result-to-steps tutorial format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-result-to-steps/page-01-569283c890c0.webp",
+    "https://static.popost.ai/templates/instagram-result-to-steps/page-02-6a9a163705b3.webp",
+    "https://static.popost.ai/templates/instagram-result-to-steps/page-03-c7b34057fbcf.webp",
+    "https://static.popost.ai/templates/instagram-result-to-steps/page-04-1c3879528726.webp",
+    "https://static.popost.ai/templates/instagram-result-to-steps/page-05-fe148434a15d.webp",
+    "https://static.popost.ai/templates/instagram-result-to-steps/page-06-73de4097f9aa.webp",
+    "https://static.popost.ai/templates/instagram-result-to-steps/page-07-fb6cad82a84b.webp"
+  ],
+  "match": {
+    "goals": [
+      "具体成果倒推做法",
+      "Result-to-steps Tutorial",
+      "成果倒推",
+      "结果倒推步骤",
+      "reverse engineer a result",
+      "result to exact steps"
+    ],
+    "imageCues": [
+      "全幅生活/成果照片，封面白色紧包大字标签置中上，下面具体成果短句44–56px",
+      "详情页每张实景中部放2–4行白色描边字42–52px，逐步解释从结果倒推的行动",
+      "不要统一加顶部章节条"
+    ],
+    "exclusions": [
+      "成果证据到执行方法",
+      "Evidence-to-method Case Study"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/8c91913b544cdfc9a8b360c866e8eb6e0d75f21a166e2e31b29c91159b27e7d9.webp"
+}

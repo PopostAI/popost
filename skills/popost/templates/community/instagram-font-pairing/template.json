@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-font-pairing",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "字体搭配样张",
+      "summary": "同一段标题和正文反复使用不同字体组合，让读者比较真正的层级和气质。",
+      "useWhen": "必须有可辨认字体名、相同样本文字和实际搭配；不是字体名称清单。",
+      "instructions": "可用字体与授权、统一样文、标题和正文字级",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Font Pairing Showcase",
+      "summary": "Create an Instagram showcase carousel using the font pairing showcase structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the font pairing showcase format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-font-pairing/page-01-c638d53d8724.webp",
+    "https://static.popost.ai/templates/instagram-font-pairing/page-02-dec6dde0bbdc.webp",
+    "https://static.popost.ai/templates/instagram-font-pairing/page-03-ee59e3688658.webp",
+    "https://static.popost.ai/templates/instagram-font-pairing/page-04-a119f541cc5a.webp",
+    "https://static.popost.ai/templates/instagram-font-pairing/page-05-7299e4fd120f.webp",
+    "https://static.popost.ai/templates/instagram-font-pairing/page-06-5880f3677a0b.webp",
+    "https://static.popost.ai/templates/instagram-font-pairing/page-07-1a4ee78c50c7.webp",
+    "https://static.popost.ai/templates/instagram-font-pairing/page-08-ecd506d29a48.webp"
+  ],
+  "match": {
+    "goals": [
+      "字体搭配样张",
+      "Font Pairing Showcase",
+      "字体搭配",
+      "字型组合",
+      "font pairing",
+      "font pairing specimen"
+    ],
+    "imageCues": [
+      "封面全幅生活摄影，上部叠大号斜体衬线与粗无衬线“字体搭配”主题",
+      "内页上方约40%为两种实际字体的大字号样张，第一字体70–95px，第二字体120–160px",
+      "下面一行真实字体名称30–36px",
+      "底部细页序导航"
+    ],
+    "exclusions": [
+      "从照片提取配色",
+      "Image-to-palette Showcase"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/d3f5441e8b83c8b669f739578d4d48083444864be3f10a642b563b00e0faa26a.webp"
+}

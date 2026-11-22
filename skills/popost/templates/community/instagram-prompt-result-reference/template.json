@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-prompt-result-reference",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "提示词与效果对照",
+      "summary": "把生成效果和产生它的提示词配成可追溯的一组，说明哪些输入影响了哪些画面结果。",
+      "useWhen": "提示词是可复制输出；区别于单纯展示多种视觉结果。",
+      "instructions": "实际提示词、模型与参数、对应生成结果、参考输入",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Prompt and Result Reference",
+      "summary": "Create an Instagram reference carousel using the prompt and result reference structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the prompt and result reference format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-prompt-result-reference/page-01-4096062883d0.webp",
+    "https://static.popost.ai/templates/instagram-prompt-result-reference/page-02-d723545794c2.webp",
+    "https://static.popost.ai/templates/instagram-prompt-result-reference/page-03-a181fdfeb5d9.webp",
+    "https://static.popost.ai/templates/instagram-prompt-result-reference/page-04-aca6ea6a9581.webp",
+    "https://static.popost.ai/templates/instagram-prompt-result-reference/page-05-e891fff50f2b.webp",
+    "https://static.popost.ai/templates/instagram-prompt-result-reference/page-06-2e7c277359bd.webp",
+    "https://static.popost.ai/templates/instagram-prompt-result-reference/page-07-73b26baf8f04.webp",
+    "https://static.popost.ai/templates/instagram-prompt-result-reference/page-08-0314c4fbb779.webp",
+    "https://static.popost.ai/templates/instagram-prompt-result-reference/page-09-68538f807d0b.webp",
+    "https://static.popost.ai/templates/instagram-prompt-result-reference/page-10-0012d8da3b0d.webp",
+    "https://static.popost.ai/templates/instagram-prompt-result-reference/page-11-015e957abc5c.webp",
+    "https://static.popost.ai/templates/instagram-prompt-result-reference/page-12-4c3ac4ac656a.webp",
+    "https://static.popost.ai/templates/instagram-prompt-result-reference/page-13-cb210d9e3bfd.webp",
+    "https://static.popost.ai/templates/instagram-prompt-result-reference/page-14-a9c173c88971.webp",
+    "https://static.popost.ai/templates/instagram-prompt-result-reference/page-15-73549640c1db.webp",
+    "https://static.popost.ai/templates/instagram-prompt-result-reference/page-16-c06569b65a41.webp",
+    "https://static.popost.ai/templates/instagram-prompt-result-reference/page-17-7067b0c1043e.webp",
+    "https://static.popost.ai/templates/instagram-prompt-result-reference/page-18-2ea4d1a7b8eb.webp",
+    "https://static.popost.ai/templates/instagram-prompt-result-reference/page-19-3dfa0ef88d31.webp",
+    "https://static.popost.ai/templates/instagram-prompt-result-reference/page-20-97c0e18ed594.webp"
+  ],
+  "match": {
+    "goals": [
+      "提示词与效果对照",
+      "Prompt and Result Reference",
+      "提示词效果",
+      "生成对照",
+      "prompt results",
+      "prompt result pairs",
+      "photo with prompt overlay"
+    ],
+    "imageCues": [
+      "白底效果页与黑底提示词页成对交替",
+      "效果页左上双行标题52–68px、右上序号，中央两张并排作品占55–65%，底部解释30–36px",
+      "提示词页上方小衬线标签，中央深灰代码区呈现完整可复制提示词28–34px",
+      "参数/模型从真实任务记录取值"
+    ],
+    "exclusions": [
+      "同一输入的多种创作结果",
+      "One Input, Multiple Outcomes"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/fe5196995b11e96cb00e5713ca972a9dca61930b4183550132688501fdb812fe.webp"
+}

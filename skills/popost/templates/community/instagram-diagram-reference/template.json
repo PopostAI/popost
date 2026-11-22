@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-diagram-reference",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "一页一图解速查",
+      "summary": "把一套机制拆成有明确关系的图解，用连接、分支或流程帮助读者查询。",
+      "useWhen": "关系不限定同心层级，区别于现有三层结构拆解；同一系统的不同图解合并。",
+      "instructions": "实体、关系、真实输入输出、一个贯穿例子",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Diagram Reference Cards",
+      "summary": "Create an Instagram reference carousel using the diagram reference cards structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the diagram reference cards format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-diagram-reference/page-01-44bff28859ac.webp",
+    "https://static.popost.ai/templates/instagram-diagram-reference/page-02-ac176b2abd96.webp",
+    "https://static.popost.ai/templates/instagram-diagram-reference/page-03-fe4655cf257b.webp",
+    "https://static.popost.ai/templates/instagram-diagram-reference/page-04-83951324a268.webp"
+  ],
+  "match": {
+    "goals": [
+      "一页一图解速查",
+      "Diagram Reference Cards",
+      "图解速查",
+      "概念图解",
+      "diagram guide",
+      "dense reference diagrams",
+      "system architecture",
+      "illustrated system guide",
+      "concept diagram",
+      "content repurposing map"
+    ],
+    "imageCues": [
+      "奶油白底，顶部紧缩粗体标题54–66px，关键词蓝/绿",
+      "中央是占70–80%高度的原生关系图：框28–38px、连接线2–3px、箭头与分支标签准确",
+      "底部一行解释/来源，不放装饰性大插图"
+    ],
+    "exclusions": [
+      "同一数据的两种视角",
+      "Two Views of One Dataset"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/52260eafe58a193f785cffb2eabbbf8298115904bb91409c2e865c5688d8711b.webp"
+}

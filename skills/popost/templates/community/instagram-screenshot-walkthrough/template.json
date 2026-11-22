@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-screenshot-walkthrough",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "真实界面步骤教程",
+      "summary": "以真实界面为依据，按读者实际操作顺序说明每一步点哪里、填什么、看到什么。",
+      "useWhen": "界面操作推动页序；照片或手机背景的装饰差异不拆成新模板。",
+      "instructions": "当前版本截图、操作步骤、前置条件与成功状态",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Screenshot Walkthrough",
+      "summary": "Create an Instagram how-to carousel using the screenshot walkthrough structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the screenshot walkthrough format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-screenshot-walkthrough/page-01-7caa1796be2c.webp",
+    "https://static.popost.ai/templates/instagram-screenshot-walkthrough/page-02-a0253e2f2ee7.webp",
+    "https://static.popost.ai/templates/instagram-screenshot-walkthrough/page-03-aae17837e392.webp",
+    "https://static.popost.ai/templates/instagram-screenshot-walkthrough/page-04-2e22dcdc33d9.webp",
+    "https://static.popost.ai/templates/instagram-screenshot-walkthrough/page-05-f7ff493e550a.webp",
+    "https://static.popost.ai/templates/instagram-screenshot-walkthrough/page-06-ef5090fe20e3.webp"
+  ],
+  "match": {
+    "goals": [
+      "真实界面步骤教程",
+      "Screenshot Walkthrough",
+      "界面教程",
+      "截图步骤",
+      "screenshot tutorial",
+      "screenshot walkthrough",
+      "setup wizard",
+      "interface configuration guide",
+      "photo anchored tutorial"
+    ],
+    "imageCues": [
+      "暖米白底，顶栏年份/作者/页码22–28px，细线分隔",
+      "封面公式式大标题76–96px和真实相关对象剪贴",
+      "内页上部胶囊STEP编号、黑橙相间标题64–78px，下方一行说明30–36px",
+      "截图占中下55%，圆角和轻阴影，橙色细箭头指向实际操作"
+    ],
+    "exclusions": [
+      "可复制笔记清单",
+      "Copyable Notes Reference",
+      "例子加做法教程",
+      "Worked Example Tutorial",
+      "用熟悉界面讲自己的事",
+      "Everyday Interface Story"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/2a3b884545ef7bbf2b66a5f1f229498bc1df27ac211ca96d06ff0fcbd8b96268.webp"
+}

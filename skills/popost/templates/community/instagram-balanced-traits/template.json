@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-balanced-traits",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "有这个特质也保留边界",
+      "summary": "将一个值得保留的特质或选择，与需要避免的过度状态成对展示。",
+      "useWhen": "讨论的是尺度和边界；两种都合理、少一点多一点作为同一对照语法变体。",
+      "instructions": "特质、边界、同情境例子与配对图像",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Balanced Traits Opinion",
+      "summary": "Create an Instagram opinion carousel using the balanced traits opinion structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the balanced traits opinion format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-balanced-traits/page-01-da1d92bc7a42.webp",
+    "https://static.popost.ai/templates/instagram-balanced-traits/page-02-3d6d07190576.webp",
+    "https://static.popost.ai/templates/instagram-balanced-traits/page-03-ab03dd77675a.webp",
+    "https://static.popost.ai/templates/instagram-balanced-traits/page-04-66d665565c35.webp",
+    "https://static.popost.ai/templates/instagram-balanced-traits/page-05-6b751bfa32c8.webp",
+    "https://static.popost.ai/templates/instagram-balanced-traits/page-06-e2216c40c95e.webp"
+  ],
+  "match": {
+    "goals": [
+      "有这个特质也保留边界",
+      "Balanced Traits Opinion",
+      "特质与边界",
+      "两者兼得",
+      "balanced traits",
+      "balanced trait pairs",
+      "two valid options",
+      "less more photo pairs"
+    ],
+    "imageCues": [
+      "上下两张全幅照片，每半区中下各一段白色短句36–44px",
+      "上句肯定一种特质，下句补充边界，2–6个词的对称语法",
+      "人物动作分别表达两侧含义，镜头尺度近似"
+    ],
+    "exclusions": [
+      "情绪在提醒我什么",
+      "Emotion and Meaning Opinion"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/0d82ede5477e71dbe9215d432c250121950173eb21062c69d1a95bbb7312fd8a.webp"
+}

@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-similar-concepts",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "相似概念对照指南",
+      "summary": "将两个容易混淆的概念放在同样情境下逐项比较，让差别落到可观察表现。",
+      "useWhen": "比较维度固定；不把任何两种商品并排就算作本模板。",
+      "instructions": "两个概念、可靠定义、同一维度的例子或图像",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Similar Concepts Compared",
+      "summary": "Create an Instagram reference carousel using the similar concepts compared structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the similar concepts compared format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-similar-concepts/page-01-8370c2532699.webp",
+    "https://static.popost.ai/templates/instagram-similar-concepts/page-02-b86f0d24c912.webp",
+    "https://static.popost.ai/templates/instagram-similar-concepts/page-03-610eae0404d8.webp",
+    "https://static.popost.ai/templates/instagram-similar-concepts/page-04-625c35affb72.webp",
+    "https://static.popost.ai/templates/instagram-similar-concepts/page-05-6025c127a185.webp",
+    "https://static.popost.ai/templates/instagram-similar-concepts/page-06-93cc0a7e654f.webp",
+    "https://static.popost.ai/templates/instagram-similar-concepts/page-07-3c6f1d19cbfc.webp",
+    "https://static.popost.ai/templates/instagram-similar-concepts/page-08-7c74e14472e9.webp",
+    "https://static.popost.ai/templates/instagram-similar-concepts/page-09-be448362682c.webp"
+  ],
+  "match": {
+    "goals": [
+      "相似概念对照指南",
+      "Similar Concepts Compared",
+      "概念区别",
+      "相似概念",
+      "concept differences",
+      "lookalike concept comparison"
+    ],
+    "imageCues": [
+      "白底上下留白",
+      "封面两项名称用不同浅色圆角高亮，72–90px，下面并排同一个原创角色的两种状态",
+      "内页顶部同一比较问题34–42px，中部双栏同尺度角色，各栏下方小彩色标签和2–4行解释32–38px"
+    ],
+    "exclusions": [
+      "同一行为换个情境看",
+      "Context Comparison Opinion"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/bd5e3e3b0fa7424743e802a6b33d69e473c1c26aeb3fb22430d883770a544372.webp"
+}

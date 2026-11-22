@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-calendar-cheat-sheet",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "日期安排速查表",
+      "summary": "将可执行的日期或时间窗口与动作、条件配对，整理成能反复查阅的表。",
+      "useWhen": "窗口是查询键；区别于持续推进的挑战计划。日历与作息只作同一结构的变体。",
+      "instructions": "核验过的日期或时段、对应动作、地区和适用条件",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Calendar Cheat Sheet",
+      "summary": "Create an Instagram reference carousel using the calendar cheat sheet structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the calendar cheat sheet format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-calendar-cheat-sheet/page-01-dcaa6c3c37cd.webp",
+    "https://static.popost.ai/templates/instagram-calendar-cheat-sheet/page-02-234ce17f310f.webp"
+  ],
+  "match": {
+    "goals": [
+      "日期安排速查表",
+      "Calendar Cheat Sheet",
+      "日期安排",
+      "活动日历",
+      "calendar schedule",
+      "calendar cheatsheet",
+      "daypart option grid"
+    ],
+    "imageCues": [
+      "浅藕紫外底，中央略倾斜奶油纸卡占85%宽，顶部两个圆孔与小品牌栏",
+      "大衬线标题70–90px，日期行动按4–6行分组，日期以珊瑚色加粗，说明32–38px",
+      "下部一行边界条件",
+      "第二页可放说明与入口，保持信息层级"
+    ],
+    "exclusions": [
+      "限期行动与挑战计划",
+      "Timed Action Plan"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/bcbbe3876542f5a90573ab937f3a591cc551ec9a00927d68c58de3916eb7f485.webp"
+}

@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-one-input-many-results",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "同一输入的多种创作结果",
+      "summary": "把同一原始图片或设计输入变为多种结果，保留可识别的共同主体。",
+      "useWhen": "共同输入是全组锚点；区别于无关联作品合集和文字提示词速查。",
+      "instructions": "明确原始输入、各结果、变化维度与制作依据",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "One Input, Multiple Outcomes",
+      "summary": "Create an Instagram showcase carousel using the one input, multiple outcomes structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the one input, multiple outcomes format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-one-input-many-results/page-01-a0a995b9261c.webp",
+    "https://static.popost.ai/templates/instagram-one-input-many-results/page-02-001a4400839d.webp",
+    "https://static.popost.ai/templates/instagram-one-input-many-results/page-03-340e20a3ad78.webp",
+    "https://static.popost.ai/templates/instagram-one-input-many-results/page-04-11140cb98e04.webp",
+    "https://static.popost.ai/templates/instagram-one-input-many-results/page-05-34a14a413f27.webp",
+    "https://static.popost.ai/templates/instagram-one-input-many-results/page-06-ae66ee13f8ba.webp",
+    "https://static.popost.ai/templates/instagram-one-input-many-results/page-07-0bd0e507e579.webp",
+    "https://static.popost.ai/templates/instagram-one-input-many-results/page-08-5561f44c29fa.webp"
+  ],
+  "match": {
+    "goals": [
+      "同一输入的多种创作结果",
+      "One Input, Multiple Outcomes",
+      "同图多结果",
+      "一图多创作",
+      "one input many outputs",
+      "image remix comparison"
+    ],
+    "imageCues": [
+      "封面全幅输入相关照片，上部亮黄色胖体大标题82–105px",
+      "内页使用同图柔化背景，中央两张并排等大图槽，上方before/after标签32–40px，底部变量/风格名40–48px",
+      "图片保持相同对象身份与裁切口径"
+    ],
+    "exclusions": [
+      "提示词与效果对照",
+      "Prompt and Result Reference"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/ab3eadc36a61443c0f3e0e092461a148bc5ad407130b0acf21954e0d0eae0e1c.webp"
+}

@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-behind-the-scenes",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "幕后制作纪实",
+      "summary": "让读者看见成品背后的人、环境和真实工作动作，按实际制作过程组织实拍。",
+      "useWhen": "重在记录谁怎么做，区别于要求读者逐步照做的教程。",
+      "instructions": "真实工作现场、人员、过程照片与成品",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Behind-the-scenes Story",
+      "summary": "Create an Instagram story carousel using the behind-the-scenes story structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the behind-the-scenes story format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-behind-the-scenes/page-01-086183af000b.webp",
+    "https://static.popost.ai/templates/instagram-behind-the-scenes/page-02-e1d6538ac164.webp",
+    "https://static.popost.ai/templates/instagram-behind-the-scenes/page-03-ea2a13d49638.webp",
+    "https://static.popost.ai/templates/instagram-behind-the-scenes/page-04-8dc5c2157383.webp",
+    "https://static.popost.ai/templates/instagram-behind-the-scenes/page-05-ebd5d0693805.webp",
+    "https://static.popost.ai/templates/instagram-behind-the-scenes/page-06-24767ef4c0f9.webp"
+  ],
+  "match": {
+    "goals": [
+      "幕后制作纪实",
+      "Behind-the-scenes Story",
+      "幕后制作",
+      "制作过程",
+      "behind the scenes",
+      "behind scenes documentary",
+      "project process diary"
+    ],
+    "imageCues": [
+      "全幅手机纪实",
+      "首屏中央白色无衬线大句68–90px，尽量不遮手部动作",
+      "后页以工作台、材料、失误、过程、成品依次切换，文字可极少或无，必要注释30–38px"
+    ],
+    "exclusions": [
+      "固定机位逐步累加教程",
+      "Incremental Assembly Tutorial"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/987212b165096e8f42bc012367b5359dccf817ef5790b4b505adeeda15793274.webp"
+}

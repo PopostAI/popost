@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-launch-news",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "新品或资源发布图文",
+      "summary": "先说发布了什么，再展示内容、适用人和参与条件，给读者清楚的获取或参与方法。",
+      "useWhen": "单次发布或邀请是核心；新品、课程、活动合并为变体，不能虚构稀缺和口碑。",
+      "instructions": "真实发布物、时间、受众、内容、参与条件与入口",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Launch News",
+      "summary": "Create an Instagram news carousel using the launch news structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the launch news format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-launch-news/page-01-31e324993236.webp",
+    "https://static.popost.ai/templates/instagram-launch-news/page-02-b8d5d4698e12.webp",
+    "https://static.popost.ai/templates/instagram-launch-news/page-03-3d976b12ad2d.webp"
+  ],
+  "match": {
+    "goals": [
+      "新品或资源发布图文",
+      "Launch News",
+      "新品发布",
+      "资源发布",
+      "launch announcement",
+      "portrait product launch",
+      "launch offer pack",
+      "free resource launch",
+      "launch teaser diary",
+      "event to invitation",
+      "event action poster",
+      "collaboration open call"
+    ],
+    "imageCues": [
+      "通常三页：首屏黑白肖像/品牌场景占全幅，底部窄高衬线发布标题62–80px",
+      "第二页浅底棚拍产品/资源大图，底部2–4行介绍32–38px",
+      "第三页黑底，大号衬线原话48–62px，下面说话人和身份28–34px"
+    ],
+    "exclusions": [
+      "更新了什么与该怎么做",
+      "Product Change News"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/2c713b5416c4c116fb6fa72e3135c1c1258e2f95add52fba38b07523959a0396.webp"
+}

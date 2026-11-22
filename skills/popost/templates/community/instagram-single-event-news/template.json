@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-single-event-news",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "一件事的新闻图文",
+      "summary": "围绕同一件刚发生的事，用现场图、事实、引语或文件逐页补足信息。",
+      "useWhen": "全组只讲一件事；区别于现有报头加多条消息网格的杂志简报。",
+      "instructions": "主体、时间、进展、来源、新闻配图与不确定状态",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Single-event News",
+      "summary": "Create an Instagram news carousel using the single-event news structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the single-event news format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-single-event-news/page-01-7d742691d94d.webp",
+    "https://static.popost.ai/templates/instagram-single-event-news/page-02-755ed168554f.webp",
+    "https://static.popost.ai/templates/instagram-single-event-news/page-03-d50452bf350b.webp",
+    "https://static.popost.ai/templates/instagram-single-event-news/page-04-8096158be7fb.webp",
+    "https://static.popost.ai/templates/instagram-single-event-news/page-05-3fbb9fee3720.webp",
+    "https://static.popost.ai/templates/instagram-single-event-news/page-06-c367bf035b41.webp",
+    "https://static.popost.ai/templates/instagram-single-event-news/page-07-e759389e62fc.webp",
+    "https://static.popost.ai/templates/instagram-single-event-news/page-08-7336d6f20151.webp"
+  ],
+  "match": {
+    "goals": [
+      "一件事的新闻图文",
+      "Single-event News",
+      "新闻解释",
+      "事件图文",
+      "event news",
+      "photo news explainer",
+      "photo quote context brief",
+      "photo evidence announcement"
+    ],
+    "imageCues": [
+      "黑底新闻图文",
+      "首屏现场图占全幅，下部压暗，白色衬线标题60–78px与一个浅杏箭头",
+      "内页交替上文下图/上图下文，正文34–40px、每页70–100个英文词以内，关键词浅杏加粗",
+      "页脚来源与日期24–28px"
+    ],
+    "exclusions": [
+      "本期值得知道的更新",
+      "News Digest"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/8c3e46c48de8ce843afe960ad42a8c918a471d47382f6aea91851d7f76e71d6c.webp"
+}

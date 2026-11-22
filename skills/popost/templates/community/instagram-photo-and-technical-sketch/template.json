@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-photo-and-technical-sketch",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "实拍与技术草图对照",
+      "summary": "把同一件物品的实拍与结构草图并置，让外观和设计细节互相解释。",
+      "useWhen": "两种表现必须对应同一对象，尺寸和结构不能由照片猜造。",
+      "instructions": "实物照片、实际设计草图、允许展示的结构信息",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Photo and Technical Sketch",
+      "summary": "Create an Instagram showcase carousel using the photo and technical sketch structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the photo and technical sketch format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-photo-and-technical-sketch/page-01-f6775e37482b.webp",
+    "https://static.popost.ai/templates/instagram-photo-and-technical-sketch/page-02-6b16978fb83c.webp",
+    "https://static.popost.ai/templates/instagram-photo-and-technical-sketch/page-03-bec4ec4504d6.webp",
+    "https://static.popost.ai/templates/instagram-photo-and-technical-sketch/page-04-ccd93e544832.webp"
+  ],
+  "match": {
+    "goals": [
+      "实拍与技术草图对照",
+      "Photo and Technical Sketch",
+      "技术草图",
+      "实拍线稿",
+      "technical sketch",
+      "photo and technical sketch"
+    ],
+    "imageCues": [
+      "浅灰/白色棚拍底，人物/产品实拍占中间60–70%，同一对象的细线技术图在右下或局部叠合，名字以手写48–62px置左上",
+      "3–4条手写注释30–38px及细弧箭头指向真实结构"
+    ],
+    "exclusions": [
+      "一件作品的细节解读",
+      "Artwork Detail Story"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/66a28d48ff0a57dc5c2ed0140f02b64f1e5cbc7f706fc13de782c807af64ff4a.webp"
+}

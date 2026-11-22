@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-category-use-guide",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "品类与用途指南",
+      "summary": "围绕一种品类建立固定字段，说明各类型的构成、特点、用途或搭配。",
+      "useWhen": "围绕真实选择场景逐项展开；区别于只有词语释义的概念速览。",
+      "instructions": "品类、类型、同口径特征、用途与实物图",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Category and Use Guide",
+      "summary": "Create an Instagram reference carousel using the category and use guide structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the category and use guide format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-category-use-guide/page-01-c35b5373f80f.webp",
+    "https://static.popost.ai/templates/instagram-category-use-guide/page-02-911799272e42.webp",
+    "https://static.popost.ai/templates/instagram-category-use-guide/page-03-dfb99f54a16e.webp",
+    "https://static.popost.ai/templates/instagram-category-use-guide/page-04-2896d8752dbf.webp",
+    "https://static.popost.ai/templates/instagram-category-use-guide/page-05-bc5ac8cd0807.webp",
+    "https://static.popost.ai/templates/instagram-category-use-guide/page-06-2ce92e5ef070.webp",
+    "https://static.popost.ai/templates/instagram-category-use-guide/page-07-8a1545d31d29.webp",
+    "https://static.popost.ai/templates/instagram-category-use-guide/page-08-508fe19fa582.webp"
+  ],
+  "match": {
+    "goals": [
+      "品类与用途指南",
+      "Category and Use Guide",
+      "品类用途",
+      "类型指南",
+      "category uses",
+      "category variety guide",
+      "ingredient use guide",
+      "one origin many forms",
+      "complementary pairing cards"
+    ],
+    "imageCues": [
+      "封面全幅手持/采集实景，左下白色主题60–82px，品类关键词加粗",
+      "内页超近景实物铺满画面，底部左对齐大名称72–94px，下面2–4行定义与用途30–36px，暗渐变仅覆盖底部约30%"
+    ],
+    "exclusions": [
+      "用元素组装一种风格",
+      "Style Assembly Tutorial"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/74b20d7c0c5e24f17a1289cccd9dc067f7ab8e0f517942508c7a6391f4c2f79c.webp"
+}

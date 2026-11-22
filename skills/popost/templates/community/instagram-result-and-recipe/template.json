@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-result-and-recipe",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "成品加配方卡教程",
+      "summary": "先用成品照片吸引，再给可保存的材料、分量和步骤卡。",
+      "useWhen": "核心是实拍结果与完整配方的配对；区别于逐页增加材料的连续镜头。",
+      "instructions": "成品实拍、完整配方、份量、时间与实测步骤",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Result and Recipe Card",
+      "summary": "Create an Instagram how-to carousel using the result and recipe card structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the result and recipe card format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-result-and-recipe/page-01-dc65b09c9d58.webp",
+    "https://static.popost.ai/templates/instagram-result-and-recipe/page-02-cd08285525d2.webp",
+    "https://static.popost.ai/templates/instagram-result-and-recipe/page-03-6613ffbb1aea.webp",
+    "https://static.popost.ai/templates/instagram-result-and-recipe/page-04-9f11bbf22cb0.webp",
+    "https://static.popost.ai/templates/instagram-result-and-recipe/page-05-5bf8b79eaa6c.webp",
+    "https://static.popost.ai/templates/instagram-result-and-recipe/page-06-aacd2c89d165.webp",
+    "https://static.popost.ai/templates/instagram-result-and-recipe/page-07-098aac519acd.webp",
+    "https://static.popost.ai/templates/instagram-result-and-recipe/page-08-37fb544e26ac.webp",
+    "https://static.popost.ai/templates/instagram-result-and-recipe/page-09-362f42157f6d.webp",
+    "https://static.popost.ai/templates/instagram-result-and-recipe/page-10-2bfeb5408db8.webp",
+    "https://static.popost.ai/templates/instagram-result-and-recipe/page-11-9bd220086c70.webp"
+  ],
+  "match": {
+    "goals": [
+      "成品加配方卡教程",
+      "Result and Recipe Card",
+      "成品配方",
+      "配方卡",
+      "recipe card",
+      "result plus recipe card"
+    ],
+    "imageCues": [
+      "封面全幅成品近景，中部白字黑描边标题64–80px",
+      "第二页换同一成品细节，下面小名称36–44px",
+      "配方页白底，居中窄字距标题42–52px，下面左右两列：原料占40%、步骤占52%，正文30–34px，段间距明确"
+    ],
+    "exclusions": [
+      "固定机位逐步累加教程",
+      "Incremental Assembly Tutorial"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/71c4dfaf272f7bbc2501d7874fd616591002946ee9481c6e7d7dc07c66c7cfa1.webp"
+}

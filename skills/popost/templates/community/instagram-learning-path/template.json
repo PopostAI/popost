@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-learning-path",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "从入门到进阶路线",
+      "summary": "把学习目标拆成有先后依赖的阶段，为每阶段提供能力目标、练习和资源。",
+      "useWhen": "顺序由能力依赖决定；区别于无先后关系的资源清单。",
+      "instructions": "学习起点、目标能力、阶段依赖、练习与资源",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Learning Path",
+      "summary": "Create an Instagram how-to carousel using the learning path structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the learning path format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-learning-path/page-01-4751a5a7a836.webp",
+    "https://static.popost.ai/templates/instagram-learning-path/page-02-795606e92ba0.webp",
+    "https://static.popost.ai/templates/instagram-learning-path/page-03-dbf61c8d2a48.webp",
+    "https://static.popost.ai/templates/instagram-learning-path/page-04-83325c8d51be.webp",
+    "https://static.popost.ai/templates/instagram-learning-path/page-05-800fc974aad1.webp",
+    "https://static.popost.ai/templates/instagram-learning-path/page-06-a8c51c04dea7.webp",
+    "https://static.popost.ai/templates/instagram-learning-path/page-07-aca5f3d687a4.webp",
+    "https://static.popost.ai/templates/instagram-learning-path/page-08-d530eaea3fed.webp"
+  ],
+  "match": {
+    "goals": [
+      "从入门到进阶路线",
+      "Learning Path",
+      "学习路线",
+      "进阶路径",
+      "learning roadmap",
+      "learning path"
+    ],
+    "imageCues": [
+      "封面为学习桌面/工作环境，手写亮色目标居中，下方可有相关真实工具符号",
+      "内页背景为实际代码/学习照片，中央单一笔记窗占70–80%宽",
+      "顶部小导航、步骤名44–56px，下面“学什么/做什么/达到什么条件”32–38px"
+    ],
+    "exclusions": [
+      "边读边填练习册",
+      "Fill-in Workbook",
+      "限期行动与挑战计划",
+      "Timed Action Plan"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/230e362fa4f9a11e7ed158d93a086902f6b95c4e76cefe37d0576ed4c0f118f2.webp"
+}

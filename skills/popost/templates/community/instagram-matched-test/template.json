@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-matched-test",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "同条件实测对照案例",
+      "summary": "先交代共同条件，再展示各对象的实测证据和指标，让比较有相同基准。",
+      "useWhen": "必须有共享观察期或测试条件；区别于主观偏好对比。",
+      "instructions": "测试对象、共同条件、实际记录、指标和限制",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Matched Test Case Study",
+      "summary": "Create an Instagram case study carousel using the matched test case study structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the matched test case study format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-matched-test/page-01-c8f69abb37fa.webp",
+    "https://static.popost.ai/templates/instagram-matched-test/page-02-0965800840d5.webp",
+    "https://static.popost.ai/templates/instagram-matched-test/page-03-e8ffa3e90a2d.webp",
+    "https://static.popost.ai/templates/instagram-matched-test/page-04-410477759c96.webp"
+  ],
+  "match": {
+    "goals": [
+      "同条件实测对照案例",
+      "Matched Test Case Study",
+      "同条件实测",
+      "基准测试对比",
+      "matched benchmark",
+      "fixed benchmark comparison"
+    ],
+    "imageCues": [
+      "封面为人物生活照，上方白色无衬线与斜体衬线两行对照题目，下接浅色圆角条件条",
+      "内页用低对比黑白同一背景，顶部比较对象名，中央真实结果证据，底部相同单位/周期32–42px，合计值单独强调"
+    ],
+    "exclusions": [
+      "亲自试过的实验记录",
+      "Personal Experiment Case Study"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/7e4b9f7caead45c03b267262532074b3631f47ec081524aefefce2352de57816.webp"
+}

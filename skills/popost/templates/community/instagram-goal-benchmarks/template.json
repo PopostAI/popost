@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-goal-benchmarks",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "大目标拆成可核对指标",
+      "summary": "把一个明确目标拆为速度、频次、投入或阶段门槛，让读者判断离目标有多远。",
+      "useWhen": "必须给出可核算关系；不是只把大目标写成几句鼓励。",
+      "instructions": "目标值、单位、基准、分解关系与限制",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Goal-to-benchmarks Guide",
+      "summary": "Create an Instagram how-to carousel using the goal-to-benchmarks guide structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the goal-to-benchmarks guide format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-goal-benchmarks/page-01-be86a925401a.webp",
+    "https://static.popost.ai/templates/instagram-goal-benchmarks/page-02-876fac171ace.webp",
+    "https://static.popost.ai/templates/instagram-goal-benchmarks/page-03-394329d9671c.webp",
+    "https://static.popost.ai/templates/instagram-goal-benchmarks/page-04-51b6a506acd4.webp",
+    "https://static.popost.ai/templates/instagram-goal-benchmarks/page-05-11e8fd2d7df9.webp",
+    "https://static.popost.ai/templates/instagram-goal-benchmarks/page-06-24285cd3d5b8.webp"
+  ],
+  "match": {
+    "goals": [
+      "大目标拆成可核对指标",
+      "Goal-to-benchmarks Guide",
+      "目标拆解",
+      "目标指标",
+      "goal benchmarks",
+      "goal to benchmarks"
+    ],
+    "imageCues": [
+      "白底，窄高衬线标题90–120px居中，关键目标数字130–180px以钴蓝突出",
+      "下部黑白人物/物件抠像占35–50%",
+      "详情大数字72–110px与短解释34–40px居中，留白占一半左右"
+    ],
+    "exclusions": [
+      "限期行动与挑战计划",
+      "Timed Action Plan"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/c5b7e6901afc1b04d7c00834ff54e7f85768645774bb745387fa234894cce17c.webp"
+}

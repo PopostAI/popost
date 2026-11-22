@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-different-perspectives",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "同一问题的不同角色视角",
+      "summary": "对同一个问题展示不同角色的回答，解释其经历和职责如何影响判断。",
+      "useWhen": "角色改变回答，问题保持一致；不能伪造真实人物意见或专家背书。",
+      "instructions": "共同问题、角色、可归属回答、背景与真实或创作属性",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Different Perspectives Opinion",
+      "summary": "Create an Instagram opinion carousel using the different perspectives opinion structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the different perspectives opinion format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-different-perspectives/page-01-144d34c3c91b.webp",
+    "https://static.popost.ai/templates/instagram-different-perspectives/page-02-73a0439ef2eb.webp",
+    "https://static.popost.ai/templates/instagram-different-perspectives/page-03-088aa51048c7.webp",
+    "https://static.popost.ai/templates/instagram-different-perspectives/page-04-f3e88e25140c.webp",
+    "https://static.popost.ai/templates/instagram-different-perspectives/page-05-d1182556c2f0.webp",
+    "https://static.popost.ai/templates/instagram-different-perspectives/page-06-0c4f98d6b8ba.webp",
+    "https://static.popost.ai/templates/instagram-different-perspectives/page-07-66f6d7c9b239.webp",
+    "https://static.popost.ai/templates/instagram-different-perspectives/page-08-1f680563be38.webp",
+    "https://static.popost.ai/templates/instagram-different-perspectives/page-09-0a5b783342cb.webp"
+  ],
+  "match": {
+    "goals": [
+      "同一问题的不同角色视角",
+      "Different Perspectives Opinion",
+      "角色视角",
+      "不同角色看法",
+      "role perspectives",
+      "role based perspective",
+      "role based decision panel"
+    ],
+    "imageCues": [
+      "上下两帧同一讲述者/环境，白色字幕36–44px分别放在下中部",
+      "上半提出“如果问[角色]”，下半给该角色基于利益/经历的看法",
+      "固定机位，手势可随说话改变"
+    ],
+    "exclusions": [
+      "用场景插画表达观点",
+      "Illustrated Opinion Scenes"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/957baa6b2de14daa55f836288d2805c573e562e81c2d01aeb8a4cfbba71ba8c6.webp"
+}

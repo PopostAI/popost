@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-fill-in-workbook",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "边读边填练习册",
+      "summary": "用连续问题和可填字段带读者完成一次思考，配一份填写示例。",
+      "useWhen": "读者填写会得到具体产物；不是泛泛反思问题或演讲章节提纲。",
+      "instructions": "练习目标、问题顺序、空字段、完成样例",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Fill-in Workbook",
+      "summary": "Create an Instagram how-to carousel using the fill-in workbook structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the fill-in workbook format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-fill-in-workbook/page-01-1e1737616214.webp",
+    "https://static.popost.ai/templates/instagram-fill-in-workbook/page-02-8b121aea352c.webp",
+    "https://static.popost.ai/templates/instagram-fill-in-workbook/page-03-2d97343104ff.webp",
+    "https://static.popost.ai/templates/instagram-fill-in-workbook/page-04-eed07088ea77.webp",
+    "https://static.popost.ai/templates/instagram-fill-in-workbook/page-05-784e51a8538c.webp",
+    "https://static.popost.ai/templates/instagram-fill-in-workbook/page-06-0a6fc0ec0fd1.webp",
+    "https://static.popost.ai/templates/instagram-fill-in-workbook/page-07-36e84cf1a875.webp",
+    "https://static.popost.ai/templates/instagram-fill-in-workbook/page-08-25577208f92a.webp",
+    "https://static.popost.ai/templates/instagram-fill-in-workbook/page-09-369fae2dc09a.webp",
+    "https://static.popost.ai/templates/instagram-fill-in-workbook/page-10-7490f5553ce6.webp"
+  ],
+  "match": {
+    "goals": [
+      "边读边填练习册",
+      "Fill-in Workbook",
+      "填空练习",
+      "练习册",
+      "guided workbook",
+      "fill in workbook",
+      "guided imagination exercise"
+    ],
+    "imageCues": [
+      "封面高饱和橙红满版，巨型斜体衬线关键词150–200px与黑色无衬线副标题交错，原创人物/场景剪贴占中下部",
+      "内页纸白底，左上齿形序号章，章节名90–115px，下面斜体定义40–48px",
+      "“Template”字段在正文上方，用户示例放深墨色矩形中，正文32–38px"
+    ],
+    "exclusions": [
+      "填空式发言提纲",
+      "Fill-in Speech Outline",
+      "从入门到进阶路线",
+      "Learning Path"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/97cdad72ffcdd6f88fef6433365e6b4a14623647330edfa7b975762f9bd9656d.webp"
+}

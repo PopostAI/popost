@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-copyable-notes",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "可复制笔记清单",
+      "summary": "用索引列出一组有明确用途的笔记，再逐页展示可照抄的真实内容结构。",
+      "useWhen": "每页是完整可用的笔记样本；区别于手机功能教程和只推荐笔记软件。",
+      "instructions": "各笔记用途、真实样例、可编辑字段",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Copyable Notes Reference",
+      "summary": "Create an Instagram reference carousel using the copyable notes reference structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the copyable notes reference format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-copyable-notes/page-01-229cd2aacea7.webp",
+    "https://static.popost.ai/templates/instagram-copyable-notes/page-02-785334e54a65.webp",
+    "https://static.popost.ai/templates/instagram-copyable-notes/page-03-6cd303161c7b.webp",
+    "https://static.popost.ai/templates/instagram-copyable-notes/page-04-0730b3ef902d.webp",
+    "https://static.popost.ai/templates/instagram-copyable-notes/page-05-181b57c744e5.webp",
+    "https://static.popost.ai/templates/instagram-copyable-notes/page-06-4576283b61e0.webp",
+    "https://static.popost.ai/templates/instagram-copyable-notes/page-07-ac5a1a786618.webp"
+  ],
+  "match": {
+    "goals": [
+      "可复制笔记清单",
+      "Copyable Notes Reference",
+      "笔记模板",
+      "可复制笔记",
+      "copyable notes",
+      "copyable note library"
+    ],
+    "imageCues": [
+      "封面淡粉底、黑色超粗无衬线大标题90–114px，占左上55%，底部白色小胶囊列笔记索引",
+      "内页奶油/淡黄底，左上编号与笔记名60–78px，左侧约35%说明为什么与何时用，右侧约52%放手机笔记框，笔记正文28–34px"
+    ],
+    "exclusions": [
+      "真实界面步骤教程",
+      "Screenshot Walkthrough"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/5632019d12d21bee5c053250de3e85c49703bceef1267c132d12d7d4e66d72df.webp"
+}

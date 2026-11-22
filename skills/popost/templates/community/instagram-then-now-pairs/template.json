@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-then-now-pairs",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "小时候与现在的同一种热爱",
+      "summary": "把早年的活动与现在对应的表达成对展示，让同一种兴趣的延续被看见。",
+      "useWhen": "必须有可解释的对应关系；区别于一般外貌或效果前后对比。",
+      "instructions": "允许使用的早年与现在素材、相同兴趣或行为线索",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Then and Now Photo Pairs",
+      "summary": "Create an Instagram story carousel using the then and now photo pairs structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the then and now photo pairs format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-then-now-pairs/page-01-edcd2e45181a.webp",
+    "https://static.popost.ai/templates/instagram-then-now-pairs/page-02-08beaf441471.webp",
+    "https://static.popost.ai/templates/instagram-then-now-pairs/page-03-3a64e9e991e5.webp",
+    "https://static.popost.ai/templates/instagram-then-now-pairs/page-04-f2ec5fa68594.webp",
+    "https://static.popost.ai/templates/instagram-then-now-pairs/page-05-0a362fa4df67.webp",
+    "https://static.popost.ai/templates/instagram-then-now-pairs/page-06-8e7901f41351.webp",
+    "https://static.popost.ai/templates/instagram-then-now-pairs/page-07-d0f96384c299.webp",
+    "https://static.popost.ai/templates/instagram-then-now-pairs/page-08-ae7c5e1d7128.webp"
+  ],
+  "match": {
+    "goals": [
+      "小时候与现在的同一种热爱",
+      "Then and Now Photo Pairs",
+      "小时候与现在",
+      "童年对比",
+      "then and now",
+      "childhood present photo pairs"
+    ],
+    "imageCues": [
+      "每页上下各一幅图：上方小时候的爱好场景/原创插画，下方现在的真实对应物/活动",
+      "中缝附近两段白色手写大写短句36–46px，上为“那份喜欢还在”，下为“换了一种形式”等承接",
+      "不加独立封面"
+    ],
+    "exclusions": [
+      "同一瞬间的两个视角",
+      "Two Perspectives Story"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/5d2cfc8c8f43081fffd1e30f31ba9f670a83fc869763de70d505fd355b3e95cb.webp"
+}

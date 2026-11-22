@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-reverse-instruction",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "越不让翻越想翻",
+      "summary": "用连续的反向指令制造互动，让读者自己的翻页行为成为演示的一部分。",
+      "useWhen": "互动行为本身兑现开头，不靠虚假警告或故意隐瞒重要条件。",
+      "instructions": "演示目标、逐页反向指令、表情或动作图与最终解释",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Reverse Instruction Quiz",
+      "summary": "Create an Instagram quiz carousel using the reverse instruction quiz structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the reverse instruction quiz format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-reverse-instruction/page-01-018d11e0690f.webp",
+    "https://static.popost.ai/templates/instagram-reverse-instruction/page-02-c3b931949ddf.webp",
+    "https://static.popost.ai/templates/instagram-reverse-instruction/page-03-8c6d14a08cb8.webp",
+    "https://static.popost.ai/templates/instagram-reverse-instruction/page-04-2aa6b86e0209.webp",
+    "https://static.popost.ai/templates/instagram-reverse-instruction/page-05-c02f6cdaab6f.webp",
+    "https://static.popost.ai/templates/instagram-reverse-instruction/page-06-334816e73e76.webp",
+    "https://static.popost.ai/templates/instagram-reverse-instruction/page-07-4ff4fd1f437e.webp",
+    "https://static.popost.ai/templates/instagram-reverse-instruction/page-08-b7d99bc2a608.webp",
+    "https://static.popost.ai/templates/instagram-reverse-instruction/page-09-fdaf9fd30772.webp"
+  ],
+  "match": {
+    "goals": [
+      "越不让翻越想翻",
+      "Reverse Instruction Quiz",
+      "反向指令",
+      "翻页悬念",
+      "reverse instruction",
+      "reverse instruction reveal"
+    ],
+    "imageCues": [
+      "同一人物同机位的全幅手机自拍，顶部粗白黑描边大字82–105px",
+      "每页表情/手势随“别翻→你还在翻→好吧揭晓”递进",
+      "人物脸、手、室内环境保持连续，文字不盖眉眼"
+    ],
+    "exclusions": [
+      "值得互相问的问题卡",
+      "Conversation Question Cards"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/2b5bfa8487700dc1653bf3614eadbee41af129ed2098395c7c13b13dba9f0fff.webp"
+}

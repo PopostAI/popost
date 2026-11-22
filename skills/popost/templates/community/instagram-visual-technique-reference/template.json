@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-visual-technique-reference",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "视觉手法参考图鉴",
+      "summary": "用一套实物或画面样本讲清不同视觉手法，保持名称、特征、效果的固定标注位置。",
+      "useWhen": "读者查找画面手法；区别于操作教程，也不按摄影、纹理等题材拆模板。",
+      "instructions": "各手法的真实样本、名称和可观察差异",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Visual Technique Reference",
+      "summary": "Create an Instagram reference carousel using the visual technique reference structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the visual technique reference format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-visual-technique-reference/page-01-9985c00f1757.webp",
+    "https://static.popost.ai/templates/instagram-visual-technique-reference/page-02-7e6c67b47de1.webp",
+    "https://static.popost.ai/templates/instagram-visual-technique-reference/page-03-dec3e49578f4.webp",
+    "https://static.popost.ai/templates/instagram-visual-technique-reference/page-04-85072fe9852d.webp",
+    "https://static.popost.ai/templates/instagram-visual-technique-reference/page-05-aa276e46aef8.webp",
+    "https://static.popost.ai/templates/instagram-visual-technique-reference/page-06-2381f4c55500.webp",
+    "https://static.popost.ai/templates/instagram-visual-technique-reference/page-07-19bcb46e12ff.webp",
+    "https://static.popost.ai/templates/instagram-visual-technique-reference/page-08-a63f983ec97a.webp",
+    "https://static.popost.ai/templates/instagram-visual-technique-reference/page-09-2e31ab2ad4a3.webp",
+    "https://static.popost.ai/templates/instagram-visual-technique-reference/page-10-909046d54850.webp",
+    "https://static.popost.ai/templates/instagram-visual-technique-reference/page-11-a6a6b5c4cdf3.webp",
+    "https://static.popost.ai/templates/instagram-visual-technique-reference/page-12-74066e092f88.webp"
+  ],
+  "match": {
+    "goals": [
+      "视觉手法参考图鉴",
+      "Visual Technique Reference",
+      "视觉手法",
+      "拍摄手法",
+      "visual techniques",
+      "visual technique index",
+      "texture inspiration atlas",
+      "texture pattern sampler"
+    ],
+    "imageCues": [
+      "封面全幅实景加高对比黄色粗无衬线标题，标题约70–90px置左下或视线空处",
+      "内页使用深色实景压暗，纵向3–4行：黄色序号占左8%，中间样图占35%，右侧名称40–48px与解释26–32px占45%",
+      "每个样图宽高比一致"
+    ],
+    "exclusions": [
+      "构图与版式标注教程",
+      "Layout Anatomy Tutorial"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/b203dd4e7a12d017ed0891f667a8d41e29471199038ab97dfd6a8ac235800882.webp"
+}

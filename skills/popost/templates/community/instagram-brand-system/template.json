@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-brand-system",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "品牌系统与应用展示",
+      "summary": "用主视觉、标识和多场景应用展示同一套品牌系统，保持跨页面的识别一致。",
+      "useWhen": "要能追踪同一视觉系统的应用，区别于无关联作品集。",
+      "instructions": "品牌标识、色彩字体、真实应用图与创作说明",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Brand System Showcase",
+      "summary": "Create an Instagram showcase carousel using the brand system showcase structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the brand system showcase format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-brand-system/page-01-6949261ee346.webp",
+    "https://static.popost.ai/templates/instagram-brand-system/page-02-db7a488b9868.webp",
+    "https://static.popost.ai/templates/instagram-brand-system/page-03-9c898ee9d602.webp",
+    "https://static.popost.ai/templates/instagram-brand-system/page-04-4f307e08274f.webp",
+    "https://static.popost.ai/templates/instagram-brand-system/page-05-7cb9be30610e.webp",
+    "https://static.popost.ai/templates/instagram-brand-system/page-06-83c8c671e5f2.webp",
+    "https://static.popost.ai/templates/instagram-brand-system/page-07-90a08284a9d8.webp",
+    "https://static.popost.ai/templates/instagram-brand-system/page-08-2853b256d789.webp",
+    "https://static.popost.ai/templates/instagram-brand-system/page-09-1ae8bbb02e06.webp",
+    "https://static.popost.ai/templates/instagram-brand-system/page-10-8b6538b14105.webp",
+    "https://static.popost.ai/templates/instagram-brand-system/page-11-171a42b94670.webp"
+  ],
+  "match": {
+    "goals": [
+      "品牌系统与应用展示",
+      "Brand System Showcase",
+      "品牌设计",
+      "品牌系统",
+      "brand identity",
+      "brand system showcase",
+      "brand world gallery",
+      "portfolio release"
+    ],
+    "imageCues": [
+      "封面主产品近景占70%，品牌色光带/场景与巨型品牌主题字叠排",
+      "第二页白底多模块品牌板：主标志、字体、色板、图标、包装、应用",
+      "第三页深品牌色底，产品多视角与材质细节网格",
+      "模块标题24–30px，主说明32–38px"
+    ],
+    "exclusions": [
+      "配色到实际物料灵感板",
+      "Palette Application Board",
+      "把品牌想象成一个角色",
+      "Brand Personification Showcase"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/0516db155dfd9154e0b15b5207b84d359485bfb62d6e6f66ca19aa6377c23875.webp"
+}

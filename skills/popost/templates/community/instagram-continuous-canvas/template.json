@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-continuous-canvas",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "跨页连续画布展示",
+      "summary": "把同一条视觉轨道延续到相邻页，利用图形或画面跨越页边建立滑动连续感。",
+      "useWhen": "跨页连接承担信息关系，不能仅把任意长图切开；不是一种题材模板。",
+      "instructions": "有连续关系的内容、宽画布结构、裁切边界与手机安全区",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Continuous Canvas Showcase",
+      "summary": "Create an Instagram showcase carousel using the continuous canvas showcase structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the continuous canvas showcase format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-continuous-canvas/page-01-b660b240af03.webp",
+    "https://static.popost.ai/templates/instagram-continuous-canvas/page-02-690587149719.webp",
+    "https://static.popost.ai/templates/instagram-continuous-canvas/page-03-364f09b7844a.webp",
+    "https://static.popost.ai/templates/instagram-continuous-canvas/page-04-2dc8cceeda61.webp",
+    "https://static.popost.ai/templates/instagram-continuous-canvas/page-05-52d24be147da.webp",
+    "https://static.popost.ai/templates/instagram-continuous-canvas/page-06-de597f6ef8e5.webp",
+    "https://static.popost.ai/templates/instagram-continuous-canvas/page-07-e3eefe1f285e.webp",
+    "https://static.popost.ai/templates/instagram-continuous-canvas/page-08-00259be8bd9d.webp",
+    "https://static.popost.ai/templates/instagram-continuous-canvas/page-09-d6345a5ffe32.webp",
+    "https://static.popost.ai/templates/instagram-continuous-canvas/page-10-cf1018b1f783.webp"
+  ],
+  "match": {
+    "goals": [
+      "跨页连续画布展示",
+      "Continuous Canvas Showcase",
+      "跨页画布",
+      "连续拼图",
+      "continuous carousel",
+      "continuous canvas carousel"
+    ],
+    "imageCues": [
+      "建立一个跨全部页面的连续大画布，再按页切出视口",
+      "背景小图马赛克跨边界严格连续，顶部/中部巨型奶油黄粗标题110–150px持续跨页，中央内容带/示例图依翻页推进，避免每页重新开始的封面"
+    ],
+    "exclusions": [
+      "选一种风格或组个搭配",
+      "Style Choice Quiz"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/c476d4055fc6e15df8fec1ef6e9fa57af6dfbe346258e01490920a78d3723d37.webp"
+}

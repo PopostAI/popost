@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-image-to-palette",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "从照片提取配色",
+      "summary": "从真实照片所见的颜色出发，用成组色块整理为可复用色板。",
+      "useWhen": "颜色来自照片；区别于先有色板再找应用图。",
+      "instructions": "可使用照片、真实取色值、取色位置与色彩角色",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Image-to-palette Showcase",
+      "summary": "Create an Instagram showcase carousel using the image-to-palette showcase structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the image-to-palette showcase format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-image-to-palette/page-01-b6fecd8da183.webp",
+    "https://static.popost.ai/templates/instagram-image-to-palette/page-02-76aaa1e3cd8b.webp",
+    "https://static.popost.ai/templates/instagram-image-to-palette/page-03-3b2bb6da49d5.webp",
+    "https://static.popost.ai/templates/instagram-image-to-palette/page-04-f62d4009beab.webp",
+    "https://static.popost.ai/templates/instagram-image-to-palette/page-05-2d2fdd2a5a24.webp",
+    "https://static.popost.ai/templates/instagram-image-to-palette/page-06-0ab269cc272f.webp",
+    "https://static.popost.ai/templates/instagram-image-to-palette/page-07-94f361e6030d.webp",
+    "https://static.popost.ai/templates/instagram-image-to-palette/page-08-46fb1438e466.webp",
+    "https://static.popost.ai/templates/instagram-image-to-palette/page-09-bd8fc0267a63.webp",
+    "https://static.popost.ai/templates/instagram-image-to-palette/page-10-49b0a4d55d5b.webp",
+    "https://static.popost.ai/templates/instagram-image-to-palette/page-11-b07b22659252.webp"
+  ],
+  "match": {
+    "goals": [
+      "从照片提取配色",
+      "Image-to-palette Showcase",
+      "照片配色",
+      "提取配色",
+      "image palette",
+      "image to palette"
+    ],
+    "imageCues": [
+      "封面全幅自然纹理，底部白色衬线主题62–78px",
+      "内页暖灰米底，上半两条厚涂颜料笔触交叠，各显示一个关键色",
+      "下半为自然物体/照片样本占40–50%，保持留白",
+      "色值可在笔触旁用28–34px小标签标注"
+    ],
+    "exclusions": [
+      "字体搭配样张",
+      "Font Pairing Showcase",
+      "配色到实际物料灵感板",
+      "Palette Application Board"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/fbf9bb970d1b9ad9e923b735a4d91a59b4c3db8e410811cb930edce238d74c67.webp"
+}

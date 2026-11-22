@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-copy-alternatives",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "表达替换句库",
+      "summary": "把一句普通表达与更适合某个目的的表达成组展示，并解释适用情境。",
+      "useWhen": "实际句子是交付物；区别于抽象写作原则和情绪翻译对照。",
+      "instructions": "表达目的、原句、替换句、受众与场景",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Copy Alternatives Reference",
+      "summary": "Create an Instagram reference carousel using the copy alternatives reference structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the copy alternatives reference format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-copy-alternatives/page-01-5ce9e9da0fd7.webp",
+    "https://static.popost.ai/templates/instagram-copy-alternatives/page-02-52a9dbae413d.webp",
+    "https://static.popost.ai/templates/instagram-copy-alternatives/page-03-9810c9472e06.webp",
+    "https://static.popost.ai/templates/instagram-copy-alternatives/page-04-218b58088a91.webp",
+    "https://static.popost.ai/templates/instagram-copy-alternatives/page-05-4bd7ae6d4ef7.webp"
+  ],
+  "match": {
+    "goals": [
+      "表达替换句库",
+      "Copy Alternatives Reference",
+      "文案替换",
+      "句子改写",
+      "copy alternatives",
+      "copy pattern cheatsheet",
+      "expression alternatives bank"
+    ],
+    "imageCues": [
+      "封面黑底，大衬线主题居中82–108px，下部可编辑线图/文案样本表达阅读转折",
+      "内页近似文档页：白底、简洁工具栏或文稿抬头，左对齐编号、方法名36–42px，下面一条实际句子30–36px",
+      "一页4–6组，不塞十条小字"
+    ],
+    "exclusions": [
+      "说出口的话与真正含义",
+      "Said and Meant Opinion"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/87a0c2d218610d15c171442fa0146793f71eb2059c094e14b11674ba71eb680b.webp"
+}

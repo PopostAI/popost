@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-two-views-one-dataset",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "同一数据的两种视角",
+      "summary": "用两张相互解释的图呈现同一组数据，例如绝对量与比例、变化前与变化后。",
+      "useWhen": "两图必须共享数据口径并互相补充；不另计普通条形排行。",
+      "instructions": "原始数据、口径、单位、两个分析问题与来源",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Two Views of One Dataset",
+      "summary": "Create an Instagram reference carousel using the two views of one dataset structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the two views of one dataset format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-two-views-one-dataset/page-01-14be20969314.webp",
+    "https://static.popost.ai/templates/instagram-two-views-one-dataset/page-02-0e1f07b82965.webp"
+  ],
+  "match": {
+    "goals": [
+      "同一数据的两种视角",
+      "Two Views of One Dataset",
+      "双图数据",
+      "同一数据两种图",
+      "paired data charts",
+      "time series paired charts",
+      "before after data snapshot"
+    ],
+    "imageCues": [
+      "白或极浅灰底，左上日期22–26px，标题40–48px，副题28–32px",
+      "图表占中央70%，细灰水平网格、清楚纵轴单位与时间轴",
+      "第一张双折线用青绿/紫，第二张派生比值单线用珊瑚红",
+      "末端直接标值，底部来源24–28px"
+    ],
+    "exclusions": [
+      "把数字换成看得见的规模",
+      "Numbers at Human Scale",
+      "一页一图解速查",
+      "Diagram Reference Cards"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/2b90f0ae6c72e53734b84205b5391ef996e802853abe5a937e61dc8d3df61c6c.webp"
+}

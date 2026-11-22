@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-remaining-capacity",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "损失一段仍有余量",
+      "summary": "将已失去的一小段时间与同尺度剩余容量配对，让读者看见还能做的部分。",
+      "useWhen": "必须可核算且单位一致；区别于普通积极语录。",
+      "instructions": "总量、损失、余量、单位和可执行动作",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Remaining Capacity Reframe",
+      "summary": "Create an Instagram opinion carousel using the remaining capacity reframe structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the remaining capacity reframe format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-remaining-capacity/page-01-43d45d08588d.webp",
+    "https://static.popost.ai/templates/instagram-remaining-capacity/page-02-7d5d24e2e926.webp",
+    "https://static.popost.ai/templates/instagram-remaining-capacity/page-03-24c14ead77a2.webp",
+    "https://static.popost.ai/templates/instagram-remaining-capacity/page-04-a42e8c34a84d.webp",
+    "https://static.popost.ai/templates/instagram-remaining-capacity/page-05-9fff7b2a8868.webp"
+  ],
+  "match": {
+    "goals": [
+      "损失一段仍有余量",
+      "Remaining Capacity Reframe",
+      "剩余时间",
+      "还有余量",
+      "remaining capacity",
+      "remaining time reframe"
+    ],
+    "imageCues": [
+      "每页上下两幅同一日常/运动场景，白色细无衬线34–44px居中",
+      "上半一个有限损失，下半可核对的剩余量",
+      "按小时、天、周等尺度递进，最后回到一个小行动"
+    ],
+    "exclusions": [
+      "年龄期待与真实节奏",
+      "Age Expectations Reframed",
+      "看得见的成果与背后付出",
+      "Effort and Outcome Opinion"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/eaffdda2575f3e0152193e79ea251a20e347e3e68eb7630a821ae04136ae4a81.webp"
+}

@@ -1,0 +1,905 @@
+{
+  "description": "Independently written task phrases for the 90 Instagram carousel formats. Lookup must retain the platform filter and return the labelled format among the first three candidates.",
+  "queries": [
+    {
+      "query": "工具推荐",
+      "lang": "zh",
+      "expected": "instagram-tools-by-task"
+    },
+    {
+      "query": "tool recommendations",
+      "lang": "en",
+      "expected": "instagram-tools-by-task"
+    },
+    {
+      "query": "资源清单",
+      "lang": "zh",
+      "expected": "instagram-curated-resources"
+    },
+    {
+      "query": "resource list",
+      "lang": "en",
+      "expected": "instagram-curated-resources"
+    },
+    {
+      "query": "视觉手法",
+      "lang": "zh",
+      "expected": "instagram-visual-technique-reference"
+    },
+    {
+      "query": "visual techniques",
+      "lang": "en",
+      "expected": "instagram-visual-technique-reference"
+    },
+    {
+      "query": "本地推荐",
+      "lang": "zh",
+      "expected": "instagram-local-picks"
+    },
+    {
+      "query": "local recommendations",
+      "lang": "en",
+      "expected": "instagram-local-picks"
+    },
+    {
+      "query": "相似推荐",
+      "lang": "zh",
+      "expected": "instagram-taste-matched-recommendations"
+    },
+    {
+      "query": "if you like this",
+      "lang": "en",
+      "expected": "instagram-taste-matched-recommendations"
+    },
+    {
+      "query": "常见错误",
+      "lang": "zh",
+      "expected": "instagram-mistakes-and-alternatives"
+    },
+    {
+      "query": "common mistakes",
+      "lang": "en",
+      "expected": "instagram-mistakes-and-alternatives"
+    },
+    {
+      "query": "活动点子",
+      "lang": "zh",
+      "expected": "instagram-object-led-activities"
+    },
+    {
+      "query": "activity ideas",
+      "lang": "en",
+      "expected": "instagram-object-led-activities"
+    },
+    {
+      "query": "数字可视化",
+      "lang": "zh",
+      "expected": "instagram-numbers-at-human-scale"
+    },
+    {
+      "query": "human scale numbers",
+      "lang": "en",
+      "expected": "instagram-numbers-at-human-scale"
+    },
+    {
+      "query": "申请指南",
+      "lang": "zh",
+      "expected": "instagram-opportunity-guide"
+    },
+    {
+      "query": "application guide",
+      "lang": "en",
+      "expected": "instagram-opportunity-guide"
+    },
+    {
+      "query": "提示词效果",
+      "lang": "zh",
+      "expected": "instagram-prompt-result-reference"
+    },
+    {
+      "query": "prompt results",
+      "lang": "en",
+      "expected": "instagram-prompt-result-reference"
+    },
+    {
+      "query": "快捷指令",
+      "lang": "zh",
+      "expected": "instagram-command-shortcuts"
+    },
+    {
+      "query": "command shortcuts",
+      "lang": "en",
+      "expected": "instagram-command-shortcuts"
+    },
+    {
+      "query": "素材检索",
+      "lang": "zh",
+      "expected": "instagram-searchable-asset-index"
+    },
+    {
+      "query": "asset keywords",
+      "lang": "en",
+      "expected": "instagram-searchable-asset-index"
+    },
+    {
+      "query": "公式速查",
+      "lang": "zh",
+      "expected": "instagram-metric-formulas"
+    },
+    {
+      "query": "metric formulas",
+      "lang": "en",
+      "expected": "instagram-metric-formulas"
+    },
+    {
+      "query": "概念区别",
+      "lang": "zh",
+      "expected": "instagram-similar-concepts"
+    },
+    {
+      "query": "concept differences",
+      "lang": "en",
+      "expected": "instagram-similar-concepts"
+    },
+    {
+      "query": "文案替换",
+      "lang": "zh",
+      "expected": "instagram-copy-alternatives"
+    },
+    {
+      "query": "copy alternatives",
+      "lang": "en",
+      "expected": "instagram-copy-alternatives"
+    },
+    {
+      "query": "笔记模板",
+      "lang": "zh",
+      "expected": "instagram-copyable-notes"
+    },
+    {
+      "query": "copyable notes",
+      "lang": "en",
+      "expected": "instagram-copyable-notes"
+    },
+    {
+      "query": "发言提纲",
+      "lang": "zh",
+      "expected": "instagram-fill-in-speech"
+    },
+    {
+      "query": "speech outline",
+      "lang": "en",
+      "expected": "instagram-fill-in-speech"
+    },
+    {
+      "query": "名称来历",
+      "lang": "zh",
+      "expected": "instagram-object-name-origins"
+    },
+    {
+      "query": "name origins",
+      "lang": "en",
+      "expected": "instagram-object-name-origins"
+    },
+    {
+      "query": "品类用途",
+      "lang": "zh",
+      "expected": "instagram-category-use-guide"
+    },
+    {
+      "query": "category uses",
+      "lang": "en",
+      "expected": "instagram-category-use-guide"
+    },
+    {
+      "query": "日期安排",
+      "lang": "zh",
+      "expected": "instagram-calendar-cheat-sheet"
+    },
+    {
+      "query": "calendar schedule",
+      "lang": "en",
+      "expected": "instagram-calendar-cheat-sheet"
+    },
+    {
+      "query": "旅行花费",
+      "lang": "zh",
+      "expected": "instagram-destination-costs"
+    },
+    {
+      "query": "destination costs",
+      "lang": "en",
+      "expected": "instagram-destination-costs"
+    },
+    {
+      "query": "字体搭配",
+      "lang": "zh",
+      "expected": "instagram-font-pairing"
+    },
+    {
+      "query": "font pairing",
+      "lang": "en",
+      "expected": "instagram-font-pairing"
+    },
+    {
+      "query": "图解速查",
+      "lang": "zh",
+      "expected": "instagram-diagram-reference"
+    },
+    {
+      "query": "diagram guide",
+      "lang": "en",
+      "expected": "instagram-diagram-reference"
+    },
+    {
+      "query": "双图数据",
+      "lang": "zh",
+      "expected": "instagram-two-views-one-dataset"
+    },
+    {
+      "query": "paired data charts",
+      "lang": "en",
+      "expected": "instagram-two-views-one-dataset"
+    },
+    {
+      "query": "界面教程",
+      "lang": "zh",
+      "expected": "instagram-screenshot-walkthrough"
+    },
+    {
+      "query": "screenshot tutorial",
+      "lang": "en",
+      "expected": "instagram-screenshot-walkthrough"
+    },
+    {
+      "query": "构图标注",
+      "lang": "zh",
+      "expected": "instagram-layout-anatomy"
+    },
+    {
+      "query": "layout anatomy",
+      "lang": "en",
+      "expected": "instagram-layout-anatomy"
+    },
+    {
+      "query": "效果拆解",
+      "lang": "zh",
+      "expected": "instagram-effect-breakdown"
+    },
+    {
+      "query": "visual effect tutorial",
+      "lang": "en",
+      "expected": "instagram-effect-breakdown"
+    },
+    {
+      "query": "实例教程",
+      "lang": "zh",
+      "expected": "instagram-worked-examples"
+    },
+    {
+      "query": "worked example",
+      "lang": "en",
+      "expected": "instagram-worked-examples"
+    },
+    {
+      "query": "逐步累加",
+      "lang": "zh",
+      "expected": "instagram-incremental-assembly"
+    },
+    {
+      "query": "incremental assembly",
+      "lang": "en",
+      "expected": "instagram-incremental-assembly"
+    },
+    {
+      "query": "成品配方",
+      "lang": "zh",
+      "expected": "instagram-result-and-recipe"
+    },
+    {
+      "query": "recipe card",
+      "lang": "en",
+      "expected": "instagram-result-and-recipe"
+    },
+    {
+      "query": "填空练习",
+      "lang": "zh",
+      "expected": "instagram-fill-in-workbook"
+    },
+    {
+      "query": "guided workbook",
+      "lang": "en",
+      "expected": "instagram-fill-in-workbook"
+    },
+    {
+      "query": "精力安排",
+      "lang": "zh",
+      "expected": "instagram-capacity-planning"
+    },
+    {
+      "query": "capacity planning",
+      "lang": "en",
+      "expected": "instagram-capacity-planning"
+    },
+    {
+      "query": "挑战计划",
+      "lang": "zh",
+      "expected": "instagram-timed-action-plan"
+    },
+    {
+      "query": "timed challenge",
+      "lang": "en",
+      "expected": "instagram-timed-action-plan"
+    },
+    {
+      "query": "学习路线",
+      "lang": "zh",
+      "expected": "instagram-learning-path"
+    },
+    {
+      "query": "learning roadmap",
+      "lang": "en",
+      "expected": "instagram-learning-path"
+    },
+    {
+      "query": "成果倒推",
+      "lang": "zh",
+      "expected": "instagram-result-to-steps"
+    },
+    {
+      "query": "reverse engineer a result",
+      "lang": "en",
+      "expected": "instagram-result-to-steps"
+    },
+    {
+      "query": "目标拆解",
+      "lang": "zh",
+      "expected": "instagram-goal-benchmarks"
+    },
+    {
+      "query": "goal benchmarks",
+      "lang": "en",
+      "expected": "instagram-goal-benchmarks"
+    },
+    {
+      "query": "风格组装",
+      "lang": "zh",
+      "expected": "instagram-style-assembly"
+    },
+    {
+      "query": "style recipe",
+      "lang": "en",
+      "expected": "instagram-style-assembly"
+    },
+    {
+      "query": "同条件实测",
+      "lang": "zh",
+      "expected": "instagram-matched-test"
+    },
+    {
+      "query": "matched benchmark",
+      "lang": "en",
+      "expected": "instagram-matched-test"
+    },
+    {
+      "query": "单变量对照",
+      "lang": "zh",
+      "expected": "instagram-one-variable-comparison"
+    },
+    {
+      "query": "one variable test",
+      "lang": "en",
+      "expected": "instagram-one-variable-comparison"
+    },
+    {
+      "query": "同图多结果",
+      "lang": "zh",
+      "expected": "instagram-one-input-many-results"
+    },
+    {
+      "query": "one input many outputs",
+      "lang": "en",
+      "expected": "instagram-one-input-many-results"
+    },
+    {
+      "query": "个人实验",
+      "lang": "zh",
+      "expected": "instagram-personal-experiment"
+    },
+    {
+      "query": "personal experiment",
+      "lang": "en",
+      "expected": "instagram-personal-experiment"
+    },
+    {
+      "query": "成果证据",
+      "lang": "zh",
+      "expected": "instagram-evidence-to-method"
+    },
+    {
+      "query": "evidence to method",
+      "lang": "en",
+      "expected": "instagram-evidence-to-method"
+    },
+    {
+      "query": "文件揭晓",
+      "lang": "zh",
+      "expected": "instagram-document-reveal"
+    },
+    {
+      "query": "document reveal",
+      "lang": "en",
+      "expected": "instagram-document-reveal"
+    },
+    {
+      "query": "公开修正",
+      "lang": "zh",
+      "expected": "instagram-public-follow-up"
+    },
+    {
+      "query": "public correction",
+      "lang": "en",
+      "expected": "instagram-public-follow-up"
+    },
+    {
+      "query": "个人收支",
+      "lang": "zh",
+      "expected": "instagram-personal-budget-case"
+    },
+    {
+      "query": "personal budget",
+      "lang": "en",
+      "expected": "instagram-personal-budget-case"
+    },
+    {
+      "query": "照片故事",
+      "lang": "zh",
+      "expected": "instagram-photo-moment-story"
+    },
+    {
+      "query": "photo story",
+      "lang": "en",
+      "expected": "instagram-photo-moment-story"
+    },
+    {
+      "query": "幕后制作",
+      "lang": "zh",
+      "expected": "instagram-behind-the-scenes"
+    },
+    {
+      "query": "behind the scenes",
+      "lang": "en",
+      "expected": "instagram-behind-the-scenes"
+    },
+    {
+      "query": "角色导览",
+      "lang": "zh",
+      "expected": "instagram-character-led-tour"
+    },
+    {
+      "query": "character tour",
+      "lang": "en",
+      "expected": "instagram-character-led-tour"
+    },
+    {
+      "query": "访谈分镜",
+      "lang": "zh",
+      "expected": "instagram-interview-storyboard"
+    },
+    {
+      "query": "interview quotes",
+      "lang": "en",
+      "expected": "instagram-interview-storyboard"
+    },
+    {
+      "query": "漫画对话",
+      "lang": "zh",
+      "expected": "instagram-comic-dialogue"
+    },
+    {
+      "query": "comic dialogue",
+      "lang": "en",
+      "expected": "instagram-comic-dialogue"
+    },
+    {
+      "query": "故事讲道理",
+      "lang": "zh",
+      "expected": "instagram-illustrated-story-explainer"
+    },
+    {
+      "query": "illustrated lesson",
+      "lang": "en",
+      "expected": "instagram-illustrated-story-explainer"
+    },
+    {
+      "query": "小时候与现在",
+      "lang": "zh",
+      "expected": "instagram-then-now-pairs"
+    },
+    {
+      "query": "then and now",
+      "lang": "en",
+      "expected": "instagram-then-now-pairs"
+    },
+    {
+      "query": "作品象征",
+      "lang": "zh",
+      "expected": "instagram-symbolism-in-artifact"
+    },
+    {
+      "query": "artifact symbolism",
+      "lang": "en",
+      "expected": "instagram-symbolism-in-artifact"
+    },
+    {
+      "query": "双视角照片",
+      "lang": "zh",
+      "expected": "instagram-two-perspectives"
+    },
+    {
+      "query": "two perspectives",
+      "lang": "en",
+      "expected": "instagram-two-perspectives"
+    },
+    {
+      "query": "阶段复盘",
+      "lang": "zh",
+      "expected": "instagram-milestones-and-feelings"
+    },
+    {
+      "query": "milestone diary",
+      "lang": "en",
+      "expected": "instagram-milestones-and-feelings"
+    },
+    {
+      "query": "日常相册",
+      "lang": "zh",
+      "expected": "instagram-everyday-photo-diary"
+    },
+    {
+      "query": "everyday diary",
+      "lang": "en",
+      "expected": "instagram-everyday-photo-diary"
+    },
+    {
+      "query": "辟谣核查",
+      "lang": "zh",
+      "expected": "instagram-myth-and-fact"
+    },
+    {
+      "query": "myth fact",
+      "lang": "en",
+      "expected": "instagram-myth-and-fact"
+    },
+    {
+      "query": "类比回应",
+      "lang": "zh",
+      "expected": "instagram-visual-analogy"
+    },
+    {
+      "query": "visual analogy",
+      "lang": "en",
+      "expected": "instagram-visual-analogy"
+    },
+    {
+      "query": "情境对比",
+      "lang": "zh",
+      "expected": "instagram-context-changes-meaning"
+    },
+    {
+      "query": "context comparison",
+      "lang": "en",
+      "expected": "instagram-context-changes-meaning"
+    },
+    {
+      "query": "话外之意",
+      "lang": "zh",
+      "expected": "instagram-said-and-meant"
+    },
+    {
+      "query": "said versus meant",
+      "lang": "en",
+      "expected": "instagram-said-and-meant"
+    },
+    {
+      "query": "年龄焦虑",
+      "lang": "zh",
+      "expected": "instagram-age-expectations"
+    },
+    {
+      "query": "age expectations",
+      "lang": "en",
+      "expected": "instagram-age-expectations"
+    },
+    {
+      "query": "特质与边界",
+      "lang": "zh",
+      "expected": "instagram-balanced-traits"
+    },
+    {
+      "query": "balanced traits",
+      "lang": "en",
+      "expected": "instagram-balanced-traits"
+    },
+    {
+      "query": "成果与付出",
+      "lang": "zh",
+      "expected": "instagram-effort-and-outcome"
+    },
+    {
+      "query": "effort and outcome",
+      "lang": "en",
+      "expected": "instagram-effort-and-outcome"
+    },
+    {
+      "query": "情绪提醒",
+      "lang": "zh",
+      "expected": "instagram-emotion-and-meaning"
+    },
+    {
+      "query": "emotion meaning",
+      "lang": "en",
+      "expected": "instagram-emotion-and-meaning"
+    },
+    {
+      "query": "剩余时间",
+      "lang": "zh",
+      "expected": "instagram-remaining-capacity"
+    },
+    {
+      "query": "remaining capacity",
+      "lang": "en",
+      "expected": "instagram-remaining-capacity"
+    },
+    {
+      "query": "角色视角",
+      "lang": "zh",
+      "expected": "instagram-different-perspectives"
+    },
+    {
+      "query": "role perspectives",
+      "lang": "en",
+      "expected": "instagram-different-perspectives"
+    },
+    {
+      "query": "插画观点",
+      "lang": "zh",
+      "expected": "instagram-illustrated-opinion"
+    },
+    {
+      "query": "illustrated opinion",
+      "lang": "en",
+      "expected": "instagram-illustrated-opinion"
+    },
+    {
+      "query": "新闻解释",
+      "lang": "zh",
+      "expected": "instagram-single-event-news"
+    },
+    {
+      "query": "event news",
+      "lang": "en",
+      "expected": "instagram-single-event-news"
+    },
+    {
+      "query": "产品更新",
+      "lang": "zh",
+      "expected": "instagram-product-change"
+    },
+    {
+      "query": "product update",
+      "lang": "en",
+      "expected": "instagram-product-change"
+    },
+    {
+      "query": "研究简报",
+      "lang": "zh",
+      "expected": "instagram-research-brief"
+    },
+    {
+      "query": "research brief",
+      "lang": "en",
+      "expected": "instagram-research-brief"
+    },
+    {
+      "query": "资讯摘要",
+      "lang": "zh",
+      "expected": "instagram-news-digest"
+    },
+    {
+      "query": "news digest",
+      "lang": "en",
+      "expected": "instagram-news-digest"
+    },
+    {
+      "query": "新品发布",
+      "lang": "zh",
+      "expected": "instagram-launch-news"
+    },
+    {
+      "query": "launch announcement",
+      "lang": "en",
+      "expected": "instagram-launch-news"
+    },
+    {
+      "query": "品牌设计",
+      "lang": "zh",
+      "expected": "instagram-brand-system"
+    },
+    {
+      "query": "brand identity",
+      "lang": "en",
+      "expected": "instagram-brand-system"
+    },
+    {
+      "query": "技术草图",
+      "lang": "zh",
+      "expected": "instagram-photo-and-technical-sketch"
+    },
+    {
+      "query": "technical sketch",
+      "lang": "en",
+      "expected": "instagram-photo-and-technical-sketch"
+    },
+    {
+      "query": "照片配色",
+      "lang": "zh",
+      "expected": "instagram-image-to-palette"
+    },
+    {
+      "query": "image palette",
+      "lang": "en",
+      "expected": "instagram-image-to-palette"
+    },
+    {
+      "query": "配色物料",
+      "lang": "zh",
+      "expected": "instagram-palette-application-board"
+    },
+    {
+      "query": "palette moodboard",
+      "lang": "en",
+      "expected": "instagram-palette-application-board"
+    },
+    {
+      "query": "跨页画布",
+      "lang": "zh",
+      "expected": "instagram-continuous-canvas"
+    },
+    {
+      "query": "continuous carousel",
+      "lang": "en",
+      "expected": "instagram-continuous-canvas"
+    },
+    {
+      "query": "作品细节",
+      "lang": "zh",
+      "expected": "instagram-artwork-detail"
+    },
+    {
+      "query": "artwork details",
+      "lang": "en",
+      "expected": "instagram-artwork-detail"
+    },
+    {
+      "query": "看图猜题",
+      "lang": "zh",
+      "expected": "instagram-visual-guess"
+    },
+    {
+      "query": "visual quiz",
+      "lang": "en",
+      "expected": "instagram-visual-guess"
+    },
+    {
+      "query": "风格二选一",
+      "lang": "zh",
+      "expected": "instagram-style-choice"
+    },
+    {
+      "query": "style vote",
+      "lang": "en",
+      "expected": "instagram-style-choice"
+    },
+    {
+      "query": "趣味身份",
+      "lang": "zh",
+      "expected": "instagram-identity-match"
+    },
+    {
+      "query": "identity match",
+      "lang": "en",
+      "expected": "instagram-identity-match"
+    },
+    {
+      "query": "反向指令",
+      "lang": "zh",
+      "expected": "instagram-reverse-instruction"
+    },
+    {
+      "query": "reverse instruction",
+      "lang": "en",
+      "expected": "instagram-reverse-instruction"
+    },
+    {
+      "query": "对话问题卡",
+      "lang": "zh",
+      "expected": "instagram-conversation-questions"
+    },
+    {
+      "query": "conversation cards",
+      "lang": "en",
+      "expected": "instagram-conversation-questions"
+    },
+    {
+      "query": "日常界面",
+      "lang": "zh",
+      "expected": "instagram-everyday-interface-story"
+    },
+    {
+      "query": "interface story",
+      "lang": "en",
+      "expected": "instagram-everyday-interface-story"
+    },
+    {
+      "query": "品牌拟人",
+      "lang": "zh",
+      "expected": "instagram-brand-personification"
+    },
+    {
+      "query": "brand personification",
+      "lang": "en",
+      "expected": "instagram-brand-personification"
+    },
+    {
+      "query": "版本变化",
+      "lang": "zh",
+      "expected": "instagram-version-change-audit"
+    },
+    {
+      "query": "version audit",
+      "lang": "en",
+      "expected": "instagram-version-change-audit"
+    },
+    {
+      "query": "实验过程故事",
+      "lang": "zh",
+      "expected": "instagram-experiment-story"
+    },
+    {
+      "query": "experiment story",
+      "lang": "en",
+      "expected": "instagram-experiment-story"
+    },
+    {
+      "query": "读者来信",
+      "lang": "zh",
+      "expected": "instagram-reader-question-answer"
+    },
+    {
+      "query": "reader question",
+      "lang": "en",
+      "expected": "instagram-reader-question-answer"
+    },
+    {
+      "query": "同预算选择",
+      "lang": "zh",
+      "expected": "instagram-same-budget-choices"
+    },
+    {
+      "query": "same budget",
+      "lang": "en",
+      "expected": "instagram-same-budget-choices"
+    },
+    {
+      "query": "期待现实评分",
+      "lang": "zh",
+      "expected": "instagram-expectation-reality-review"
+    },
+    {
+      "query": "expectation reality review",
+      "lang": "en",
+      "expected": "instagram-expectation-reality-review"
+    }
+  ]
+}

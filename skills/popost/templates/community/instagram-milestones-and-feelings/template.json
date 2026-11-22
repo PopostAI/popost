@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-milestones-and-feelings",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "每个阶段的数字与感受",
+      "summary": "在每个阶段复用时间、数字、做法或感受字段，让一条变化轨迹逐页累积。",
+      "useWhen": "每节点同时交代状态和体验；区别于现有以总量及组成盘点一段时间。",
+      "instructions": "真实阶段照片、时间、同口径指标和本人记录",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Milestone and Feeling Log",
+      "summary": "Create an Instagram story carousel using the milestone and feeling log structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the milestone and feeling log format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-milestones-and-feelings/page-01-7dad55016c7f.webp",
+    "https://static.popost.ai/templates/instagram-milestones-and-feelings/page-02-d027d9c934a3.webp",
+    "https://static.popost.ai/templates/instagram-milestones-and-feelings/page-03-074d0faccd73.webp",
+    "https://static.popost.ai/templates/instagram-milestones-and-feelings/page-04-2b474ab99e12.webp",
+    "https://static.popost.ai/templates/instagram-milestones-and-feelings/page-05-865c4074ad6d.webp",
+    "https://static.popost.ai/templates/instagram-milestones-and-feelings/page-06-63555b960ea6.webp",
+    "https://static.popost.ai/templates/instagram-milestones-and-feelings/page-07-1b3ac8fe2298.webp"
+  ],
+  "match": {
+    "goals": [
+      "每个阶段的数字与感受",
+      "Milestone and Feeling Log",
+      "阶段复盘",
+      "数字感受",
+      "milestone diary",
+      "milestone metric feeling log",
+      "monthly metric diary",
+      "elapsed time retrospective",
+      "photo metric recap",
+      "periodic lessons log",
+      "year by year work archive"
+    ],
+    "imageCues": [
+      "全幅生活照，顶部黄色细序号与横线，阶段名大衬线72–92px，关键数值以手写/粗体48–60px",
+      "中下部“HOW I SPENT / HOW I FELT”两段撕纸注释，正文30–36px",
+      "照片留可识别人和环境"
+    ],
+    "exclusions": [
+      "真实收支案例档案",
+      "Personal Budget Case Study"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/7bfd7b2e380031b705a440a1510b8fe050f3c21d61022c2c529668507e6c92cb.webp"
+}

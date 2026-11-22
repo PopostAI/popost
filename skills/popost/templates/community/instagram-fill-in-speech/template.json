@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-fill-in-speech",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "填空式发言提纲",
+      "summary": "按发言顺序提供章节、可替换字段和示例句，帮助读者完成一篇实际发言。",
+      "useWhen": "章节顺序及承接是核心；区别于独立问题组成的练习工作表。",
+      "instructions": "讲话场合、关系、时长、真实故事与称呼",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Fill-in Speech Outline",
+      "summary": "Create an Instagram reference carousel using the fill-in speech outline structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the fill-in speech outline format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-fill-in-speech/page-01-a7a126c16c5c.webp",
+    "https://static.popost.ai/templates/instagram-fill-in-speech/page-02-90e1b7febc42.webp",
+    "https://static.popost.ai/templates/instagram-fill-in-speech/page-03-93cf1b1ea835.webp",
+    "https://static.popost.ai/templates/instagram-fill-in-speech/page-04-5e38552b7cc7.webp",
+    "https://static.popost.ai/templates/instagram-fill-in-speech/page-05-392aa2c166c8.webp",
+    "https://static.popost.ai/templates/instagram-fill-in-speech/page-06-b4d6e5804d83.webp",
+    "https://static.popost.ai/templates/instagram-fill-in-speech/page-07-43f70639f15a.webp",
+    "https://static.popost.ai/templates/instagram-fill-in-speech/page-08-5d0d8ceb79ee.webp"
+  ],
+  "match": {
+    "goals": [
+      "填空式发言提纲",
+      "Fill-in Speech Outline",
+      "发言提纲",
+      "填空演讲",
+      "speech outline",
+      "fill in speech outline"
+    ],
+    "imageCues": [
+      "封面黑白活动照加居中白色无衬线标题56–72px",
+      "内页暖浅灰底，章节名34–42px居中置上中，示例段落32–38px斜体，宽约72%，舒适行距1.55",
+      "字段用方括号并有明显替换提示"
+    ],
+    "exclusions": [
+      "边读边填练习册",
+      "Fill-in Workbook"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/4ea23fd369c58534d7ca47a0f84a69d16d59ad2cddf07b4fff1e27b9f61a281d.webp"
+}

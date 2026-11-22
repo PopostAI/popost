@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-public-follow-up",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "回看旧帖与公开修正",
+      "summary": "主动回看自己之前的说法，展示后续发生的变化，解释需要修正的判断。",
+      "useWhen": "必须有真实旧说法与新证据；区别于泛泛的失败复盘。",
+      "instructions": "旧帖、日期、新进展、差异证据与修正判断",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Public Follow-up Case Study",
+      "summary": "Create an Instagram case study carousel using the public follow-up case study structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the public follow-up case study format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-public-follow-up/page-01-48d7707e0997.webp",
+    "https://static.popost.ai/templates/instagram-public-follow-up/page-02-2b43dee35eb6.webp",
+    "https://static.popost.ai/templates/instagram-public-follow-up/page-03-16157593fc4f.webp",
+    "https://static.popost.ai/templates/instagram-public-follow-up/page-04-2eb290373638.webp",
+    "https://static.popost.ai/templates/instagram-public-follow-up/page-05-8b5e72bce112.webp",
+    "https://static.popost.ai/templates/instagram-public-follow-up/page-06-2dc19fd91fbb.webp",
+    "https://static.popost.ai/templates/instagram-public-follow-up/page-07-06e465eaa9bf.webp",
+    "https://static.popost.ai/templates/instagram-public-follow-up/page-08-57d920a1234e.webp",
+    "https://static.popost.ai/templates/instagram-public-follow-up/page-09-b3d2b97d137d.webp"
+  ],
+  "match": {
+    "goals": [
+      "回看旧帖与公开修正",
+      "Public Follow-up Case Study",
+      "公开修正",
+      "旧帖跟进",
+      "public correction",
+      "public correction followup"
+    ],
+    "imageCues": [
+      "全幅人物/日常环境，底部约40%加低强度深色遮罩",
+      "居中或左对齐白色窄高衬线文字52–66px，一页一段，首屏“旧判断需要更新”要明确",
+      "角落固定小型来源/日期"
+    ],
+    "exclusions": [
+      "更新了什么与该怎么做",
+      "Product Change News"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/1306fb751454afe41e3a3e2e90050ef50e75e8f413b586ab63ef89755fc26d41.webp"
+}

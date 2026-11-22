@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-object-name-origins",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "实物与名称来历图鉴",
+      "summary": "把可识别实物、名称和来历连起来，先总览，再展开每个名称背后的解释。",
+      "useWhen": "名称必须能对应可见样本；概念网格、词典趣味释义作为变体合并。",
+      "instructions": "实物样本、名称、可靠词源或明确标为创作的释义",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Object and Name Origins",
+      "summary": "Create an Instagram reference carousel using the object and name origins structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the object and name origins format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-object-name-origins/page-01-6a4bb33c1897.webp",
+    "https://static.popost.ai/templates/instagram-object-name-origins/page-02-956235e17988.webp",
+    "https://static.popost.ai/templates/instagram-object-name-origins/page-03-5427c0f3ffb5.webp",
+    "https://static.popost.ai/templates/instagram-object-name-origins/page-04-16c4f0232be4.webp",
+    "https://static.popost.ai/templates/instagram-object-name-origins/page-05-6eeb482044d3.webp"
+  ],
+  "match": {
+    "goals": [
+      "实物与名称来历图鉴",
+      "Object and Name Origins",
+      "名称来历",
+      "词源图鉴",
+      "name origins",
+      "etymology specimen atlas",
+      "specimen glossary",
+      "insider dictionary"
+    ],
+    "imageCues": [
+      "封面4×4或3×3实物网格，上方小标题",
+      "详情页2×2同尺度样本，实物占单元上半，名称30–38px白字，来源说明28–34px暖金色，底部不加泛用CTA"
+    ],
+    "exclusions": [
+      "指标公式速查",
+      "Metric Formula Reference"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/da170c04b48ad7de0837fab99df473bb0e2b16210c71ffcdfd1a592486b2408f.webp"
+}

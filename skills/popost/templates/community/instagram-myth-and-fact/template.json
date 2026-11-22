@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-myth-and-fact",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "常见说法与事实核查",
+      "summary": "逐条摆出被讨论的说法，用可追溯事实回应，并说明哪些部分仍不能确定。",
+      "useWhen": "原话与核查证据都需要来源；区别于仅表达反对态度。",
+      "instructions": "可核对原话、事实材料、日期和适用范围",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Myth and Fact Opinion",
+      "summary": "Create an Instagram opinion carousel using the myth and fact opinion structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the myth and fact opinion format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-myth-and-fact/page-01-2479c5d54db8.webp",
+    "https://static.popost.ai/templates/instagram-myth-and-fact/page-02-989b134c510f.webp",
+    "https://static.popost.ai/templates/instagram-myth-and-fact/page-03-3cd650223bf6.webp",
+    "https://static.popost.ai/templates/instagram-myth-and-fact/page-04-013aec586882.webp",
+    "https://static.popost.ai/templates/instagram-myth-and-fact/page-05-6592dc046642.webp",
+    "https://static.popost.ai/templates/instagram-myth-and-fact/page-06-84c8a3044a6d.webp"
+  ],
+  "match": {
+    "goals": [
+      "常见说法与事实核查",
+      "Myth and Fact Opinion",
+      "辟谣核查",
+      "事实核查",
+      "myth fact",
+      "myth correction bulletin",
+      "source check rebuttal"
+    ],
+    "imageCues": [
+      "首屏全幅主题实景/肖像，左上一个小栏目符号，底部白色衬线标题60–76px",
+      "内页黑底，窄列宽约72%",
+      "先小写栏目标“说法”，下接斜体引用42–52px，再“事实/证据”与正文32–38px，页脚来源24–28px"
+    ],
+    "exclusions": [
+      "新研究到实际意义",
+      "Research Brief"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/e1c23add0ac8efdc45b09394b011859ca94d56bdd5de28ceb56cd4ef77e01dac.webp"
+}

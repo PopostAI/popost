@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-conversation-questions",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "值得互相问的问题卡",
+      "summary": "用一组可直接拿来问的问题推动交流，每页保持明确的问题主角和卡片形态。",
+      "useWhen": "问题本身是可用产物；区别于有标准答案的测试和引导填写的工作表。",
+      "instructions": "交流情境、问题顺序、隐私边界与卡片素材",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Conversation Question Cards",
+      "summary": "Create an Instagram quiz carousel using the conversation question cards structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the conversation question cards format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-conversation-questions/page-01-c0a7aba69ca5.webp",
+    "https://static.popost.ai/templates/instagram-conversation-questions/page-02-8d44377a9f4a.webp",
+    "https://static.popost.ai/templates/instagram-conversation-questions/page-03-6d8fa0d76f0e.webp",
+    "https://static.popost.ai/templates/instagram-conversation-questions/page-04-2bb6c2be10ea.webp",
+    "https://static.popost.ai/templates/instagram-conversation-questions/page-05-fa79a976fe34.webp",
+    "https://static.popost.ai/templates/instagram-conversation-questions/page-06-8605a9cb3da1.webp"
+  ],
+  "match": {
+    "goals": [
+      "值得互相问的问题卡",
+      "Conversation Question Cards",
+      "对话问题卡",
+      "聊天问题",
+      "conversation cards",
+      "physical question card deck"
+    ],
+    "imageCues": [
+      "首屏生活中共同活动实拍，亮红粗体问题宣言64–82px置中部",
+      "后页手持/桌面奶油白实体问题卡，卡片占70–85%宽，圆角适中",
+      "红色居中大写问题42–54px，周围保留真实手部与卡盒环境"
+    ],
+    "exclusions": [
+      "越不让翻越想翻",
+      "Reverse Instruction Quiz"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/a97227560056a86ddd19aa44def18fb40db1b9631e74174805f5c2b701680d6e.webp"
+}

@@ -5282,6 +5282,3846 @@
         ]
       },
       "revision": "d8029bd23a4319d314424174819c5251c95c8613761b8d2b8bb61b177668f72c"
+    },
+    {
+      "id": "instagram-age-expectations",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "年龄期待与真实节奏",
+          "summary": "将社会期待的年龄与有依据的真实情况成对放置，讨论人生节奏的误解。",
+          "useWhen": "年龄比较是固定语法；不能用未经核查的统计来制造安慰。",
+          "instructions": "明确年龄期待、可靠事实或个人经历、来源与对应照片",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Age Expectations Reframed",
+          "summary": "Create an Instagram opinion carousel using the age expectations reframed structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the age expectations reframed format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "年龄期待与真实节奏",
+          "Age Expectations Reframed",
+          "年龄焦虑",
+          "自己的节奏",
+          "age expectations",
+          "age expectation reframe"
+        ],
+        "imageCues": [
+          "每页上下两幅生活照，边界无框",
+          "上图一句外界时间期待，下图一句具体个人节奏，白色粗无衬线36–46px位于各半区中下",
+          "照片适度压暗，短句之间有直接语义对应"
+        ],
+        "exclusions": [
+          "损失一段仍有余量",
+          "Remaining Capacity Reframe"
+        ]
+      },
+      "revision": "95274400f1344b04bbe824190883710a65ccda1a7718d6de6075d2d1e6f1f141"
+    },
+    {
+      "id": "instagram-artwork-detail",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "一件作品的细节解读",
+          "summary": "先看完整作品，再逐页放大能改变理解的细节，让读者沿画面发现意义。",
+          "useWhen": "局部必须来自可核对作品；多件作品的风格例子作为变体，不虚构作者意图。",
+          "instructions": "完整作品、高清局部、可靠说明与解释归属",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Artwork Detail Story",
+          "summary": "Create an Instagram story carousel using the artwork detail story structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the artwork detail story format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "一件作品的细节解读",
+          "Artwork Detail Story",
+          "作品细节",
+          "画作解读",
+          "artwork details",
+          "painting narrative close read",
+          "artist style study"
+        ],
+        "imageCues": [
+          "全幅作品高清图，第一屏让全貌与一个可见疑点同在",
+          "后页按线索裁切到相关局部，白色描边短段36–46px放空处，2–4行，不加大框与无关画面",
+          "末页回到全貌与有依据的理解"
+        ],
+        "exclusions": [
+          "一件作品里的象征",
+          "Symbolism in an Artifact",
+          "实拍与技术草图对照",
+          "Photo and Technical Sketch"
+        ]
+      },
+      "revision": "496af93514c98b91f1431e87d711466b57d1145ce1dca5cb9d49753ff429b37d"
+    },
+    {
+      "id": "instagram-balanced-traits",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "有这个特质也保留边界",
+          "summary": "将一个值得保留的特质或选择，与需要避免的过度状态成对展示。",
+          "useWhen": "讨论的是尺度和边界；两种都合理、少一点多一点作为同一对照语法变体。",
+          "instructions": "特质、边界、同情境例子与配对图像",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Balanced Traits Opinion",
+          "summary": "Create an Instagram opinion carousel using the balanced traits opinion structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the balanced traits opinion format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "有这个特质也保留边界",
+          "Balanced Traits Opinion",
+          "特质与边界",
+          "两者兼得",
+          "balanced traits",
+          "balanced trait pairs",
+          "two valid options",
+          "less more photo pairs"
+        ],
+        "imageCues": [
+          "上下两张全幅照片，每半区中下各一段白色短句36–44px",
+          "上句肯定一种特质，下句补充边界，2–6个词的对称语法",
+          "人物动作分别表达两侧含义，镜头尺度近似"
+        ],
+        "exclusions": [
+          "情绪在提醒我什么",
+          "Emotion and Meaning Opinion"
+        ]
+      },
+      "revision": "025fa036dd6b6d356bda0135a9832d4da56161775d1ac6521d036755e0c5f688"
+    },
+    {
+      "id": "instagram-behind-the-scenes",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "幕后制作纪实",
+          "summary": "让读者看见成品背后的人、环境和真实工作动作，按实际制作过程组织实拍。",
+          "useWhen": "重在记录谁怎么做，区别于要求读者逐步照做的教程。",
+          "instructions": "真实工作现场、人员、过程照片与成品",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Behind-the-scenes Story",
+          "summary": "Create an Instagram story carousel using the behind-the-scenes story structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the behind-the-scenes story format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "幕后制作纪实",
+          "Behind-the-scenes Story",
+          "幕后制作",
+          "制作过程",
+          "behind the scenes",
+          "behind scenes documentary",
+          "project process diary"
+        ],
+        "imageCues": [
+          "全幅手机纪实",
+          "首屏中央白色无衬线大句68–90px，尽量不遮手部动作",
+          "后页以工作台、材料、失误、过程、成品依次切换，文字可极少或无，必要注释30–38px"
+        ],
+        "exclusions": [
+          "固定机位逐步累加教程",
+          "Incremental Assembly Tutorial"
+        ]
+      },
+      "revision": "f70a58cb2ed86fd539d443b5a4e757cc219ed4fa207eb02e4dd45a75a2a288bb"
+    },
+    {
+      "id": "instagram-brand-personification",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "把品牌想象成一个角色",
+          "summary": "将可辨认原型与新的角色形象配对，说明哪些可见特征被转译进了角色。",
+          "useWhen": "转译关系要可解释；区别于没有原型对应的角色作品集。",
+          "instructions": "允许使用的原型、转译特征、角色设计与署名",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Brand Personification Showcase",
+          "summary": "Create an Instagram showcase carousel using the brand personification showcase structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the brand personification showcase format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "把品牌想象成一个角色",
+          "Brand Personification Showcase",
+          "品牌拟人",
+          "品牌动物角色",
+          "brand personification",
+          "brand as character",
+          "reference character reimagining"
+        ],
+        "imageCues": [
+          "首屏全幅动物/角色场景，中部奶油色超粗标题90–115px",
+          "后页全幅对应角色，底部大衬线品牌/对象名62–78px，下接大写角色名34–42px和2–3行理由32–38px",
+          "轻暗遮罩保证阅读"
+        ],
+        "exclusions": [
+          "品牌系统与应用展示",
+          "Brand System Showcase"
+        ]
+      },
+      "revision": "0023601d1fbdfa9e5b6ab03d88b9c492d6b4120fda5fb10b01cf198575dbf22d"
+    },
+    {
+      "id": "instagram-brand-system",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "品牌系统与应用展示",
+          "summary": "用主视觉、标识和多场景应用展示同一套品牌系统，保持跨页面的识别一致。",
+          "useWhen": "要能追踪同一视觉系统的应用，区别于无关联作品集。",
+          "instructions": "品牌标识、色彩字体、真实应用图与创作说明",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Brand System Showcase",
+          "summary": "Create an Instagram showcase carousel using the brand system showcase structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the brand system showcase format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "品牌系统与应用展示",
+          "Brand System Showcase",
+          "品牌设计",
+          "品牌系统",
+          "brand identity",
+          "brand system showcase",
+          "brand world gallery",
+          "portfolio release"
+        ],
+        "imageCues": [
+          "封面主产品近景占70%，品牌色光带/场景与巨型品牌主题字叠排",
+          "第二页白底多模块品牌板：主标志、字体、色板、图标、包装、应用",
+          "第三页深品牌色底，产品多视角与材质细节网格",
+          "模块标题24–30px，主说明32–38px"
+        ],
+        "exclusions": [
+          "配色到实际物料灵感板",
+          "Palette Application Board",
+          "把品牌想象成一个角色",
+          "Brand Personification Showcase"
+        ]
+      },
+      "revision": "a7c01d087c1413be6cb491a842054033826b2510fac985de006bc3904415b7ff"
+    },
+    {
+      "id": "instagram-calendar-cheat-sheet",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "日期安排速查表",
+          "summary": "将可执行的日期或时间窗口与动作、条件配对，整理成能反复查阅的表。",
+          "useWhen": "窗口是查询键；区别于持续推进的挑战计划。日历与作息只作同一结构的变体。",
+          "instructions": "核验过的日期或时段、对应动作、地区和适用条件",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Calendar Cheat Sheet",
+          "summary": "Create an Instagram reference carousel using the calendar cheat sheet structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the calendar cheat sheet format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "日期安排速查表",
+          "Calendar Cheat Sheet",
+          "日期安排",
+          "活动日历",
+          "calendar schedule",
+          "calendar cheatsheet",
+          "daypart option grid"
+        ],
+        "imageCues": [
+          "浅藕紫外底，中央略倾斜奶油纸卡占85%宽，顶部两个圆孔与小品牌栏",
+          "大衬线标题70–90px，日期行动按4–6行分组，日期以珊瑚色加粗，说明32–38px",
+          "下部一行边界条件",
+          "第二页可放说明与入口，保持信息层级"
+        ],
+        "exclusions": [
+          "限期行动与挑战计划",
+          "Timed Action Plan"
+        ]
+      },
+      "revision": "7b8bd69e653fdb99dcd8252d661bbd3be6e9563b5875d06854c6292e2de716dd"
+    },
+    {
+      "id": "instagram-capacity-planning",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "按精力与容量排计划",
+          "summary": "先盘点时间、精力或资源，再分配主次任务，落到能执行的安排和例外规则。",
+          "useWhen": "容量先于安排；兴趣、内容、账户分工是同一结构的领域变体。",
+          "instructions": "真实容量、任务优先级、约束、时间表与例外",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Capacity-based Planning",
+          "summary": "Create an Instagram how-to carousel using the capacity-based planning structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the capacity-based planning format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "按精力与容量排计划",
+          "Capacity-based Planning",
+          "精力安排",
+          "容量计划",
+          "capacity planning",
+          "capacity based schedule",
+          "capacity audit plan",
+          "planning system walkthrough",
+          "role budget blueprint",
+          "schedule and exception guide"
+        ],
+        "imageCues": [
+          "封面三格生活照拼贴，中央分隔处白色衬线主题62–80px",
+          "内页全幅日常场景，顶部/中上方小衬线步骤名42–52px，下面可读的分组与时间块32–38px，照片适度压暗",
+          "计划表只在需要时出现"
+        ],
+        "exclusions": [
+          "我的日常与工作之外",
+          "Everyday Photo Diary"
+        ]
+      },
+      "revision": "7c45615595508854690e16745a4638fc4d112a966dd7d0a37c6264ee185b93a8"
+    },
+    {
+      "id": "instagram-category-use-guide",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "品类与用途指南",
+          "summary": "围绕一种品类建立固定字段，说明各类型的构成、特点、用途或搭配。",
+          "useWhen": "围绕真实选择场景逐项展开；区别于只有词语释义的概念速览。",
+          "instructions": "品类、类型、同口径特征、用途与实物图",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Category and Use Guide",
+          "summary": "Create an Instagram reference carousel using the category and use guide structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the category and use guide format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "品类与用途指南",
+          "Category and Use Guide",
+          "品类用途",
+          "类型指南",
+          "category uses",
+          "category variety guide",
+          "ingredient use guide",
+          "one origin many forms",
+          "complementary pairing cards"
+        ],
+        "imageCues": [
+          "封面全幅手持/采集实景，左下白色主题60–82px，品类关键词加粗",
+          "内页超近景实物铺满画面，底部左对齐大名称72–94px，下面2–4行定义与用途30–36px，暗渐变仅覆盖底部约30%"
+        ],
+        "exclusions": [
+          "用元素组装一种风格",
+          "Style Assembly Tutorial"
+        ]
+      },
+      "revision": "bce9630fee1814722d1a075b529dbe402f25ec15db7b6aa9517f000cba896da3"
+    },
+    {
+      "id": "instagram-character-led-tour",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "跟着角色逛一天",
+          "summary": "用同一个角色作为导览主角，让它在不同真实地点完成连续活动。",
+          "useWhen": "角色是跨页叙事线，地点为被导览对象；区别于普通场所相册。",
+          "instructions": "角色参照、导览地点、实际活动与场景素材",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Character-led Tour Story",
+          "summary": "Create an Instagram story carousel using the character-led tour story structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the character-led tour story format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "跟着角色逛一天",
+          "Character-led Tour Story",
+          "角色导览",
+          "跟着角色逛",
+          "character tour",
+          "mascot guided tour"
+        ],
+        "imageCues": [
+          "全幅角色在真实/原创场所中的近景",
+          "首屏上部居中白色黑描边标题56–72px",
+          "后页标题42–56px与一条小对白32–38px随场景空处放，镜头从入口、活动、交流到离开推进"
+        ],
+        "exclusions": [
+          "我的日常与工作之外",
+          "Everyday Photo Diary"
+        ]
+      },
+      "revision": "9878bf7325c2490eb3228f4ef28a00bc3444b52bbb4f4a071cc61bf3a6594f2c"
+    },
+    {
+      "id": "instagram-comic-dialogue",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "两个人的一段漫画对话",
+          "summary": "保持角色和场景连续，用提问、回应和追问构成一段有变化的对话。",
+          "useWhen": "对话关系决定页序；区别于相互独立的插画金句。",
+          "instructions": "对话目标、角色设定、逐句对白与真实或创作属性",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Comic Dialogue Story",
+          "summary": "Create an Instagram story carousel using the comic dialogue story structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the comic dialogue story format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "两个人的一段漫画对话",
+          "Comic Dialogue Story",
+          "漫画对话",
+          "双人对话",
+          "comic dialogue",
+          "illustrated dialogue"
+        ],
+        "imageCues": [
+          "白/纸白底，每页中间一条细竖分镜线，两位原创墨绿素描角色各占一格，人物站在下半部",
+          "上方手绘多边形对白框，尾巴指向对应角色，字38–48px，行距1.25"
+        ],
+        "exclusions": [
+          "访谈原话分镜故事",
+          "Interview Quote Storyboard",
+          "用故事讲懂一个道理",
+          "Illustrated Story Explainer"
+        ]
+      },
+      "revision": "afcdc336beb8565753063c16b279aeda2f1e21417a689ccc9f66f9e866d4c1e7"
+    },
+    {
+      "id": "instagram-command-shortcuts",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "指令快捷语速查",
+          "summary": "每页围绕一个短指令，用语法、作用和实际对话示例说明怎么调用。",
+          "useWhen": "按命令语法查找，不是长篇创作提示词合集；不得把传言中的隐藏指令写成官方能力。",
+          "instructions": "验证过的指令、使用环境、语法与实际输出",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Command Shortcut Cheat Sheet",
+          "summary": "Create an Instagram reference carousel using the command shortcut cheat sheet structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the command shortcut cheat sheet format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "指令快捷语速查",
+          "Command Shortcut Cheat Sheet",
+          "快捷指令",
+          "提示词速查",
+          "command shortcuts",
+          "prompt shortcode cheatsheet"
+        ],
+        "imageCues": [
+          "暖白纸/浅方格底",
+          "封面居中斜体衬线分行题目76–96px，单词下用2–3处低饱和荧光笔条",
+          "内页左上“编号—指令”56–68px，说明32–38px",
+          "中部真实对话/编辑器截图占60–70%宽，底部留呼吸空间"
+        ],
+        "exclusions": [
+          "可搜索素材索引",
+          "Searchable Asset Index"
+        ]
+      },
+      "revision": "1455055c8e0a964a385a47dd89e6649fb6a04b6f48f7058ded3172536822ce46"
+    },
+    {
+      "id": "instagram-context-changes-meaning",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "同一行为换个情境看",
+          "summary": "固定一个行为或对象，改变情境或观察立场，呈现为什么会有不同理解。",
+          "useWhen": "情境变化是比较轴；期待与实际作为变体，不按题材各算一个。",
+          "instructions": "同一行为、两种情境、对应图像与可解释差别",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Context Comparison Opinion",
+          "summary": "Create an Instagram opinion carousel using the context comparison opinion structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the context comparison opinion format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "同一行为换个情境看",
+          "Context Comparison Opinion",
+          "情境对比",
+          "换个情境看",
+          "context comparison",
+          "context dependent comparison",
+          "expectation reality pairs",
+          "matched scene comparison"
+        ],
+        "imageCues": [
+          "封面全幅人物/环境，奶油色窄高衬线标题72–90px置上中",
+          "内页浅方格纸底，顶部酒红衬线主张56–70px，中部左右或上下两种情境的真实例子，下面对应短解释30–36px，结论淡粉底条"
+        ],
+        "exclusions": [
+          "相似概念对照指南",
+          "Similar Concepts Compared",
+          "用可见类比回应质疑",
+          "Visual Analogy Opinion"
+        ]
+      },
+      "revision": "99f5733695abf165dfe851d77538caad9de13f7dd43b6eb31b0889c621bec37c"
+    },
+    {
+      "id": "instagram-continuous-canvas",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "跨页连续画布展示",
+          "summary": "把同一条视觉轨道延续到相邻页，利用图形或画面跨越页边建立滑动连续感。",
+          "useWhen": "跨页连接承担信息关系，不能仅把任意长图切开；不是一种题材模板。",
+          "instructions": "有连续关系的内容、宽画布结构、裁切边界与手机安全区",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Continuous Canvas Showcase",
+          "summary": "Create an Instagram showcase carousel using the continuous canvas showcase structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the continuous canvas showcase format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "跨页连续画布展示",
+          "Continuous Canvas Showcase",
+          "跨页画布",
+          "连续拼图",
+          "continuous carousel",
+          "continuous canvas carousel"
+        ],
+        "imageCues": [
+          "建立一个跨全部页面的连续大画布，再按页切出视口",
+          "背景小图马赛克跨边界严格连续，顶部/中部巨型奶油黄粗标题110–150px持续跨页，中央内容带/示例图依翻页推进，避免每页重新开始的封面"
+        ],
+        "exclusions": [
+          "选一种风格或组个搭配",
+          "Style Choice Quiz"
+        ]
+      },
+      "revision": "bf63d2af56eb1e5628c5094c00f133624859cffa0917cacfec4b578ffa115445"
+    },
+    {
+      "id": "instagram-conversation-questions",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "值得互相问的问题卡",
+          "summary": "用一组可直接拿来问的问题推动交流，每页保持明确的问题主角和卡片形态。",
+          "useWhen": "问题本身是可用产物；区别于有标准答案的测试和引导填写的工作表。",
+          "instructions": "交流情境、问题顺序、隐私边界与卡片素材",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Conversation Question Cards",
+          "summary": "Create an Instagram quiz carousel using the conversation question cards structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the conversation question cards format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "值得互相问的问题卡",
+          "Conversation Question Cards",
+          "对话问题卡",
+          "聊天问题",
+          "conversation cards",
+          "physical question card deck"
+        ],
+        "imageCues": [
+          "首屏生活中共同活动实拍，亮红粗体问题宣言64–82px置中部",
+          "后页手持/桌面奶油白实体问题卡，卡片占70–85%宽，圆角适中",
+          "红色居中大写问题42–54px，周围保留真实手部与卡盒环境"
+        ],
+        "exclusions": [
+          "越不让翻越想翻",
+          "Reverse Instruction Quiz"
+        ]
+      },
+      "revision": "6426d44c90c0578571d34ff4cd9a68bce294717b10b0879cfe11b2e7ee219250"
+    },
+    {
+      "id": "instagram-copy-alternatives",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "表达替换句库",
+          "summary": "把一句普通表达与更适合某个目的的表达成组展示，并解释适用情境。",
+          "useWhen": "实际句子是交付物；区别于抽象写作原则和情绪翻译对照。",
+          "instructions": "表达目的、原句、替换句、受众与场景",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Copy Alternatives Reference",
+          "summary": "Create an Instagram reference carousel using the copy alternatives reference structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the copy alternatives reference format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "表达替换句库",
+          "Copy Alternatives Reference",
+          "文案替换",
+          "句子改写",
+          "copy alternatives",
+          "copy pattern cheatsheet",
+          "expression alternatives bank"
+        ],
+        "imageCues": [
+          "封面黑底，大衬线主题居中82–108px，下部可编辑线图/文案样本表达阅读转折",
+          "内页近似文档页：白底、简洁工具栏或文稿抬头，左对齐编号、方法名36–42px，下面一条实际句子30–36px",
+          "一页4–6组，不塞十条小字"
+        ],
+        "exclusions": [
+          "说出口的话与真正含义",
+          "Said and Meant Opinion"
+        ]
+      },
+      "revision": "c4642a1c184fe62b4fe73a6f0843838272a281e0713f43a06e46917a312fae0d"
+    },
+    {
+      "id": "instagram-copyable-notes",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "可复制笔记清单",
+          "summary": "用索引列出一组有明确用途的笔记，再逐页展示可照抄的真实内容结构。",
+          "useWhen": "每页是完整可用的笔记样本；区别于手机功能教程和只推荐笔记软件。",
+          "instructions": "各笔记用途、真实样例、可编辑字段",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Copyable Notes Reference",
+          "summary": "Create an Instagram reference carousel using the copyable notes reference structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the copyable notes reference format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "可复制笔记清单",
+          "Copyable Notes Reference",
+          "笔记模板",
+          "可复制笔记",
+          "copyable notes",
+          "copyable note library"
+        ],
+        "imageCues": [
+          "封面淡粉底、黑色超粗无衬线大标题90–114px，占左上55%，底部白色小胶囊列笔记索引",
+          "内页奶油/淡黄底，左上编号与笔记名60–78px，左侧约35%说明为什么与何时用，右侧约52%放手机笔记框，笔记正文28–34px"
+        ],
+        "exclusions": [
+          "真实界面步骤教程",
+          "Screenshot Walkthrough"
+        ]
+      },
+      "revision": "75325696e076ad45e2e99f67676d5e47b1615cad178f1e3f3bac21ed6a905374"
+    },
+    {
+      "id": "instagram-curated-resources",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "主题资源收藏清单",
+          "summary": "围绕一个明确目的挑选可访问的资源，每项给名称、真实预览和值得打开的理由。",
+          "useWhen": "资源可独立使用，不要求按顺序操作；书、网站、视频只是同一结构的素材变体。",
+          "instructions": "资源名称、链接、预览、筛选理由与使用门槛",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Curated Resource List",
+          "summary": "Create an Instagram list carousel using the curated resource list structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the curated resource list format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "主题资源收藏清单",
+          "Curated Resource List",
+          "资源清单",
+          "资源合集",
+          "resource list",
+          "resource library",
+          "curated discovery digest"
+        ],
+        "imageCues": [
+          "奶油色纸张底，深蓝色居中衬线",
+          "封面主题位于中部偏上，60–82px",
+          "上下角落分布2–4件与主题有关的剪贴实物",
+          "内页上方约35%放资源名66–80px和居中理由32–38px",
+          "下方50–60%放可识别的真实预览，不统一改成等大圆角卡"
+        ],
+        "exclusions": [
+          "按任务选工具清单",
+          "Tools by Task List"
+        ]
+      },
+      "revision": "ff0b57673f7ae7751e671a0061fb3451e8ff0c82c817cc7c616326a444e57637"
+    },
+    {
+      "id": "instagram-destination-costs",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "目的地花费对照卡",
+          "summary": "为每个目的地使用同样费用字段，让预算、住宿、饮食和交通能横向比较。",
+          "useWhen": "按目的地比较费用，不负责按天串联路线；区别于现有旅游攻略。",
+          "instructions": "地点实景、费用口径、币种、日期、人数与来源",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Destination Cost Reference",
+          "summary": "Create an Instagram reference carousel using the destination cost reference structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the destination cost reference format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "目的地花费对照卡",
+          "Destination Cost Reference",
+          "旅行花费",
+          "目的地预算",
+          "destination costs",
+          "destination cost cards"
+        ],
+        "imageCues": [
+          "全幅目的地实景，封面白色大写粗体标题66–86px，关键词亮黄，可用一个圆形细节图",
+          "内页顶部目的地名72–90px亮黄，以下固定四行预算、住宿、餐食、交通34–42px白色大写",
+          "景色占下部65%"
+        ],
+        "exclusions": [
+          "同样预算的不同选择",
+          "Same-budget Choice Opinion"
+        ]
+      },
+      "revision": "02bda3175a28e81277f20c6054eae2263f56d0ca242efa3bd2fe358521d6baea"
+    },
+    {
+      "id": "instagram-diagram-reference",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "一页一图解速查",
+          "summary": "把一套机制拆成有明确关系的图解，用连接、分支或流程帮助读者查询。",
+          "useWhen": "关系不限定同心层级，区别于现有三层结构拆解；同一系统的不同图解合并。",
+          "instructions": "实体、关系、真实输入输出、一个贯穿例子",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Diagram Reference Cards",
+          "summary": "Create an Instagram reference carousel using the diagram reference cards structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the diagram reference cards format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "一页一图解速查",
+          "Diagram Reference Cards",
+          "图解速查",
+          "概念图解",
+          "diagram guide",
+          "dense reference diagrams",
+          "system architecture",
+          "illustrated system guide",
+          "concept diagram",
+          "content repurposing map"
+        ],
+        "imageCues": [
+          "奶油白底，顶部紧缩粗体标题54–66px，关键词蓝/绿",
+          "中央是占70–80%高度的原生关系图：框28–38px、连接线2–3px、箭头与分支标签准确",
+          "底部一行解释/来源，不放装饰性大插图"
+        ],
+        "exclusions": [
+          "同一数据的两种视角",
+          "Two Views of One Dataset"
+        ]
+      },
+      "revision": "3c74b4cbcf87a0835c6cf0baf843d867aa258a0a12bcaae2a30ee81e93e403be"
+    },
+    {
+      "id": "instagram-different-perspectives",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "同一问题的不同角色视角",
+          "summary": "对同一个问题展示不同角色的回答，解释其经历和职责如何影响判断。",
+          "useWhen": "角色改变回答，问题保持一致；不能伪造真实人物意见或专家背书。",
+          "instructions": "共同问题、角色、可归属回答、背景与真实或创作属性",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Different Perspectives Opinion",
+          "summary": "Create an Instagram opinion carousel using the different perspectives opinion structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the different perspectives opinion format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "同一问题的不同角色视角",
+          "Different Perspectives Opinion",
+          "角色视角",
+          "不同角色看法",
+          "role perspectives",
+          "role based perspective",
+          "role based decision panel"
+        ],
+        "imageCues": [
+          "上下两帧同一讲述者/环境，白色字幕36–44px分别放在下中部",
+          "上半提出“如果问[角色]”，下半给该角色基于利益/经历的看法",
+          "固定机位，手势可随说话改变"
+        ],
+        "exclusions": [
+          "用场景插画表达观点",
+          "Illustrated Opinion Scenes"
+        ]
+      },
+      "revision": "bdc1ae1fccc8a56f70b96b9afda70965330cd6d8e658228cedf89e0043ecdebc"
+    },
+    {
+      "id": "instagram-document-reveal",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "原始文件证据揭晓",
+          "summary": "先讲一个可核查结果，再展示简历、来信或榜单等原始文件，并指出关键位置。",
+          "useWhen": "文件本身是核心证据，不能只放仿造界面；区别于普通成果图或观点引语。",
+          "instructions": "允许展示的真实文件、对应结果、关键位置与必要遮隐",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Document Reveal Case Study",
+          "summary": "Create an Instagram case study carousel using the document reveal case study structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the document reveal case study format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "原始文件证据揭晓",
+          "Document Reveal Case Study",
+          "文件揭晓",
+          "原始文件证据",
+          "document reveal",
+          "proof document reveal"
+        ],
+        "imageCues": [
+          "首屏全幅人物/工作场景，上方白底黑字短承诺54–68px，必要时周围放真实相关标记",
+          "第二页展示完整文档，浅灰/白底与细黑边，文档占90%以上宽",
+          "必要时第三页局部放大，不把正文缩到不可读"
+        ],
+        "exclusions": [
+          "成果证据到执行方法",
+          "Evidence-to-method Case Study"
+        ]
+      },
+      "revision": "9105b574eaea99743cd6aa12cae10d51b018f9b576bdf47f72169b50720276de"
+    },
+    {
+      "id": "instagram-effect-breakdown",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "视觉效果拆解教程",
+          "summary": "先展示一个明确效果，再拆出生成它的材质、光线、处理或步骤。",
+          "useWhen": "每一解释都指向可见效果；AI、平面、像素插画是表达变体。",
+          "instructions": "成品、处理前素材、关键参数与操作依据",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Visual Effect Breakdown",
+          "summary": "Create an Instagram how-to carousel using the visual effect breakdown structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the visual effect breakdown format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "视觉效果拆解教程",
+          "Visual Effect Breakdown",
+          "效果拆解",
+          "视觉效果教程",
+          "visual effect tutorial",
+          "design effect breakdown",
+          "pixel process explainer",
+          "render quality breakdown"
+        ],
+        "imageCues": [
+          "暖白纸底，上方左对齐黑色标题64–80px，重点词加粗",
+          "封面中央大效果图占55%，角落小原图+手绘箭头说明前后",
+          "内页交替大效果图、可复制方法块和局部注释",
+          "注释28–36px沿画面空白放，箭头指向高光/阴影/网点等具体变化"
+        ],
+        "exclusions": [
+          "例子加做法教程",
+          "Worked Example Tutorial"
+        ]
+      },
+      "revision": "700532cb2a20250d7c7441a2bc707cf97195d7c90c9d8106cd6a1c5d77922a52"
+    },
+    {
+      "id": "instagram-effort-and-outcome",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "看得见的成果与背后付出",
+          "summary": "用成对照片把困难、准备或投入与可见成果联系起来，表达一项有条件的判断。",
+          "useWhen": "必须解释两图关系；不把励志配图推断成确定因果。物件磨损隐喻也合并在此。",
+          "instructions": "真实投入与结果、可说明关系、配对照片",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Effort and Outcome Opinion",
+          "summary": "Create an Instagram opinion carousel using the effort and outcome opinion structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the effort and outcome opinion format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "看得见的成果与背后付出",
+          "Effort and Outcome Opinion",
+          "成果与付出",
+          "背后努力",
+          "effort and outcome",
+          "effort outcome pairs",
+          "achievement effort pairs",
+          "environment outcome pairs"
+        ],
+        "imageCues": [
+          "每页上下连续训练/制作画面，短白色全大写句子34–44px居中",
+          "上半说出真实感受或可见困难，下半给出对目标有帮助的具体回应",
+          "可重复同一收束句形成节奏，但动作必须推进"
+        ],
+        "exclusions": [
+          "损失一段仍有余量",
+          "Remaining Capacity Reframe"
+        ]
+      },
+      "revision": "4aa809e224e9c6e5ec9c593084d9fb174abdf645d004a83a7a8c163b363319ca"
+    },
+    {
+      "id": "instagram-emotion-and-meaning",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "情绪在提醒我什么",
+          "summary": "用同一套双画面结构，把一种情绪与一种可能的个人需要配对，引导自我观察。",
+          "useWhen": "只呈现可能解释，不诊断他人；区别于说话含义翻译。",
+          "instructions": "本人体验、情绪、可能需要、对应场景",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Emotion and Meaning Opinion",
+          "summary": "Create an Instagram opinion carousel using the emotion and meaning opinion structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the emotion and meaning opinion format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "情绪在提醒我什么",
+          "Emotion and Meaning Opinion",
+          "情绪提醒",
+          "情绪含义",
+          "emotion meaning",
+          "emotion meaning pairs"
+        ],
+        "imageCues": [
+          "上下两张生活近景，白色居中短句34–42px：一种情绪与一个可自问的需要",
+          "每半图保持留白与人物姿态",
+          "不单独做大字标题页"
+        ],
+        "exclusions": [
+          "有这个特质也保留边界",
+          "Balanced Traits Opinion"
+        ]
+      },
+      "revision": "6106b3180ab5ab4f713e512d09165bb5c471d8df575457ec564bceb2997fdc1e"
+    },
+    {
+      "id": "instagram-everyday-interface-story",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "用熟悉界面讲自己的事",
+          "summary": "把真实日历、便签或旧手机界面中的文字作为叙事载体，让界面内容与照片互相补充。",
+          "useWhen": "界面里的内容承担故事，不是只拿软件界面作背景；区别于现有短信商品推荐。",
+          "instructions": "可使用的界面、真实或明确创作的文字、照片及顺序",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Everyday Interface Story",
+          "summary": "Create an Instagram story carousel using the everyday interface story structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the everyday interface story format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "用熟悉界面讲自己的事",
+          "Everyday Interface Story",
+          "日常界面",
+          "界面讲故事",
+          "interface story",
+          "everyday ui copy remix",
+          "social interface collage"
+        ],
+        "imageCues": [
+          "首屏自拍/生活场景与白色标题48–62px",
+          "后页纯黑底，中央一张浅灰日程/便签信息窗占80–88%宽，真实UI语法的彩色小点、标题、日期和小工具栏",
+          "标题38–48px，元信息28–34px，留黑至少一半"
+        ],
+        "exclusions": [
+          "真实界面步骤教程",
+          "Screenshot Walkthrough"
+        ]
+      },
+      "revision": "bf4803cd86a736870d3bb57183f55a7d9c476de55db356e66c1c3d16662d4b78"
+    },
+    {
+      "id": "instagram-everyday-photo-diary",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "我的日常与工作之外",
+          "summary": "用个人真实照片和贴近画面的短注，组织一天、一次活动或工作之外的生活切面。",
+          "useWhen": "有明确时间或主题边界；不把不同人物、职业和城市拆成新模板。",
+          "instructions": "本人生活照片、顺序、时段或主题与真实短注",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Everyday Photo Diary",
+          "summary": "Create an Instagram story carousel using the everyday photo diary structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the everyday photo diary format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "我的日常与工作之外",
+          "Everyday Photo Diary",
+          "日常相册",
+          "工作之外",
+          "everyday diary",
+          "annotated life diary",
+          "day in life profile",
+          "off duty portrait diary",
+          "event photo collage"
+        ],
+        "imageCues": [
+          "首屏全幅自拍/生活场景，大衬线“Day X”90–120px在上，主题70–90px在下",
+          "后页交替一张全幅近景与2–3格细节拼贴，小型白色随拍注释30–38px，角落细箭头"
+        ],
+        "exclusions": [
+          "按精力与容量排计划",
+          "Capacity-based Planning",
+          "一个真实片刻的照片故事",
+          "Photo Story",
+          "跟着角色逛一天",
+          "Character-led Tour Story"
+        ]
+      },
+      "revision": "4ff065ba344d9b1fb12ba553fff168728161ca44b23e7521da79aac2a61b45bb"
+    },
+    {
+      "id": "instagram-evidence-to-method",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "成果证据到执行方法",
+          "summary": "把结果截图与实际执行记录连接起来，说明哪个动作支持哪个结果判断。",
+          "useWhen": "必须建立证据到动作的对应；与现有案例成果的三页前后对照区分。",
+          "instructions": "真实结果、平台口径、执行记录、案例背景和边界",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Evidence-to-method Case Study",
+          "summary": "Create an Instagram case study carousel using the evidence-to-method case study structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the evidence-to-method case study format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "成果证据到执行方法",
+          "Evidence-to-method Case Study",
+          "成果证据",
+          "案例方法",
+          "evidence to method",
+          "workflow results proof",
+          "client case notes",
+          "evidence collage pitch"
+        ],
+        "imageCues": [
+          "封面深炭色底，粉色撕纸短条承载大衬线标题72–96px，四角生活物件剪贴",
+          "内页牛皮灰底，白色手写/无衬线标题50–64px，中部证据截图用胶带角、圈线标重点",
+          "后页以同样拼贴说明步骤，正文32–38px"
+        ],
+        "exclusions": [
+          "具体成果倒推做法",
+          "Result-to-steps Tutorial",
+          "原始文件证据揭晓",
+          "Document Reveal Case Study"
+        ]
+      },
+      "revision": "a71df89532b3e8699055ed589939b8800e79e726be5117b5a8298e0ddc89945a"
+    },
+    {
+      "id": "instagram-expectation-reality-review",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "期待与实际的评价卡",
+          "summary": "把每个对象的宣传期待与亲自观察到的表现并列，保持统一评价维度。",
+          "useWhen": "评价属于有归属的主观体验；示意评分必须标明，不能冒充测量数据。",
+          "instructions": "对象、可核对承诺、实际体验、共同评价维度",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Expectation and Reality Review",
+          "summary": "Create an Instagram opinion carousel using the expectation and reality review structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the expectation and reality review format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "期待与实际的评价卡",
+          "Expectation and Reality Review",
+          "期待现实评分",
+          "预期实际复盘",
+          "expectation reality review",
+          "expectation reality scorecards"
+        ],
+        "imageCues": [
+          "暖白纸底、手写风标题78–100px，期待用珊瑚色、现实用亮蓝",
+          "每项详情上部小图标/实物，名称50–64px",
+          "中部两条粗黑框横条，标签36–42px、色条长度对比",
+          "下部短解释32–38px与小型原创像素角色"
+        ],
+        "exclusions": [
+          "同样预算的不同选择",
+          "Same-budget Choice Opinion"
+        ]
+      },
+      "revision": "8c02748467bd10effbbe1cd4c88ead8ad4150d42c650d20bb1f0812faca3966b"
+    },
+    {
+      "id": "instagram-experiment-story",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "一个实验是怎样发生的",
+          "summary": "用故事方式复述一个可追溯实验，依次交代问题、设置、任务、结果与解释。",
+          "useWhen": "讲的是一项实验的完整经过；区别于多项亲身尝试记录或刚发布的研究简报。",
+          "instructions": "原始实验来源、设置、任务、实际结果与可解释图像",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Experiment Story Explainer",
+          "summary": "Create an Instagram story carousel using the experiment story explainer structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the experiment story explainer format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "一个实验是怎样发生的",
+          "Experiment Story Explainer",
+          "实验过程故事",
+          "研究实验故事",
+          "experiment story",
+          "experiment story explainer"
+        ],
+        "imageCues": [
+          "白底，封面中上部黑色标题70–88px与短疑问，下面一幅细致黑白铅笔情境图占45%",
+          "内页交替大留白短叙事与下半人物场景插画",
+          "正文34–42px，关键发现加粗，不一页塞整篇论文"
+        ],
+        "exclusions": [
+          "亲自试过的实验记录",
+          "Personal Experiment Case Study"
+        ]
+      },
+      "revision": "e4f213353ac19e5fa63949b9540c12acdd462ec37dc8d282162756dab42fe95a"
+    },
+    {
+      "id": "instagram-fill-in-speech",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "填空式发言提纲",
+          "summary": "按发言顺序提供章节、可替换字段和示例句，帮助读者完成一篇实际发言。",
+          "useWhen": "章节顺序及承接是核心；区别于独立问题组成的练习工作表。",
+          "instructions": "讲话场合、关系、时长、真实故事与称呼",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Fill-in Speech Outline",
+          "summary": "Create an Instagram reference carousel using the fill-in speech outline structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the fill-in speech outline format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "填空式发言提纲",
+          "Fill-in Speech Outline",
+          "发言提纲",
+          "填空演讲",
+          "speech outline",
+          "fill in speech outline"
+        ],
+        "imageCues": [
+          "封面黑白活动照加居中白色无衬线标题56–72px",
+          "内页暖浅灰底，章节名34–42px居中置上中，示例段落32–38px斜体，宽约72%，舒适行距1.55",
+          "字段用方括号并有明显替换提示"
+        ],
+        "exclusions": [
+          "边读边填练习册",
+          "Fill-in Workbook"
+        ]
+      },
+      "revision": "59ea69ec819b79ca6bcbfa4b50cc5fcf0b69fb11034d2615ec3cdf7958d22d66"
+    },
+    {
+      "id": "instagram-fill-in-workbook",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "边读边填练习册",
+          "summary": "用连续问题和可填字段带读者完成一次思考，配一份填写示例。",
+          "useWhen": "读者填写会得到具体产物；不是泛泛反思问题或演讲章节提纲。",
+          "instructions": "练习目标、问题顺序、空字段、完成样例",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Fill-in Workbook",
+          "summary": "Create an Instagram how-to carousel using the fill-in workbook structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the fill-in workbook format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "边读边填练习册",
+          "Fill-in Workbook",
+          "填空练习",
+          "练习册",
+          "guided workbook",
+          "fill in workbook",
+          "guided imagination exercise"
+        ],
+        "imageCues": [
+          "封面高饱和橙红满版，巨型斜体衬线关键词150–200px与黑色无衬线副标题交错，原创人物/场景剪贴占中下部",
+          "内页纸白底，左上齿形序号章，章节名90–115px，下面斜体定义40–48px",
+          "“Template”字段在正文上方，用户示例放深墨色矩形中，正文32–38px"
+        ],
+        "exclusions": [
+          "填空式发言提纲",
+          "Fill-in Speech Outline",
+          "从入门到进阶路线",
+          "Learning Path"
+        ]
+      },
+      "revision": "1d6a7f6ddddad6a9248236b3fd09752f95535bd4bf42414e3965a774276e2146"
+    },
+    {
+      "id": "instagram-font-pairing",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "字体搭配样张",
+          "summary": "同一段标题和正文反复使用不同字体组合，让读者比较真正的层级和气质。",
+          "useWhen": "必须有可辨认字体名、相同样本文字和实际搭配；不是字体名称清单。",
+          "instructions": "可用字体与授权、统一样文、标题和正文字级",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Font Pairing Showcase",
+          "summary": "Create an Instagram showcase carousel using the font pairing showcase structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the font pairing showcase format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "字体搭配样张",
+          "Font Pairing Showcase",
+          "字体搭配",
+          "字型组合",
+          "font pairing",
+          "font pairing specimen"
+        ],
+        "imageCues": [
+          "封面全幅生活摄影，上部叠大号斜体衬线与粗无衬线“字体搭配”主题",
+          "内页上方约40%为两种实际字体的大字号样张，第一字体70–95px，第二字体120–160px",
+          "下面一行真实字体名称30–36px",
+          "底部细页序导航"
+        ],
+        "exclusions": [
+          "从照片提取配色",
+          "Image-to-palette Showcase"
+        ]
+      },
+      "revision": "6590cde23dd3948d835aaca63327dd2c08d40cc186a72fa42c71b65656bf59ee"
+    },
+    {
+      "id": "instagram-goal-benchmarks",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "大目标拆成可核对指标",
+          "summary": "把一个明确目标拆为速度、频次、投入或阶段门槛，让读者判断离目标有多远。",
+          "useWhen": "必须给出可核算关系；不是只把大目标写成几句鼓励。",
+          "instructions": "目标值、单位、基准、分解关系与限制",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Goal-to-benchmarks Guide",
+          "summary": "Create an Instagram how-to carousel using the goal-to-benchmarks guide structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the goal-to-benchmarks guide format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "大目标拆成可核对指标",
+          "Goal-to-benchmarks Guide",
+          "目标拆解",
+          "目标指标",
+          "goal benchmarks",
+          "goal to benchmarks"
+        ],
+        "imageCues": [
+          "白底，窄高衬线标题90–120px居中，关键目标数字130–180px以钴蓝突出",
+          "下部黑白人物/物件抠像占35–50%",
+          "详情大数字72–110px与短解释34–40px居中，留白占一半左右"
+        ],
+        "exclusions": [
+          "限期行动与挑战计划",
+          "Timed Action Plan"
+        ]
+      },
+      "revision": "779000f05a41c1caa21ef4a41c5ab73a2d9aee48c0fd9a6e0076c1d77d37831a"
+    },
+    {
+      "id": "instagram-identity-match",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "哪种设定像你",
+          "summary": "用清楚的标签把不同视觉设定与个人偏好相连，让读者挑选认同的一项。",
+          "useWhen": "月份、角色和兴趣是娱乐设定，不能写成人格测量或身份高低判断。",
+          "instructions": "娱乐匹配规则、标签、各项视觉设定与说明",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Identity Match Quiz",
+          "summary": "Create an Instagram quiz carousel using the identity match quiz structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the identity match quiz format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "哪种设定像你",
+          "Identity Match Quiz",
+          "趣味身份",
+          "设定匹配",
+          "identity match",
+          "calendar identity match",
+          "archetype moodboard",
+          "persona trait cards",
+          "identity preference series",
+          "three tier identity grid"
+        ],
+        "imageCues": [
+          "封面全幅奇幻空间/物件，上中部白字黑描边主题50–64px，明确一个分配规则",
+          "后页一标签对应一完整场景，标签42–56px放相同位置",
+          "环境和物件占全幅，不加解释长文"
+        ],
+        "exclusions": [
+          "看图猜答案",
+          "Visual Guess Quiz",
+          "选一种风格或组个搭配",
+          "Style Choice Quiz"
+        ]
+      },
+      "revision": "a720cfa0adcccf0a223aa60f35df03ef1110e0a57097e733058717a2abf7629e"
+    },
+    {
+      "id": "instagram-illustrated-opinion",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "用场景插画表达观点",
+          "summary": "每页用一个完整场景将观点具体化，让细节揭示容易被忽略的处境。",
+          "useWhen": "每页场景可独立理解；区别于连续人物事件构成的漫画故事。",
+          "instructions": "明确观点、独立场景、角色处境与可确认事实",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Illustrated Opinion Scenes",
+          "summary": "Create an Instagram opinion carousel using the illustrated opinion scenes structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the illustrated opinion scenes format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "用场景插画表达观点",
+          "Illustrated Opinion Scenes",
+          "插画观点",
+          "场景表达观点",
+          "illustrated opinion",
+          "illustrated principle essay",
+          "illustrated action sequence"
+        ],
+        "imageCues": [
+          "全幅原创编辑插画，人物关系占70–85%，场景中两段手写文字36–44px分别隶属公开判断与被忽略的处境",
+          "文字置天空/墙面等留白，可用细尾线，不另加大面板"
+        ],
+        "exclusions": [
+          "同一问题的不同角色视角",
+          "Different Perspectives Opinion"
+        ]
+      },
+      "revision": "2f1bdfcff5929775837a17a64c3a823a47d6d692c00ec27293d20d80e484187e"
+    },
+    {
+      "id": "instagram-illustrated-story-explainer",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "用故事讲懂一个道理",
+          "summary": "先讲具体人物遭遇，再用连续场景和转折引出一个可以理解的道理。",
+          "useWhen": "道理来自事件推进；区别于开头给观点、后面罗列理由的观点模板。",
+          "instructions": "完整故事、转折、场景、可支持的含义与出处",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Illustrated Story Explainer",
+          "summary": "Create an Instagram story carousel using the illustrated story explainer structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the illustrated story explainer format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "用故事讲懂一个道理",
+          "Illustrated Story Explainer",
+          "故事讲道理",
+          "插画解释",
+          "illustrated lesson",
+          "illustrated story essay"
+        ],
+        "imageCues": [
+          "封面手绘大标题90–120px占上半，人物场景占下半",
+          "详情2–3个横向分镜，黑细边，顶部小叙述条28–34px，人物与对白作为一组",
+          "关键人物用蓝/桃色，其余人物灰线"
+        ],
+        "exclusions": [
+          "两个人的一段漫画对话",
+          "Comic Dialogue Story"
+        ]
+      },
+      "revision": "b539d1757080d43286e5cf4e2086ede5f849282fa8a8d7fe4a918b0283e19554"
+    },
+    {
+      "id": "instagram-image-to-palette",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "从照片提取配色",
+          "summary": "从真实照片所见的颜色出发，用成组色块整理为可复用色板。",
+          "useWhen": "颜色来自照片；区别于先有色板再找应用图。",
+          "instructions": "可使用照片、真实取色值、取色位置与色彩角色",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Image-to-palette Showcase",
+          "summary": "Create an Instagram showcase carousel using the image-to-palette showcase structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the image-to-palette showcase format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "从照片提取配色",
+          "Image-to-palette Showcase",
+          "照片配色",
+          "提取配色",
+          "image palette",
+          "image to palette"
+        ],
+        "imageCues": [
+          "封面全幅自然纹理，底部白色衬线主题62–78px",
+          "内页暖灰米底，上半两条厚涂颜料笔触交叠，各显示一个关键色",
+          "下半为自然物体/照片样本占40–50%，保持留白",
+          "色值可在笔触旁用28–34px小标签标注"
+        ],
+        "exclusions": [
+          "字体搭配样张",
+          "Font Pairing Showcase",
+          "配色到实际物料灵感板",
+          "Palette Application Board"
+        ]
+      },
+      "revision": "6f6d649fc45a5b55138b4ea6248ceb1c9666ad8331fbaadf97daa86da15637cd"
+    },
+    {
+      "id": "instagram-incremental-assembly",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "固定机位逐步累加教程",
+          "summary": "保持容器和机位不变，逐页增加一个组成部分，让读者看见成品如何累积。",
+          "useWhen": "连续画面的空间位置必须可对照；不同食谱或物件不另拆模板。",
+          "instructions": "固定机位的真实步骤图、材料名称、分量与顺序",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Incremental Assembly Tutorial",
+          "summary": "Create an Instagram how-to carousel using the incremental assembly tutorial structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the incremental assembly tutorial format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "固定机位逐步累加教程",
+          "Incremental Assembly Tutorial",
+          "逐步累加",
+          "固定机位",
+          "incremental assembly",
+          "incremental assembly recipe"
+        ],
+        "imageCues": [
+          "全幅固定俯拍，一只器皿/同一工作台贯穿，机位、光线、主体中心与边界保持一致",
+          "居中粗白字配2–3px黑描边，54–68px",
+          "每页只增加一个物料/动作，成品页展示完整结果"
+        ],
+        "exclusions": [
+          "成品加配方卡教程",
+          "Result and Recipe Card",
+          "幕后制作纪实",
+          "Behind-the-scenes Story"
+        ]
+      },
+      "revision": "1e7dde85c6f4c8667adbcef720f64fb056b118a505774b17021b2ea5dadd418b"
+    },
+    {
+      "id": "instagram-interview-storyboard",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "访谈原话分镜故事",
+          "summary": "将一次真实访谈的原话切成连续对话节拍，用说话人画面与字幕分镜推进。",
+          "useWhen": "原话连续而有前后文；区别于单句金句解读和多人名言合集。",
+          "instructions": "授权采访画面、可核对逐字稿、说话人及上下文",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Interview Quote Storyboard",
+          "summary": "Create an Instagram story carousel using the interview quote storyboard structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the interview quote storyboard format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "访谈原话分镜故事",
+          "Interview Quote Storyboard",
+          "访谈分镜",
+          "原话故事",
+          "interview quotes",
+          "quote storyboard"
+        ],
+        "imageCues": [
+          "页面上下2格或3格无缝纪实画面，同一采访环境与两位说话人",
+          "每格字幕30–38px，回答用黄字/提问用白字，细黑描边",
+          "字幕靠下不挡口型",
+          "首屏直接进入有悬念的一问一答"
+        ],
+        "exclusions": [
+          "两个人的一段漫画对话",
+          "Comic Dialogue Story",
+          "读者来信与专家回应",
+          "Reader Question and Answer"
+        ]
+      },
+      "revision": "8ff62c0febcc2349e5e3acf94f828e572ed2eadb2df9f5a81794272ffe48ddac"
+    },
+    {
+      "id": "instagram-launch-news",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "新品或资源发布图文",
+          "summary": "先说发布了什么，再展示内容、适用人和参与条件，给读者清楚的获取或参与方法。",
+          "useWhen": "单次发布或邀请是核心；新品、课程、活动合并为变体，不能虚构稀缺和口碑。",
+          "instructions": "真实发布物、时间、受众、内容、参与条件与入口",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Launch News",
+          "summary": "Create an Instagram news carousel using the launch news structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the launch news format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "新品或资源发布图文",
+          "Launch News",
+          "新品发布",
+          "资源发布",
+          "launch announcement",
+          "portrait product launch",
+          "launch offer pack",
+          "free resource launch",
+          "launch teaser diary",
+          "event to invitation",
+          "event action poster",
+          "collaboration open call"
+        ],
+        "imageCues": [
+          "通常三页：首屏黑白肖像/品牌场景占全幅，底部窄高衬线发布标题62–80px",
+          "第二页浅底棚拍产品/资源大图，底部2–4行介绍32–38px",
+          "第三页黑底，大号衬线原话48–62px，下面说话人和身份28–34px"
+        ],
+        "exclusions": [
+          "更新了什么与该怎么做",
+          "Product Change News"
+        ]
+      },
+      "revision": "1c722abb658569f571f0123c06f2a9ee663cd21f43b2246e6957761b6fd6d92c"
+    },
+    {
+      "id": "instagram-layout-anatomy",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "构图与版式标注教程",
+          "summary": "在具体作品上叠加网格、区域或引线，说明画面结构和修改动作。",
+          "useWhen": "解释发生在同一原图上；区别于只用成品说明抽象设计原则。",
+          "instructions": "原作、可用分区或网格、具体判断、修改后参照",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Layout Anatomy Tutorial",
+          "summary": "Create an Instagram how-to carousel using the layout anatomy tutorial structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the layout anatomy tutorial format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "构图与版式标注教程",
+          "Layout Anatomy Tutorial",
+          "构图标注",
+          "版式拆解",
+          "layout anatomy",
+          "composition overlay guide",
+          "annotated editing breakdown",
+          "layout anatomy guide",
+          "annotated design details"
+        ],
+        "imageCues": [
+          "全幅摄影，每页同一套白色细辅助线约2px：三分网格、水平线或弧线依具体构图，辅助线要准确穿过观察点",
+          "封面亮黄粗标题72–92px置上中",
+          "详情仅小标签/箭头30–36px，不大段盖住画面"
+        ],
+        "exclusions": [
+          "视觉手法参考图鉴",
+          "Visual Technique Reference"
+        ]
+      },
+      "revision": "9c6b4c05979e64c2aebf7893bc3e8f086b6c2ef11618cb75e6e92823f5f34243"
+    },
+    {
+      "id": "instagram-learning-path",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "从入门到进阶路线",
+          "summary": "把学习目标拆成有先后依赖的阶段，为每阶段提供能力目标、练习和资源。",
+          "useWhen": "顺序由能力依赖决定；区别于无先后关系的资源清单。",
+          "instructions": "学习起点、目标能力、阶段依赖、练习与资源",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Learning Path",
+          "summary": "Create an Instagram how-to carousel using the learning path structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the learning path format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "从入门到进阶路线",
+          "Learning Path",
+          "学习路线",
+          "进阶路径",
+          "learning roadmap",
+          "learning path"
+        ],
+        "imageCues": [
+          "封面为学习桌面/工作环境，手写亮色目标居中，下方可有相关真实工具符号",
+          "内页背景为实际代码/学习照片，中央单一笔记窗占70–80%宽",
+          "顶部小导航、步骤名44–56px，下面“学什么/做什么/达到什么条件”32–38px"
+        ],
+        "exclusions": [
+          "边读边填练习册",
+          "Fill-in Workbook",
+          "限期行动与挑战计划",
+          "Timed Action Plan"
+        ]
+      },
+      "revision": "af18fe84aea1e38e7dfcf425aaa71539300e0d966859c3996d151a642eea53a9"
+    },
+    {
+      "id": "instagram-local-picks",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "本地精选去处清单",
+          "summary": "按同一筛选理由推荐一个地方的一组去处，以实景照片、地点名和短评逐页展开。",
+          "useWhen": "每项可单独选择，不编造相邻交通；与现有按天串联的旅游攻略区分。",
+          "instructions": "地点、实景、推荐理由、地址与核验日期",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Local Picks List",
+          "summary": "Create an Instagram list carousel using the local picks list structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the local picks list format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "本地精选去处清单",
+          "Local Picks List",
+          "本地推荐",
+          "城市去处",
+          "local recommendations",
+          "local picks guide"
+        ],
+        "imageCues": [
+          "全幅地点实景，画面不加外框",
+          "封面左下窄列大写紧缩无衬线72–90px，3–5行",
+          "内页地点名放右下60–78px，下面斜体短评30–36px",
+          "底部可加轻暗渐变，保留店面/空间主体",
+          "角落小标记整组同位置"
+        ],
+        "exclusions": [
+          "unrelated format"
+        ]
+      },
+      "revision": "db439008a3627cbe0bcdb4e5cce29593759cd82e59ea2e4dbe3bf66482a090a2"
+    },
+    {
+      "id": "instagram-matched-test",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "同条件实测对照案例",
+          "summary": "先交代共同条件，再展示各对象的实测证据和指标，让比较有相同基准。",
+          "useWhen": "必须有共享观察期或测试条件；区别于主观偏好对比。",
+          "instructions": "测试对象、共同条件、实际记录、指标和限制",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Matched Test Case Study",
+          "summary": "Create an Instagram case study carousel using the matched test case study structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the matched test case study format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "同条件实测对照案例",
+          "Matched Test Case Study",
+          "同条件实测",
+          "基准测试对比",
+          "matched benchmark",
+          "fixed benchmark comparison"
+        ],
+        "imageCues": [
+          "封面为人物生活照，上方白色无衬线与斜体衬线两行对照题目，下接浅色圆角条件条",
+          "内页用低对比黑白同一背景，顶部比较对象名，中央真实结果证据，底部相同单位/周期32–42px，合计值单独强调"
+        ],
+        "exclusions": [
+          "亲自试过的实验记录",
+          "Personal Experiment Case Study"
+        ]
+      },
+      "revision": "2062dd0e28a92989a23923d0d8a303ddc6d74c2fed8421862292a1e662de9da6"
+    },
+    {
+      "id": "instagram-metric-formulas",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "指标公式速查",
+          "summary": "一项指标一页，把公式、变量含义和使用解释放在固定位置。",
+          "useWhen": "必须能计算并解释结果；与现有仅给定义和例子的概念入门区分。",
+          "instructions": "公式、变量、单位、计算例子及来源",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Metric Formula Reference",
+          "summary": "Create an Instagram reference carousel using the metric formula reference structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the metric formula reference format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "指标公式速查",
+          "Metric Formula Reference",
+          "公式速查",
+          "指标计算",
+          "metric formulas",
+          "formula glossary"
+        ],
+        "imageCues": [
+          "暖白轻纸纹底，大量留白",
+          "封面一句两行承诺置中上，关键词细荧光笔下划线",
+          "内页左上编号与指标名44–56px、定义30–36px",
+          "中央公式48–60px，用真正的分式横线与对齐变量，下面可放一条演算"
+        ],
+        "exclusions": [
+          "实物与名称来历图鉴",
+          "Object and Name Origins"
+        ]
+      },
+      "revision": "63f456943de29b0760d07dde813fb503996ba82680d80a5467430c5cd0198ff5"
+    },
+    {
+      "id": "instagram-milestones-and-feelings",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "每个阶段的数字与感受",
+          "summary": "在每个阶段复用时间、数字、做法或感受字段，让一条变化轨迹逐页累积。",
+          "useWhen": "每节点同时交代状态和体验；区别于现有以总量及组成盘点一段时间。",
+          "instructions": "真实阶段照片、时间、同口径指标和本人记录",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Milestone and Feeling Log",
+          "summary": "Create an Instagram story carousel using the milestone and feeling log structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the milestone and feeling log format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "每个阶段的数字与感受",
+          "Milestone and Feeling Log",
+          "阶段复盘",
+          "数字感受",
+          "milestone diary",
+          "milestone metric feeling log",
+          "monthly metric diary",
+          "elapsed time retrospective",
+          "photo metric recap",
+          "periodic lessons log",
+          "year by year work archive"
+        ],
+        "imageCues": [
+          "全幅生活照，顶部黄色细序号与横线，阶段名大衬线72–92px，关键数值以手写/粗体48–60px",
+          "中下部“HOW I SPENT / HOW I FELT”两段撕纸注释，正文30–36px",
+          "照片留可识别人和环境"
+        ],
+        "exclusions": [
+          "真实收支案例档案",
+          "Personal Budget Case Study"
+        ]
+      },
+      "revision": "b01caeea8d94c45d62882d64d4f1d9f5698ba9125c4d3a52169c33617adefd8f"
+    },
+    {
+      "id": "instagram-mistakes-and-alternatives",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "常见错误与替代做法",
+          "summary": "每页指出一个具体失误，展示实际影响，再给能执行的替代方案。",
+          "useWhen": "必须出现失误、后果、替代三项；个人省钱替代做法作为同一结构的经验变体。",
+          "instructions": "具体场景、失误、后果证据、替代方案和实景照片",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Mistakes and Better Alternatives",
+          "summary": "Create an Instagram list carousel using the mistakes and better alternatives structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the mistakes and better alternatives format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "常见错误与替代做法",
+          "Mistakes and Better Alternatives",
+          "常见错误",
+          "避坑指南",
+          "common mistakes",
+          "mistake impact alternative",
+          "real cost saving alternatives"
+        ],
+        "imageCues": [
+          "全幅生活/活动实拍",
+          "封面上部白色紧包文字条写数量与错误，54–68px，下接较小说明",
+          "内页上部居中序号与错误名48–62px",
+          "中下部按场景空处放2–3条白底黑字短句，分别说明后果与替代动作，不遮关键证据"
+        ],
+        "exclusions": [
+          "旧版与新版逐项检查",
+          "Version Change Audit"
+        ]
+      },
+      "revision": "33295bc442fcec112182d2717388e04af20bfa1e9a5b88909af6e6f842b5dd7d"
+    },
+    {
+      "id": "instagram-myth-and-fact",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "常见说法与事实核查",
+          "summary": "逐条摆出被讨论的说法，用可追溯事实回应，并说明哪些部分仍不能确定。",
+          "useWhen": "原话与核查证据都需要来源；区别于仅表达反对态度。",
+          "instructions": "可核对原话、事实材料、日期和适用范围",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Myth and Fact Opinion",
+          "summary": "Create an Instagram opinion carousel using the myth and fact opinion structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the myth and fact opinion format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "常见说法与事实核查",
+          "Myth and Fact Opinion",
+          "辟谣核查",
+          "事实核查",
+          "myth fact",
+          "myth correction bulletin",
+          "source check rebuttal"
+        ],
+        "imageCues": [
+          "首屏全幅主题实景/肖像，左上一个小栏目符号，底部白色衬线标题60–76px",
+          "内页黑底，窄列宽约72%",
+          "先小写栏目标“说法”，下接斜体引用42–52px，再“事实/证据”与正文32–38px，页脚来源24–28px"
+        ],
+        "exclusions": [
+          "新研究到实际意义",
+          "Research Brief"
+        ]
+      },
+      "revision": "ce0eb5a5222cbc2389c1c3c513b081106cea64b009e5bf2be5dc10509028fc3f"
+    },
+    {
+      "id": "instagram-news-digest",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "本期值得知道的更新",
+          "summary": "用一期主题统领多条独立更新，每页一条消息，固定事实、影响和来源字段。",
+          "useWhen": "逐条卡片适合翻页阅读；与现有同页多栏新闻网格区分，风格差异不单独计数。",
+          "instructions": "本期范围、各条更新、图片、实际影响及出处",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "News Digest",
+          "summary": "Create an Instagram news carousel using the news digest structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the news digest format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "本期值得知道的更新",
+          "News Digest",
+          "资讯摘要",
+          "本期更新",
+          "news digest",
+          "newsletter feature digest",
+          "trend application cards"
+        ],
+        "imageCues": [
+          "封面上半为本期3–4件新闻相关图片拼贴，下半奶油白底大衬线主题74–94px，中间窄粉条重复栏目名",
+          "内页酒红满版，中央奶油白圆角纸卡占75–82%宽，彩色小标题44–54px、正文32–38px，角落相关物件剪贴，底部来源24–28px"
+        ],
+        "exclusions": [
+          "一件事的新闻图文",
+          "Single-event News"
+        ]
+      },
+      "revision": "ab0e78f6e39cfa182d7c49e4cfaff02186c944c059a36e5a0da6a02efa9e6063"
+    },
+    {
+      "id": "instagram-numbers-at-human-scale",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "把数字换成看得见的规模",
+          "summary": "把抽象数字对应到有依据的真实空间或人群规模，让读者先看到数量意味着什么。",
+          "useWhen": "换算后的场景帮助理解同一个数；区别于条形排行和无数值依据的视觉类比。",
+          "instructions": "真实数字、单位、可靠换算关系、对应规模图与来源",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Numbers at Human Scale",
+          "summary": "Create an Instagram reference carousel using the numbers at human scale structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the numbers at human scale format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "把数字换成看得见的规模",
+          "Numbers at Human Scale",
+          "数字可视化",
+          "规模换算",
+          "human scale numbers",
+          "metric to human scale"
+        ],
+        "imageCues": [
+          "每页上下两个无缝摄影区，约50/50",
+          "上半为说出抽象数字的人/场景，下半为对应规模的群体/空间",
+          "白色粗无衬线30–40px贴各半区靠中缝位置，上为原话，下为数值单位",
+          "最后一页可回到单幅场景承接结论"
+        ],
+        "exclusions": [
+          "同一数据的两种视角",
+          "Two Views of One Dataset"
+        ]
+      },
+      "revision": "4ff15427cb1c7bb7ad1bafbca35bf490f09a0b9f727bde7b98de92806fc80d9c"
+    },
+    {
+      "id": "instagram-object-led-activities",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "实物带出行动清单",
+          "summary": "让一本书、一杯饮品或一种器具作为动作入口，用真实物件照片说明现在可以做什么。",
+          "useWhen": "对象必须对应可执行动作；区别于纯物品展示和仅写励志句子的图集。",
+          "instructions": "可执行活动、对应物件、时间或准备条件、实拍图",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Object-led Activity List",
+          "summary": "Create an Instagram list carousel using the object-led activity list structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the object-led activity list format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "实物带出行动清单",
+          "Object-led Activity List",
+          "活动点子",
+          "实物行动",
+          "activity ideas",
+          "object led action menu",
+          "role based life framework"
+        ],
+        "imageCues": [
+          "全幅随手拍物件与手部",
+          "封面居中奶油黄衬线标题78–96px，短斜体情境36–42px",
+          "内页主体占画面70–90%，右下/下中仅1–3行白色短动作30–38px，底部细手绘箭头朝右"
+        ],
+        "exclusions": [
+          "unrelated format"
+        ]
+      },
+      "revision": "3002ccca2c669ef1bb2ee4ed55637f6e0ce26d2f258f3387e54b095c53e19489"
+    },
+    {
+      "id": "instagram-object-name-origins",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "实物与名称来历图鉴",
+          "summary": "把可识别实物、名称和来历连起来，先总览，再展开每个名称背后的解释。",
+          "useWhen": "名称必须能对应可见样本；概念网格、词典趣味释义作为变体合并。",
+          "instructions": "实物样本、名称、可靠词源或明确标为创作的释义",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Object and Name Origins",
+          "summary": "Create an Instagram reference carousel using the object and name origins structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the object and name origins format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "实物与名称来历图鉴",
+          "Object and Name Origins",
+          "名称来历",
+          "词源图鉴",
+          "name origins",
+          "etymology specimen atlas",
+          "specimen glossary",
+          "insider dictionary"
+        ],
+        "imageCues": [
+          "封面4×4或3×3实物网格，上方小标题",
+          "详情页2×2同尺度样本，实物占单元上半，名称30–38px白字，来源说明28–34px暖金色，底部不加泛用CTA"
+        ],
+        "exclusions": [
+          "指标公式速查",
+          "Metric Formula Reference"
+        ]
+      },
+      "revision": "75a5dbf60edac5b63117b01f8a9d0459090b6ab27e954c69fcbd5cad5d08017a"
+    },
+    {
+      "id": "instagram-one-input-many-results",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "同一输入的多种创作结果",
+          "summary": "把同一原始图片或设计输入变为多种结果，保留可识别的共同主体。",
+          "useWhen": "共同输入是全组锚点；区别于无关联作品合集和文字提示词速查。",
+          "instructions": "明确原始输入、各结果、变化维度与制作依据",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "One Input, Multiple Outcomes",
+          "summary": "Create an Instagram showcase carousel using the one input, multiple outcomes structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the one input, multiple outcomes format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "同一输入的多种创作结果",
+          "One Input, Multiple Outcomes",
+          "同图多结果",
+          "一图多创作",
+          "one input many outputs",
+          "image remix comparison"
+        ],
+        "imageCues": [
+          "封面全幅输入相关照片，上部亮黄色胖体大标题82–105px",
+          "内页使用同图柔化背景，中央两张并排等大图槽，上方before/after标签32–40px，底部变量/风格名40–48px",
+          "图片保持相同对象身份与裁切口径"
+        ],
+        "exclusions": [
+          "提示词与效果对照",
+          "Prompt and Result Reference"
+        ]
+      },
+      "revision": "5e8b4a7f4445e9719b0175fa8a9a0378212a95168dccba09453f1cccbd27758b"
+    },
+    {
+      "id": "instagram-one-variable-comparison",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "只改一个变量的对照",
+          "summary": "保留可辨认的共同参照，让一个变量改变前后的差别可以直接被看见。",
+          "useWhen": "变量需明确，不能用无关照片冒充对照；区别于现有空间改造前后实拍。",
+          "instructions": "共同主体、改变变量、真实前后图、相同展示条件",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "One-variable Comparison",
+          "summary": "Create an Instagram case study carousel using the one-variable comparison structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the one-variable comparison format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "只改一个变量的对照",
+          "One-variable Comparison",
+          "单变量对照",
+          "只改一个变量",
+          "one variable test",
+          "controlled variable comparison",
+          "enhancement comparison",
+          "control condition photo pairs",
+          "prototype to refined"
+        ],
+        "imageCues": [
+          "纸白底，顶部黑色粗标题48–62px，关键词荧光黄下划线",
+          "中部两例上下或并列，保留同一主体、图形与取景，只改变一个明确变量",
+          "细手绘箭头连接变化处，说明32–38px"
+        ],
+        "exclusions": [
+          "旧版与新版逐项检查",
+          "Version Change Audit"
+        ]
+      },
+      "revision": "4ff76d03ac491cdcf7073d32c476da0a111007f788eccc42e9777233b8219bf6"
+    },
+    {
+      "id": "instagram-opportunity-guide",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "机会与申请条件指南",
+          "summary": "一项机会一页，固定交代适用人、进入条件、付出与收益，方便读者判断是否值得了解。",
+          "useWhen": "条件是核心字段；区别于只给入口的网址清单。金额、资格与政策必须另行核验。",
+          "instructions": "机会、资格、工作或申请要求、真实入口、截至日期",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Opportunity Guide",
+          "summary": "Create an Instagram reference carousel using the opportunity guide structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the opportunity guide format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "机会与申请条件指南",
+          "Opportunity Guide",
+          "申请指南",
+          "招募条件",
+          "application guide",
+          "opportunity guide cards",
+          "minimal opportunity list"
+        ],
+        "imageCues": [
+          "封面为旅行/环境实景与纸票剪贴，大写手写标题在中部白纸条",
+          "内页全幅地点照片，中间放宽70%的米白信息窗，黑色1–2px描边、浅黄窄标题栏与三点",
+          "名称40–46px，条件、投入、收益32–36px，来源/日期24–28px"
+        ],
+        "exclusions": [
+          "unrelated format"
+        ]
+      },
+      "revision": "58b85bafacbe1f267669627c27b37b2051186bd44452a395b6ccc83695ab1d9e"
+    },
+    {
+      "id": "instagram-palette-application-board",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "配色到实际物料灵感板",
+          "summary": "把一组命名配色、色签和实际物料或空间照片放在一起，展示如何落地。",
+          "useWhen": "展示色彩应用，不声称全部来自同一照片；与照片取色区分。",
+          "instructions": "配色值、应用领域、对应材质或场景图",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Palette Application Board",
+          "summary": "Create an Instagram showcase carousel using the palette application board structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the palette application board format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "配色到实际物料灵感板",
+          "Palette Application Board",
+          "配色物料",
+          "配色灵感板",
+          "palette moodboard",
+          "palette to material board"
+        ],
+        "imageCues": [
+          "封面全幅氛围实拍，底部粗白标题72–92px",
+          "每张内页是满版拼贴：4–6张真实物料图按矩形网格拼合，中央品牌色纸条写配色名56–70px及一条情绪说明32–36px，侧边两块颜色样本与准确色值"
+        ],
+        "exclusions": [
+          "品牌系统与应用展示",
+          "Brand System Showcase",
+          "从照片提取配色",
+          "Image-to-palette Showcase"
+        ]
+      },
+      "revision": "5c5bddb493353ef7c1aa26061182a3fccdbb06792dab9481d71993d3755df753"
+    },
+    {
+      "id": "instagram-personal-budget-case",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "真实收支案例档案",
+          "summary": "从真实人物或场景的条件出发，逐项呈现支出、收入和背后的选择。",
+          "useWhen": "每项数字有场景和口径；区别于只用总数做阶段盘点。逐笔余额作为变体。",
+          "instructions": "匿名条件、收支记录、周期、币种与可用实景",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Personal Budget Case Study",
+          "summary": "Create an Instagram case study carousel using the personal budget case study structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the personal budget case study format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "真实收支案例档案",
+          "Personal Budget Case Study",
+          "个人收支",
+          "真实账单",
+          "personal budget",
+          "personal budget case file",
+          "photo expense ledger"
+        ],
+        "imageCues": [
+          "封面粉红底，倾斜深酒红档案卡露在白色信封中，收入大衬线90–115px",
+          "内页纸白浅方格，一张淡粉/橄榄黄纸片占75–85%，顶部衬线栏目60–82px，下面固定字段/金额32–38px与细虚线"
+        ],
+        "exclusions": [
+          "每个阶段的数字与感受",
+          "Milestone and Feeling Log"
+        ]
+      },
+      "revision": "01311e6a6fb4808c6548e38dd52a2bfa6fb35f71022c5fd415160355fa417c8b"
+    },
+    {
+      "id": "instagram-personal-experiment",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "亲自试过的实验记录",
+          "summary": "用真实试验或亲身尝试记录，交代尝试内容、过程证据和实际体验。",
+          "useWhen": "区别于复述他人的研究；不同尝试能沿同一字段比较，未测结果不补造。",
+          "instructions": "试验问题、真实过程图、日期、实际体验与记录",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Personal Experiment Case Study",
+          "summary": "Create an Instagram case study carousel using the personal experiment case study structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the personal experiment case study format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "亲自试过的实验记录",
+          "Personal Experiment Case Study",
+          "个人实验",
+          "实验记录",
+          "personal experiment",
+          "experiment results"
+        ],
+        "imageCues": [
+          "封面全幅个人情境，白色衬线主题70–90px偏下，角落可叠真实记录缩略图",
+          "内页米白，大段留白，顶部短述实验阶段32–38px，中央2–3张实际记录/结果，底部一句观察，不把图表挤成小截图"
+        ],
+        "exclusions": [
+          "同条件实测对照案例",
+          "Matched Test Case Study",
+          "一个实验是怎样发生的",
+          "Experiment Story Explainer"
+        ]
+      },
+      "revision": "446236ee5828ef0fc32cd4dc9d22c173fab225928003279adbfcdeff520aa6a9"
+    },
+    {
+      "id": "instagram-photo-and-technical-sketch",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "实拍与技术草图对照",
+          "summary": "把同一件物品的实拍与结构草图并置，让外观和设计细节互相解释。",
+          "useWhen": "两种表现必须对应同一对象，尺寸和结构不能由照片猜造。",
+          "instructions": "实物照片、实际设计草图、允许展示的结构信息",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Photo and Technical Sketch",
+          "summary": "Create an Instagram showcase carousel using the photo and technical sketch structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the photo and technical sketch format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "实拍与技术草图对照",
+          "Photo and Technical Sketch",
+          "技术草图",
+          "实拍线稿",
+          "technical sketch",
+          "photo and technical sketch"
+        ],
+        "imageCues": [
+          "浅灰/白色棚拍底，人物/产品实拍占中间60–70%，同一对象的细线技术图在右下或局部叠合，名字以手写48–62px置左上",
+          "3–4条手写注释30–38px及细弧箭头指向真实结构"
+        ],
+        "exclusions": [
+          "一件作品的细节解读",
+          "Artwork Detail Story"
+        ]
+      },
+      "revision": "4997fec95decea2b2e9998c2087ee2b9c1147da1c2ea678fd9bc15ac9138d680"
+    },
+    {
+      "id": "instagram-photo-moment-story",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "一个真实片刻的照片故事",
+          "summary": "围绕同一片刻组织远景、动作和细节，让一次相遇或事件通过翻页自然展开。",
+          "useWhen": "必须能连成事件，不是旅行照片的任意堆叠；区别于现有先时间轴再展开的故事专题。",
+          "instructions": "同一事件的连续实拍、真实顺序与必要图注",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Photo Story",
+          "summary": "Create an Instagram story carousel using the photo story structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the photo story format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "一个真实片刻的照片故事",
+          "Photo Story",
+          "照片故事",
+          "一个瞬间",
+          "photo story",
+          "photo story sequence",
+          "single moment contact sequence",
+          "question then reveal",
+          "photo detail reveal"
+        ],
+        "imageCues": [
+          "首屏全幅环境与主体，短句30–38px放天空/墙面空处",
+          "中页可上下两张近景/远景，最后一页以更开阔的环境照收束",
+          "主体占比随页变化，不统一加标题区"
+        ],
+        "exclusions": [
+          "我的日常与工作之外",
+          "Everyday Photo Diary"
+        ]
+      },
+      "revision": "2c4cfdf13a4611e9821c3d33385297f85590aaeceb2461b2066fc6c739fb3e41"
+    },
+    {
+      "id": "instagram-product-change",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "更新了什么与该怎么做",
+          "summary": "把产品或平台变化对应到实际界面、受影响人群和下一步操作。",
+          "useWhen": "变化与行动必须一一对应；区别于单纯产品截图展示。",
+          "instructions": "官方变更依据、版本日期、前后界面、受众影响",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Product Change News",
+          "summary": "Create an Instagram news carousel using the product change news structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the product change news format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "更新了什么与该怎么做",
+          "Product Change News",
+          "产品更新",
+          "功能变化",
+          "product update",
+          "product update impact",
+          "sourced change brief",
+          "integration feature tour",
+          "interface feature tour"
+        ],
+        "imageCues": [
+          "封面深蓝/黑底加实际产品或合作场景，上方小型NEW胶囊，下部粗白标题80–100px",
+          "内页白底，顶部小作者栏，深蓝横条上荧光黄标题48–60px",
+          "正文36–42px，中央真实界面或可控示意图，底部一行适用边界"
+        ],
+        "exclusions": [
+          "回看旧帖与公开修正",
+          "Public Follow-up Case Study",
+          "新品或资源发布图文",
+          "Launch News"
+        ]
+      },
+      "revision": "4378d7cc414c5dd1e2ba56bf609d3242e8836b69db79c68f4e4fc6606d76bbf3"
+    },
+    {
+      "id": "instagram-prompt-result-reference",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "提示词与效果对照",
+          "summary": "把生成效果和产生它的提示词配成可追溯的一组，说明哪些输入影响了哪些画面结果。",
+          "useWhen": "提示词是可复制输出；区别于单纯展示多种视觉结果。",
+          "instructions": "实际提示词、模型与参数、对应生成结果、参考输入",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Prompt and Result Reference",
+          "summary": "Create an Instagram reference carousel using the prompt and result reference structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the prompt and result reference format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "提示词与效果对照",
+          "Prompt and Result Reference",
+          "提示词效果",
+          "生成对照",
+          "prompt results",
+          "prompt result pairs",
+          "photo with prompt overlay"
+        ],
+        "imageCues": [
+          "白底效果页与黑底提示词页成对交替",
+          "效果页左上双行标题52–68px、右上序号，中央两张并排作品占55–65%，底部解释30–36px",
+          "提示词页上方小衬线标签，中央深灰代码区呈现完整可复制提示词28–34px",
+          "参数/模型从真实任务记录取值"
+        ],
+        "exclusions": [
+          "同一输入的多种创作结果",
+          "One Input, Multiple Outcomes"
+        ]
+      },
+      "revision": "ab5df0b4b64ce94d0a2d64cad1ee99eb95d65f512f3d1869628b0163c6453d38"
+    },
+    {
+      "id": "instagram-public-follow-up",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "回看旧帖与公开修正",
+          "summary": "主动回看自己之前的说法，展示后续发生的变化，解释需要修正的判断。",
+          "useWhen": "必须有真实旧说法与新证据；区别于泛泛的失败复盘。",
+          "instructions": "旧帖、日期、新进展、差异证据与修正判断",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Public Follow-up Case Study",
+          "summary": "Create an Instagram case study carousel using the public follow-up case study structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the public follow-up case study format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "回看旧帖与公开修正",
+          "Public Follow-up Case Study",
+          "公开修正",
+          "旧帖跟进",
+          "public correction",
+          "public correction followup"
+        ],
+        "imageCues": [
+          "全幅人物/日常环境，底部约40%加低强度深色遮罩",
+          "居中或左对齐白色窄高衬线文字52–66px，一页一段，首屏“旧判断需要更新”要明确",
+          "角落固定小型来源/日期"
+        ],
+        "exclusions": [
+          "更新了什么与该怎么做",
+          "Product Change News"
+        ]
+      },
+      "revision": "5f53cc74aec5effa91c9ff42b30e62292774889bdc7fb835856472c9da226176"
+    },
+    {
+      "id": "instagram-reader-question-answer",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "读者来信与专家回应",
+          "summary": "先呈现经过允许的真实问题，再用清楚归属的回答和重点摘句回应。",
+          "useWhen": "问题与回答有真实对应，不能代写成专家原话；区别于普通观点长文。",
+          "instructions": "允许展示的问题、回答原文、回答者身份与来源",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Reader Question and Answer",
+          "summary": "Create an Instagram opinion carousel using the reader question and answer structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the reader question and answer format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "读者来信与专家回应",
+          "Reader Question and Answer",
+          "读者来信",
+          "问题回应",
+          "reader question",
+          "reader question expert answer"
+        ],
+        "imageCues": [
+          "淡紫背景和深靛蓝栏目条",
+          "首屏左侧来信正文30–36px以深色短高亮条分段，右侧回应者半身肖像占45%",
+          "第二页深靛蓝底、奶油白衬线回答36–44px与同人另一姿态",
+          "第三页浅紫细网格，大衬线关键句62–78px，底部一致刊头"
+        ],
+        "exclusions": [
+          "访谈原话分镜故事",
+          "Interview Quote Storyboard"
+        ]
+      },
+      "revision": "1246c3b553e27cdae8806980ace148f1e2409d0bb30e9e34f4a8c90805e20059"
+    },
+    {
+      "id": "instagram-remaining-capacity",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "损失一段仍有余量",
+          "summary": "将已失去的一小段时间与同尺度剩余容量配对，让读者看见还能做的部分。",
+          "useWhen": "必须可核算且单位一致；区别于普通积极语录。",
+          "instructions": "总量、损失、余量、单位和可执行动作",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Remaining Capacity Reframe",
+          "summary": "Create an Instagram opinion carousel using the remaining capacity reframe structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the remaining capacity reframe format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "损失一段仍有余量",
+          "Remaining Capacity Reframe",
+          "剩余时间",
+          "还有余量",
+          "remaining capacity",
+          "remaining time reframe"
+        ],
+        "imageCues": [
+          "每页上下两幅同一日常/运动场景，白色细无衬线34–44px居中",
+          "上半一个有限损失，下半可核对的剩余量",
+          "按小时、天、周等尺度递进，最后回到一个小行动"
+        ],
+        "exclusions": [
+          "年龄期待与真实节奏",
+          "Age Expectations Reframed",
+          "看得见的成果与背后付出",
+          "Effort and Outcome Opinion"
+        ]
+      },
+      "revision": "a20d6fe6ddec807f8e97e9a450e1f62980cd86630dfd47276c45ccc78762104b"
+    },
+    {
+      "id": "instagram-research-brief",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "新研究到实际意义",
+          "summary": "从一项可追溯研究进入，分清研究问题、方法、结果与可以支持的实际含义。",
+          "useWhen": "研究设计与局限不可省略；不把相关性改写成确定因果。",
+          "instructions": "原始研究、样本、方法、结果、图表和限制",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Research Brief",
+          "summary": "Create an Instagram news carousel using the research brief structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the research brief format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "新研究到实际意义",
+          "Research Brief",
+          "研究简报",
+          "新研究解读",
+          "research brief",
+          "research to implication brief"
+        ],
+        "imageCues": [
+          "暖白纸纹底，黑色紧缩无衬线大段标题/主张52–66px，左对齐占上半",
+          "中央放研究原图或按同一数据重画图表，下方解读32–38px，页脚明确论文/日期24–28px",
+          "可穿插一张大引语页改变节奏"
+        ],
+        "exclusions": [
+          "常见说法与事实核查",
+          "Myth and Fact Opinion"
+        ]
+      },
+      "revision": "7367846f81c146a0c8c2e23d52ed7fb3105ae5347eb10f3685bf028e2b50b3c2"
+    },
+    {
+      "id": "instagram-result-and-recipe",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "成品加配方卡教程",
+          "summary": "先用成品照片吸引，再给可保存的材料、分量和步骤卡。",
+          "useWhen": "核心是实拍结果与完整配方的配对；区别于逐页增加材料的连续镜头。",
+          "instructions": "成品实拍、完整配方、份量、时间与实测步骤",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Result and Recipe Card",
+          "summary": "Create an Instagram how-to carousel using the result and recipe card structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the result and recipe card format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "成品加配方卡教程",
+          "Result and Recipe Card",
+          "成品配方",
+          "配方卡",
+          "recipe card",
+          "result plus recipe card"
+        ],
+        "imageCues": [
+          "封面全幅成品近景，中部白字黑描边标题64–80px",
+          "第二页换同一成品细节，下面小名称36–44px",
+          "配方页白底，居中窄字距标题42–52px，下面左右两列：原料占40%、步骤占52%，正文30–34px，段间距明确"
+        ],
+        "exclusions": [
+          "固定机位逐步累加教程",
+          "Incremental Assembly Tutorial"
+        ]
+      },
+      "revision": "71a1fef09dc554694d6eba7d6a8d79dbf948b5313bfba510e16f52ca00694db4"
+    },
+    {
+      "id": "instagram-result-to-steps",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "具体成果倒推做法",
+          "summary": "先给自己的具体成果和证据，再逐页说明得到它的实际操作条件。",
+          "useWhen": "可核对成果是入口；区别于没有结果证据的普通步骤教学。",
+          "instructions": "真实结果、证据、操作记录、成本与限制",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Result-to-steps Tutorial",
+          "summary": "Create an Instagram how-to carousel using the result-to-steps tutorial structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the result-to-steps tutorial format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "具体成果倒推做法",
+          "Result-to-steps Tutorial",
+          "成果倒推",
+          "结果倒推步骤",
+          "reverse engineer a result",
+          "result to exact steps"
+        ],
+        "imageCues": [
+          "全幅生活/成果照片，封面白色紧包大字标签置中上，下面具体成果短句44–56px",
+          "详情页每张实景中部放2–4行白色描边字42–52px，逐步解释从结果倒推的行动",
+          "不要统一加顶部章节条"
+        ],
+        "exclusions": [
+          "成果证据到执行方法",
+          "Evidence-to-method Case Study"
+        ]
+      },
+      "revision": "8ea48e025f8ded8d92a09550cb491bf9cd24826060880b94d7be9eaf4286e8fa"
+    },
+    {
+      "id": "instagram-reverse-instruction",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "越不让翻越想翻",
+          "summary": "用连续的反向指令制造互动，让读者自己的翻页行为成为演示的一部分。",
+          "useWhen": "互动行为本身兑现开头，不靠虚假警告或故意隐瞒重要条件。",
+          "instructions": "演示目标、逐页反向指令、表情或动作图与最终解释",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Reverse Instruction Quiz",
+          "summary": "Create an Instagram quiz carousel using the reverse instruction quiz structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the reverse instruction quiz format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "越不让翻越想翻",
+          "Reverse Instruction Quiz",
+          "反向指令",
+          "翻页悬念",
+          "reverse instruction",
+          "reverse instruction reveal"
+        ],
+        "imageCues": [
+          "同一人物同机位的全幅手机自拍，顶部粗白黑描边大字82–105px",
+          "每页表情/手势随“别翻→你还在翻→好吧揭晓”递进",
+          "人物脸、手、室内环境保持连续，文字不盖眉眼"
+        ],
+        "exclusions": [
+          "值得互相问的问题卡",
+          "Conversation Question Cards"
+        ]
+      },
+      "revision": "7e37111e3fc177403a079b6e3b70a766121da4fe729d4b3961470f3d9660f2bc"
+    },
+    {
+      "id": "instagram-said-and-meant",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "说出口的话与真正含义",
+          "summary": "用上下或左右两个画面，将字面表达与本人想表达的含义配对。",
+          "useWhen": "真实含义须由说话人提供或明确作为创作；区别于原句润色句库。",
+          "instructions": "表达原话、经确认的含义、关系和配图",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Said and Meant Opinion",
+          "summary": "Create an Instagram opinion carousel using the said and meant opinion structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the said and meant opinion format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "说出口的话与真正含义",
+          "Said and Meant Opinion",
+          "话外之意",
+          "说与想",
+          "said versus meant"
+        ],
+        "imageCues": [
+          "上下两幅相同或连续人物场景，顶部黑色小情境条30–36px",
+          "中缝附近一段白底黑字“说出口的话”与另一段彩色底“想表达的需要”，38–48px",
+          "可在第二页重复上一页后把旧文字划掉、突出新的理解"
+        ],
+        "exclusions": [
+          "表达替换句库",
+          "Copy Alternatives Reference"
+        ]
+      },
+      "revision": "2acb1a6b529a1718624e97838ca9af6ffcbdfa230dda6d5ce6eb9ac8a1e1ef4b"
+    },
+    {
+      "id": "instagram-same-budget-choices",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "同样预算的不同选择",
+          "summary": "用同币种和同口径价格，把两种支出选择放在一起，讨论各自用途与取舍。",
+          "useWhen": "比较的是预算机会成本，不能推断某种消费代表人格高低。",
+          "instructions": "真实价格、日期、币种、用途、两种选择的素材",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Same-budget Choice Opinion",
+          "summary": "Create an Instagram opinion carousel using the same-budget choice opinion structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the same-budget choice opinion format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "同样预算的不同选择",
+          "Same-budget Choice Opinion",
+          "同预算选择",
+          "同价对比",
+          "same budget",
+          "same price value comparison"
+        ],
+        "imageCues": [
+          "白底，大窄高衬线主题90–120px居中上部",
+          "中间两件不同选择的实物抠像同一基线、相近视觉重量，各占35%",
+          "下方对应价格52–66px，必要时加币种/条件28–34px",
+          "每页一组选择"
+        ],
+        "exclusions": [
+          "目的地花费对照卡",
+          "Destination Cost Reference",
+          "期待与实际的评价卡",
+          "Expectation and Reality Review"
+        ]
+      },
+      "revision": "94c848680ea953770dc29674f6ab1bf6b7116c7b680a2f3345e521a9fd3b46e3"
+    },
+    {
+      "id": "instagram-screenshot-walkthrough",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "真实界面步骤教程",
+          "summary": "以真实界面为依据，按读者实际操作顺序说明每一步点哪里、填什么、看到什么。",
+          "useWhen": "界面操作推动页序；照片或手机背景的装饰差异不拆成新模板。",
+          "instructions": "当前版本截图、操作步骤、前置条件与成功状态",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Screenshot Walkthrough",
+          "summary": "Create an Instagram how-to carousel using the screenshot walkthrough structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the screenshot walkthrough format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "真实界面步骤教程",
+          "Screenshot Walkthrough",
+          "界面教程",
+          "截图步骤",
+          "screenshot tutorial",
+          "screenshot walkthrough",
+          "setup wizard",
+          "interface configuration guide",
+          "photo anchored tutorial"
+        ],
+        "imageCues": [
+          "暖米白底，顶栏年份/作者/页码22–28px，细线分隔",
+          "封面公式式大标题76–96px和真实相关对象剪贴",
+          "内页上部胶囊STEP编号、黑橙相间标题64–78px，下方一行说明30–36px",
+          "截图占中下55%，圆角和轻阴影，橙色细箭头指向实际操作"
+        ],
+        "exclusions": [
+          "可复制笔记清单",
+          "Copyable Notes Reference",
+          "例子加做法教程",
+          "Worked Example Tutorial",
+          "用熟悉界面讲自己的事",
+          "Everyday Interface Story"
+        ]
+      },
+      "revision": "07146f428c15fa4e45f8c6c7f070dff4ef796e530331473219c7d238a6acc904"
+    },
+    {
+      "id": "instagram-searchable-asset-index",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "可搜索素材索引",
+          "summary": "将素材预览与可搜索的名称或关键词绑定，读者能照着找到所见的元素。",
+          "useWhen": "必须有检索键和平台条件；区别于只供欣赏的灵感拼贴。",
+          "instructions": "素材预览、关键词或编号、平台、授权与可用版本",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Searchable Asset Index",
+          "summary": "Create an Instagram reference carousel using the searchable asset index structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the searchable asset index format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "可搜索素材索引",
+          "Searchable Asset Index",
+          "素材检索",
+          "素材关键词",
+          "asset keywords",
+          "searchable asset index"
+        ],
+        "imageCues": [
+          "蓝色牛仔布/有纹理底，封面白色粗描边胖体分层叠排，黄色强调关键词",
+          "四角零散文具剪贴",
+          "内页标题70–90px位于左上或中央，6–10件同类样本散布但不重叠主体，底部撕纸形标签展示检索词32–38px"
+        ],
+        "exclusions": [
+          "指令快捷语速查",
+          "Command Shortcut Cheat Sheet"
+        ]
+      },
+      "revision": "102f397d5fbf7fa351e0171783303a3ef86988b8127fc2c2a71b41b0c95cbac1"
+    },
+    {
+      "id": "instagram-similar-concepts",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "相似概念对照指南",
+          "summary": "将两个容易混淆的概念放在同样情境下逐项比较，让差别落到可观察表现。",
+          "useWhen": "比较维度固定；不把任何两种商品并排就算作本模板。",
+          "instructions": "两个概念、可靠定义、同一维度的例子或图像",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Similar Concepts Compared",
+          "summary": "Create an Instagram reference carousel using the similar concepts compared structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the similar concepts compared format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "相似概念对照指南",
+          "Similar Concepts Compared",
+          "概念区别",
+          "相似概念",
+          "concept differences",
+          "lookalike concept comparison"
+        ],
+        "imageCues": [
+          "白底上下留白",
+          "封面两项名称用不同浅色圆角高亮，72–90px，下面并排同一个原创角色的两种状态",
+          "内页顶部同一比较问题34–42px，中部双栏同尺度角色，各栏下方小彩色标签和2–4行解释32–38px"
+        ],
+        "exclusions": [
+          "同一行为换个情境看",
+          "Context Comparison Opinion"
+        ]
+      },
+      "revision": "477d8535d5645a021c86bc2780a9de9e8d4a8657bfbd0bb628a674bfa675441e"
+    },
+    {
+      "id": "instagram-single-event-news",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "一件事的新闻图文",
+          "summary": "围绕同一件刚发生的事，用现场图、事实、引语或文件逐页补足信息。",
+          "useWhen": "全组只讲一件事；区别于现有报头加多条消息网格的杂志简报。",
+          "instructions": "主体、时间、进展、来源、新闻配图与不确定状态",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Single-event News",
+          "summary": "Create an Instagram news carousel using the single-event news structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the single-event news format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "一件事的新闻图文",
+          "Single-event News",
+          "新闻解释",
+          "事件图文",
+          "event news",
+          "photo news explainer",
+          "photo quote context brief",
+          "photo evidence announcement"
+        ],
+        "imageCues": [
+          "黑底新闻图文",
+          "首屏现场图占全幅，下部压暗，白色衬线标题60–78px与一个浅杏箭头",
+          "内页交替上文下图/上图下文，正文34–40px、每页70–100个英文词以内，关键词浅杏加粗",
+          "页脚来源与日期24–28px"
+        ],
+        "exclusions": [
+          "本期值得知道的更新",
+          "News Digest"
+        ]
+      },
+      "revision": "3f9318c06250c2065dda74407fb96b6e70048e98fe007b3b834fc785ff6c0fad"
+    },
+    {
+      "id": "instagram-style-assembly",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "用元素组装一种风格",
+          "summary": "先展示完整风格，再拆出字体、图形、纹理与素材的组合方法。",
+          "useWhen": "要说明元素如何搭配，区别于只提供灵感图或单一效果处理。",
+          "instructions": "完成样例、元素清单、实际素材、组合步骤",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Style Assembly Tutorial",
+          "summary": "Create an Instagram how-to carousel using the style assembly tutorial structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the style assembly tutorial format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "用元素组装一种风格",
+          "Style Assembly Tutorial",
+          "风格组装",
+          "风格元素",
+          "style recipe",
+          "style assembly guide",
+          "scrapbook technique recipe"
+        ],
+        "imageCues": [
+          "封面全幅氛围空间，左下白色斜体衬线与金黄色重点词72–90px交错",
+          "内页暖浅米底，上方65%为4–7件同风格物件抠像拼贴，保留自然比例与空隙",
+          "下方居中衬线说明36–44px，点出这组元素怎样构成风格"
+        ],
+        "exclusions": [
+          "品类与用途指南",
+          "Category and Use Guide"
+        ]
+      },
+      "revision": "2035e811c2d64714dd1a80bc4d2327f3ca68b74c63b694049d0db35a6f2fb823"
+    },
+    {
+      "id": "instagram-style-choice",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "选一种风格或组个搭配",
+          "summary": "给读者清楚的视觉选项和编号，邀请选偏好或组合出自己的版本。",
+          "useWhen": "没有伪造正确答案；组合、二选一和风格投票合并，区别于现有商品揭晓式双路选择。",
+          "instructions": "可比选项、编号、组合规则与对应图像",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Style Choice Quiz",
+          "summary": "Create an Instagram quiz carousel using the style choice quiz structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the style choice quiz format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "选一种风格或组个搭配",
+          "Style Choice Quiz",
+          "风格二选一",
+          "搭配投票",
+          "style vote",
+          "visual style vote",
+          "build your combination game",
+          "two path choice",
+          "gesture choice prompt"
+        ],
+        "imageCues": [
+          "页面上下各占50%的两种视觉选项，中缝小白色“OR”标签",
+          "封面上下用不同材质/配色的大号斜体“This/That”",
+          "内页各半区放完整风格样本与居中白底名称标签32–40px，作者/来源次级24–28px"
+        ],
+        "exclusions": [
+          "跨页连续画布展示",
+          "Continuous Canvas Showcase",
+          "哪种设定像你",
+          "Identity Match Quiz"
+        ]
+      },
+      "revision": "d059e3d61d70898b8de982ae675a673fd290ade95da9011a4c24becf311537e2"
+    },
+    {
+      "id": "instagram-symbolism-in-artifact",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "一件作品里的象征",
+          "summary": "从完整作品进入，用局部标注说明各个细节为何出现，最后回到作品的使用情境。",
+          "useWhen": "意义须来自创作者说明或可靠依据；区别于只列材质的商品细节图。",
+          "instructions": "完整作品、局部图、创作依据与使用情境",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Symbolism in an Artifact",
+          "summary": "Create an Instagram story carousel using the symbolism in an artifact structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the symbolism in an artifact format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "一件作品里的象征",
+          "Symbolism in an Artifact",
+          "作品象征",
+          "物件寓意",
+          "artifact symbolism",
+          "artifact symbolism story"
+        ],
+        "imageCues": [
+          "封面作品实拍占全幅，底部黑色窄区放白色衬线解释50–64px，局部用一个圆形放大框",
+          "第二页完整设计/作品与旁注，第三页干净完整展示",
+          "注释28–36px，细线指向实际细节"
+        ],
+        "exclusions": [
+          "一件作品的细节解读",
+          "Artwork Detail Story"
+        ]
+      },
+      "revision": "cf8a455fba0875382c46e4497109193fb28748119e49ace53f4104775efd0778"
+    },
+    {
+      "id": "instagram-taste-matched-recommendations",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "喜欢这个也会喜欢清单",
+          "summary": "先点名读者熟悉的作品，再按具体相似特征推荐其他作品，每页解释匹配点。",
+          "useWhen": "推荐理由必须与锚点作品对应；区别于没有匹配条件的普通片单或资源合集。",
+          "instructions": "锚点作品、相似维度、候选作品与可用剧照",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Taste-matched Recommendations",
+          "summary": "Create an Instagram list carousel using the taste-matched recommendations structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the taste-matched recommendations format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "喜欢这个也会喜欢清单",
+          "Taste-matched Recommendations",
+          "相似推荐",
+          "喜好推荐",
+          "if you like this",
+          "taste matched recommendations"
+        ],
+        "imageCues": [
+          "浅青色满版底",
+          "封面大幅黑白主体抠像占中上65%，底部左对齐两行推荐标题70–84px",
+          "内页顶端放“如果喜欢[维度]”30–36px",
+          "中间约55%为大幅横向样图，黑白图只保留一处青色强调",
+          "底部左列作品名/作者年份，右列45%宽的匹配理由"
+        ],
+        "exclusions": [
+          "unrelated format"
+        ]
+      },
+      "revision": "07b3ad9ffd5fb49b1f358b3c28c11dbefc6ee28a5744c95818d8d82e1ac91c31"
+    },
+    {
+      "id": "instagram-then-now-pairs",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "小时候与现在的同一种热爱",
+          "summary": "把早年的活动与现在对应的表达成对展示，让同一种兴趣的延续被看见。",
+          "useWhen": "必须有可解释的对应关系；区别于一般外貌或效果前后对比。",
+          "instructions": "允许使用的早年与现在素材、相同兴趣或行为线索",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Then and Now Photo Pairs",
+          "summary": "Create an Instagram story carousel using the then and now photo pairs structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the then and now photo pairs format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "小时候与现在的同一种热爱",
+          "Then and Now Photo Pairs",
+          "小时候与现在",
+          "童年对比",
+          "then and now",
+          "childhood present photo pairs"
+        ],
+        "imageCues": [
+          "每页上下各一幅图：上方小时候的爱好场景/原创插画，下方现在的真实对应物/活动",
+          "中缝附近两段白色手写大写短句36–46px，上为“那份喜欢还在”，下为“换了一种形式”等承接",
+          "不加独立封面"
+        ],
+        "exclusions": [
+          "同一瞬间的两个视角",
+          "Two Perspectives Story"
+        ]
+      },
+      "revision": "2bc79506967afa71dd0367e3abb2ba9109ac5b3fb0ae0ade5d3d57d3e5e1fb01"
+    },
+    {
+      "id": "instagram-timed-action-plan",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "限期行动与挑战计划",
+          "summary": "用清楚期限组织动作，先总览日历，再按日期或阶段给任务。",
+          "useWhen": "日期推动递进；区别于按可用容量分配的一般周计划。",
+          "instructions": "目标、期限、阶段动作、所需材料与完成条件",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Timed Action Plan",
+          "summary": "Create an Instagram how-to carousel using the timed action plan structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the timed action plan format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "限期行动与挑战计划",
+          "Timed Action Plan",
+          "挑战计划",
+          "限期行动",
+          "timed challenge",
+          "timed action plan",
+          "monthly creative challenge",
+          "daily prompt calendar"
+        ],
+        "imageCues": [
+          "封面为真实人/工作场景，红底短问题与粗白标题64–80px靠中下部",
+          "内页纸白底，红色大写标题52–68px",
+          "总览分阶段列出，详情页左上浅蓝日期段28–34px，下面行动、产出、核对条件32–38px"
+        ],
+        "exclusions": [
+          "日期安排速查表",
+          "Calendar Cheat Sheet",
+          "从入门到进阶路线",
+          "Learning Path",
+          "大目标拆成可核对指标",
+          "Goal-to-benchmarks Guide"
+        ]
+      },
+      "revision": "c464683eada47445fb448b28b66328a6085e81a883bb480c00f09b9fb0e7f678"
+    },
+    {
+      "id": "instagram-tools-by-task",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "按任务选工具清单",
+          "summary": "把工具放回具体任务，每页用真实界面、适用工作和选择理由说明该用哪个。",
+          "useWhen": "任务是比较轴；区别于只罗列网址的资源清单。入门与进阶、任务排名合并为同一模板的变体。",
+          "instructions": "任务、候选工具、实际界面、使用条件与价格核验日期",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Tools by Task List",
+          "summary": "Create an Instagram list carousel using the tools by task list structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the tools by task list format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "按任务选工具清单",
+          "Tools by Task List",
+          "工具推荐",
+          "按任务选工具",
+          "tool recommendations",
+          "tool usecase cards",
+          "task based tool ranking",
+          "beginner pro tool comparison"
+        ],
+        "imageCues": [
+          "1080×1350 起点",
+          "封面暖光书房/桌面场景占全幅，巨型珊瑚色数量在左上",
+          "左下叠三行白色与珊瑚色斜体衬线主题，标题90–125px，短承诺40–48px",
+          "内页顶部居中两行斜体任务名72–88px、下接32–38px用途",
+          "中下部占70%宽的深色终端窗，窄标题栏、三色窗口点、等宽说明30–36px，条目之间留明显间距"
+        ],
+        "exclusions": [
+          "主题资源收藏清单",
+          "Curated Resource List"
+        ]
+      },
+      "revision": "fc6c6d635f1a78dedfe02e01173870e65bee6e1cf5ae656c12867a39fe1cf9ed"
+    },
+    {
+      "id": "instagram-two-perspectives",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "同一瞬间的两个视角",
+          "summary": "先展示一个人的所见，再翻页揭晓另一人的视角，让同一时刻获得新的意义。",
+          "useWhen": "两图必须属于同一真实关系或情境；区别于任意两张感性配图。",
+          "instructions": "同一情境的双视角照片、视角归属与实际关系",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Two Perspectives Story",
+          "summary": "Create an Instagram story carousel using the two perspectives story structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the two perspectives story format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "同一瞬间的两个视角",
+          "Two Perspectives Story",
+          "双视角照片",
+          "同一瞬间两种视角",
+          "two perspectives",
+          "two perspective photo reveal"
+        ],
+        "imageCues": [
+          "通常两页全幅照片，同一瞬间两个互相对应的视角",
+          "上部一行小标签32–40px“我的视角/对方的视角”",
+          "人物在各自视角中的位置关系可还原，保留自然现场，不加说明卡"
+        ],
+        "exclusions": [
+          "小时候与现在的同一种热爱",
+          "Then and Now Photo Pairs"
+        ]
+      },
+      "revision": "87e7ede9016eb7088652adf589bb7243ea9672cf01cec340e3e737221bc9ea01"
+    },
+    {
+      "id": "instagram-two-views-one-dataset",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "同一数据的两种视角",
+          "summary": "用两张相互解释的图呈现同一组数据，例如绝对量与比例、变化前与变化后。",
+          "useWhen": "两图必须共享数据口径并互相补充；不另计普通条形排行。",
+          "instructions": "原始数据、口径、单位、两个分析问题与来源",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Two Views of One Dataset",
+          "summary": "Create an Instagram reference carousel using the two views of one dataset structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the two views of one dataset format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "同一数据的两种视角",
+          "Two Views of One Dataset",
+          "双图数据",
+          "同一数据两种图",
+          "paired data charts",
+          "time series paired charts",
+          "before after data snapshot"
+        ],
+        "imageCues": [
+          "白或极浅灰底，左上日期22–26px，标题40–48px，副题28–32px",
+          "图表占中央70%，细灰水平网格、清楚纵轴单位与时间轴",
+          "第一张双折线用青绿/紫，第二张派生比值单线用珊瑚红",
+          "末端直接标值，底部来源24–28px"
+        ],
+        "exclusions": [
+          "把数字换成看得见的规模",
+          "Numbers at Human Scale",
+          "一页一图解速查",
+          "Diagram Reference Cards"
+        ]
+      },
+      "revision": "f8484235e6cbe8aa24aa3d638a52aa3c9a607e0ce60b282ac519109546a55de1"
+    },
+    {
+      "id": "instagram-version-change-audit",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "旧版与新版逐项检查",
+          "summary": "对照有日期或版本的同一对象，按固定字段逐项指出实际变化与仍未变化的部分。",
+          "useWhen": "需要真实两版本证据；区别于只改一个变量的受控对照。",
+          "instructions": "真实旧新版、版本时间、共享字段和可核对图片",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Version Change Audit",
+          "summary": "Create an Instagram case study carousel using the version change audit structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the version change audit format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "旧版与新版逐项检查",
+          "Version Change Audit",
+          "版本变化",
+          "新旧检查",
+          "version audit",
+          "version change audit",
+          "design era comparison"
+        ],
+        "imageCues": [
+          "白底，上部居中一句旧认知40–48px及酒红色修正34–40px",
+          "中间细竖分隔线，左右同尺度旧版/新版实物各占35%",
+          "下面对应字段列表30–36px，改变项加粗",
+          "箭头连到“Then/Now”，底部日期与来源"
+        ],
+        "exclusions": [
+          "常见错误与替代做法",
+          "Mistakes and Better Alternatives",
+          "只改一个变量的对照",
+          "One-variable Comparison"
+        ]
+      },
+      "revision": "14d918bec8960ff613117a7796dc803aca5349c42f3ef9d618c6f0751430d449"
+    },
+    {
+      "id": "instagram-visual-analogy",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "用可见类比回应质疑",
+          "summary": "把抽象质疑转成看得见的物件或场景对照，再说明类比支持的判断。",
+          "useWhen": "类比是解释工具，不能冒充事实证明；区别于泛泛的并排比较。",
+          "instructions": "明确质疑、对应类比、真实图片与类比边界",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Visual Analogy Opinion",
+          "summary": "Create an Instagram opinion carousel using the visual analogy opinion structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the visual analogy opinion format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "用可见类比回应质疑",
+          "Visual Analogy Opinion",
+          "类比回应",
+          "视觉反驳",
+          "visual analogy",
+          "visual analogy rebuttal",
+          "yes but visual reframe"
+        ],
+        "imageCues": [
+          "首屏全幅人物/场景，上部白字42–52px提出质疑",
+          "后页上下两图，上图展示常见表面判断，下图展示与之相关的真实过程/记忆细节",
+          "短白色衬线字幕32–40px靠中缝，图片承担反差"
+        ],
+        "exclusions": [
+          "同一行为换个情境看",
+          "Context Comparison Opinion"
+        ]
+      },
+      "revision": "b0cb348c73f57eeab62e0d05b68e75fb5444708b3967655f002c594b869da97b"
+    },
+    {
+      "id": "instagram-visual-guess",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "看图猜答案",
+          "summary": "用编号图片提出可以作答的问题，先保留答案，再提供依据和揭晓。",
+          "useWhen": "必须有可核验答案；区别于没有标准答案的偏好投票。",
+          "instructions": "问题、候选图、真实答案、判定依据与揭晓素材",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Visual Guess Quiz",
+          "summary": "Create an Instagram quiz carousel using the visual guess quiz structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the visual guess quiz format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "看图猜答案",
+          "Visual Guess Quiz",
+          "看图猜题",
+          "视觉谜题",
+          "visual quiz",
+          "visual guess reveal"
+        ],
+        "imageCues": [
+          "封面暖白底，上方混合衬线/无衬线问题72–92px，下面大图占65%，右下大序号40–50px",
+          "后页交替全幅题图与小型问题/时限，答案页单独给出图源/依据，避免提前暴露"
+        ],
+        "exclusions": [
+          "哪种设定像你",
+          "Identity Match Quiz"
+        ]
+      },
+      "revision": "2c0ffd2656294a0997b1014e5be1e1f3e873f60d0af6a2210d88babdde38a934"
+    },
+    {
+      "id": "instagram-visual-technique-reference",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "视觉手法参考图鉴",
+          "summary": "用一套实物或画面样本讲清不同视觉手法，保持名称、特征、效果的固定标注位置。",
+          "useWhen": "读者查找画面手法；区别于操作教程，也不按摄影、纹理等题材拆模板。",
+          "instructions": "各手法的真实样本、名称和可观察差异",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Visual Technique Reference",
+          "summary": "Create an Instagram reference carousel using the visual technique reference structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the visual technique reference format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "视觉手法参考图鉴",
+          "Visual Technique Reference",
+          "视觉手法",
+          "拍摄手法",
+          "visual techniques",
+          "visual technique index",
+          "texture inspiration atlas",
+          "texture pattern sampler"
+        ],
+        "imageCues": [
+          "封面全幅实景加高对比黄色粗无衬线标题，标题约70–90px置左下或视线空处",
+          "内页使用深色实景压暗，纵向3–4行：黄色序号占左8%，中间样图占35%，右侧名称40–48px与解释26–32px占45%",
+          "每个样图宽高比一致"
+        ],
+        "exclusions": [
+          "构图与版式标注教程",
+          "Layout Anatomy Tutorial"
+        ]
+      },
+      "revision": "7859258c376c65a12c2b19471061f218c924c3fd9415b33ef5b538ae87e7bcf2"
+    },
+    {
+      "id": "instagram-worked-examples",
+      "platform": "instagram",
+      "categories": [],
+      "copy": {
+        "zh": {
+          "name": "例子加做法教程",
+          "summary": "每页放一个具体样例，旁边说明为什么这样做，以及读者如何改成自己的版本。",
+          "useWhen": "样例与指令同页配对；区别于只给抽象步骤或只展示作品。",
+          "instructions": "真实样例、操作指令、可替换变量与适用场景",
+          "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+        },
+        "en": {
+          "name": "Worked Example Tutorial",
+          "summary": "Create an Instagram how-to carousel using the worked example tutorial structure. Preserve its visual hierarchy, sequence and opening payoff.",
+          "useWhen": "Use when your content needs the worked example tutorial format.",
+          "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+          "output": "An editable Instagram carousel with this template’s sequence and visual style."
+        }
+      },
+      "match": {
+        "goals": [
+          "例子加做法教程",
+          "Worked Example Tutorial",
+          "实例教程",
+          "例子加步骤",
+          "worked example",
+          "example and instruction cards",
+          "shot planning guide",
+          "brand workflow guide",
+          "narrative framework breakdown"
+        ],
+        "imageCues": [
+          "封面暖白，大型衬线分行主题100–135px，少量贴纸为点缀",
+          "内页淡粉窄竖条底，顶部序号与衬线方法名58–72px，中央完整作品缩略图占50%，两侧手写注释28–34px，底部虚线框放可执行步骤30–36px"
+        ],
+        "exclusions": [
+          "真实界面步骤教程",
+          "Screenshot Walkthrough",
+          "视觉效果拆解教程",
+          "Visual Effect Breakdown"
+        ]
+      },
+      "revision": "abf297d6f37fe439e872ae68fee1150f141734f625e89ee7e2e9dc3718599bdd"
     }
   ]
 }

@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-visual-analogy",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "用可见类比回应质疑",
+      "summary": "把抽象质疑转成看得见的物件或场景对照，再说明类比支持的判断。",
+      "useWhen": "类比是解释工具，不能冒充事实证明；区别于泛泛的并排比较。",
+      "instructions": "明确质疑、对应类比、真实图片与类比边界",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Visual Analogy Opinion",
+      "summary": "Create an Instagram opinion carousel using the visual analogy opinion structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the visual analogy opinion format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-visual-analogy/page-01-a9dc3a18e8b3.webp",
+    "https://static.popost.ai/templates/instagram-visual-analogy/page-02-347b65197d3a.webp",
+    "https://static.popost.ai/templates/instagram-visual-analogy/page-03-8e25b595f138.webp",
+    "https://static.popost.ai/templates/instagram-visual-analogy/page-04-93bdc4be631e.webp",
+    "https://static.popost.ai/templates/instagram-visual-analogy/page-05-08dd688a58d5.webp",
+    "https://static.popost.ai/templates/instagram-visual-analogy/page-06-14f5b85f17e3.webp",
+    "https://static.popost.ai/templates/instagram-visual-analogy/page-07-8d98dc410080.webp"
+  ],
+  "match": {
+    "goals": [
+      "用可见类比回应质疑",
+      "Visual Analogy Opinion",
+      "类比回应",
+      "视觉反驳",
+      "visual analogy",
+      "visual analogy rebuttal",
+      "yes but visual reframe"
+    ],
+    "imageCues": [
+      "首屏全幅人物/场景，上部白字42–52px提出质疑",
+      "后页上下两图，上图展示常见表面判断，下图展示与之相关的真实过程/记忆细节",
+      "短白色衬线字幕32–40px靠中缝，图片承担反差"
+    ],
+    "exclusions": [
+      "同一行为换个情境看",
+      "Context Comparison Opinion"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/8efd31d89bdf2cc09153e262b17e9c019ab6a3721ea6befb75353f0f77ad18c8.webp"
+}

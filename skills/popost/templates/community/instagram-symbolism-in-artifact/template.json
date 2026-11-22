@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-symbolism-in-artifact",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "一件作品里的象征",
+      "summary": "从完整作品进入，用局部标注说明各个细节为何出现，最后回到作品的使用情境。",
+      "useWhen": "意义须来自创作者说明或可靠依据；区别于只列材质的商品细节图。",
+      "instructions": "完整作品、局部图、创作依据与使用情境",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Symbolism in an Artifact",
+      "summary": "Create an Instagram story carousel using the symbolism in an artifact structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the symbolism in an artifact format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-symbolism-in-artifact/page-01-73ffdf6095a1.webp",
+    "https://static.popost.ai/templates/instagram-symbolism-in-artifact/page-02-b35dfdfb33a7.webp",
+    "https://static.popost.ai/templates/instagram-symbolism-in-artifact/page-03-47760cbe6aa0.webp"
+  ],
+  "match": {
+    "goals": [
+      "一件作品里的象征",
+      "Symbolism in an Artifact",
+      "作品象征",
+      "物件寓意",
+      "artifact symbolism",
+      "artifact symbolism story"
+    ],
+    "imageCues": [
+      "封面作品实拍占全幅，底部黑色窄区放白色衬线解释50–64px，局部用一个圆形放大框",
+      "第二页完整设计/作品与旁注，第三页干净完整展示",
+      "注释28–36px，细线指向实际细节"
+    ],
+    "exclusions": [
+      "一件作品的细节解读",
+      "Artwork Detail Story"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/c0ad7f5484ec0a98adad7121dea316d0cdbbd57db239c1716355471cff73a4bf.webp"
+}

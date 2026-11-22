@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-reader-question-answer",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "读者来信与专家回应",
+      "summary": "先呈现经过允许的真实问题，再用清楚归属的回答和重点摘句回应。",
+      "useWhen": "问题与回答有真实对应，不能代写成专家原话；区别于普通观点长文。",
+      "instructions": "允许展示的问题、回答原文、回答者身份与来源",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Reader Question and Answer",
+      "summary": "Create an Instagram opinion carousel using the reader question and answer structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the reader question and answer format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-reader-question-answer/page-01-a6d2978ac808.webp",
+    "https://static.popost.ai/templates/instagram-reader-question-answer/page-02-35c837a6c8d4.webp",
+    "https://static.popost.ai/templates/instagram-reader-question-answer/page-03-39a110463bf0.webp",
+    "https://static.popost.ai/templates/instagram-reader-question-answer/page-04-5ba5d58042c3.webp"
+  ],
+  "match": {
+    "goals": [
+      "读者来信与专家回应",
+      "Reader Question and Answer",
+      "读者来信",
+      "问题回应",
+      "reader question",
+      "reader question expert answer"
+    ],
+    "imageCues": [
+      "淡紫背景和深靛蓝栏目条",
+      "首屏左侧来信正文30–36px以深色短高亮条分段，右侧回应者半身肖像占45%",
+      "第二页深靛蓝底、奶油白衬线回答36–44px与同人另一姿态",
+      "第三页浅紫细网格，大衬线关键句62–78px，底部一致刊头"
+    ],
+    "exclusions": [
+      "访谈原话分镜故事",
+      "Interview Quote Storyboard"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/67e972b7bbb208ba70fbd76d39da80737fd2d3e75fca8dfe8059b81d47f2fe1c.webp"
+}

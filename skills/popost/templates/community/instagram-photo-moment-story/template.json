@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 2,
+  "id": "instagram-photo-moment-story",
+  "platform": "instagram",
+  "categories": [],
+  "copy": {
+    "zh": {
+      "name": "一个真实片刻的照片故事",
+      "summary": "围绕同一片刻组织远景、动作和细节，让一次相遇或事件通过翻页自然展开。",
+      "useWhen": "必须能连成事件，不是旅行照片的任意堆叠；区别于现有先时间轴再展开的故事专题。",
+      "instructions": "同一事件的连续实拍、真实顺序与必要图注",
+      "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
+    },
+    "en": {
+      "name": "Photo Story",
+      "summary": "Create an Instagram story carousel using the photo story structure. Preserve its visual hierarchy, sequence and opening payoff.",
+      "useWhen": "Use when your content needs the photo story format.",
+      "instructions": "Provide your topic, audience, usable source material and confirmed facts.",
+      "output": "An editable Instagram carousel with this template’s sequence and visual style."
+    }
+  },
+  "previews": [
+    "https://static.popost.ai/templates/instagram-photo-moment-story/page-01-f11106c4b85d.webp",
+    "https://static.popost.ai/templates/instagram-photo-moment-story/page-02-d1bc965d3921.webp",
+    "https://static.popost.ai/templates/instagram-photo-moment-story/page-03-51ac6beb2a7c.webp",
+    "https://static.popost.ai/templates/instagram-photo-moment-story/page-04-3c2cab374dbf.webp",
+    "https://static.popost.ai/templates/instagram-photo-moment-story/page-05-06365ac30888.webp",
+    "https://static.popost.ai/templates/instagram-photo-moment-story/page-06-a8eb9f960c41.webp"
+  ],
+  "match": {
+    "goals": [
+      "一个真实片刻的照片故事",
+      "Photo Story",
+      "照片故事",
+      "一个瞬间",
+      "photo story",
+      "photo story sequence",
+      "single moment contact sequence",
+      "question then reveal",
+      "photo detail reveal"
+    ],
+    "imageCues": [
+      "首屏全幅环境与主体，短句30–38px放天空/墙面空处",
+      "中页可上下两张近景/远景，最后一页以更开阔的环境照收束",
+      "主体占比随页变化，不统一加标题区"
+    ],
+    "exclusions": [
+      "我的日常与工作之外",
+      "Everyday Photo Diary"
+    ]
+  },
+  "animatedCover": true,
+  "coverAnimation": "https://static.popost.ai/template-covers/8e8fbc869c25af4ece569153ab54eb3a050f99a2dc17879d6f98f0bf9832f6b1.webp"
+}
