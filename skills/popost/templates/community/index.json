@@ -5850,7 +5850,7 @@
           "name": "马赛克作品墙展示",
           "summary": "以密集重复的原创作品墙为背景，每页突出一个项目或一组细节，用完整短钩子串起系列。",
           "useWhen": "适合把多个作品放进同一视觉世界逐页展示；每页主题独立完整，不把一句大标题切成跨页画布。",
-          "instructions": "有连续关系的内容、宽画布结构、裁切边界与手机安全区",
+          "instructions": "有使用权限的作品图片、各项目名称与亮点、展示顺序、完整短钩子和品牌字色",
           "output": "一组保留本模板风格、叙事与钩子的 Instagram 图文。"
         },
         "en": {
@@ -5884,7 +5884,7 @@
           "Style Choice Quiz"
         ]
       },
-      "revision": "c1fcd15c634c88d0943216a0245a398ab21d8b20c7e79e2e338a5407be0d987a"
+      "revision": "5414dd91c6fb6da18ec8c7eb848d6cf8c2651f4732daf2a117c05ccdb9649cd5"
     },
     {
       "id": "instagram-conversation-questions",
