@@ -1,5 +1,5 @@
 /**
- * Video footage on disk: what a video file is (probe() plus its colour tags), and its frames extracted as JPEG
+ * Video footage on disk: what a video file is (probe() plus its colour tags), and its frames extracted as lossless PNG
  * pictures, colour-true, into a cache directory. The page shows footage as these pictures, one per source frame.
  */
 import type { Runtime } from '../../runtime';
@@ -36,15 +36,8 @@ export const readFootage = async (rt: Runtime, file: string): Promise<{ facts: F
   return { facts: { width: p.width, height: p.height, fps: p.fps, frames: p.frames, hasAudio: p.hasAudio }, colour: colourOf(header.stderr, p.width, p.height) };
 };
 
-/**
- * JPEG quality of the frame pictures, as ffmpeg's -q:v (2 is the best its encoder gives; 1 is the same). Measured on
- * 90 frames of two screen-recorded videos at 540x960 and 960x540: 4:4:4 at q 2 is 47.6 to 48.0 dB PSNR against
- * lossless PNG frames of the same chain, above what the final H.264 encode keeps, at about 50 KB a frame.
- */
-export const JPEG_Q = 2;
-
 /** Bumped whenever the pictures an extraction writes would change, so that old caches are not reused. */
-export const EXTRACT_VERSION = 1;
+export const EXTRACT_VERSION = 2;
 
 export interface ExtractJob {
   /** Absolute path of the video. */
@@ -59,17 +52,14 @@ export interface ExtractJob {
 }
 
 /**
- * The colour chain: the source's YUV read with its own matrix and range into RGB, scaled there, then written as
- * full-range BT.601 4:4:4, which is what a JPEG decoder (the browser) assumes. ffmpeg converting YUV to JPEG's YUV
- * directly keeps the source's matrix, so a BT.709 red came back 22 levels off; through RGB it is within 1.
+ * Read the source YUV with its own matrix and range into RGB, then keep those RGB values losslessly. A second
+ * RGB-to-JPEG conversion introduced cumulative colour drift before the final video encode, even at maximum quality.
  */
 const filterChain = (job: ExtractJob, lo: number, hi: number): string => [
   'trim=start_frame=' + lo + ':end_frame=' + (hi + 1),
   'setpts=PTS-STARTPTS',
   'scale=' + job.width + ':' + job.height + ':in_color_matrix=' + job.colour.matrix + ':in_range=' + job.colour.range + ':flags=lanczos+accurate_rnd+full_chroma_int',
   'format=rgb24',
-  'scale=out_color_matrix=bt601:out_range=pc:flags=accurate_rnd+full_chroma_int',
-  'format=yuvj444p',
 ].join(',');
 
 /** The file name of a source frame's picture inside a cache directory. */
@@ -93,7 +83,7 @@ export const extractFrames = async (rt: Runtime, job: ExtractJob): Promise<{ ext
   await fs.mkdir(tmp);
   try {
     await runFfmpegOk(rt, ['-loglevel', 'error', '-i', job.file, '-map', '0:v:0', '-an', '-sn', '-dn', '-vf', filterChain(job, lo, hi), '-fps_mode', 'passthrough',
-      '-c:v', 'mjpeg', '-q:v', String(JPEG_Q), '-start_number', '0', path.join(tmp, '%0' + FRAME_DIGITS + 'd.jpg')]);
+      '-c:v', 'png', '-compression_level', '1', '-start_number', '0', path.join(tmp, '%0' + FRAME_DIGITS + 'd.png')]);
     const written = new Set(await fs.readdir(tmp));
     const absent = missing.filter((f) => !written.has(frameName(f - lo)));
     if (absent.length > 0)

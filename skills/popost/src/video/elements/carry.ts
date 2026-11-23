@@ -77,7 +77,7 @@ export const shotElements = (s: ShotReading, runsOn = true): TemplateElements =>
     design: s.layers.filter((l) => l.role === 'design').map(kept),
     content: s.layers.filter((l) => l.role === 'content').map(kept),
     dropped: s.layers.flatMap((l) => (isDropped(l.role) ? [{ id: l.id, kind: l.kind, role: l.role, ...(l.content ? { content: l.content } : {}) }] : [])),
-    ...(s.captions ? { captions: s.captions } : {}), ...(s.emphasis?.length ? { emphasis: s.emphasis } : {}),
+    ...(s.captions ? { captions: { base: s.captions.base, ...(s.captions.highlight ? { highlight: s.captions.highlight } : {}), ...(s.captions.reveal ? { reveal: s.captions.reveal } : {}) } } : {}), ...(s.emphasis?.length ? { emphasis: s.emphasis } : {}),
     ...(s.rebuild ? { rebuild: s.rebuild } : {}), ...(s.sameEffectAsNext && runsOn ? { runsOn: true as const } : {}),
   };
 };
@@ -130,9 +130,18 @@ export const withReading = (t: Template, m: Measure, numbered: Measure, e: Eleme
     const whole = numbered.shots[j];
     const r = e.shots.find((s) => s.shot === j + 1);
     if (!x || !whole || !r) return shot;
-    const effect = x.start === whole.start ? shotEffect(e, numbered, j, ratio, picture) : undefined;
+    const first = x.start === whole.start;
+    const effect = first ? shotEffect(e, numbered, j, ratio, picture) : undefined;
     const { in: _measured, ...rest } = shot;
-    return { ...(effect ? rest : shot), elements: shotElements(r, x.end === whole.end), ...(effect ? { effect } : {}) };
+    const read = first ? r.transitionIn : undefined;
+    // Visual corrections must survive saving: otherwise a cut read from the pictures silently becomes the
+    // measured fade again. Keep measured parameters only when they describe the same transition kind.
+    const corrected = read && read.kind !== 'custom' ? read.kind === 'cut' ? rest : {
+      ...rest,
+      in: { ...(shot.in?.transition === read.kind ? shot.in : {}), transition: read.kind,
+        frames: read.seconds === undefined ? shot.in?.frames ?? 2 : Math.max(2, Math.round(read.seconds * t.canvas.fps)) },
+    } : shot;
+    return { ...(effect ? rest : corrected), elements: shotElements(r, x.end === whole.end), ...(effect ? { effect } : {}) };
   });
   return { ...t, shots };
 };

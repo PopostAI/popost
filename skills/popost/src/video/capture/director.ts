@@ -15,6 +15,7 @@
  * onto the new page if it is there, and the zoom goes back to the whole page (with a note).
  */
 import type { CDPSession, ElementHandle, Page, Request } from 'playwright-core';
+import { captureScreenshot, createScreenshotSession } from '../media/screenshot';
 import { ease as easeAt } from '../presets/easing';
 import type { Ease } from '../types';
 import { installStage, type OverlayFact, type StageFrame, type StageSample } from './stage';
@@ -127,7 +128,7 @@ const watchLoads = (page: Page): { navigation: () => boolean; loaded: () => bool
 };
 
 export const openDirector = async (page: Page, o: DirectorOptions): Promise<Director> => {
-  const cdp: CDPSession = await page.context().newCDPSession(page);
+  const cdp: CDPSession = await createScreenshotSession(page, o.view, o.pixels);
   await page.evaluate(installStage, o.css);
   const { view } = o;
   const size = pointerSize(view);
@@ -201,10 +202,9 @@ export const openDirector = async (page: Page, o: DirectorOptions): Promise<Dire
     }
     if (drawn?.sample) tally(drawn.sample);
     const { cssVisualViewport: vv } = await cdp.send('Page.getLayoutMetrics');
-    const taken = cdp.send('Page.captureScreenshot', {
+    const taken = captureScreenshot(cdp, {
       format: 'png',
-      clip: { x: vv.pageX + camera.x, y: vv.pageY + camera.y, width: view.width / camera.s, height: view.height / camera.s, scale: camera.s * o.pixels },
-      captureBeyondViewport: false,
+      clip: { x: vv.pageX + camera.x, y: vv.pageY + camera.y, width: view.width / camera.s, height: view.height / camera.s, scale: camera.s },
       optimizeForSpeed: true,
     });
     // A browser that stopped drawing never answers: fail instead of waiting forever.

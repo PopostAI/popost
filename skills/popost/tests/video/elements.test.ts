@@ -12,10 +12,12 @@ import { runCli } from '../../src/testing/memory';
 import { roughTokens } from '../../src/video/describe/index';
 import { cardBudget } from '../../src/video/template/card';
 import { checkElements } from '../../src/video/elements/check';
+import { withReading } from '../../src/video/elements/carry';
 import { fillReadingProblems, projectReadingProblems, type ReadingFacts } from '../../src/video/elements/findings';
 import { readElements } from '../../src/video/elements/read';
 import type { Elements, Layer, ShotReading } from '../../src/video/elements/types';
 import type { Template } from '../../src/video/template/types';
+import { templateFrom } from '../../src/video/template/structure';
 import type { TextTrack } from '../../src/video/text/types';
 import { TRANSITION_KINDS, type Box, type Measure, type Problem, type Project } from '../../src/video/types';
 
@@ -265,6 +267,14 @@ describe('the template carries the reading', () => {
     expect(text.shots).toHaveLength(3);
     expect(text.dropped).toEqual(['@acme.notes', 'Follow @acme.notes for more']);
     expect(JSON.stringify(t)).not.toContain('acme');
+  });
+
+  it('keeps a visual correction of a measured transition, including a hard cut and its duration', () => {
+    const e = variant((r) => { shotOf(r, 2).transitionIn = { kind: 'cut' }; shotOf(r, 3).transitionIn = { kind: 'fade', seconds: 0.4 }; });
+    const t = withReading(templateFrom({ measure: MEASURE, name: 'corrected', label: 'reference', hash: 'x' }), MEASURE, MEASURE, e, (p) => p);
+    expect(t.shots[1]?.in).toBeUndefined();
+    expect(t.shots[2]?.in).toEqual({ transition: 'fade', frames: 12 });
+    expect(t.shots[2]?.effect).toBeUndefined();
   });
 
   it('TEMPLATE.md names every shot\'s layout, the effect and the closing, inside its budget', () => {

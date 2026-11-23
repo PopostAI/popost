@@ -161,14 +161,14 @@ describe.skipIf(!ready)('video footage: build and render (Chrome + ffmpeg)', () 
     const dirs = first.resolved?.footage ?? {};
     const c30 = await readdir(path.join(dir, dirs.c30?.dir ?? 'missing'));
     expect(dirs.c30?.dir).toMatch(/^\.cache\/video\/[0-9a-f]{16}$/);
-    expect(c30.filter((f) => f.endsWith('.jpg'))).toHaveLength(want.c30);
-    expect(c30).toContain('000058.jpg');
-    expect(c30).not.toContain('000060.jpg');
+    expect(c30.filter((f) => f.endsWith('.png'))).toHaveLength(want.c30);
+    expect(c30).toContain('000058.png');
+    expect(c30).not.toContain('000060.png');
     expect(first.footage?.extracted).toBeGreaterThan(want.c30);
     expect(second.footage).toMatchObject({ extracted: 0, reused: first.footage?.extracted });
     const half = await buildPage(rt, dir, { scale: 0.5 });
     expect(half.resolved?.footage?.c30?.dir).not.toBe(dirs.c30?.dir);
-    const size = (await runFfmpegOk(rt, ['-i', path.join(dir, half.resolved?.footage?.c30?.dir ?? '', '000000.jpg'), '-f', 'null', '-']).catch((e: { stderr: string }) => e)).stderr;
+    const size = (await runFfmpegOk(rt, ['-i', path.join(dir, half.resolved?.footage?.c30?.dir ?? '', '000000.png'), '-f', 'null', '-']).catch((e: { stderr: string }) => e)).stderr;
     expect(size).toMatch(/, 90x160[ ,]/);
   });
 
@@ -215,8 +215,8 @@ describe.skipIf(!ready)('video footage: build and render (Chrome + ffmpeg)', () 
     const preview = await startPreview(rt, { projectDir: dir });
     try {
       const state = (await (await fetch(preview.url + 'api/state')).json()) as { resolved: { footage: Record<string, { dir: string }> } };
-      const frame = await fetch(preview.url + 'project/' + state.resolved.footage.c30?.dir + '/000000.jpg');
-      expect([frame.status, frame.headers.get('content-type')]).toEqual([200, 'image/jpeg']);
+      const frame = await fetch(preview.url + 'project/' + state.resolved.footage.c30?.dir + '/000000.png');
+      expect([frame.status, frame.headers.get('content-type')]).toEqual([200, 'image/png']);
     } finally {
       await preview.close();
     }

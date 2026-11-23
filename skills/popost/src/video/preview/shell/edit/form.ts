@@ -98,7 +98,7 @@ const contentSection = (ctx: FormCtx, base: Path, track: Obj, item: ResolvedItem
   const material = pick(ctx, [...base, 'material'], 'fMaterial', materialsOf(ctx.state, [type]), { empty: null, wide: true });
   const fit = pick(ctx, [...base, 'fit'], 'fFit', choices(prop(schema, 'fit')), { resolved: item?.fit });
   const mask = pick(ctx, [...base, 'mask'], 'fMask', choices(prop(schema, 'mask')), { empty: t(ctx.lang, 'fNone') });
-  const play = type === 'video' ? [num(ctx, [...base, 'in'], 'fIn', prop(schema, 'in')), num(ctx, [...base, 'speed'], 'fSpeed', prop(schema, 'speed'), { step: 0.05 })] : [];
+  const play = type === 'video' ? [num(ctx, [...base, 'in'], 'fIn', prop(schema, 'in')), num(ctx, [...base, 'speed'], 'fSpeed', prop(schema, 'speed'), { step: 0.05 }), num(ctx, [...base, 'audio'], 'fSourceAudio', prop(schema, 'audio'))] : [];
   return section(t(ctx.lang, type === 'video' ? 'fFootage' : 'fPicture'), [[material, fit], [radius, mask, ...play]], ctx);
 };
 

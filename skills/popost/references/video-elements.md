@@ -58,6 +58,13 @@ can be wrong, and what you see wins. Write nothing you cannot see.
 | `rebuild` | words | two or three sentences on how to draw the shot again |
 | `drop` | words | only on a last shot that is the platform's end card or the author's sign-off: the shot is not re-made, and why |
 
+When OCR mistakes a page heading for a caption, give `captions.lines` the actual caption lines visible in this shot.
+Use `[]` when the shot has no captions; omit it to keep the automatic roles. Give the caption layer its real box.
+`elements check` warns about a line it cannot match to timed OCR inside that box. `template save` uses matching OCR
+times and geometry, corrects small spelling errors to your confirmed words, and excludes page text from the caption
+beats. It never invents timing or changes numbers to obtain a match. Review the resulting `template show` before
+writing the new lines. The original words stay in reference evidence, outside the reusable template's design.
+
 A layer:
 
 - `id`: a short name, unique in its shot.

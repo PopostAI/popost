@@ -145,6 +145,7 @@ const EN = {
   fFrom: 'From',
   fAudio: 'Sound',
   fGain: 'Gain (dB)',
+  fSourceAudio: 'Source audio dB (empty = mute)',
   fSegment: 'Segment',
   fWhen: 'When',
   fPhrase: 'Phrase',
@@ -164,6 +165,7 @@ const EN = {
   fBase: 'Base',
   fBaseColor: 'colour',
   fBaseMaterial: 'material',
+  fBaseScene: 'Scene content',
   fLength: 'Length in frames',
   fCamera: 'The camera: edit it in video.json.',
 } as const;
@@ -313,6 +315,7 @@ const ZH: Readonly<Record<Key, string>> = {
   fFrom: '从',
   fAudio: '声音',
   fGain: '增益 (dB)',
+  fSourceAudio: '素材原声 dB（留空静音）',
   fSegment: '分段',
   fWhen: '出现时间',
   fPhrase: '字词',
@@ -332,6 +335,7 @@ const ZH: Readonly<Record<Key, string>> = {
   fBase: '底图',
   fBaseColor: '颜色',
   fBaseMaterial: '素材',
+  fBaseScene: '场景内容',
   fLength: '长度（帧）',
   fCamera: '镜头运动：请在 video.json 里修改。',
 };

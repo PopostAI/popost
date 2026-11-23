@@ -17,6 +17,8 @@ export interface SceneNode {
   segment: number;
   /** Every animation the scene's document had when it was prepared, and any found later. */
   animations: Animation[];
+  /** Effective animation times at the previous seek, including their final resting values. */
+  clock?: string;
   /** New content for the places the scene marks with data-slot. */
   slots?: Record<string, string>;
 }
@@ -117,17 +119,19 @@ const holdScene = (scene: SceneNode): void => {
 };
 
 /**
- * Puts the scene at a time of its own (seconds from the start of its segment). Returns whether its picture may
- * differ on the next frame: an animation has not reached its end yet, or the scene draws by itself.
+ * Puts the scene at its segment time. A changed clock must be captured even when it just reached its resting
+ * value; later identical resting frames can be reused. A scene that draws itself always needs a capture.
  */
 export const seekScene = (scene: SceneNode, seconds: number, fps: number): boolean => {
   collect(scene);
   const ms = Math.max(0, seconds) * 1000;
   let live = false;
+  const clock: number[] = [];
   for (const a of scene.animations) {
     if (a.playState !== 'paused') a.pause();
     a.currentTime = ms;
     const end = Number(a.effect?.getComputedTiming().endTime ?? 0);
+    clock.push(Math.min(ms, end));
     if (!(ms >= end)) live = true;
   }
   const win = scene.frame.contentWindow as SceneWindow | null;
@@ -136,9 +140,12 @@ export const seekScene = (scene: SceneNode, seconds: number, fps: number): boole
     t.pause?.();
     if (typeof t.seek === 'function') t.seek(at, false); else t.time?.(at);
     const length = typeof t.totalDuration === 'function' ? t.totalDuration() : typeof t.duration === 'function' ? t.duration() : Infinity;
+    clock.push(Math.min(at, length));
     if (!(at >= length)) live = true;
   }
   const render = win?.__popostScene?.render;
   if (typeof render === 'function') { render(Math.max(0, seconds), fps); live = true; }
-  return live;
+  const now = clock.join('|'), moved = scene.clock !== now;
+  scene.clock = now;
+  return live || moved;
 };

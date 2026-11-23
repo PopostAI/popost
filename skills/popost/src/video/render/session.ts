@@ -10,6 +10,8 @@ import type { LayoutFact, SceneFact, SceneFailure } from '../page/contract';
 import { buildPage } from '../compile/index';
 import { formatProblems } from '../project/check';
 import { error } from '../project/check-common';
+import { captureScreenshot, createScreenshotSession } from '../media/screenshot';
+import { browserStep } from './browser-step';
 
 export type { SceneFact } from '../page/contract';
 
@@ -173,11 +175,12 @@ export const openSession = async (rt: Runtime, projectDir: string, opts: Session
   rt.signal?.addEventListener('abort', abort, { once: true });
   const close = async (): Promise<void> => {
     rt.signal?.removeEventListener('abort', abort);
-    await browser.close();
+    await browserStep('closing the render browser', () => browser.close());
   };
   try {
-    const context = await browser.newContext({ viewport: { width, height }, deviceScaleFactor: 1 });
-    const page = await context.newPage();
+    const context = await browserStep('creating the render context', () => browser.newContext({ viewport: { width, height }, deviceScaleFactor: 1 }));
+    const page = await browserStep('creating the render page', () => context.newPage());
+    const cdp = await browserStep('setting the capture viewport', () => createScreenshotSession(page, { width, height }, 1));
     const errors: string[] = [];
     page.on('pageerror', (e) => errors.push(e.message));
     page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
@@ -185,10 +188,10 @@ export const openSession = async (rt: Runtime, projectDir: string, opts: Session
     page.on('response', (s) => { if (s.status() >= 400 && s.url().startsWith(ORIGIN)) errors.push('could not load ' + new URL(s.url()).pathname + ' (' + s.status() + ')'); });
     await page.route('**/*', serve(rt, projectDir, built.html));
     await page.goto(ORIGIN + PAGE_PATH, { waitUntil: 'load' });
-    const started = await page.evaluate(() => window.__popostVideo !== undefined);
+    const started = await browserStep('starting the video runtime', () => page.evaluate(() => window.__popostVideo !== undefined));
     if (!started) throw new Error('The video page did not start: ' + (errors.join(' | ') || 'no error was reported') + '.');
     // A scene that did not load is the project's problem, said at its segment; anything else is thrown as it is.
-    const failures = await page.evaluate(async () => {
+    const failures = await browserStep('preparing the scenes, fonts and images', () => page.evaluate(async () => {
       try {
         await window.__popostVideo?.prepare();
         return [];
@@ -197,36 +200,37 @@ export const openSession = async (rt: Runtime, projectDir: string, opts: Session
         if (Array.isArray(listed) && listed.length > 0) return listed;
         throw e;
       }
-    });
+    }));
     if (failures.length) {
       const root = rt.path.resolve(rt.cwd, projectDir);
       const problems = await Promise.all(failures.map((f) => failureProblem(rt, root, projectDir, r, f)));
       throw new SceneLoadError('A scene of the project in ' + projectDir + ' could not be loaded:\n' + formatProblems(problems), problems);
     }
-    const cdp = await context.newCDPSession(page);
     const reuse = opts.reuse !== false;
     let kept: { key: string; data: Buffer } | undefined;
     const counts = { taken: 0, reused: 0 };
     const capture = async (n: number, format: ImageFormat, quality: number): Promise<Buffer> => {
       // applyFrame, then settle: the screenshot waits until every video picture of frame n is decoded.
-      const changed = await page.evaluate(async (f) => {
+      const changed = await browserStep('setting frame ' + n, () => page.evaluate(async (f) => {
         const v = window.__popostVideo;
         v?.applyFrame(f);
         await v?.settle();
         return v?.changed() ?? true;
-      }, n);
+      }, n));
       const key = format + ':' + quality;
       if (reuse && !changed && kept?.key === key) {
         counts.reused++;
         return kept.data;
       }
-      const shot = await cdp.send('Page.captureScreenshot', {
+      // A style/layout update is not a compositor commit. In particular a transformed iframe layer can still be
+      // absent from Chrome's surface even though its DOM already reports the right position. Wait for a paint.
+      await browserStep('painting frame ' + n, () => page.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())))));
+      const shot = await browserStep('capturing frame ' + n, () => captureScreenshot(cdp, {
         format,
         ...(format === 'jpeg' ? { quality } : {}),
         clip: { x: 0, y: 0, width, height, scale: 1 },
-        captureBeyondViewport: false,
         optimizeForSpeed: true,
-      });
+      }));
       kept = { key, data: Buffer.from(shot.data, 'base64') };
       counts.taken++;
       return kept.data;
@@ -239,19 +243,23 @@ export const openSession = async (rt: Runtime, projectDir: string, opts: Session
     };
     // Queued with the frames, so it never runs between a frame's applyFrame and its screenshot.
     const layout = (): Promise<LayoutFact[]> => {
-      const next = queue.then(() => page.evaluate(() => window.__popostVideo?.layout() ?? []));
+      const next = queue.then(() => browserStep('measuring the layout', () => page.evaluate(() => window.__popostVideo?.layout() ?? [])));
       queue = next.catch(() => undefined);
       return next;
     };
     const scenes = (at: { frame?: number; segment?: number } = {}): Promise<SceneFact[]> => {
-      const next = queue.then(() => page.evaluate(async ({ frame, segment }) => {
+      const next = queue.then(() => {
+        // Inspection can seek an iframe's clock without taking a screenshot. Its next resting frame needs a new one.
+        if (at.frame !== undefined) kept = undefined;
+        return browserStep('inspecting the scenes', () => page.evaluate(async ({ frame, segment }) => {
         const v = window.__popostVideo;
         if (frame !== undefined) {
           v?.applyFrame(frame);
           await v?.settle();
         }
         return v?.scenes(segment) ?? [];
-      }, at));
+        }, at));
+      });
       queue = next.catch(() => undefined);
       return next;
     };

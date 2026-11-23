@@ -206,6 +206,9 @@ describe('template: checkFill', () => {
     const make = (src: string, file: string, ...extra: string[]) => runFfmpegOk(rt, ['-y', '-loglevel', 'error', '-f', 'lavfi', '-i', src, ...extra, path.join(assets, 'assets', file)]);
     // A page-like picture wider than the 720x1280 canvas, on a light ground; one at the canvas's proportions; a small one.
     await make('color=c=0xf4f4f4:s=1280x800,drawbox=x=200:y=150:w=880:h=500:color=0x203060:t=fill', 'wide.png', '-frames:v', '1');
+    const edgePixel = await runFfmpegOk(rt, ['-v', 'error', '-i', path.join(assets, 'assets', 'wide.png'), '-vf', 'crop=1:1:0:0,format=rgb24', '-frames:v', '1', '-f', 'rawvideo', 'pipe:1']);
+    expect(edgePixel.stdout.length).toBe(3);
+    const edge = '#' + [...edgePixel.stdout].map((v) => v.toString(16).padStart(2, '0')).join('');
     await make('color=c=0x203060:s=720x1280', 'tall.png', '-frames:v', '1');
     await make('testsrc=size=180x320:rate=30:duration=4', 'small.mp4', '-pix_fmt', 'yuv420p');
     await make('testsrc=size=1280x720:rate=30:duration=4', 'wide.mp4', '-pix_fmt', 'yuv420p');
@@ -213,7 +216,7 @@ describe('template: checkFill', () => {
     const p = await checkFill(rt, pkg, fill, { dir: assets });
     const crop = at(p, 'shots[0].fit', 'warning');
     expect(crop.message).toBe('"assets/wide.png" is 1280x800 in a 720x1280 shot: "cover" fills the shot and cuts 32% off its left and its right (65% of its width), with whatever text is there.');
-    expect(crop.fix).toBe('Use material made at the canvas\'s proportions (9:16, for example 720x1280), or write "fit": "contain" to show it whole: it then leaves 32% of the shot above and below it on the default black ground, or add "ground": "#f3f3f3", the colour along its edges, so that the bands join it.');
+    expect(crop.fix).toBe('Use material made at the canvas\'s proportions (9:16, for example 720x1280), or write "fit": "contain" to show it whole: it then leaves 32% of the shot above and below it on the default black ground, or add "ground": "' + edge + '", the colour along its edges, so that the bands join it.');
     const soft = at(p, 'shots[1].footage', 'warning');
     expect(soft.message).toBe('"assets/small.mp4" is 180x320 in a 720x1280 shot: "cover" shows it at 4.0 times its size, so it will look soft.');
     expect(soft.fix).toContain('at least 720x1280 pixels');

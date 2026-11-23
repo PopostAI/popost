@@ -10,7 +10,7 @@ import { looksText } from '../describe/kind';
 import type { Box, Canvas, Measure, Project } from '../types';
 import type { TextTrack } from '../text/types';
 import { extrasOf, type ReadingExtras } from '../elements/main';
-import type { SourceKind, TemplatePackage, TemplateShot } from './types';
+import type { DroppedShot, SourceKind, TemplatePackage, TemplateShot } from './types';
 
 /** The record's file in the project directory, beside reference.measure.json. */
 export const FACTS_FILE = 'reference.facts.json';
@@ -44,13 +44,15 @@ export interface ReferenceFacts {
   format: typeof FACTS_FORMAT;
   version: typeof FACTS_VERSION;
   /** The template: its directory from the project directory, its name, and where it came from (a label and the hash of its measurement). */
-  template: { dir?: string; name: string; label: string; measure: string };
+  template: { dir?: string; name: string; label: string; measure: string; fingerprint?: string };
   canvas: Canvas;
   /** The caption band, the font size of its letters, and the reference's caption lines (their centre and height), fractions of the canvas. */
   captions?: { box: Box; style: { size?: number }; line: { centre: number; size: number } };
   shots: ShotFacts[];
   /** The words of the reference's platform and author layers (a watermark, an account line), which a re-make never shows. */
   dropped?: string[];
+  /** Whole trailing platform shots intentionally omitted by the template, on the original reference clock. */
+  omittedShots?: DroppedShot[];
 }
 
 const tidy = (text: string): string => text.replace(/\s+/g, ' ').trim();
@@ -89,7 +91,7 @@ export const factsOf = (rt: Runtime, pkg: TemplatePackage, project: Project, pro
   const c = t.captions;
   return {
     format: FACTS_FORMAT, version: FACTS_VERSION,
-    template: { ...(pkg.dir ? { dir: rt.path.relative(projectDir, pkg.dir) || '.' } : {}), name: t.name, label: t.source.label, measure: t.source.measure },
+    template: { ...(pkg.dir ? { dir: rt.path.relative(projectDir, pkg.dir) || '.' } : {}), name: t.name, label: t.source.label, measure: t.source.measure, ...(t.source.fingerprint ? { fingerprint: t.source.fingerprint } : {}) },
     canvas: t.canvas,
     ...(c ? { captions: { box: c.box, style: c.style.size === undefined ? {} : { size: c.style.size }, line: c.line } } : {}),
     shots: t.shots.map((s, k): ShotFacts => ({
@@ -98,6 +100,7 @@ export const factsOf = (rt: Runtime, pkg: TemplatePackage, project: Project, pro
       ...(pkg.text ? { text: pkg.text[k] ?? [] } : {}), ...readingFacts(rt, pkg, s, projectDir),
     })),
     ...(pkg.dropped?.length ? { dropped: pkg.dropped } : {}),
+    ...(t.dropped?.length ? { omittedShots: t.dropped } : {}),
   };
 };
 

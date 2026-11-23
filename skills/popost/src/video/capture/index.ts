@@ -28,6 +28,7 @@
 import type { Browser, Page } from 'playwright-core';
 import type { Runtime } from '../../runtime';
 import { runFfmpeg } from '../media/ffmpeg';
+import { captureScreenshot, createScreenshotSession } from '../media/screenshot';
 import { ease as easeAt } from '../presets/easing';
 import { colourFilter } from '../render/encode';
 import type { Ease } from '../types';
@@ -358,12 +359,11 @@ export const stillPage = async (rt: Runtime, o: StillOptions): Promise<StillResu
       if (!stage) throw new Error('The still could not be read: the page removed what popost added to it.');
       return stage.read(full ? { x: 0, y: -window.scrollY, w: window.innerWidth, h } : { x: 0, y: 0, w: window.innerWidth, h: window.innerHeight });
     }, [o.fullPage === true, pageHeight] as const);
-    const cdp = await page.context().newCDPSession(page);
+    const cdp = await createScreenshotSession(page, view, pixels);
     const { cssVisualViewport: vv } = await cdp.send('Page.getLayoutMetrics');
-    const shot = await cdp.send('Page.captureScreenshot', {
+    const shot = await captureScreenshot(cdp, {
       format: 'png',
-      clip: o.fullPage ? { x: 0, y: 0, width: o.width / zoom, height: pageHeight, scale: pixels } : { x: vv.pageX, y: vv.pageY, width: o.width / zoom, height: o.height / zoom, scale: pixels },
-      captureBeyondViewport: o.fullPage === true,
+      clip: o.fullPage ? { x: 0, y: 0, width: o.width / zoom, height: pageHeight, scale: 1 } : { x: vv.pageX, y: vv.pageY, width: o.width / zoom, height: o.height / zoom, scale: 1 },
     });
     const png = Buffer.from(shot.data, 'base64');
     await rt.fs.writeFile(out, png);

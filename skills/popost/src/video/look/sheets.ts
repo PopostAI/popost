@@ -111,6 +111,13 @@ const blit = (c: Canvas, tile: Uint8Array, tw: number, th: number, x: number, y:
   for (let r = 0; r < th; r++) c.data.set(tile.subarray(r * tw * 3, (r + 1) * tw * 3), ((y + r) * c.width + x) * 3);
 };
 
+/** FFmpeg limits expression-parser depth: short sums joined as a balanced tree stay shallow even for thousands of terms. */
+const balancedSum = (terms: readonly string[]): string => {
+  if (terms.length <= 16) return terms.join('+');
+  const middle = Math.floor(terms.length / 2);
+  return '(' + balancedSum(terms.slice(0, middle)) + ')+(' + balancedSum(terms.slice(middle)) + ')';
+};
+
 /** A select expression that passes exactly these frames (sorted, distinct): runs of neighbours become one between(). */
 export const pickExpression = (frames: readonly number[]): string => {
   const terms: string[] = [];
@@ -120,7 +127,7 @@ export const pickExpression = (frames: readonly number[]): string => {
     terms.push(i === j ? 'eq(n,' + frames[i] + ')' : 'between(n,' + frames[i] + ',' + frames[j] + ')');
     i = j + 1;
   }
-  return terms.join('+');
+  return balancedSum(terms);
 };
 
 /** Pieces of a sorted frame list whose select expressions stay well under the length one argument may have. */

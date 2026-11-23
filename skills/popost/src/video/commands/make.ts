@@ -13,6 +13,7 @@ import { openPreview, PreviewInputError } from '../preview/index';
 import { checkLayout, renderFrame, renderVideo, RenderRangeError } from '../render/index';
 import { reviewRender } from '../render/record';
 import { ProjectError } from '../render/session';
+import { BrowserStepTimeoutError } from '../render/browser-step';
 import type { SceneText } from '../scene/author';
 import { checkScenes, shotFileName } from '../scene/check';
 import { addLibrary, LIBRARIES, LibraryError } from '../scene/library';
@@ -40,7 +41,7 @@ const making = (body: Body): Body => async (args, rt) => {
       printJson(rt, { ok: false, error: error.message, problems: error.problems });
       return 2;
     }
-    if (error instanceof RenderRangeError || error instanceof CaptureError || error instanceof PreviewInputError) throw new VideoCommandError(error.message);
+    if (error instanceof RenderRangeError || error instanceof CaptureError || error instanceof PreviewInputError || error instanceof BrowserStepTimeoutError) throw new VideoCommandError(error.message);
     throw error;
   }
 };

@@ -65,8 +65,8 @@ describe.skipIf(!ready)('popost video scene library', () => {
     const dir = await project('driven');
     await runCli(rt, ['video', 'scene', 'library', dir]);
     // Frame 15 first (half a second: the box spans 50..70), then frame 0 (0..20): a jump back gives the picture of that frame.
-    for (const [frame, inside, outside] of [[15, 60, 40], [0, 10, 40], [29, 107, 80]] as const) {
-      const png = path.join(rt.dir, 'f' + frame + '.png');
+    for (let pass = 0; pass < 3; pass++) for (const [frame, inside, outside] of [[15, 60, 40], [0, 10, 40], [29, 107, 80]] as const) {
+      const png = path.join(rt.dir, 'f' + pass + '-' + frame + '.png');
       expect((await runCli(rt, ['video', 'frame', dir, '--frame', String(frame), '--out', png])).code, rt.stdoutText()).toBe(0);
       expect(isRed(await pixel(png, inside, 50, 200)), 'frame ' + frame + ' at x ' + inside).toBe(true);
       expect(isRed(await pixel(png, outside, 50, 200)), 'frame ' + frame + ' at x ' + outside).toBe(false);

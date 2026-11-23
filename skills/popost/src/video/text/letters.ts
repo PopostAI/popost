@@ -309,8 +309,13 @@ export interface Letters { look: CaptionLook; fill?: Surround }
 /** The letters without a plate: outline, shadow or plain, the fill's colour and how sure each part is. */
 export const lettersOf = (frames: Frame[], boxes: Rect[], all: Surround[], around: Lab[][]): Letters => {
   const n = frames.length;
-  const own = all.filter((s) => s.group.lines >= 0.75 * n && !s.ground && !isPicture(around, s.group.lab) && s.strokes.length > 0);
   const strokesPerLine = (s: Surround): number => median(s.strokes);
+  const candidates = all.filter((s) => s.group.lines >= 0.75 * n && !s.ground && !isPicture(around, s.group.lab) && s.strokes.length > 0);
+  const plainCores = candidates.filter((s) => isPicture(around, s.around));
+  // Anti-aliased fringe pixels can look enclosed by their own letter's core. A larger, more persistent core with
+  // the picture beyond it is plain ink, so that fringe cannot be a separate fill with the core as its outline.
+  const own = candidates.filter((s) => !plainCores.some((core) => core !== s && core.group.lines >= s.group.lines &&
+    strokesPerLine(core) > strokesPerLine(s) && dEdge(core.group.lab, s.around) <= 15));
   const lineHeight = median(boxes.map((b) => b.y1 - b.y0));
   // The fill is enclosed by one colour that is not the picture (the ground between dark letters on a light picture
   // encloses them too, but it is the picture): an outline, a thin layer, or a plate that fills the whole box.

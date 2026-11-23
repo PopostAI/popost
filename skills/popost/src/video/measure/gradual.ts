@@ -45,12 +45,40 @@ export const progressAt = (s: Signals, a: number, b: number, m: number): number 
   return da / (da + db + 1e-6);
 };
 
+// Overlapping ramp windows ask about the same immutable thumbnails repeatedly.
+const detailCache = new WeakMap<Thumbs, Map<number, boolean>>();
+
 /**
  * Same scene under different light: per channel, picture b is a gain and an offset of picture a (residual under 15%
  * of the change). Only asked when both ends have detail; between two flat colours light and a dissolve look alike.
  */
 export const sameScene = (t: Thumbs, sg: Signals, i: number, j: number): boolean => {
   if (Math.min(sg.gstd[i] as number, sg.gstd[j] as number) < 8) return false;
+  // A caption can supply all the variance of an otherwise flat card. A per-channel light fit then maps any
+  // background colour to any other and hides the transition. Require detail across the picture itself.
+  const detailed = (frame: number): boolean => {
+    let cached = detailCache.get(t);
+    if (!cached) { cached = new Map(); detailCache.set(t, cached); }
+    const known = cached.get(frame);
+    if (known !== undefined) return known;
+    const gray = t.gray[frame] as Uint8Array;
+    let cells = 0;
+    const rows = new Set<number>(), columns = new Set<number>();
+    for (let gy = 0; gy < 8; gy++) for (let gx = 0; gx < 6; gx++) {
+      let sum = 0, squares = 0, n = 0;
+      for (let y = Math.floor(gy * t.height / 8); y < Math.floor((gy + 1) * t.height / 8); y++)
+        for (let x = Math.floor(gx * t.width / 6); x < Math.floor((gx + 1) * t.width / 6); x++) {
+          const v = gray[y * t.width + x] ?? 0;
+          sum += v; squares += v * v; n++;
+        }
+      // A smooth gradient has little contrast inside one tile but still supplies spatial evidence of a scene.
+      if (n && squares / n - (sum / n) ** 2 >= 4) { cells++; rows.add(gy); columns.add(gx); }
+    }
+    const result = cells >= 12 && rows.size >= 4 && columns.size >= 3;
+    cached.set(frame, result);
+    return result;
+  };
+  if (!detailed(i) || !detailed(j)) return false;
   const a = sg.small[i] as Float32Array, b = sg.small[j] as Float32Array;
   let resid = 0, change = 0;
   for (let c = 0; c < 3; c++) {
@@ -61,7 +89,6 @@ export const sameScene = (t: Thumbs, sg: Signals, i: number, j: number): boolean
     const off = sb / n - gain * (sa / n);
     for (let k = c; k < a.length; k += 3) { resid += Math.abs((b[k] as number) - (gain * (a[k] as number) + off)); change += Math.abs((b[k] as number) - (a[k] as number)); }
   }
-  void t;
   return change > 0 && resid < 0.15 * change;
 };
 

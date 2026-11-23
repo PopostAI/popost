@@ -149,7 +149,7 @@ export interface Template {
   version: typeof TEMPLATE_VERSION;
   name: string;
   /** Where it came from: a label (never a file name of a private data set) and a content hash of the measurement. */
-  source: { label: string; measure: string };
+  source: { label: string; measure: string; fingerprint?: string };
   canvas: Canvas;
   /** Length in frames: the sum of the shots' lengths. */
   frames: number;

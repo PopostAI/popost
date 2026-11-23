@@ -7,6 +7,7 @@ import type { PositionalSpec } from '../../args';
 import { printJson } from '../../core/util';
 import type { Runtime } from '../../runtime';
 import { checkElements } from '../elements/check';
+import { captionHintProblems } from '../elements/caption-roles';
 import { GUIDE_FILE, questionShots, readerGuide, videoQuestions } from '../elements/questions';
 import { readElements } from '../elements/read';
 import { ELEMENTS_FILE, type Elements } from '../elements/types';
@@ -40,7 +41,8 @@ export const readingIn = async (rt: Runtime, dir: string, m: Measure, text: Text
     throw new VideoCommandError(file + ' is not valid JSON (' + (e instanceof Error ? e.message : String(e)) + '). Correct it and run: popost video elements check ' + dir);
   }
   const read = readElements(parsed);
-  return { elements: read.elements, ...checkElements(read, m, text) };
+  const checked = checkElements(read, m, text);
+  return { elements: read.elements, ...checked, problems: [...checked.problems, ...captionHintProblems(read.elements, m, text)] };
 };
 
 const questions = command(

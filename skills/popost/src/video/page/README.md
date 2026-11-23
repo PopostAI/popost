@@ -34,7 +34,7 @@ directory, through ".." or a symbolic link).
 
 Video footage is shown as pictures, one per source frame. The build step (`compile/footage.ts`, run by `buildPage`)
 reads each video material with `probe()`, resolves the project with those facts, and extracts exactly the source
-frames the timeline shows into `<project>/.cache/video/<key>/<frame>.jpg` (key: a hash of the file's path, size and
+frames the timeline shows into `<project>/.cache/video/<key>/<frame>.png` (key: a hash of the file's path, size and
 modification time and the extraction size; a second build reuses them). The size is what the largest use needs on the
 canvas times the render scale (and the camera's largest zoom), never more than the source. The frames go through RGB
 with the source's own matrix and range, so colours stay true (an untagged HD source is read as BT.709, as players do).

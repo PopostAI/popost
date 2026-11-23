@@ -7,6 +7,7 @@ import { hasFfmpeg } from '../../src/video/media/ffmpeg';
 import { checkProjectOnDisk } from '../../src/video/project/check';
 import { parseProject } from '../../src/video/project/schema';
 import { openRenderer, renderVideo, type Renderer } from '../../src/video/render/index';
+import { openSession } from '../../src/video/render/session';
 import { checkScenes } from '../../src/video/scene/check';
 import { lintScene, slotNames } from '../../src/video/scene/lint';
 import { decodePng, isNear, pixelAt, projectDir } from './make-fixtures';
@@ -224,6 +225,26 @@ describe.skipIf(!ready)('scene bases: render (Chrome + ffmpeg)', () => {
         await rm(d, { recursive: true, force: true });
       }
     }
+  });
+
+  it('captures a new resting value before reusing it, including jumps across the end of an animation', async () => {
+    const d = await projectDir('make-scene-rest-jump-', { ...project('scenes/rest.html'), segments: [{ id: 'a', frames: 60, base: { scene: 'scenes/rest.html' } }] });
+    try {
+      await mkdir(path.join(d, 'scenes'));
+      await writeFile(path.join(d, 'scenes/rest.html'), RESTING);
+      const r = await openSession(rt, d, { reuse: true });
+      try {
+        await r.frame(0);
+        const end = await r.frame(20);
+        expect(pixelAt(await decodePng(end), 140, 60)).toSatisfy((c: number[]) => isNear(c, YELLOW));
+        expect((await r.frame(25)).equals(end)).toBe(true);
+        await r.frame(2);
+        expect(pixelAt(await decodePng(await r.frame(59)), 140, 60)).toSatisfy((c: number[]) => isNear(c, YELLOW));
+        await r.frame(2);
+        await r.scenes({ frame: 59 });
+        expect(pixelAt(await decodePng(await r.frame(59)), 140, 60)).toSatisfy((c: number[]) => isNear(c, YELLOW));
+      } finally { await r.close(); }
+    } finally { await rm(d, { recursive: true, force: true }); }
   });
 
   it('does not draw a resting scene again, and always draws one that draws itself', async () => {

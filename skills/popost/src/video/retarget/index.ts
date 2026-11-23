@@ -13,7 +13,7 @@ import type { TextCue, TextTrack } from '../text/types';
 import { captionStyle } from './caption-look';
 import { highlightColour, markSpans, unmark } from './marks';
 import { projectFps } from './fps';
-import { itemTracks, shotItemProblems, type ShotItem } from './items';
+import { footageAudioProblems, itemTracks, shotItemProblems, type ShotItem } from './items';
 import { paceWarnings, type Pace } from './pace';
 import { barNote, barPlaces, barProblems, barTracks, emptyWords, titlePlaces, wordProblems, wordTracks } from './titles';
 
@@ -29,7 +29,7 @@ export type ShotBase =
    * fit: 'cover' (default) fills the canvas and crops; 'contain' shows the whole picture, with "ground" (a colour,
    * default black) around it: a 16:9 recording on a 9:16 canvas.
    */
-  | { footage: string; in?: number; speed?: number; fit?: 'cover' | 'contain'; ground?: string }
+  | { footage: string; in?: number; speed?: number; audio?: false | number; fit?: 'cover' | 'contain'; ground?: string }
   /** zoom: how much the picture grows per second (0.04 = 4% a second, a slow push in; negative pulls out). Not a scale. */
   | { picture: string; zoom?: number; fit?: 'cover' | 'contain'; ground?: string }
   | { color: string }
@@ -149,9 +149,15 @@ const cardItems = (id: string, card: Extract<ShotFill, { card: unknown }>['card'
 /** The largest zoom rate a fill may ask for: at 0.3 a picture is a third larger after one second. */
 export const MAX_ZOOM_RATE = 0.3;
 
+/** Reject malformed caption overrides before a fill writes a project or requests speech. */
+export const captionOptionProblems = (plan: RetargetPlan): Problem[] =>
+  (['captionColor', 'captionOutline'] as const).flatMap((key) => plan[key] === undefined || (typeof plan[key] === 'string' && plan[key].trim()) ? [] : [{ level: 'error' as const, at: key, message: key + ' is a CSS colour string.', fix: 'Write "' + key + '": "#111111", or remove it.' }]);
+
 /** Problems of the values of a footage or picture fill that every caller checks the same way: zoom, fit, ground. */
 export const fillValueProblems = (s: Record<string, unknown>, at: string): Problem[] => {
   const out: Problem[] = [];
+  out.push(...footageAudioProblems(s.audio, at + '.audio'));
+  if (s.audio !== undefined && !('footage' in s)) out.push({ level: 'error', at: at + '.audio', message: 'Source audio belongs to a footage fill.', fix: 'Put audio on the video item, or remove it.' });
   if (s.zoom !== undefined && !(typeof s.zoom === 'number' && Math.abs(s.zoom) <= MAX_ZOOM_RATE))
     out.push({ level: 'error', at: at + '.zoom', message: '"zoom" is how much the picture grows per second (0.04 = 4% a second), not a scale; it is ' + JSON.stringify(s.zoom) + ', and the most is ' + MAX_ZOOM_RATE + '.', fix: 'Write "zoom": 0.04 for a slow push in, -0.04 to pull out, or remove it for a still picture.' });
   if (s.fit !== undefined && s.fit !== 'cover' && s.fit !== 'contain')
@@ -162,7 +168,7 @@ export const fillValueProblems = (s: Record<string, unknown>, at: string): Probl
 };
 
 const checkPlan = (plan: RetargetPlan, shots: number, beats: { shown: boolean }[], places: number[]): Problem[] => {
-  const out: Problem[] = [];
+  const out: Problem[] = captionOptionProblems(plan);
   if (!Array.isArray(plan.shots)) return [{ level: 'error', at: 'shots', message: 'The plan needs "shots": one entry per shot of the reference (' + shots + ').', fix: 'Add "shots": [ ... ] with ' + shots + ' entries.' }];
   if (plan.shots.length !== shots) {
     out.push({ level: 'error', at: 'shots', message: 'The plan has ' + plan.shots.length + ' shots; the reference has ' + shots + '. They are matched by position.', fix: plan.shots.length < shots ? 'Add ' + (shots - plan.shots.length) + ' more entries (see timeline.md for what each shot is).' : 'Remove the last ' + (plan.shots.length - shots) + ' entries.' });
@@ -311,7 +317,7 @@ export const retarget = (input: RetargetInput): RetargetOutput => {
   };
   const baseOf = (fill: ShotFill, k: number): Base => {
     const view = 'footage' in fill || 'picture' in fill ? { fit: fill.fit ?? ('cover' as const), ...(fill.ground ? { ground: fill.ground } : {}) } : { fit: 'cover' as const };
-    if ('footage' in fill) return { material: use(fill.footage, 'video'), ...view, ...(fill.in ? { in: fill.in } : {}), ...(fill.speed && fill.speed !== 1 ? { speed: fill.speed } : {}) };
+    if ('footage' in fill) return { material: use(fill.footage, 'video'), ...view, ...(fill.in ? { in: fill.in } : {}), ...(fill.speed && fill.speed !== 1 ? { speed: fill.speed } : {}), ...(fill.audio !== undefined ? { audio: fill.audio } : {}) };
     if ('picture' in fill) return { material: use(fill.picture, 'image'), ...view, ...(fill.zoom ? { camera: { zoom: fill.zoom } } : {}) };
     if ('color' in fill) return { color: fill.color };
     if ('scene' in fill) return { scene: fill.scene, ...(fill.slots ? { slots: fill.slots } : {}) };
@@ -335,7 +341,7 @@ export const retarget = (input: RetargetInput): RetargetOutput => {
   });
   const tracks: Track[] = plan.shots.flatMap((fill, k) => [
     ...('card' in fill ? cardItems('shot-' + two(k + 1), fill.card, lengths[k] ?? 1) : []),
-    ...(fill.items?.length ? itemTracks('shot-' + two(k + 1), fill.items, use) : []),
+    ...(fill.items?.length ? itemTracks('shot-' + two(k + 1), fill.items, use, lengths[k] ?? 1) : []),
     ...(fill.words?.length ? wordTracks('shot-' + two(k + 1), fill.words, places[k] ?? [], (f) => at(toFrames((m.shots[k]?.start ?? 0) + f)) - (starts[k] ?? 0), lengths[k] ?? 1) : []),
   ]);
   if (bar && plan.bar?.length) tracks.push(...barTracks(bar, plan.bar, segments, total));

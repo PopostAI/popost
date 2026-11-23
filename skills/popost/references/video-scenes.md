@@ -69,6 +69,8 @@ popost video scene library project        # writes project/lib/gsap.min.js; a sc
 - GSAP is a product of Webflow under its own licence (free to use, not open source: https://gsap.com/standard-license).
   The file in the project is its unchanged file; leave it so.
 
+Items in a template fill may specify `span: [0.15, 1]` to appear from fifteen percent of the shot until its end. The interval follows the shot when speech changes its length. `enter` and `exit` use native motions, for example `{ "preset": "fade", "frames": 9 }`; the clip starts at `in` when its visible interval starts. `audio: 0` preserves its source sound; omitted audio is silent.
+
 ## Content that can be replaced
 
 Mark every piece of content that belongs to the subject, not to the design, with `data-slot="name"`: a title, a
@@ -129,7 +131,7 @@ popost video scene library project --name screen                                
   `stillScale` and `y` that `--still` printed (a swapped still takes its own `scale` and `top` when they differ).
   Times are seconds from the start of the shot, in order; `for` is how long a step takes (zoom and view 0.8 s,
   highlight 0.4, pointer 0.6, typing 1.2), `ease` how (`in-out`, `in`, `out`, `linear`).
-- `scroll: 400` (page pixels down, or `'top'`, `'bottom'`) moves a tall still (`--full-page`). After the last step
+- `scroll: 400` (400 page pixels down from the camera position at this step, or `'top'`, `'bottom'`) moves a tall still (`--full-page`). After the last step
   everything holds, so the shot may run longer. A highlight goes with `clear` or when the still is swapped.
 - Take the still at `--scale 2` when the shot moves in: `scene check` warns when a zoom enlarges the still more than
   about 2.5 times, and names a box outside the still, steps out of order, a click with no pointer and a still that
@@ -148,7 +150,10 @@ shot whose ground moves on across the cuts: start its animation at minus the sho
 (a picture: `"image"`) and its `box`, the opening in canvas pixels divided by the canvas size, at the clip's
 proportions (a 9:16 clip 576 px tall is 324 px wide; for the frame of `describe`, the box it gives); `"fit": "cover"`
 fills it, `radius` rounds its corners (a fraction of the box's smaller side), `"in"` is the clip's first frame.
-`template fill` (and `retarget`) writes each item into `video.json` as a material and a track during the shot's
+  Add `"audio": 0` to a video item to retain its source audio, or a lower dB gain under narration; omitted or
+  `false` is silent. The sound follows the same trim, speed and segment as its picture. Studio exposes its source
+  audio gain too; clear the field to mute it.
+  `template fill` (and `retarget`) writes each item into `video.json` as a material and a track during the shot's
 segment, so the clip stays through every later fill and moves with the shot when time is re-flowed to speech;
 `template check` says when its file is missing or the box would crop it. Never add it to `video.json` by hand in a
 filled project: the next fill writes `video.json` again and drops it. In a project written without a fill, add the

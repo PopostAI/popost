@@ -131,8 +131,11 @@ describe('side by side, a few at a time', () => {
 });
 
 describe.skipIf(process.platform === 'win32')('heavy children run lower', () => {
-  const niceness = async (lowPriority: boolean): Promise<number> =>
-    Number(new TextDecoder().decode((await nodePrograms.run(['sh', '-c', 'nice'], { lowPriority })).stdout).trim());
+  const niceness = async (lowPriority: boolean): Promise<number> => {
+    const result = await nodePrograms.run([process.execPath, '-p', 'require("node:os").getPriority(0)'], { lowPriority });
+    expect(result.code).toBe(0);
+    return Number(new TextDecoder().decode(result.stdout).trim());
+  };
 
   it('starts a low-priority program through nice, with the variables it is given', async () => {
     const base = await niceness(false);

@@ -47,7 +47,7 @@ A shot is exactly one of:
 | Form | Keys | Notes |
 |---|---|---|
 | scene | `scene`, `slots` | an HTML page in the project that draws the shot (`video-scenes.md`); a slot of an `<img>` takes a picture path relative to the scene file (`"../assets/logo.png"`) |
-| footage | `footage`, `in`, `speed` (0.25 to 4), `fit` (`cover` or `contain`), `ground` | `in` is the first frame to show |
+| footage | `footage`, `in`, `speed` (0.25 to 4), `audio` (false or -60 to 24 dB), `fit` (`cover` or `contain`), `ground` | `in` is the first frame to show; audio is silent by default, 0 keeps the original level |
 | picture | `picture`, `zoom`, `fit`, `ground` | `zoom`: growth per second (0.04 is a slow push in), not a scale |
 | color | `color` | neighbouring colour shots need clearly different colours |
 | card | `card`: `title`, `lines`, `background`, `color` | a title and lines that enter one after another; 1 s or more |
@@ -63,7 +63,7 @@ ground that joins it, when a file is much smaller than the shot (it is blown up 
 made at the canvas's proportions. They also warn when one picture fills more than two shots or more than a third of the
 video (a slide show), and name the capture director's zooms over it (`video-tools.md`, "Capture plans").
 
-Any shot may also carry `"items"`: clips (`"video"`) and pictures (`"image"`) drawn over it in a `box` of the canvas,
+Any shot may also carry `"items"` (optional `span: [start, end]` uses fractions of the shot; `enter` and `exit` use native motions): clips (`"video"`) and pictures (`"image"`) drawn over it in a `box` of the canvas,
 such as a screen recording in the phone a scene draws (`video-scenes.md`, "Footage inside a scene"). Fill writes them
 into `video.json` as tracks during the shot, so they survive every later fill and move with the shot in a re-flow.
 

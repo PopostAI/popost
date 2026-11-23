@@ -17,6 +17,8 @@ import { scoreMeasures } from '../score/index';
 import { compareShots, momentsOf, type ShotDifference } from '../score/shots';
 import { projectOf, reviewCompare, roundNext } from '../render/record';
 import { changeWindows } from '../score/project-windows';
+import { readFacts } from '../template/facts';
+import { comparisonScope } from './compare-scope';
 import { commandTranscriber, phrasesOf, transcribe } from '../speech/index';
 import { synthCase } from '../synth/generate';
 import { writeCase } from '../synth/write';
@@ -253,7 +255,11 @@ const compare = command(
     const text = textA !== undefined && textB !== undefined
       ? { reference: await readJson<TextTrack>(rt, await inputFile(rt, textA)), other: await readJson<TextTrack>(rt, await inputFile(rt, textB)) } : undefined;
     // One after the other: two decodes side by side would hold both videos' frames at once.
-    const a = await loadMeasure(rt, reference);
+    const fullReference = await loadMeasure(rt, reference);
+    const projectDir = other.endsWith('.json') ? undefined : await projectOf(rt, other).catch(() => undefined);
+    const facts = projectDir ? await readFacts(rt, projectDir) : undefined;
+    const scope = comparisonScope(fullReference, facts);
+    const a = scope.measure;
     const b = await loadMeasure(rt, other);
     const score = scoreMeasures(a, b);
     const windows = await projectWindows(rt, other, a.shots.length, b);
@@ -271,6 +277,7 @@ const compare = command(
     }).catch(() => undefined);
     printJson(rt, {
       ok: true, reference, other, composite: score.composite, dimensions: score.dimensions, shots: shots.shots, worst,
+      ...(scope.omitted ? { scope: { seconds: [0, a.source.frames / a.source.fps], omittedShots: scope.omitted, note: 'Only retained reference content is compared. Declared trailing platform shots are excluded after verifying the full reference visual fingerprint.' } } : {}),
       ...((textA === undefined) !== (textB === undefined) ? { note: 'Text is compared shot by shot only with both --reference-text and --other-text.' } : {}),
       ...(review ? { round: review.round, ...(review.stillWorst.length ? { stillWorst: review.stillWorst } : {}) } : {}),
       ...(other.endsWith('.json') ? {} : { next: roundNext(review) }),

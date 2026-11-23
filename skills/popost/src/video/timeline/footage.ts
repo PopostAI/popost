@@ -6,7 +6,7 @@
 import type { Resolved, ResolvedFootage, ResolvedPlay } from '../types';
 import { visibleRange } from './frame';
 
-/** File names of frame pictures: the source frame with at least this many digits, then ".jpg". */
+/** File names of lossless frame pictures: the source frame with at least this many digits, then ".png". */
 export const FRAME_DIGITS = 6;
 
 /**
@@ -21,7 +21,7 @@ export const sourceFrame = (play: Pick<ResolvedPlay, 'start' | 'in' | 'speed'>, 
 };
 
 /** The picture of a source frame, relative to the project directory. */
-export const framePath = (dir: string, frame: number): string => dir + '/' + String(frame).padStart(FRAME_DIGITS, '0') + '.jpg';
+export const framePath = (dir: string, frame: number): string => dir + '/' + String(frame).padStart(FRAME_DIGITS, '0') + '.png';
 
 /** The URL of the picture a play shows at frame n, or undefined when its frames have not been extracted (no dir). */
 export const frameUrl = (r: Resolved, play: ResolvedPlay, n: number): string | undefined => {

@@ -15,7 +15,8 @@ const H = 320;
 const STARTS = [10, 18, 26, 40, 48, 56];
 const WORDS: WordsFile = { fps: 30, tokens: ['ww', 'mm', 'ww', 'dd', 'ee', 'ff'].map((text, k) => ({ text, start: STARTS[k] ?? 0, end: (STARTS[k] ?? 0) + 8, confidence: 1, matched: true })) };
 
-const BASE: TextStyle = { size: 0.06, weight: 400, color: '#ffffff', align: 'center' };
+// Proportional Latin faces change advances when bold; a CJK fallback may keep identical Latin advances at both weights.
+const BASE: TextStyle = { font: 'Arial, "Liberation Sans", sans-serif', size: 0.06, weight: 400, color: '#ffffff', align: 'center' };
 const TOP: [number, number, number, number] = [0.05, 0.25, 0.9, 0.12];
 const LOW: [number, number, number, number] = [0.05, 0.6, 0.9, 0.12];
 

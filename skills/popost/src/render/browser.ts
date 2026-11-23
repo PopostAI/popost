@@ -5,7 +5,7 @@
 import { existsSync, readdirSync } from 'node:fs';
 import { homedir } from 'node:os';
 import path from 'node:path';
-import { chromium, type Browser } from 'playwright-core';
+import { chromium, type Browser, type BrowserServer } from 'playwright-core';
 import { msg } from '../i18n';
 import type { BrowserProfile } from '../runtime';
 
@@ -70,7 +70,7 @@ const LAUNCH_ARGS = ['--disable-gpu', '--font-render-hinting=none', OFFLINE];
 
 /**
  * Video frames: the same pixels on every run. Software raster, sRGB, images decoded before they are drawn (never a
- * placeholder first), every compositor stage finished before a screenshot, and no waiting for a display's frame rate.
+ * placeholder first), and every compositor stage finished before a screenshot.
  */
 const FRAME_ARGS = [
   '--disable-gpu',
@@ -81,17 +81,15 @@ const FRAME_ARGS = [
   '--disable-checker-imaging',
   '--disable-partial-raster',
   '--run-all-compositor-stages-before-draw',
-  '--disable-frame-rate-limit',
   '--disable-gpu-vsync',
 ];
 
 const ARGS: Readonly<Record<BrowserProfile, readonly string[]>> = {
   pages: LAUNCH_ARGS,
   frames: [...FRAME_ARGS, OFFLINE],
-  // A page of the public web keeps the display's frame rate: without the limit, together with running every compositor
-  // stage before drawing, a CSS transition that hovering starts (a tab's background) stops Chrome from drawing, and
-  // every screenshot after it waits forever.
-  web: FRAME_ARGS.filter((a) => a !== '--disable-frame-rate-limit'),
+  // Unlimited frame scheduling can starve screenshot commits when CSS or a scene library keeps a ticker alive.
+  // Both profiles keep Chrome's normal cadence; video time is still set explicitly by the engine.
+  web: FRAME_ARGS,
 };
 
 /** Chrome's own limit on raster threads. */
@@ -108,6 +106,18 @@ export const chromiumArgs = (profile: BrowserProfile, o: { rasterThreads?: numbe
   ...(profile === 'frames' && o.rasterThreads !== undefined ? ['--num-raster-threads=' + Math.max(1, Math.min(MAX_RASTER_THREADS, Math.floor(o.rasterThreads)))] : []),
 ];
 
+/** Video jobs own an ephemeral browser process; a stalled graceful shutdown must not leave it behind. */
+export const closeOwnedBrowser = async (server: Pick<BrowserServer, 'close' | 'kill'>, graceMs = 1_000): Promise<void> => {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    const closed = await Promise.race([
+      server.close().then(() => true, () => false),
+      new Promise<boolean>((resolve) => { timer = setTimeout(() => resolve(false), graceMs); }),
+    ]);
+    if (!closed) await server.kill();
+  } finally { clearTimeout(timer); }
+};
+
 export const launchChromium = async (
   env: Readonly<Record<string, string | undefined>>,
   profile: BrowserProfile = 'pages',
@@ -121,5 +131,16 @@ export const launchChromium = async (
         '没有找到 Chrome、Edge 或 Chromium。请安装 Google Chrome，或把 POPOST_CHROME 设为某个 Chromium 可执行文件。',
       ),
     );
-  return chromium.launch({ executablePath, headless: true, args: chromiumArgs(profile, o) });
+  const options = { executablePath, headless: true, args: chromiumArgs(profile, o) };
+  if (profile !== 'frames') return chromium.launch(options);
+  const server = await chromium.launchServer({ ...options, host: '127.0.0.1' });
+  try {
+    const browser = await chromium.connect(server.wsEndpoint(), { timeout: 30_000 });
+    let closing: Promise<void> | undefined;
+    browser.close = () => closing ??= closeOwnedBrowser(server);
+    return browser;
+  } catch (e) {
+    await server.kill().catch(() => undefined);
+    throw e;
+  }
 };

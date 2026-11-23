@@ -17,8 +17,9 @@ Read this page once, then do steps 0 to 7 in order; "Done when" says what must b
   source you fetched did not give.
 - There is no time limit. Never shorten or skip a step, a scene or a review round to save time: a video takes
   half an hour to an hour of work, and that is expected.
-- Do not run `preview` (it never ends), `template test`, `template see`, `scene write`, `eval`, or `plan` without
-  `--dry`: they are for people and configured models. Unclear fix: `<skill>/references/video-tools.md`, "Common failures".
+- Do not run `preview` as a blocking foreground command. At delivery (step 7), run `preview --edit` as a background
+  process to provide the editable Studio. Do not run `template test`, `template see`, `scene write`, `eval`, or `plan`
+  without `--dry`: they are for people and configured models. Unclear fix: `<skill>/references/video-tools.md`, "Common failures".
 
 ## 0. What the machine has
 
@@ -89,6 +90,11 @@ precise enough to redraw it, what it shows and its role: `design` keeps its look
 standard transition), the captions' style and the words drawn differently, and every mark with what it marks and why.
 The schema, the roles and an example: `<skill>/references/video-elements.md`; `popost video elements questions ref`
 prints them with this video's shots and the pictures in order. Then:
+
+If `timeline.md` calls page headings captions, or misses the visible subtitle lines, include `captions.lines` in
+the affected shots (the actual lines seen in the pictures, `[]` for none). The caption layer's box identifies the
+band; the program matches the confirmed words to OCR times when saving the template. Answer unmatched-line warnings
+before proceeding; no timing is guessed for a line OCR did not read.
 
 ```bash
 popost video elements check ref
@@ -402,6 +408,20 @@ shot twice, at most two frames a second, and its first line says how long that t
 hold much more text than captions). It keeps the transcript beside the project, so a readback after a fix that left
 the sound alone does not listen again.
 
-Deliver `final.mp4`, the `project/` directory and the delivery notes: what is as in the reference, what differs and
-why (no voice, a missing tool, a source that did not have something), and each shot of the last `worst` that was not
-fixed, with its reason.
+Open the editable Studio with the existing preview editor:
+
+```bash
+popost video preview project --edit --reference reference.mp4
+```
+
+Start this with the host's background-process tool and keep the service alive after delivery. Wait for its real JSON
+output and use its `url`; do not guess a port. Fetch `api/state` under that URL and confirm it has `source` and
+`edit`, then open the URL with the host's browser or side-panel tool. Check that the timeline and project load, a
+text edit saves, undo restores it, a reload keeps the saved state, and the editor can render. Use the same project
+that produced the delivered video. The URL is a local editor on this computer while that service runs.
+
+When a template deliberately drops trailing platform shots, `compare` reports the retained reference interval and `omittedShots` after checking its sampled visual fingerprint. An unrelated reference or an older project without that provenance is compared in full; do not read the omitted endcard as a failure of the new closing.
+
+Deliver `final.mp4`, its editable Studio URL, the `project/` directory and the delivery notes: what is as in the
+reference, what differs and why (no voice, a missing tool, a source that did not have something), and each shot of
+the last `worst` that was not fixed, with its reason. Say the Studio is open only after it has actually loaded.

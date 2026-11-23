@@ -74,7 +74,7 @@ export interface ShotReading {
   transitionIn?: ReadTransition;
   layers: Layer[];
   /** The captions' style, the style of the words drawn differently and which words ("none" when there are none), and how a line appears (at once, word by word, letter by letter, wipes on). */
-  captions?: { base: string; highlight?: string; reveal?: string };
+  captions?: { base: string; highlight?: string; reveal?: string; /** Visually confirmed caption lines; [] means no captions in this shot. OCR supplies their times. */ lines?: string[] };
   emphasis?: Mark[];
   /** Two or three sentences on how to draw the shot. */
   rebuild?: string;

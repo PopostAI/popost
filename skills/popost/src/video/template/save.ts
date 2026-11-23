@@ -9,12 +9,14 @@ import type { Inset } from '../describe/inset';
 import type { Measure, Problem } from '../types';
 import { droppedFrom, droppedShots, droppedTexts, endAt, withReading } from '../elements/carry';
 import type { Elements } from '../elements/types';
+import { withCaptionRoles } from '../elements/caption-roles';
 import type { Transcript } from '../speech/types';
 import type { TextTrack } from '../text/types';
 import { error, warning } from '../project/check-common';
 import { estimateCapacity, measureCapacities, type Band } from './capacity';
 import { cardBudget, templateCard } from './card';
 import { shotTexts } from './facts';
+import { referenceFingerprint } from './fingerprint';
 import { slotsOf } from './slots';
 import { cardLayout, sourceBeats, startsOf, templateFrom } from './structure';
 import { barPlaces, titlePlaces } from '../retarget/titles';
@@ -69,8 +71,9 @@ export interface SaveOptions {
 
 /** The inputs of a template: as given, or ending where the shots the reading drops whole at the end begin. */
 const sourceOf = (o: SaveOptions): { measure: Measure; text?: TextTrack; transcript?: Transcript; from?: number } => {
-  const given = { measure: o.measure, ...(o.text ? { text: o.text } : {}), ...(o.transcript ? { transcript: o.transcript } : {}) };
   const numbered = o.reading?.measure ?? o.measure;
+  const text = o.text && o.reading ? withCaptionRoles(o.text, o.reading.elements, numbered) : o.text;
+  const given = { measure: o.measure, ...(text ? { text } : {}), ...(o.transcript ? { transcript: o.transcript } : {}) };
   const from = o.reading ? droppedFrom(o.reading.elements, numbered.shots.length) : undefined;
   const end = from === undefined ? undefined : numbered.shots[from]?.start;
   return end === undefined || from === undefined ? given : { ...endAt(given, end), from };
@@ -80,6 +83,8 @@ export const saveTemplate = async (rt: Runtime, o: SaveOptions): Promise<{ probl
   const src = sourceOf(o);
   const m = src.measure;
   const made = templateFrom({ measure: m, ...(src.text ? { text: src.text } : {}), ...(src.transcript ? { transcript: src.transcript } : {}), ...(o.inset ? { inset: o.inset } : {}), name: o.name, label: o.label ?? o.name, hash: measureHash(m) });
+  const fingerprint = src.from === undefined ? undefined : referenceFingerprint(o.reading?.measure ?? o.measure);
+  if (fingerprint) made.source.fingerprint = fingerprint;
   // The reading: each shot's elements, an effect of its own as "custom" with the picture of its frames (a path from the template directory).
   const reading = o.reading;
   const numbered = reading?.measure ?? o.measure;

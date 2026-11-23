@@ -73,7 +73,9 @@ const transitionOf = (raw: unknown, at: string): { transition?: ReadTransition; 
 const captionsOf = (raw: unknown, at: string): { captions?: ShotReading['captions']; problems: Problem[] } => {
   if (!isObject(raw) || !isText(raw.base) || (raw.highlight !== undefined && !isText(raw.highlight)) || (raw.reveal !== undefined && !isText(raw.reveal)))
     return { problems: [error(at, '"captions" is {"base": "...", "highlight": "...", "reveal": "..."}: the style of the captions, the style of the words drawn differently and which words ("none" when none are), and how a line appears.', 'Write for example {"base": "white bold sans on a black plate", "highlight": "the key word in yellow", "reveal": "word by word as spoken"}.')] };
-  return { captions: { base: raw.base, ...(filled(raw.highlight) ? { highlight: raw.highlight } : {}), ...(filled(raw.reveal) ? { reveal: raw.reveal } : {}) }, problems: extraKeys(raw, ['base', 'highlight', 'reveal'], at) };
+  if (raw.lines !== undefined && !(Array.isArray(raw.lines) && raw.lines.every(filled)))
+    return { problems: [error(at + '.lines', '"lines" is a list of visually confirmed caption strings, or [] when the shot has none.', 'Copy the actual caption lines from the pictures; omit this field to keep the OCR roles.')] };
+  return { captions: { base: raw.base, ...(filled(raw.highlight) ? { highlight: raw.highlight } : {}), ...(filled(raw.reveal) ? { reveal: raw.reveal } : {}), ...(Array.isArray(raw.lines) ? { lines: raw.lines as string[] } : {}) }, problems: extraKeys(raw, ['base', 'highlight', 'reveal', 'lines'], at) };
 };
 
 const marksOf = (raw: unknown, at: string): { emphasis: Mark[]; problems: Problem[] } => {

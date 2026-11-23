@@ -7,7 +7,7 @@
  */
 import { sha256File } from '../../core/util';
 import type { Runtime } from '../../runtime';
-import { FILL_KINDS, fillValueProblems, type RetargetPlan } from '../retarget/index';
+import { captionOptionProblems, FILL_KINDS, fillValueProblems, type RetargetPlan } from '../retarget/index';
 import type { Problem } from '../types';
 import { probe } from '../media/ffmpeg';
 import { deltaE, hexToRgb, toLab } from '../measure/colour';
@@ -16,7 +16,7 @@ import { isOutside } from '../project/check';
 import { pictureSlotNames } from '../scene/lint';
 import { charsOf, scriptOf, usageOf } from './capacity';
 import { fitProblems, itemFitProblems } from './fit';
-import { shotItemProblems } from '../retarget/items';
+import { itemSpan, shotItemProblems } from '../retarget/items';
 import { barProblems, wordProblems } from '../retarget/titles';
 import { unmark } from '../retarget/marks';
 import { fillLengths, footageNeed } from './structure';
@@ -305,11 +305,12 @@ const slotPictureProblems = async (rt: Runtime, p: SlotPicture, dir: string): Pr
 
 /** The files of a shot's items (shotItemProblems checked their shape): there, of their kind, and how they sit in their boxes. */
 /** A clip item against its shot, which it plays through (lengths: the shots' lengths, the template's by default): a warning when it runs out and its last frame holds. */
-export const itemLength = async (rt: Runtime, pkg: TemplatePackage, o: { at: string; name: string; file: string; k: number; from: number; speed: number; lengths?: number[] }): Promise<Problem[]> => {
+export const itemLength = async (rt: Runtime, pkg: TemplatePackage, o: { at: string; name: string; file: string; k: number; from: number; speed: number; lengths?: number[]; span?: [number, number] }): Promise<Problem[]> => {
   const f = await probe(rt, o.file).catch(() => undefined);
   if (!f || !(f.frames > 0)) return [error(o.at + '.video', quote(o.name) + ' is not a video this engine can read.', 'Use an MP4, MOV or WebM file, for example converted with: ffmpeg -i input -c:v libx264 -pix_fmt yuv420p out.mp4.')];
   const fps = pkg.template.canvas.fps;
-  const need = (o.lengths ?? fillLengths(pkg.template))[o.k] ?? 1;
+  const [start, end] = itemSpan((o.lengths ?? fillLengths(pkg.template))[o.k] ?? 1, o.span);
+  const need = end - start;
   const last = o.from + Math.round(((need - 1) * f.fps * o.speed) / fps);
   if (last <= f.frames - 1) return [];
   const has = (f.frames - o.from) / f.fps / o.speed;
@@ -327,7 +328,8 @@ const itemFileProblems = async (rt: Runtime, pkg: TemplatePackage, s: Shot, k: n
     if ((await rt.fs.stat(full)) === null) { out.push(error(at + '.' + key, quote(file) + ' does not exist in ' + dir + '.', 'Put the file there, or correct the path (it is relative to the project directory).')); continue; }
     if (key === 'image' && !PICTURES.includes(rt.path.extname(file).toLowerCase())) { out.push(error(at + '.image', quote(file) + ' is not a picture file (' + PICTURES.join(', ') + ').', 'Convert it to WebP or PNG.')); continue; }
     out.push(...(await itemFitProblems(rt, pkg.template.canvas, { at, key, name: file, file: full, box: item.box as number[], fit: item.fit })));
-    if (key === 'video') out.push(...(await itemLength(rt, pkg, { at, name: file, file: full, k, from: typeof item.in === 'number' ? item.in : 0, speed: typeof item.speed === 'number' ? item.speed : 1, ...(lengths ? { lengths } : {}) })));
+    const span: [number, number] | undefined = Array.isArray(item.span) && item.span.length === 2 && item.span.every((v) => typeof v === 'number' && Number.isFinite(v)) ? [item.span[0] as number, item.span[1] as number] : undefined;
+    if (key === 'video') out.push(...(await itemLength(rt, pkg, { at, name: file, file: full, k, from: typeof item.in === 'number' ? item.in : 0, speed: typeof item.speed === 'number' ? item.speed : 1, ...(span ? { span } : {}), ...(lengths ? { lengths } : {}) })));
   }
   return out;
 };
@@ -364,6 +366,8 @@ const fileProblems = async (rt: Runtime, pkg: TemplatePackage, fill: RetargetPla
  */
 export const checkFill = async (rt: Runtime, pkg: TemplatePackage, fill: RetargetPlan, o: { dir?: string; lengths?: number[] } = {}): Promise<Problem[]> => {
   const shape = shapeProblems(fill);
+  if (shape.some((p) => p.level === 'error')) return shape;
+  shape.push(...captionOptionProblems(fill));
   if (shape.some((p) => p.level === 'error')) return shape;
   // Lengths are those of what is drawn and spoken: the *marks* of highlighted words are neither (retarget/marks.ts).
   const counted: RetargetPlan = fill.captions ? { ...fill, captions: fill.captions.map((l) => (typeof l === 'string' ? unmark(l).text : l)) } : fill;

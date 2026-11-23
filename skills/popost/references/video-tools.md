@@ -10,6 +10,26 @@ plug in through an environment variable. `popost video doctor` says what is ther
 
 ## Programs
 
+### Check the installation before testing a reference
+
+Use the CLI that came with the installed Skill, especially for a feature-branch test build; do not replace it with
+the published npm release. Record its branch and commit as well as `popost --version`: a test branch may retain the
+published version number. A source checkout needs `npm ci && npm run build:skill` from the repository root. Node
+must satisfy the repository's engine requirements. Then run `popost video doctor`: ffmpeg and Chrome or Chromium
+must both be available. If either is missing, install it or set its program path in the table below, then rerun
+`doctor`. ffprobe is not required. A successful `doctor` checks program availability, not reference-reading quality.
+
+The text reader, transcriber, speaker and generator are optional and installed separately. A `null` entry means
+that capability is unavailable, rather than a broken core installation. Test each configured reader or speaker on
+a short local input first: the first run may need model downloads. Installing a tool without its model files is
+not enough; verify a real output before using it in a reference test. Keep existing user-selected tools and billing
+providers when diagnosing an unrelated failure.
+
+Render-browser operations have a 30-second deadline and name the stage that stopped responding (for example,
+preparing a scene or capturing a frame). Inspect that stage and its assets instead of changing providers. Each local
+video job owns its temporary Chrome process and closes it on completion or failure; a stopped graceful shutdown is
+terminated through that owned process handle. Screenshot capture waits for the browser to paint the requested frame.
+
 | Variable | What it names | Default |
 |---|---|---|
 | `POPOST_FFMPEG` | the ffmpeg program (ffprobe is not needed) | `ffmpeg` on PATH |
@@ -93,6 +113,7 @@ under the band). Pointer, boxes and zoom are drawn into the recording, the same 
 | `doctor`: `ffmpeg was not found` | Install ffmpeg or set `POPOST_FFMPEG` to its path. |
 | `doctor`: a browser message | Install Chrome or Chromium, or set `POPOST_CHROME` to it. |
 | `describe`: `leftOut` lists on-screen text or speech | The reader or transcriber is not set up: the template has no caption or spoken beats. Go on; look at the pictures. |
+| `describe`: `while decoding frames for the sheets`, `Error initializing filters`, `Cannot allocate memory` on a longer reference | Earlier video test builds made a deeply nested FFmpeg selection expression. Update to a build with balanced frame selection, rebuild the matching CLI, and retry the same reference. This error alone does not prove missing dependencies or insufficient physical memory. |
 | `template check`: `The fill has N shots; the template has M` | One entry per shot, in order; `template show` lists them. |
 | `template check` / `fill`: a line over its limit or budget | Shorten the line; `fix` gives a shorter version. Do not raise `--pace`. |
 | `template fill`: `Speaking the captions needs a speaker` | No speaker: run it without `--speak --keep-length --fit-tempo`. |

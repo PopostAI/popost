@@ -6,7 +6,7 @@ import { afterAll, describe, expect, it } from 'vitest';
 import { createDiskRuntime } from '../../src/testing/disk';
 import { hasFfmpeg, runFfmpegOk } from '../../src/video/media/ffmpeg';
 import { itemFitProblems } from '../../src/video/template/fit';
-import { itemLength } from '../../src/video/template/check';
+import { checkFill, itemLength } from '../../src/video/template/check';
 import type { TemplatePackage } from '../../src/video/template/types';
 import { retarget, type RetargetPlan } from '../../src/video/retarget/index';
 import { itemTracks, shotItemProblems } from '../../src/video/retarget/items';
@@ -37,6 +37,43 @@ const plan: RetargetPlan = {
 const facts = { 'video-1': { width: 360, height: 640, fps: 30, frames: 600, hasAudio: false } };
 
 describe('items over a shot', () => {
+  it('reports malformed fill roots and caption overrides before accessing files or requesting speech', async () => {
+    const pkg = {} as TemplatePackage;
+    expect(await checkFill(rt, pkg, null as unknown as RetargetPlan)).toMatchObject([{ level: 'error', at: '(root)' }]);
+    expect(await checkFill(rt, pkg, { shots: [], captionOutline: {} } as unknown as RetargetPlan)).toMatchObject([{ level: 'error', at: 'captionOutline' }]);
+  });
+  it('keeps a delayed entrance attached to the shot through speech reflow, with source playback starting there', () => {
+    const p: RetargetPlan = { ...plan, shots: [plan.shots[0]!, { scene: 'scenes/phone.html', items: [{ ...phone, span: [0.25, 0.75], enter: { preset: 'fade', frames: 9 } }] }, plan.shots[2]!] };
+    for (const spoken of [undefined, { frames: [40, 160, 60] }]) {
+      const r = retarget({ measure, text, plan: p, ...(spoken ? { spoken } : {}) });
+      expect(r.problems).toEqual([]);
+      if (!r.project) throw new Error('no project');
+      const resolved = resolve(r.project, facts);
+      const seg = resolved.segments[1]!;
+      const item = resolved.items.find((i) => i.id === 'shot-02-video-1')!;
+      expect(item.start).toBe(seg.start + Math.round((seg.end - seg.start) * 0.25));
+      expect(item.end).toBe(seg.start + Math.round((seg.end - seg.start) * 0.75));
+      expect(r.project.tracks[0]).toMatchObject({ in: 0, enter: { preset: 'fade', frames: 9 } });
+    }
+    expect(shotItemProblems({ items: [{ ...phone, span: [0.8, 0.2] }] }, 'shots[0]').some((p) => p.level === 'error')).toBe(true);
+    expect(shotItemProblems({ items: [{ ...phone, enter: { preset: 'unknown' } }] }, 'shots[0]').some((p) => p.level === 'error')).toBe(true);
+  });
+
+  it('refuses malformed caption colours before producing an invalid project', () => {
+    const r = retarget({ measure, text, plan: { ...plan, captionOutline: { color: '#111111' } } as unknown as RetargetPlan });
+    expect(r.project).toBeUndefined();
+    expect(r.problems.some((p) => p.at === 'captionOutline' && p.level === 'error')).toBe(true);
+  });
+  it('keeps source audio gains through a fill for video bases and items, including zero and explicit mute', () => {
+    const p = { ...plan, shots: [{ footage: 'assets/app.mp4', audio: 0 }, { scene: 'scenes/phone.html', items: [{ ...phone, audio: -6 }] }, { scene: 'scenes/phone.html', items: [{ ...phone, audio: false }] }] } as RetargetPlan;
+    const r = retarget({ measure, text, plan: p });
+    expect(r.problems).toEqual([]);
+    expect(r.project?.segments[0]?.base).toMatchObject({ audio: 0 });
+    expect(r.project?.tracks.filter((t) => t.type === 'video').map((t) => t.audio)).toEqual([-6, false]);
+    expect(shotItemProblems({ items: [{ ...phone, audio: 25 }] }, 'shots[0]').some((p) => p.level === 'error' && p.at.endsWith('.audio'))).toBe(true);
+    expect(shotItemProblems({ items: [{ image: 'assets/badge.webp', box: phone.box, audio: 0 }] }, 'shots[0]').some((p) => p.message === 'A picture has no source audio.')).toBe(true);
+  });
+
   it('become tracks during their shot, over the base and under the captions, with materials shared by file', () => {
     const r = retarget({ measure, text, plan });
     expect(r.problems).toEqual([]);
@@ -116,5 +153,6 @@ describe.skipIf(!(await hasFfmpeg(rt)))('an item\'s file in its box', () => {
     expect(short[0]?.message).toBe('Shot 1 is 3.00 s, but its clip "assets/two-seconds.mp4" has 2.00 s of frames of clip from "in": 0, so its last frame holds for the last 1.00 s.');
     expect((await at(1, 30))[0]?.message).toContain('has 1.00 s of frames of clip from "in": 30');
     expect(await at(1, 0, [90, 90])).toHaveLength(1);
+    expect(await itemLength(rt, pkg, { at: 'shots[0].items[0]', name: 'assets/two-seconds.mp4', file: clip, k: 0, from: 0, speed: 1, span: [0.5, 1] })).toEqual([]);
   });
 });

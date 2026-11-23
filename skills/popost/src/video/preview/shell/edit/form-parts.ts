@@ -74,9 +74,15 @@ const baseSection = (ctx: FormCtx, at: Path, base: Obj): HTMLElement => {
   const visual = materialsOf(ctx.state, ['image', 'video']);
   const kind = 'material' in base ? 'material' : 'color' in base ? 'color' : 'scene';
   const kindField: Field = {
-    kind: 'select', label: 'fBase', path: at, value: kind, options: ['color', 'material'], labels: { color: t(ctx.lang, 'fBaseColor'), material: t(ctx.lang, 'fBaseMaterial') }, empty: null,
-    commit: (v) => ctx.set(at, v === 'color' ? { color: '#000000' } : { material: visual[0] ?? '' }),
+    kind: 'select', label: 'fBase', path: at, value: kind, options: kind === 'scene' ? ['scene', 'color', 'material'] : ['color', 'material'], labels: { scene: t(ctx.lang, 'fBaseScene'), color: t(ctx.lang, 'fBaseColor'), material: t(ctx.lang, 'fBaseMaterial') }, empty: null,
+    commit: (v) => ctx.set(at, v === 'scene' ? base : v === 'color' ? { color: '#000000' } : { material: visual[0] ?? '' }),
   };
+  if (kind === 'scene') {
+    const slots = isObj(base.slots) ? base.slots : {};
+    const rows: Field[][] = Object.entries(slots).filter((entry): entry is [string, string] => typeof entry[1] === 'string')
+      .map(([name, value]) => [{ kind: 'textarea', label: name, path: [...at, 'slots', name], value, wide: true }]);
+    return section(t(ctx.lang, 'fBaseScene'), [[kindField], ...rows], ctx);
+  }
   if (kind !== 'material') {
     const colour: Field | HTMLElement = typeof base.color === 'string' ? { kind: 'color', label: 'fColour', path: [...at, 'color'], value: base.color, empty: null } as Field : h('div', { class: 'hint', text: t(ctx.lang, 'fGradient') });
     return section(t(ctx.lang, 'fBase'), [[kindField, colour]], ctx);
@@ -85,7 +91,7 @@ const baseSection = (ctx: FormCtx, at: Path, base: Obj): HTMLElement => {
   const n = (key: string, label: string, step?: number): Field => ({ kind: 'number', label, path: [...at, key], value: base[key], range: rangeOf(prop(schema, key)), ...(step ? { step } : {}) });
   return section(t(ctx.lang, 'fBase'), [
     [kindField, { kind: 'select', label: 'fMaterial', path: [...at, 'material'], value: base.material, options: visual, empty: null, wide: true }],
-    [{ kind: 'select', label: 'fFit', path: [...at, 'fit'], value: base.fit, options: choices(prop(schema, 'fit')) }, ...(isVideo ? [n('in', 'fIn'), n('speed', 'fSpeed', 0.05)] : [])],
+    [{ kind: 'select', label: 'fFit', path: [...at, 'fit'], value: base.fit, options: choices(prop(schema, 'fit')) }, ...(isVideo ? [n('in', 'fIn'), n('speed', 'fSpeed', 0.05), n('audio', 'fSourceAudio')] : [])],
   ], ctx, base.camera !== undefined ? [h('div', { class: 'hint', text: t(ctx.lang, 'fCamera') })] : []);
 };
 
