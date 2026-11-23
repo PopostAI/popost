@@ -1,0 +1,29 @@
+{
+  "shots": [
+    {
+      "color": "#1d3557"
+    },
+    {
+      "color": "#f4a261"
+    },
+    {
+      "card": {
+        "title": "3 steps",
+        "lines": [
+          "Pick one idea"
+        ]
+      }
+    },
+    {
+      "color": "#264653"
+    }
+  ],
+  "captions": [
+    "See the result first",
+    "It only takes three steps",
+    "Step one: pick one idea",
+    "Step two",
+    "Follow for part two"
+  ],
+  "note": "a fill of the demo template: colours, a title card and English captions"
+}

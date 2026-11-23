@@ -15,6 +15,12 @@ A supplied test/archive build includes a pinned companion package: install that 
 
 Use `--agent` to select a supported Agent or `--dir <skills-directory>` for another Agent. Start a new session and send a brief, pictures/screenshots, or a supported social post link. The Skill and executable have separate installation locations. Missing tools are prepared only as needed. Source development uses `npm ci && npm run build:skill` at the repository root; `dist/` is generated.
 
+## Videos
+
+The Skill also re-creates a reference video with new content: the same cuts, effects and motion with new words,
+pictures and voice-over, built as a project of HTML scenes and rendered to MP4. Start with `popost video doctor`,
+which says what this machine has for it; the Agent follows [references/video.md](references/video.md).
+
 ## Accounts and costs
 
 Local references, layout, editing, rendering and export use no Popost image/parsing credits; the Agent itself may have separate fees. Popost hosted parsing retrieves supported pictures, titles and body text from TikTok, Instagram, X, Xiaohongshu and Douyin posts. Local screenshots and supplied text are an alternative to parsing.

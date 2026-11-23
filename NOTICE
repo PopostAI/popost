@@ -13,6 +13,23 @@ Canvas editor (packages/canvas-editor)
   texts are generated into skills/popost/assets/canvas/THIRD_PARTY_LICENSES.txt by
   `npm run publish:editor`.
 
+Skill command line (skills/popost)
+- The popost npm package installs its run-time dependencies from npm beside it; they are not bundled into dist/.
+  zod (reads and checks the video projects of `popost video`): MIT License, Copyright (c) 2025 Colin McDonnell.
+  gsap (an animation library that scenes of a video may load; `popost video scene library` copies its unchanged file
+  into the user's project): Copyright (c) Webflow, GSAP Standard License, https://gsap.com/standard-license. It is
+  free to use and is not open-source software; this repository's license does not cover it.
+
+Adapted code
+- rea-video (https://github.com/JuneYaooo/rea-video): parts of the video measurement in
+  skills/popost/src/video/measure/ (span.ts, kinds.ts, fits.ts and gradual.ts: finding the frames of a change between
+  shots and telling its kind; motion.ts: finding motion inside a shot) are adapted from rea_video/transitions.py and
+  rea_video/motion.py, rewritten in TypeScript with changes. Copyright 2026 JuneYaooo, licensed under the Apache
+  License, Version 2.0; the license text is in skills/popost/THIRD_PARTY_NOTICES. rea-video's NOTICE reads:
+      rea-video
+      Copyright 2026 JuneYaooo
+      Licensed under the Apache License, Version 2.0.
+
 Community template reference images
 - The preview pages are not stored in this repository. Each template's template.json lists
   them as public image URLs (https://static.popost.ai/templates/<template>/). The original

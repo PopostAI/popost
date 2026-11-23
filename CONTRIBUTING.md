@@ -16,7 +16,7 @@ repository (a modified Apache License 2.0).
 By submitting a contribution (a pull request, patch or any other code, documentation or asset) you confirm that:
 
 1. You wrote it, or you otherwise have the right to submit it under the Popost license.
-2. You agree to section 2 of the [LICENSE](LICENSE): CLIPCAT AI LTD may make the open-source license stricter
+2. You agree to section 5 of the [LICENSE](LICENSE): CLIPCAT AI LTD may make the open-source license stricter
    or more permissive as it deems necessary, and your contribution may be used for commercial purposes,
    including CLIPCAT AI LTD's cloud services.
 3. Third-party material in your contribution is clearly marked, keeps its original license, and is added to

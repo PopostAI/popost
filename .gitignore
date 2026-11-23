@@ -1,3 +1,6 @@
+# The default place of the video evaluation ledger (popost video eval); POPOST_VIDEO_LEDGER keeps it elsewhere
+docs/video/eval/
+
 # Dependencies
 node_modules/
 */node_modules/
@@ -77,3 +80,8 @@ skills/popost/*.tgz
 
 # Template preview images: local input for the publish script only; they are served from the public bucket (AGENTS.md)
 skills/popost/templates/community/*/previews/
+
+# Work files of the video engine (renders, measurements, evaluation runs)
+.video-work/
+# work files of popost video run inside the repository (POPOST_VIDEO_WORK overrides the place)
+.popost/

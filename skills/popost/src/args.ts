@@ -23,6 +23,8 @@ export interface PositionalSpec {
   readonly choices?: readonly string[];
   /** Defaults to true. */
   readonly required?: boolean;
+  /** The last positional only: it takes every remaining argument, read back with `list` (argparse's nargs='+', or '*' when not required). */
+  readonly variadic?: boolean;
   readonly help?: string;
 }
 
@@ -142,16 +144,17 @@ export const parseArgs = (argv: readonly string[], spec: CommandSpec): ParsedArg
   }
   if (help) return new ParsedArgs(values, true);
   const declared = spec.positionals ?? [];
-  if (positionals.length > declared.length)
+  if (positionals.length > declared.length && !declared.at(-1)?.variadic)
     throw new UsageError(`unrecognized arguments: ${positionals.slice(declared.length).join(' ')}`);
   declared.forEach((positional, index) => {
-    const raw = positionals[index];
-    if (raw === undefined) return;
-    if (positional.choices && !positional.choices.includes(raw))
-      throw new UsageError(
-        `argument ${positional.name}: invalid choice: '${raw}' (choose from ${describeChoices(positional.choices)})`,
-      );
-    values.set(keyOf(positional.name), raw);
+    const raws = positional.variadic ? positionals.slice(index) : positionals.slice(index, index + 1);
+    if (!raws.length) return;
+    for (const raw of raws)
+      if (positional.choices && !positional.choices.includes(raw))
+        throw new UsageError(
+          `argument ${positional.name}: invalid choice: '${raw}' (choose from ${describeChoices(positional.choices)})`,
+        );
+    values.set(keyOf(positional.name), positional.variadic ? raws : raws[0]!);
   });
   const missing = [
     ...declared.filter((p) => p.required !== false && !values.has(keyOf(p.name))).map((p) => p.name),
@@ -175,7 +178,10 @@ const optionUsage = (option: OptionSpec): string => {
 export const formatUsage = (spec: CommandSpec): string => {
   const parts = [
     ...(spec.options ?? []).map((o) => (o.required ? optionUsage(o) : `[${optionUsage(o)}]`)),
-    ...(spec.positionals ?? []).map((p) => (p.choices ? `{${p.choices.join(',')}}` : p.name)),
+    ...(spec.positionals ?? []).map((p) => {
+      const name = p.choices ? `{${p.choices.join(',')}}` : p.name;
+      return p.variadic ? (p.required === false ? `[${name} ...]` : `${name} [${name} ...]`) : name;
+    }),
   ];
   return `usage: ${spec.prog} [-h] ${parts.join(' ')}`.trimEnd();
 };

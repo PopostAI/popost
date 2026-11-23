@@ -7,6 +7,7 @@ import { homedir } from 'node:os';
 import path from 'node:path';
 import { chromium, type Browser } from 'playwright-core';
 import { msg } from '../i18n';
+import type { BrowserProfile } from '../runtime';
 
 export class BrowserUnavailableError extends Error {
   override name = 'BrowserUnavailableError';
@@ -64,9 +65,54 @@ export const findChromium = (env: Readonly<Record<string, string | undefined>>):
  * `MAP * ~NOTFOUND`: no host name resolves. Pages are served by request interception (`offline.ts`), which never needs
  * DNS; this also closes what interception cannot see (`<link rel="preconnect">`, `dns-prefetch`).
  */
-const LAUNCH_ARGS = ['--disable-gpu', '--font-render-hinting=none', '--host-resolver-rules=MAP * ~NOTFOUND'];
+const OFFLINE = '--host-resolver-rules=MAP * ~NOTFOUND';
+const LAUNCH_ARGS = ['--disable-gpu', '--font-render-hinting=none', OFFLINE];
 
-export const launchChromium = async (env: Readonly<Record<string, string | undefined>>): Promise<Browser> => {
+/**
+ * Video frames: the same pixels on every run. Software raster, sRGB, images decoded before they are drawn (never a
+ * placeholder first), every compositor stage finished before a screenshot, and no waiting for a display's frame rate.
+ */
+const FRAME_ARGS = [
+  '--disable-gpu',
+  '--font-render-hinting=none',
+  '--force-color-profile=srgb',
+  '--hide-scrollbars',
+  '--mute-audio',
+  '--disable-checker-imaging',
+  '--disable-partial-raster',
+  '--run-all-compositor-stages-before-draw',
+  '--disable-frame-rate-limit',
+  '--disable-gpu-vsync',
+];
+
+const ARGS: Readonly<Record<BrowserProfile, readonly string[]>> = {
+  pages: LAUNCH_ARGS,
+  frames: [...FRAME_ARGS, OFFLINE],
+  // A page of the public web keeps the display's frame rate: without the limit, together with running every compositor
+  // stage before drawing, a CSS transition that hovering starts (a tab's background) stops Chrome from drawing, and
+  // every screenshot after it waits forever.
+  web: FRAME_ARGS.filter((a) => a !== '--disable-frame-rate-limit'),
+};
+
+/** Chrome's own limit on raster threads. */
+const MAX_RASTER_THREADS = 4;
+
+/**
+ * The arguments of a launch. rasterThreads: for video frames, Chrome's raster threads from the CPU budget (1 to 4).
+ * Chrome sizes its pools by the machine's processor count; under a CPU quota of one processor on 8, the render of the
+ * showcase cost 33 s of Chrome's CPU and took 75 to 78 s with Chrome's own count, and 28.6 s and 61 s with one raster
+ * thread. Pinned to one processor it makes no difference (51 s either way).
+ */
+export const chromiumArgs = (profile: BrowserProfile, o: { rasterThreads?: number } = {}): string[] => [
+  ...ARGS[profile],
+  ...(profile === 'frames' && o.rasterThreads !== undefined ? ['--num-raster-threads=' + Math.max(1, Math.min(MAX_RASTER_THREADS, Math.floor(o.rasterThreads)))] : []),
+];
+
+export const launchChromium = async (
+  env: Readonly<Record<string, string | undefined>>,
+  profile: BrowserProfile = 'pages',
+  o: { rasterThreads?: number } = {},
+): Promise<Browser> => {
   const executablePath = findChromium(env);
   if (!executablePath)
     throw new BrowserUnavailableError(
@@ -75,5 +121,5 @@ export const launchChromium = async (env: Readonly<Record<string, string | undef
         '没有找到 Chrome、Edge 或 Chromium。请安装 Google Chrome，或把 POPOST_CHROME 设为某个 Chromium 可执行文件。',
       ),
     );
-  return chromium.launch({ executablePath, headless: true, args: LAUNCH_ARGS });
+  return chromium.launch({ executablePath, headless: true, args: chromiumArgs(profile, o) });
 };

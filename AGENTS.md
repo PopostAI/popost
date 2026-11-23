@@ -15,6 +15,7 @@
 |---|---|
 | `packages/canvas-editor/` | 画布编辑器源码、测试、`dev/` 调试页；`EMBEDDING.md` 是网页宿主嵌入编辑器的约定（参数、postMessage 消息、`store=host` 存储） |
 | `skills/popost/` | Skill 与 `popost` 命令行（TypeScript，npm 包 `popost`）：`SKILL.md` 入口、`src/`（CLI 源码，构建到不提交的 `dist/`）、`references/`、`templates/`、`assets/`（字库清单、编辑器构建产物）、`tests/`（vitest）、`tools/`（仅维护者用的 Python 字库脚本，不属于 CLI） |
+| `skills/popost/src/video/` | 视频引擎（开发中，分支 `feat/video-skill`，还没有进入已发布的版本），命令是 `popost video …`：工程文件 → 可显示任意帧的页面 → MP4，以及视频文件 → 测量结果 → 分数。Agent 的做法见 `skills/popost/references/video.md`；测试在 `skills/popost/tests/video/`，本机读取器和配音工具的示例在 `skills/popost/tools/video/`（不随 npm 包发布）；开发规范见 `docs/video/DEVELOPMENT.zh.md` |
 | `scripts/` | 仓库级构建胶水：`publish-editor.mjs`；`scripts/release/`：Skill 发布检查（`npm run release:check`、`npm run release:smoke`），手册 `docs/release-skill.md` |
 | `docs/editor-rewrite/` | 编辑器规格、契约、功能清单、对齐结果（历史记录，路径是重组前的旧路径） |
 

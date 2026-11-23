@@ -1,0 +1,550 @@
+{
+  "version": 1,
+  "note": "Uses every feature of the third making round once, and the words of the fourth (a words file, a phrase anchor, captions that follow the spoken word), with pictures and sound as text only (an SVG, an SBaGen script). Not shown: a font material, which needs a font file (binary); see tests/make-text.test.ts.",
+  "canvas": {
+    "width": 1080,
+    "height": 1920,
+    "fps": 30
+  },
+  "materials": [
+    {
+      "id": "pattern",
+      "kind": "image",
+      "file": "assets/pattern.svg",
+      "note": "A text-only picture: a grid with a target in the top right corner."
+    },
+    {
+      "id": "voice",
+      "kind": "audio",
+      "file": "assets/voice.sbg",
+      "words": "assets/voice.words.json",
+      "note": "A text-only stand-in for a recorded voice: ffmpeg reads the SBaGen script as silence. The words file was written by hand as if the line \"Captions follow the spoken word, every word on time\" had been spoken and aligned (src/align writes the same format)."
+    }
+  ],
+  "segments": [
+    {
+      "id": "intro",
+      "frames": 60,
+      "note": "A linear gradient as the colour base.",
+      "base": {
+        "color": {
+          "type": "linear",
+          "angle": 160,
+          "stops": [
+            {
+              "at": 0,
+              "color": "#1b1f3b"
+            },
+            {
+              "at": 0.55,
+              "color": "#4a2c6f"
+            },
+            {
+              "at": 1,
+              "color": "#e94e77"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "zoom",
+      "frames": 50,
+      "note": "Cut, then zoom 2.6x towards the top right corner over 28 frames with ease-out, then hold: a keyframed camera move.",
+      "base": {
+        "material": "pattern",
+        "camera": {
+          "moves": [
+            {
+              "from": 0,
+              "to": 28,
+              "scale": [
+                1,
+                2.6
+              ],
+              "focus": [
+                1,
+                0
+              ],
+              "ease": "out"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "settle",
+      "frames": 50,
+      "note": "A hard cut into a blurred, enlarged picture that settles: a one-sided blur (\"after\", strength 1.5) and a camera move from 1.15 to 1.",
+      "base": {
+        "material": "pattern",
+        "camera": {
+          "moves": [
+            {
+              "from": 0,
+              "to": 30,
+              "scale": [
+                1.15,
+                1
+              ],
+              "ease": "out"
+            }
+          ]
+        }
+      },
+      "in": {
+        "transition": "blur",
+        "side": "after",
+        "frames": 14,
+        "strength": 1.5
+      }
+    },
+    {
+      "id": "outro",
+      "frames": 50,
+      "note": "The old shot goes into a flash (\"before\"), then a hard cut onto a radial gradient base.",
+      "base": {
+        "color": {
+          "type": "radial",
+          "stops": [
+            {
+              "at": 0,
+              "color": "#2b5876"
+            },
+            {
+              "at": 1,
+              "color": "#0b1320"
+            }
+          ]
+        }
+      },
+      "in": {
+        "transition": "flash",
+        "side": "before",
+        "frames": 8
+      }
+    },
+    {
+      "id": "spoken",
+      "frames": 120,
+      "note": "Four seconds for the spoken passage; nothing in it is timed by frames except this length.",
+      "base": {
+        "color": {
+          "type": "linear",
+          "angle": 180,
+          "stops": [
+            {
+              "at": 0,
+              "color": "#0b1320"
+            },
+            {
+              "at": 1,
+              "color": "#1d2b53"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "tracks": [
+    {
+      "id": "title",
+      "type": "text",
+      "note": "A soft text shadow, letter spacing, and a span in another colour that the \"type\" entrance reveals with its characters.",
+      "text": "Say more with data",
+      "box": [
+        0.08,
+        0.12,
+        0.84,
+        0.15
+      ],
+      "during": {
+        "segment": "intro",
+        "from": 2
+      },
+      "style": {
+        "size": 0.052,
+        "weight": 800,
+        "color": "#ffffff",
+        "letterSpacing": 0.03,
+        "shadow": {
+          "color": "rgba(0, 0, 0, 0.55)",
+          "blur": 0.18,
+          "x": 0.03,
+          "y": 0.06
+        },
+        "spans": [
+          {
+            "from": 4,
+            "to": 8,
+            "color": "#ffd000"
+          },
+          {
+            "from": 14,
+            "to": 18,
+            "background": {
+              "color": "#e94e77",
+              "padding": 0.12,
+              "radius": 0.2
+            }
+          }
+        ]
+      },
+      "enter": {
+        "preset": "type",
+        "frames": 20
+      }
+    },
+    {
+      "id": "subtitle",
+      "type": "text",
+      "note": "Line height and opacity of a text style, over two lines.",
+      "text": "Presets and properties,\nall pure functions of the frame",
+      "box": [
+        0.1,
+        0.29,
+        0.8,
+        0.1
+      ],
+      "during": {
+        "segment": "intro",
+        "from": 14
+      },
+      "style": {
+        "size": 0.026,
+        "weight": 500,
+        "color": "#ffffff",
+        "lineHeight": 1.6,
+        "opacity": 0.8
+      },
+      "enter": {
+        "preset": "fade",
+        "frames": 8
+      }
+    },
+    {
+      "id": "sticker",
+      "type": "shape",
+      "shape": "ellipse",
+      "note": "A radial gradient fill, a border, a drop shadow, a rotation and a pulsing loop.",
+      "color": {
+        "type": "radial",
+        "stops": [
+          {
+            "at": 0,
+            "color": "#fff6b0"
+          },
+          {
+            "at": 1,
+            "color": "#ff9a3c"
+          }
+        ]
+      },
+      "box": [
+        0.36,
+        0.48,
+        0.28,
+        0.16
+      ],
+      "border": {
+        "color": "#ffffff",
+        "width": 0.008
+      },
+      "shadow": {
+        "color": "rgba(0, 0, 0, 0.45)",
+        "blur": 0.02,
+        "x": 0.008,
+        "y": 0.014
+      },
+      "rotate": -12,
+      "loop": {
+        "preset": "pulse",
+        "period": 30,
+        "amount": 0.08
+      },
+      "during": {
+        "segment": "intro",
+        "from": 10
+      },
+      "enter": {
+        "preset": "pop"
+      }
+    },
+    {
+      "id": "badge",
+      "type": "shape",
+      "shape": "rect",
+      "radius": 0.3,
+      "note": "A swaying loop on a rotated, half-transparent badge.",
+      "color": "#ffd000",
+      "opacity": 0.85,
+      "rotate": 6,
+      "box": [
+        0.62,
+        0.7,
+        0.26,
+        0.05
+      ],
+      "loop": {
+        "preset": "sway",
+        "period": 40,
+        "amount": 5
+      },
+      "during": {
+        "segment": "intro",
+        "from": 20
+      }
+    },
+    {
+      "id": "lens",
+      "type": "image",
+      "material": "pattern",
+      "fit": "cover",
+      "mask": "ellipse",
+      "note": "A picture masked to an ellipse, floating up and down.",
+      "box": [
+        0.08,
+        0.62,
+        0.3,
+        0.17
+      ],
+      "border": {
+        "color": "#ffffff",
+        "width": 0.006
+      },
+      "loop": {
+        "preset": "float",
+        "period": 36,
+        "amount": 0.012
+      },
+      "during": {
+        "segment": "settle",
+        "from": 16
+      },
+      "enter": {
+        "preset": "scale-in"
+      }
+    },
+    {
+      "id": "card",
+      "type": "image",
+      "material": "pattern",
+      "fit": "cover",
+      "radius": 0.18,
+      "note": "A picture with rounded corners and a drop shadow.",
+      "box": [
+        0.56,
+        0.6,
+        0.36,
+        0.2
+      ],
+      "shadow": {
+        "color": "rgba(0, 0, 0, 0.5)"
+      },
+      "during": {
+        "segment": "settle",
+        "from": 20
+      },
+      "enter": {
+        "preset": "slide",
+        "direction": "left"
+      }
+    },
+    {
+      "id": "cursor",
+      "type": "shape",
+      "shape": "rect",
+      "color": "#ffffff",
+      "note": "A blinking cursor: the blink loop, once a second.",
+      "box": [
+        0.47,
+        0.42,
+        0.012,
+        0.04
+      ],
+      "loop": {
+        "preset": "blink",
+        "period": 30
+      },
+      "during": {
+        "segment": "outro",
+        "from": 6
+      }
+    },
+    {
+      "id": "spinner",
+      "type": "shape",
+      "shape": "rect",
+      "radius": 0.25,
+      "note": "A spinning loop: one turn every 90 frames.",
+      "color": {
+        "type": "linear",
+        "angle": 45,
+        "stops": [
+          {
+            "at": 0,
+            "color": "#5ee7df"
+          },
+          {
+            "at": 1,
+            "color": "#b490ca"
+          }
+        ]
+      },
+      "box": [
+        0.42,
+        0.24,
+        0.16,
+        0.09
+      ],
+      "loop": {
+        "preset": "spin",
+        "period": 90
+      },
+      "during": {
+        "segment": "outro"
+      }
+    },
+    {
+      "id": "subs",
+      "type": "caption",
+      "note": "A caption track: three cues timed to speech, not to shots (cue 1 runs across the cut into \"outro\"); cue 2 has a span.",
+      "box": [
+        0.06,
+        0.84,
+        0.88,
+        0.07
+      ],
+      "style": "caption",
+      "enter": {
+        "preset": "fade",
+        "frames": 4
+      },
+      "exit": {
+        "preset": "fade",
+        "frames": 4
+      },
+      "cues": [
+        {
+          "text": "Zoom towards the corner",
+          "during": {
+            "segment": "zoom",
+            "from": 4,
+            "to": 44
+          }
+        },
+        {
+          "text": "A cut that settles",
+          "during": {
+            "segment": "settle",
+            "from": 4,
+            "to": 62
+          }
+        },
+        {
+          "text": "Captions follow speech",
+          "during": {
+            "segment": "outro",
+            "from": 16
+          },
+          "spans": [
+            {
+              "from": 0,
+              "to": 8,
+              "color": "#ffd000"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "voice",
+      "type": "audio",
+      "material": "voice",
+      "during": {
+        "segment": "spoken"
+      },
+      "note": "Plays the voice from the start of \"spoken\", which puts its words on the timeline at 210 + their frame."
+    },
+    {
+      "id": "stamp",
+      "type": "text",
+      "text": "ON TIME",
+      "style": "label",
+      "box": [
+        0.3,
+        0.34,
+        0.4,
+        0.07
+      ],
+      "during": {
+        "phrase": "word",
+        "occurrence": 2,
+        "lead": 4,
+        "hold": 24
+      },
+      "enter": {
+        "preset": "pop"
+      },
+      "exit": {
+        "preset": "fade",
+        "frames": 6
+      },
+      "note": "A phrase anchor: on screen from 4 frames before the second \"word\" is spoken until 24 frames after it. Re-record the voice and it moves with the word."
+    },
+    {
+      "id": "karaoke",
+      "type": "caption",
+      "box": [
+        0.06,
+        0.6,
+        0.88,
+        0.12
+      ],
+      "words": true,
+      "reveal": "words",
+      "enter": {
+        "preset": "type"
+      },
+      "exit": {
+        "preset": "fade",
+        "frames": 4
+      },
+      "style": {
+        "size": 0.045,
+        "weight": 600,
+        "color": "#ffffff",
+        "spoken": {
+          "color": "#111111",
+          "weight": 800,
+          "scale": 1.08,
+          "background": {
+            "color": "#ffd000",
+            "padding": 0.08
+          },
+          "past": {
+            "color": "#ffffff",
+            "opacity": 0.7
+          }
+        }
+      },
+      "note": "Captions that follow the words: each cue is anchored to its own phrase, each word appears when it is spoken (reveal), the spoken word is dark on yellow, heavier and a little larger, and spoken words fade back.",
+      "cues": [
+        {
+          "text": "Captions follow the spoken word,",
+          "during": {
+            "phrase": "Captions follow the spoken word",
+            "hold": 4
+          }
+        },
+        {
+          "text": "every word on time",
+          "during": {
+            "phrase": "every word on time",
+            "hold": 10
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+## A text-only stand-in for a recorded voice: ffmpeg reads this SBaGen script as silence.
+quiet: -
+
+NOW quiet

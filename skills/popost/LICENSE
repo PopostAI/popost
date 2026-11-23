@@ -2,11 +2,67 @@ Popost skill
 Copyright © 2026 CLIPCAT AI LTD
 
 The Popost skill (this folder, including scripts/, references/, templates/, tools/,
-tests/ and SKILL.md) is part of Popost and is licensed under the Popost license in the
-repository root (../../LICENSE): a modified Apache License 2.0. If you distribute this
-folder on its own, include a copy of that license.
+tests/ and SKILL.md) is part of Popost and is licensed under the Popost License below,
+the same text as LICENSE at the root of the repository: the Apache License 2.0 with
+additional terms.
 
 Third-party components in this folder keep their own licenses; see THIRD_PARTY_NOTICES:
 - assets/fonts/<role>/*.woff2: SIL Open Font License 1.1 (each family's LICENSE file).
 - assets/canvas/: npm packages bundled into the canvas editor build, listed in
   assets/canvas/THIRD_PARTY_LICENSES.txt.
+- dist/ and src/video/measure/: code adapted from rea-video, Apache License 2.0.
+
+------------------------------------------------------------------------------
+
+# Popost License
+
+Popost (https://popost.ai) is made by CLIPCAT AI LTD ("we", "us"). You may use, copy, modify and share Popost under
+the Apache License, Version 2.0 (https://www.apache.org/licenses/LICENSE-2.0), together with the additional terms
+below. Where the Apache License and these terms differ, these terms apply.
+
+## 1. Uses that need no permission from us
+
+- Getting Popost, running it on your own computers or servers, and changing it.
+- Using it for the work of your own organization, including paid work and work you do for your clients, as a
+  generation or editing backend for applications your organization runs for itself, and as internal tooling.
+- Running a deployment for a single organization, operated by and for that organization.
+- Publishing a fork or a modified version, provided you make it available under this same license and do not supply
+  it for commercial gain.
+
+## 2. Uses that need a commercial license
+
+The uses below need our written permission (a commercial license from us):
+
+a. Serving other parties. Running Popost, or any work derived from it, to offer its features to parties outside your
+   organization as a hosted, managed or software-as-a-service offering, or running one installation in which two or
+   more parties outside your organization each have their own workspace. A workspace is the separate set of projects,
+   assets, inspirations, credentials and settings that belongs to one party. This applies whether or not you charge
+   for it.
+
+b. Selling it. Selling Popost or any work derived from it, licensing it for a fee, or otherwise supplying it for
+   commercial gain, whether on its own or as part of a product, application, package, browser extension or device
+   that you provide to others.
+
+## 3. The Popost name and notices
+
+Where Popost shows its name, logo or copyright information to a user (in the web app, the canvas editor, the Popost
+Skill's command-line tools and local Studio, or any user-facing part derived from them), you may not remove or change
+them. This does not apply to uses of Popost that show none of these to a user.
+
+## 4. What you make is yours
+
+We claim no rights in what you create with Popost. Images, HTML documents, posts, videos and any other results belong
+to you, and this license puts no conditions on how you use them, commercial use included. Results made through
+third-party models or services may also be subject to those providers' terms, and you are responsible for having the
+rights to any reference material you give Popost.
+
+## 5. Contributions
+
+By contributing to Popost, you agree that we may make the terms of this license stricter or more permissive as we see
+fit, and that your contribution may be used for commercial purposes, including our hosted services.
+
+## 6. Third-party components
+
+Third-party components included in Popost keep their own licenses; see NOTICE.
+
+Copyright © 2026 CLIPCAT AI LTD

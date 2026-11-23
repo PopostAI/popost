@@ -1,0 +1,128 @@
+# Templates and fills
+
+A template is the structure of a reference video, kept so that nobody needs the reference again, plus a contract that
+says what may change and within which limits. A fill is the new content: two lists that line up with the template
+by position. The program keeps every length, cut, transition and caption time; a fill holds no times.
+
+## A template directory
+
+`popost video template save <dir from describe> --out template --name <name>` writes:
+
+| File | Holds | Read it? |
+|---|---|---|
+| `TEMPLATE.md` | one screen: the beats, the shots, the forms of a fill, the rules | yes (`template show` prints it as `card`) |
+| `template.json` | the structure: canvas, shots with their lengths and transitions, the caption band and its beats, the frame around the content when the shots had one (`TEMPLATE.md` says it) | no |
+| `slots.json` | the limits of every place a fill writes | no: `template show` prints it as `slots` |
+| `shots.txt` | one line per shot saying what it showed (only when `template see` was run with a model) | if present |
+| `reference-text.json` | the reference's on-screen text by shot (only when describe read text) | no: `template fill` copies it into the project's record |
+
+`--max-shot <seconds>` cuts longer shots into equal parts (for clips a generator makes).
+
+## Slots and limits
+
+A slot is one place a fill writes, named by its position:
+
+- `shots[k]`: `seconds` (its length), `source` (what filled it in the reference: `footage`, `picture` or
+  `colour`), `accepts` (the fills the shot takes, the closest to the source first; `scene` is last, in every shot's list), and
+  `footage.seconds`: how much footage a clip must have from its `"in"` so that it does not run out.
+- `captions.lines[i]`: the beat's `seconds`, `max` (characters, full-width `cjk` or `latin`), the reference's
+  line as `example` with its length, `shown: false` for a beat that was only said (its line is spoken, not drawn),
+  `unsure` when the reader or the transcriber was not sure. `captions.box` is the caption band as
+  `[x, y, width, height]` fractions of the canvas; `captions.capacity` was measured by laying out text in the band
+  in Chrome.
+- `card`: how many characters a card's title and each of its lines hold, and how many lines fit.
+- With a voice, `popost video plan template --dry --voice <voice>` adds `budgets`: for each line, the most characters
+  the voice can say in its beat. `template check` and `template fill` hold the lines to them with `--pace`.
+
+## A fill
+
+```json
+{ "shots": [ { "scene": "scenes/hook.html", "slots": { "title": "..." } }, { "footage": "assets/page.mp4", "in": 0 } ],
+  "captions": ["first line", "second line"],
+  "voice": "<voice>" }
+```
+
+A shot is exactly one of:
+
+| Form | Keys | Notes |
+|---|---|---|
+| scene | `scene`, `slots` | an HTML page in the project that draws the shot (`video-scenes.md`); a slot of an `<img>` takes a picture path relative to the scene file (`"../assets/logo.png"`) |
+| footage | `footage`, `in`, `speed` (0.25 to 4), `fit` (`cover` or `contain`), `ground` | `in` is the first frame to show |
+| picture | `picture`, `zoom`, `fit`, `ground` | `zoom`: growth per second (0.04 is a slow push in), not a scale |
+| color | `color` | neighbouring colour shots need clearly different colours |
+| card | `card`: `title`, `lines`, `background`, `color` | a title and lines that enter one after another; 1 s or more |
+
+`fit` decides what happens to a picture or footage whose proportions differ from the canvas's: `"cover"` (the default)
+fills the shot and cuts off what lies outside it, text included; `"contain"` shows the whole file with bands of
+`ground` (a colour, black by default) above and below or left and right. With the files at hand, `template check` and
+`template fill` warn per shot when cover would cut more than a tenth of a file's width or height ("assets/page.png is
+1280x800 in a 960x720 shot: cover cuts 8% off its left and its right"), naming the colour along the file's edges as a
+ground that joins it, when a file is much smaller than the shot (it is blown up and looks soft), and when
+`contain` leaves more than a tenth of the shot to a bare ground (design that shot instead: a scene with the file as a
+`video` or `image` item of the shot, its `"items"`, `video-scenes.md`, "A screen inside a scene"). Better than any of them: material
+made at the canvas's proportions. They also warn when one picture fills more than two shots or more than a third of the
+video (a slide show), and name the capture director's zooms over it (`video-tools.md`, "Capture plans").
+
+Any shot may also carry `"items"`: clips (`"video"`) and pictures (`"image"`) drawn over it in a `box` of the canvas,
+such as a screen recording in the phone a scene draws (`video-scenes.md`, "Footage inside a scene"). Fill writes them
+into `video.json` as tracks during the shot, so they survive every later fill and move with the shot in a re-flow.
+
+A shot where the source laid words over the picture (a sticker word, a heading over a recording: its titles) has
+places for them: `template.json` keeps each place's box, size and frames (not the words), `slots.json` lists them as
+`shots[k].words[j]` with the source's words and about how many characters a line holds, and TEMPLATE.md names them
+on the shot (`words "Step one" (8)`). `"words": ["..."]` gives the places new lines in order; each is drawn where the
+source's was, at its size and on its frames, white with a dark outline (its colour is not measured), and `*marks*`
+highlight a word as in captions. `""` leaves a place empty; more lines than places is refused, and fill names the places
+a footage, picture or colour shot leaves without a line. A card or a scene draws its own text instead.
+
+A row of words the source kept on screen through the video, side by side (the sections of the video, the current one
+marked by a plate or a colour), is a bar laid on in the edit, not a watermark: REFERENCE.md and TEMPLATE.md name it,
+with the word each shot marks. `"bar": ["...", "..."]` gives it new words from the left; each is drawn in its place
+through the whole video, and the word a shot marks is drawn over it on a plate in a colour that stands out (the
+source's colours are not measured). More words than the source's bar has is refused.
+
+Other keys: `captions` (one line per beat; `""` for none), `voice` and `speed` (passed to the speaker), `say`
+(`[{"text": "SaaS", "as": "sass"}]`: how a word is spoken), `captionColor`, `captionOutline`, `captionSpoken`
+(`true`: light up the spoken word), `captionReveal` (`"words"`: show each word when it is spoken), `sound` (an
+audio file for the whole video, relative to the project), `note`. File paths are relative to the project. Lists are
+matched by position; no times, no frames except `in`. The captions look as the reference's did when `describe` could
+measure it: the colour that fills its letters (inside the outline, not the outline) on its plate (colour, opacity,
+padding, corners), with its outline, or plain; a part it was not sure of has no colour in `text.json` and gets the
+default; otherwise white with a dark outline. `captionColor` and `captionOutline` override that. Words wrapped in
+asterisks, `"Save *50%* today"`, are drawn in the highlight colour: the reference's, when it filled a word or two of
+its lines with another colour (`TEMPLATE.md` says so), else a yellow that stands out from the letters; the asterisks
+are neither drawn nor spoken.
+
+## Commands
+
+```bash
+popost video template show template                                   # TEMPLATE.md and the slots
+popost video template check template --fill fill.json [--assets project] [--pace P [--fit-tempo T]]   # problems, each with a fix
+popost video template fill template --fill fill.json --out project [--speak --keep-length --fit-tempo T] [--pace P]
+```
+
+`template check` looks at the files only with `--assets` (the directory the fill's paths are relative to), the
+pictures a fill gives a scene's picture places included (those paths are relative to the scene file). When that
+directory is the project, it also holds `video.json` to the template: a caption track whose text a hand edit made much
+smaller or larger than the reference's captions is a warning with both sizes in pixels. `template
+fill` checks the fill, then writes `video.json`, `reference.measure.json` and `reference.facts.json` (the record the checks
+compare the project with, `video-project.md`) into `--out`; it reads the fill's files
+from `--out` itself (or copies them in from `--assets`) and never changes the files you put there, so it can run
+again and again. `--speak` speaks the lines (`POPOST_TTS_CMD`) and re-flows every beat to its spoken line: the
+pauses between beats stay and each shot moves with the beat it falls in. `--keep-length` keeps a beat at least as
+long as in the reference. `--fit-tempo T` (1 to 1.5; 1.12 is hardly heard) first speeds a line that would run over
+its beat up as far as it needs, at most T times, pitch kept; only the rest re-flows, and a note per line says what
+was done. With `--pace P`, `--fit-tempo T` lets each line hold T times as many characters. A line far shorter than
+the reference's text of its beat is a warning: it is usually a cut that no longer says anything whole. A refused fill
+prints `problems` and `repair` (the same list as one message).
+
+## The example
+
+`<skill>/references/video-examples/template-demo/` is a template saved from a synthetic reference (4 shots, 5 beats,
+360x640) with a fill of colours, a card and English captions. To see the whole round:
+
+```bash
+popost video template show <skill>/references/video-examples/template-demo
+popost video template fill <skill>/references/video-examples/template-demo --fill <skill>/references/video-examples/template-demo/fill.json --out demo
+popost video render demo --out demo.mp4
+```

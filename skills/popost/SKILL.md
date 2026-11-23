@@ -2,7 +2,7 @@
 name: popost
 metadata:
   version: "4.6.1"
-description: 创作、复刻和编辑社媒单图与多图文，适用于小红书、抖音、TikTok、Instagram（ins）和 X。可将这五个平台的帖子链接保存到用户账号的「我的灵感」。根据文字需求、本地图片、截图或指定场景 skill，制作可继续改文字、图片和布局的 HTML 图文，交付宿主侧栏中的 popost 多页画布、PNG 与完整工程 ZIP。帖子链接可交给 popost.ai 解析（需连接账户），否则使用本地参考。
+description: 创作、复刻和编辑社媒单图与多图文，适用于小红书、抖音、TikTok、Instagram（ins）和 X。可将这五个平台的帖子链接保存到用户账号的「我的灵感」。根据文字需求、本地图片、截图或指定场景 skill，制作可继续改文字、图片和布局的 HTML 图文，交付宿主侧栏中的 popost 多页画布、PNG 与完整工程 ZIP。帖子链接可交给 popost.ai 解析（需连接账户），否则使用本地参考。也可按一条参考视频制作同款新视频：保留节奏、效果与动效，换成新主题，可配音。
 ---
 
 # popost
@@ -29,6 +29,7 @@ Before paid work show the account, work items, known prices and unknowns. Use `l
 
 ## 选择任务
 
+- 视频：用户要做视频，或按参考视频做同款、换主题、配音时，读 [video.md](references/video.md)，从第 0 步做到第 7 步；下面的图文流程和工程命令不适用。
 - 创作：从需求设计新内容；只有氛围/风格参考也属参考引导的创作。读 [create.md](references/create.md)。两种起点：直接按用户需求设计；或先从随 Skill 附带的模板里选——通读 `<skill>/templates/community/README.md`（全部模板的中英文名称和适用场景），选 1–3 个候选，读候选 SKILL.md 全文后决定用哪个或都不用（`popost template search` 只是可能漏掉同义说法和另一种语言的关键词捷径；用户已指定模板就直接用）。
 - 复刻：给定目标参考，要还原或做同款改编。先确定保留和替换范围，读 [reproduce.md](references/reproduce.md)。
 - 编辑：修改已有工程，保留任务外的设计；只重做受影响内容，读 [editor-contract.md](references/editor-contract.md)。

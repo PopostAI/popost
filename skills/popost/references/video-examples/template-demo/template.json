@@ -1,0 +1,105 @@
+{
+  "format": "popost-video-template",
+  "version": 1,
+  "name": "demo",
+  "source": {
+    "label": "a synthetic reference rendered by the engine: footage, a still with a push-in, a title card, a gradient end",
+    "measure": "sha256:d8a07b543f04c36a"
+  },
+  "canvas": {
+    "width": 360,
+    "height": 640,
+    "fps": 30
+  },
+  "frames": 210,
+  "shots": [
+    {
+      "frames": 60,
+      "source": "footage",
+      "note": "footage: the picture keeps changing (9% of it per tenth of a second); ground #02feff"
+    },
+    {
+      "frames": 54,
+      "in": {
+        "transition": "slide",
+        "frames": 7,
+        "direction": "left",
+        "mode": "push"
+      },
+      "source": "picture",
+      "note": "a still picture (0% of it changes per tenth of a second); camera push 0.9%/s; ground #2b5876",
+      "camera": {
+        "zoom": 0.0086,
+        "pan": [
+          0.0004,
+          -0.0028
+        ]
+      }
+    },
+    {
+      "frames": 36,
+      "source": "colour",
+      "note": "a flat colour (#101418 covers 96%); camera still; 1 motion event; ground #101418"
+    },
+    {
+      "frames": 60,
+      "in": {
+        "transition": "dissolve",
+        "frames": 8
+      },
+      "source": "colour",
+      "note": "a flat colour (#560bac covers 98%); 1 motion event; ground #560bac"
+    }
+  ],
+  "captions": {
+    "box": [
+      0.08,
+      0.7503,
+      0.84,
+      0.1425
+    ],
+    "style": {
+      "size": 0.0468,
+      "weight": 800,
+      "color": "#ffffff",
+      "align": "center",
+      "stroke": {
+        "color": "#111111",
+        "width": 0.16
+      },
+      "shadow": {
+        "color": "#111111",
+        "blur": 0.3,
+        "x": 0,
+        "y": 0.05
+      }
+    },
+    "line": {
+      "centre": 0.82155,
+      "size": 0.0509
+    },
+    "beats": [
+      {
+        "start": 0,
+        "end": 45
+      },
+      {
+        "start": 45,
+        "end": 100
+      },
+      {
+        "start": 100,
+        "end": 150
+      },
+      {
+        "start": 150,
+        "end": 185
+      },
+      {
+        "start": 185,
+        "end": 210
+      }
+    ],
+    "script": "cjk"
+  }
+}

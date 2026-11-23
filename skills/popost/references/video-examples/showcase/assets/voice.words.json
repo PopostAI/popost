@@ -1,0 +1,68 @@
+{
+  "fps": 30,
+  "tokens": [
+    {
+      "text": "Captions",
+      "start": 6,
+      "end": 20,
+      "confidence": 1,
+      "matched": true
+    },
+    {
+      "text": "follow",
+      "start": 20,
+      "end": 31,
+      "confidence": 1,
+      "matched": true
+    },
+    {
+      "text": "the",
+      "start": 31,
+      "end": 36,
+      "confidence": 1,
+      "matched": true
+    },
+    {
+      "text": "spoken",
+      "start": 36,
+      "end": 48,
+      "confidence": 1,
+      "matched": true
+    },
+    {
+      "text": "word",
+      "start": 48,
+      "end": 60,
+      "confidence": 1,
+      "matched": true
+    },
+    {
+      "text": "every",
+      "start": 70,
+      "end": 81,
+      "confidence": 1,
+      "matched": true
+    },
+    {
+      "text": "word",
+      "start": 81,
+      "end": 91,
+      "confidence": 1,
+      "matched": true
+    },
+    {
+      "text": "on",
+      "start": 91,
+      "end": 97,
+      "confidence": 1,
+      "matched": true
+    },
+    {
+      "text": "time",
+      "start": 97,
+      "end": 112,
+      "confidence": 1,
+      "matched": true
+    }
+  ]
+}

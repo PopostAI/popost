@@ -40,6 +40,7 @@ register(['link'], async () => (await import('./commands/link')).main, false);
 register(['template'], async () => (await import('./commands/template')).main, false);
 register(['cloud'], async () => (await import('./commands/cloud')).main, false);
 register(['deck'], async () => (await import('./commands/deck')).main, false);
+register(['video'], async () => (await import('./commands/video')).main, false);
 register(['ticket', 'validate', 'import'], async () => (await import('./commands/post-bundle')).main, true);
 
 const usage = () =>
@@ -57,6 +58,7 @@ const usage = () =>
       'editor:    present, serve, deck, cloud (push the project to your popost.ai account)',
       'sources:   ticket, validate, import, attach-bundle, link, inspiration, template',
       'account:   account (credit balance and plan), pricing (current link tariff; no charge)',
+      'video:     video (videos as editable projects; popost video --help lists its commands)',
       '',
     ].join('\n'),
     [
@@ -72,6 +74,7 @@ const usage = () =>
       '编辑器:    present、serve、deck、cloud（把工程推送到 popost.ai 账户）',
       '素材来源:  ticket、validate、import、attach-bundle、link、inspiration、template',
       '账户:      account（积分余额和套餐）、pricing（当前链接解析价格；不扣费）',
+      '视频:      video（把视频做成可编辑的工程；popost video --help 列出它的命令）',
       '',
     ].join('\n'),
   );

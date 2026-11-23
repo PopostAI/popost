@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920">
+  <!-- A picture as text, so that the showcase needs no binary file. A grid, and a target in the top right corner. -->
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#16324f"/>
+      <stop offset="1" stop-color="#0b1320"/>
+    </linearGradient>
+    <pattern id="grid" width="120" height="120" patternUnits="userSpaceOnUse">
+      <path d="M 120 0 L 0 0 0 120" fill="none" stroke="#2e5c8a" stroke-width="4"/>
+    </pattern>
+  </defs>
+  <rect width="1080" height="1920" fill="url(#sky)"/>
+  <rect width="1080" height="1920" fill="url(#grid)"/>
+  <circle cx="900" cy="230" r="150" fill="#ffd000"/>
+  <circle cx="900" cy="230" r="90" fill="#16324f"/>
+  <circle cx="900" cy="230" r="40" fill="#ff5a5f"/>
+  <rect x="120" y="1500" width="840" height="200" rx="40" fill="#2e5c8a"/>
+</svg>

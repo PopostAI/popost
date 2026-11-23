@@ -1,17 +1,18 @@
 /** The runtime of the npm CLI: the real disk, the network, a local Chrome, and detached processes for the editor. */
 import { spawn } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
-import { closeSync, openSync, readFileSync } from 'node:fs';
+import { accessSync, closeSync, constants as fsConstants, existsSync, openSync, readFileSync } from 'node:fs';
 import * as fsp from 'node:fs/promises';
 import { createServer } from 'node:http';
-import { homedir, hostname, platform } from 'node:os';
+import { availableParallelism, constants as osConstants, homedir, hostname, platform, setPriority, tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { countCpuList, cpuBudget, type CpuBudget } from './cpu-budget';
 import { applyStoredCredentials, credentialsFile, parseCredentials } from './credentials';
 import { deviceLocation, deviceTokenProvider, parseDeviceGrant } from './device-login';
 import { launchChromium } from './render/browser';
 import { readTerminalSecret } from './node-secret';
-import type { FileSystem, Runtime } from './runtime';
+import type { FileSystem, LocalPrograms, ProgramOptions, ProgramResult, Runtime } from './runtime';
 import { msg } from './i18n';
 
 const missing = (error: unknown) => (error as NodeJS.ErrnoException)?.code === 'ENOENT';
@@ -45,6 +46,155 @@ export const nodeFileSystem: FileSystem = {
   },
   rm: (p) => fsp.rm(p, { recursive: true, force: true }),
   rename: (from, to) => fsp.rename(from, to),
+};
+
+const STDERR_KEPT = 200_000;
+
+/** How much lower than the CLI a heavy child runs: the niceness `nice` adds, BELOW_NORMAL on Windows. */
+const LOW_PRIORITY = 10;
+
+const executable = (file: string): boolean => {
+  try {
+    accessSync(file, fsConstants.X_OK);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+/** `nice` where the platform has one (Linux, macOS); undefined on Windows or where it is missing. */
+let niceProgram: string | null | undefined;
+const findNice = (): string | undefined => {
+  if (niceProgram === undefined) niceProgram = platform() === 'win32' ? null : (['/usr/bin/nice', '/bin/nice'].find(executable) ?? null);
+  return niceProgram ?? undefined;
+};
+
+/** True when `exe` names a program that can be started (a path, or a name on PATH), as spawn would find it. */
+const startable = (exe: string, cwd: string | undefined): boolean =>
+  exe.includes('/') ? executable(path.resolve(cwd ?? process.cwd(), exe))
+    : (process.env.PATH ?? '').split(path.delimiter).some((dir) => dir !== '' && executable(path.join(dir, exe)));
+
+/**
+ * The program and arguments to start. A low-priority child on Linux and macOS is started through `nice`, so that
+ * every thread it makes runs lower (lowering a running process afterwards reaches only its first thread on Linux).
+ * Only a program that can be found is wrapped: one that cannot fails to start as it would without `nice`.
+ */
+const commandLine = (exe: string, args: readonly string[], options: ProgramOptions): [string, string[], boolean] => {
+  const nice = options.lowPriority ? findNice() : undefined;
+  if (nice && startable(exe, options.cwd)) return [nice, ['-n', String(LOW_PRIORITY), exe, ...args], false];
+  return [exe, [...args], Boolean(options.lowPriority)];
+};
+
+/** Windows, or no `nice`: the started process is lowered (Windows maps 10 to BELOW_NORMAL). Best effort. */
+const lower = (pid: number | undefined): void => {
+  if (pid === undefined) return;
+  try {
+    setPriority(pid, platform() === 'win32' ? osConstants.priority.PRIORITY_BELOW_NORMAL : LOW_PRIORITY);
+  } catch {
+    // a process that ended already, or a platform that refuses: it runs at normal priority
+  }
+};
+
+const runProgram = (argv: readonly string[], options: ProgramOptions = {}): Promise<ProgramResult> =>
+  new Promise((resolve, reject) => {
+    const [exe, ...rest] = argv;
+    if (!exe) {
+      reject(new Error('no program to run'));
+      return;
+    }
+    const [program, args, lowerAfter] = commandLine(exe, rest, options);
+    const env = options.env ? { ...process.env, ...options.env } : process.env;
+    const child = spawn(program, args, { cwd: options.cwd, stdio: ['pipe', 'pipe', 'pipe'], env });
+    if (lowerAfter) lower(child.pid);
+    const out: Buffer[] = [];
+    let err = '';
+    let inputError: unknown;
+    let closed = false;
+    child.stdout.on('data', (chunk: Buffer) => {
+      if (options.onStdout) options.onStdout(chunk);
+      else out.push(chunk);
+    });
+    child.stderr.on('data', (chunk: Buffer) => {
+      err += chunk.toString('utf8');
+      if (err.length > STDERR_KEPT * 2) err = err.slice(-STDERR_KEPT);
+    });
+    child.on('error', reject);
+    child.on('close', (code) => {
+      closed = true;
+      if (inputError !== undefined) reject(inputError);
+      else resolve({ code: code ?? -1, stdout: new Uint8Array(Buffer.concat(out)), stderr: err.slice(-STDERR_KEPT) });
+    });
+    child.stdin.on('error', () => undefined); // a program may close its input early; its exit code tells
+    const input = options.stdin;
+    if (input === undefined) child.stdin.end();
+    else if (input instanceof Uint8Array) child.stdin.end(input);
+    else
+      void (async () => {
+        try {
+          for await (const chunk of input) {
+            if (closed) break;
+            // Wait for the program to read, or to end: a program that died never drains. Whichever comes first removes
+            // the other listener, or one would be left on the child for every full pipe (a video is hundreds of them).
+            if (!child.stdin.write(chunk))
+              await new Promise<void>((done) => {
+                const go = (): void => {
+                  child.stdin.off('drain', go);
+                  child.off('close', go);
+                  done();
+                };
+                child.stdin.once('drain', go);
+                child.once('close', go);
+              });
+          }
+        } catch (error) {
+          inputError = error;
+          child.kill();
+        } finally {
+          child.stdin.end();
+        }
+      })();
+  });
+
+/** A file's text, or undefined when it cannot be read for any reason (the budget's sources are all optional). */
+const readQuietly = (file: string): string | undefined => {
+  try {
+    return existsSync(file) ? readFileSync(file, 'utf8') : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
+/**
+ * The processors in this process's affinity mask. Linux lists them in /proc/self/status. availableParallelism()
+ * counts the mask too, but newer releases of libuv also fold in a cgroup v2 quota, rounded down (Node 24 with libuv
+ * 1.52 reports 1 under a quota of 1.5), which would hide the quota from cpuBudget's own rounding; elsewhere (macOS,
+ * Windows) it is the count the platform reports.
+ */
+const affinity = (): number => {
+  const list = readQuietly('/proc/self/status')?.match(/^Cpus_allowed_list:\s*(\S+)/m)?.[1];
+  const n = list ? countCpuList(list) : 0;
+  return n > 0 ? n : availableParallelism();
+};
+
+let budget: CpuBudget | undefined;
+/** This process's CPU budget (cpu-budget.ts), worked out once: its affinity and quota do not change while it runs. */
+export const nodeCpuBudget = (): CpuBudget =>
+  (budget ??= cpuBudget(process.env.POPOST_CPUS, {
+    affinity: affinity(),
+    cgroup: readQuietly('/proc/self/cgroup'),
+    readCgroupFile: (file) => readQuietly(path.join('/sys/fs/cgroup', file)),
+  }));
+
+/** Local programs on the real machine: `popost video` runs ffmpeg and the user's own tools through these. */
+export const nodePrograms: LocalPrograms = {
+  run: runProgram,
+  tempDir: (prefix) => fsp.mkdtemp(path.join(tmpdir(), prefix)),
+  get parallelism() {
+    return nodeCpuBudget().cpus;
+  },
+  get parallelismSource() {
+    return nodeCpuBudget().source;
+  },
 };
 
 /** The package directory: `dist/cli.js` (built) and `src/*.ts` (tests) both sit one level below it. */
@@ -153,7 +303,8 @@ export const createNodeRuntime = (profile?: string): Runtime => {
     stdout: (text) => void process.stdout.write(text),
     stderr: (text) => void process.stderr.write(text),
     fetch: globalThis.fetch,
-    launchBrowser: () => launchChromium(process.env),
+    launchBrowser: (browserProfile) => launchChromium(process.env, browserProfile, { rasterThreads: nodeCpuBudget().cpus }),
+    programs: nodePrograms,
     now: () => new Date(),
     randomUUID,
     processes: {
