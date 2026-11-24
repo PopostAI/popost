@@ -57,6 +57,12 @@ export interface RetargetPlan {
   shots: ShotFill[];
   /** An audio file for the whole video (a voice-over, music), relative to the project directory. */
   sound?: string;
+  /**
+   * The sound of a clip running on under the shots cut from it, instead of being cut and re-timed with each shot:
+   * footage is the clip, shots the first and the last shot it lies under (from 1), in the source frame it starts at
+   * (default: the "in" of the first of those shots when that shot shows the clip, else 0), audio its gain in dB.
+   */
+  beds?: SoundBed[];
   /** Words that are spoken differently from how they are written: a brand name, an abbreviation. */
   say?: { text: string; as: string }[];
   /** The voice to speak the captions with (what the configured speaker understands), and its speed (1 is normal). */
@@ -79,6 +85,30 @@ export interface RetargetPlan {
   bar?: string[];
   note?: string;
 }
+
+export interface SoundBed { footage: string; shots: [number, number]; in?: number; audio?: number }
+
+/** What is wrong with the beds of a fill: each a clip and a range of shots, the ranges apart. */
+export const bedProblems = (beds: unknown, shots: number): Problem[] => {
+  if (beds === undefined) return [];
+  const example = 'Write "beds": [{ "footage": "assets/film.mp4", "shots": [1, 4] }].';
+  if (!Array.isArray(beds)) return [{ level: 'error', at: 'beds', message: '"beds" is a list: the clips whose sound runs on under a range of shots.', fix: example }];
+  const taken: number[] = [];
+  return beds.flatMap((b: Partial<SoundBed> | null, i): Problem[] => {
+    const at = 'beds[' + i + ']';
+    const r = b?.shots;
+    if (!b || typeof b !== 'object' || typeof b.footage !== 'string' || !b.footage.trim() || !Array.isArray(r) || r.length !== 2 || !r.every((n) => Number.isInteger(n)) || r[0] < 1 || r[1] < r[0] || r[1] > shots)
+      return [{ level: 'error', at, message: 'A bed names a clip and the first and last shot its sound lies under, counted from 1 (the video has ' + shots + ' shots).', fix: example }];
+    const out: Problem[] = [];
+    if (b.in !== undefined && !(Number.isInteger(b.in) && b.in >= 0)) out.push({ level: 'error', at: at + '.in', message: '"in" is the source frame the sound starts at, a whole number from 0.', fix: 'Write "in": 0, or remove it.' });
+    out.push(...footageAudioProblems(b.audio as unknown, at + '.audio'));
+    for (let k = r[0]; k <= r[1]; k++) {
+      if (taken.includes(k)) { out.push({ level: 'error', at: at + '.shots', message: 'Shot ' + k + ' lies under two beds.', fix: 'Give every shot one bed at most.' }); break; }
+      taken.push(k);
+    }
+    return out;
+  });
+};
 
 export interface RetargetInput {
   measure: Measure;
@@ -168,7 +198,7 @@ export const fillValueProblems = (s: Record<string, unknown>, at: string): Probl
 };
 
 const checkPlan = (plan: RetargetPlan, shots: number, beats: { shown: boolean }[], places: number[]): Problem[] => {
-  const out: Problem[] = captionOptionProblems(plan);
+  const out: Problem[] = [...captionOptionProblems(plan), ...(Array.isArray(plan.shots) ? bedProblems(plan.beds, shots) : [])];
   if (!Array.isArray(plan.shots)) return [{ level: 'error', at: 'shots', message: 'The plan needs "shots": one entry per shot of the reference (' + shots + ').', fix: 'Add "shots": [ ... ] with ' + shots + ' entries.' }];
   if (plan.shots.length !== shots) {
     out.push({ level: 'error', at: 'shots', message: 'The plan has ' + plan.shots.length + ' shots; the reference has ' + shots + '. They are matched by position.', fix: plan.shots.length < shots ? 'Add ' + (shots - plan.shots.length) + ' more entries (see timeline.md for what each shot is).' : 'Remove the last ' + (plan.shots.length - shots) + ' entries.' });
@@ -378,6 +408,13 @@ export const retarget = (input: RetargetInput): RetargetOutput => {
     });
     notes.push(cues.length + ' caption lines placed on the reference\'s caption beats (band at ' + Math.round((layout.box[1] + layout.box[3] / 2) * 100) + '% of the height).');
   }
+  (plan.beds ?? []).forEach((bed, i) => {
+    const [a, b] = bed.shots;
+    const first = plan.shots[a - 1];
+    const from = bed.in ?? (first && 'footage' in first && first.footage === bed.footage ? (first.in ?? 0) : 0);
+    const frames = lengths.slice(a - 1, b).reduce((n, x) => n + x, 0);
+    tracks.push({ id: 'bed-' + (i + 1), type: 'audio', material: use(bed.footage, 'video'), bed: true, ...(from ? { in: from } : {}), ...(bed.audio !== undefined ? { gain: bed.audio } : {}), during: { segment: 'shot-' + two(a), from: 0, to: frames } });
+  });
   if (plan.sound) {
     const id = use(plan.sound, 'audio');
     const material = materials.find((x) => x.id === id);

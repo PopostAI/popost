@@ -103,6 +103,29 @@ picture does not change the price.
 | `--no-anchor` | no anchor at all: unrelated clips, or a generator that takes no reference pictures |
 | `--anchor` | the anchor also for a list of one clip, so that a later list finds `anchor.jpg` |
 
+**How many calls.** A call's sound is continuous only inside it: shots generated one by one each bring a sound of
+their own, and the film sounds cut up. So group by the continuity of the scene, not by shot:
+
+- Consecutive short shots of one look or world (a wordless brand film, a b-roll montage) are ONE request, up to the
+  model's longest clip (`popost video generate --models`): the prompt gives the look once, asks for "one continuous
+  soundtrack over all shots", and lists the shots in order, each with its length and what it shows, with "hard cuts"
+  between them. Longer runs are split at a change of place or look, into few long calls rather than many short ones.
+- Never a call for one shot shorter than the model's shortest clip when it can join its neighbours: the rest of the
+  clip is paid for and thrown away.
+- A shot gets a call of its own only when it needs lip-synced speech, an exact first picture or label
+  (`"firstFrame"`), or other reference pictures than its neighbours.
+- What it costs: the cuts fall only about where they were asked for, a shot may come out shorter than asked, and one
+  bad shot means making the whole group again. `materials` and `materials --check` warn when a list asks for three or
+  more clips of 5 s or less one by one.
+
+Putting such a clip on the template: `popost video shots project/assets/film.mp4 --out look/film` finds the cuts
+inside it with the detector `describe` uses and keeps a frame of each shot (`look/film/shot-NN.jpg`: open them, a soft
+cut can be missed and a fast move read as one). With `--onto template --first 3` it also prints `fill`: for each shot
+of the clip the entry of the template shot it goes on, `{ "footage", "in", "speed" }`, where `speed` makes the clip's
+shot as long as the template's shot needs (a note names a shot that would have to play slower than 0.9: ask for it
+longer next time, never slow it down), and `bed`, to copy into the fill's `"beds"`: the clip's sound then runs on in
+one piece under those shots instead of being cut and re-timed with each (`video-templates.md`).
+
 **Reference pictures or frames.** A clip is steered in one of two ways, never both in one request:
 
 - Reference pictures (`"images"`, the anchor): who or what is in the clip. The model composes the shot itself and

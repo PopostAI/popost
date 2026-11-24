@@ -219,6 +219,10 @@ A shot of filmed material that no file of the user's shows can be generated when
 the requests and run `popost video materials requests.json --out project` (`video-tools.md`, "Generated clips": the
 request, the price, what it prints). Two rules about motion:
 
+- Group the calls by the continuity of the scene, not by shot: consecutive short shots of one look are one request
+  that lists them with their lengths and "hard cuts" and asks for one continuous soundtrack, because a call's sound
+  is continuous only inside it. `popost video shots` then finds the cuts and writes the fill entries and the `"beds"`
+  entry that keeps the sound in one piece (`video-tools.md`, "How many calls": the rules, and what it costs).
 - The words about speed in a prompt follow the shot's measured `Motion amount` and its frames, not habit. Write the
   action and its pace as the shot has them ("walks briskly", "quick hand movements"), and write "slowly" or "gently"
   only for a shot that measures low. As a rough guide: clips generated from prompts that said "slowly" measured 2 to

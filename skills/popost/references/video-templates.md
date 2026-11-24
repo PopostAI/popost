@@ -57,6 +57,12 @@ The sound a clip came with (a footage shot, a `"video"` item) is kept or dropped
 one keeps the clips silent, so that nothing sounds under the voice. `"audio": 0` keeps a clip's sound in any case, a
 negative number keeps it lower (`-18` sits under a voice), `false` mutes it. The sound plays at the clip's `speed`.
 
+`"beds": [{ "footage": "assets/film.mp4", "shots": [1, 7] }]` lets the sound of one clip run on, in one piece, under
+the shots cut from it (the first and the last shot, from 1): the shots under a bed do not sound themselves, so nothing
+is heard twice, and shots outside it keep the rule above. `"in"` is the clip's frame the sound starts at (default: the
+`"in"` of the first of those shots), `"audio"` its gain in dB. The bed plays at the clip's own speed while the shots
+may be re-timed a little, so it suits music and ambience, not speech that must match lips.
+
 `fit` decides what happens to a picture or footage whose proportions differ from the canvas's: `"cover"` (the default)
 fills the shot and cuts off what lies outside it, text included; `"contain"` shows the whole file with bands of
 `ground` (a colour, black by default) above and below or left and right. With the files at hand, `template check` and
@@ -89,7 +95,7 @@ source's colours are not measured). More words than the source's bar has is refu
 Other keys: `captions` (one line per beat; `""` for none), `voice` and `speed` (passed to the speaker), `say`
 (`[{"text": "SaaS", "as": "sass"}]`: how a word is spoken), `captionColor`, `captionOutline`, `captionSpoken`
 (`true`: light up the spoken word), `captionReveal` (`"words"`: show each word when it is spoken), `sound` (an
-audio file for the whole video, relative to the project), `note`. File paths are relative to the project. Lists are
+audio file for the whole video, relative to the project), `beds` (above), `note`. File paths are relative to the project. Lists are
 matched by position; no times, no frames except `in`. The captions look as the reference's did when `describe` could
 measure it: the colour that fills its letters (inside the outline, not the outline) on its plate (colour, opacity,
 padding, corners), with its outline, or plain; a part it was not sure of has no colour in `text.json` and gets the

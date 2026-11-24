@@ -189,6 +189,26 @@ const frameProblems = (r: Partial<MaterialRequest>, at: string, found: ReadonlyS
   return out;
 };
 
+/** A clip this short is near the shortest a model makes. */
+export const SHORT_CLIP = 5;
+/** From this many short clips on, a list is asked whether they could be one call. */
+export const MANY_SHORT = 3;
+
+/**
+ * Advice on how a list is cut into calls: several short clips that could be made in one call. Each call has a sound
+ * of its own, so shots made one by one do not sound like one film. Clips that need a call of their own are left out:
+ * one with frames, with reference clips or sounds, or that says "anchor": false (another world than the rest).
+ */
+export const groupingAdvice = (requests: unknown): Problem[] => {
+  if (!Array.isArray(requests)) return [];
+  const short = requests.flatMap((r: Partial<MaterialRequest> | null, i) =>
+    r && typeof r === 'object' && typeof r.file === 'string' && kindOf(r.file) === 'video' && (r.seconds ?? SHORT_CLIP) <= SHORT_CLIP && !usesFrames(r) && r.anchor !== false && !r.videos?.length && !r.audios?.length ? [i] : []);
+  if (short.length < MANY_SHORT) return [];
+  const seconds = short.reduce((n, i) => n + ((requests[i] as MaterialRequest).seconds ?? SHORT_CLIP), 0);
+  return [warning('[' + short[0] + ']', short.length + ' clips of ' + SHORT_CLIP + ' s or less are asked for one by one (' + seconds + ' s in all). Every call has a sound of its own, so shots made one by one do not sound like one film, and a shot shorter than the shortest clip is paid for at the shortest.',
+    'When they are consecutive shots of one look, ask for them in one clip up to the model\'s longest: one prompt that lists the shots in order with their lengths and "hard cuts" and asks for one continuous soundtrack; then popost video shots finds the cuts. Keep a clip on its own only for lip-synced speech, an exact first frame, or other reference pictures (video-tools.md, "How many calls").')];
+};
+
 /** What is wrong with a list of requests, before anything is paid for. */
 export const checkRequests = async (rt: Runtime, requests: unknown, dir: string): Promise<Problem[]> => {
   if (!Array.isArray(requests)) return [error('(root)', 'The requests are a JSON list: one entry per material to make.', 'Write [{ "file": "assets/desk.mp4", "prompt": "...", "seconds": 5 }].')];

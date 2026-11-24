@@ -7,7 +7,7 @@
  */
 import { sha256File } from '../../core/util';
 import type { Runtime } from '../../runtime';
-import { captionOptionProblems, FILL_KINDS, fillValueProblems, type RetargetPlan } from '../retarget/index';
+import { bedProblems, captionOptionProblems, FILL_KINDS, fillValueProblems, type RetargetPlan } from '../retarget/index';
 import type { Problem } from '../types';
 import { probe } from '../media/ffmpeg';
 import { deltaE, hexToRgb, toLab } from '../measure/colour';
@@ -24,7 +24,7 @@ import { fillLengths, footageNeed } from './structure';
 import type { Capacity, FillKind, TemplatePackage } from './types';
 import { fillReadingProblems, hasReading, readingOfTemplate, sceneSources } from '../elements/findings';
 
-const PLAN_KEYS = ['shots', 'captions', 'sound', 'say', 'voice', 'speed', 'captionSpoken', 'captionReveal', 'captionColor', 'captionOutline', 'bar', 'note'];
+const PLAN_KEYS = ['shots', 'captions', 'sound', 'beds', 'say', 'voice', 'speed', 'captionSpoken', 'captionReveal', 'captionColor', 'captionOutline', 'bar', 'note'];
 const PICTURES = ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.avif', '.svg'];
 const PAGES = ['.html', '.htm'];
 /** Two flat colours closer than this (CIE76 ΔE) hide the change between them from the eye and from the measurement. */
@@ -357,6 +357,7 @@ const fileProblems = async (rt: Runtime, pkg: TemplatePackage, fill: RetargetPla
     out.push(...(await itemFileProblems(rt, pkg, s, k, dir, lengths)));
   }
   if (typeof fill.sound === 'string' && !(await exists(rt.path.resolve(dir, fill.sound)))) out.push(missing('sound', fill.sound));
+  for (const [i, bed] of (Array.isArray(fill.beds) ? fill.beds : []).entries()) if (typeof bed?.footage === 'string' && !isOutside(bed.footage) && !(await exists(rt.path.resolve(dir, bed.footage)))) out.push(missing('beds[' + i + '].footage', bed.footage));
   out.push(...(await stillProblems(rt, pkg, fill, dir, lengths)));
   for (const p of await slotPictures(rt, fill, dir)) out.push(...(await slotPictureProblems(rt, p, dir)));
   return out;
@@ -370,7 +371,7 @@ const fileProblems = async (rt: Runtime, pkg: TemplatePackage, fill: RetargetPla
 export const checkFill = async (rt: Runtime, pkg: TemplatePackage, fill: RetargetPlan, o: { dir?: string; lengths?: number[] } = {}): Promise<Problem[]> => {
   const shape = shapeProblems(fill);
   if (shape.some((p) => p.level === 'error')) return shape;
-  shape.push(...captionOptionProblems(fill));
+  shape.push(...captionOptionProblems(fill), ...bedProblems(fill.beds, pkg?.template?.shots?.length ?? (Array.isArray(fill.shots) ? fill.shots.length : 0)));
   if (shape.some((p) => p.level === 'error')) return shape;
   // Lengths are those of what is drawn and spoken: the *marks* of highlighted words are neither (retarget/marks.ts).
   const counted: RetargetPlan = fill.captions ? { ...fill, captions: fill.captions.map((l) => (typeof l === 'string' ? unmark(l).text : l)) } : fill;

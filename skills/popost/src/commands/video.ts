@@ -7,6 +7,7 @@
  * so they need a desktop or a container (`popost video doctor` says what is missing).
  */
 import type { CommandMain } from '../runtime';
+import { clipCommands } from '../video/commands/clips';
 import { elementsCommands } from '../video/commands/elements';
 import { generateCommands } from '../video/commands/generate';
 import { loopCommands, loopGroups } from '../video/commands/loop';
@@ -18,7 +19,7 @@ import type { Commands } from '../video/commands/shared';
 import { runSubcommand, type Subcommand } from '../workflow/subcommands';
 
 const PROG = 'popost video';
-const COMMANDS: Commands = { ...mediaCommands, ...makeCommands, ...readCommands, ...loopCommands, ...generateCommands, ...sourceCommands };
+const COMMANDS: Commands = { ...mediaCommands, ...makeCommands, ...readCommands, ...loopCommands, ...generateCommands, ...sourceCommands, ...clipCommands };
 const GROUPS: Readonly<Record<string, Commands>> = { ...makeGroups, ...readGroups, ...loopGroups, elements: elementsCommands };
 
 /** The groups appear in the command list (help, usage errors) as commands that take a command of their own. */

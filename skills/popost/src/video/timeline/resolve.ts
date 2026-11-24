@@ -91,7 +91,8 @@ const resolveAudio = (ctx: Ctx, items: readonly ResolvedItem[]): ResolvedAudio[]
     if (t.type !== 'audio') return [];
     const span = t.during ? spanFrames(ctx.tl, t.during) : wholeVideo(ctx.tl);
     if (!span) throw new Error('resolve: audio "' + t.id + '" is placed in a segment that does not exist.');
-    return [{ id: t.id, src: materialSrc(material(ctx, t.material)), start: span.start, ...(t.during ? { end: span.end } : {}), gain: t.gain ?? 0 }];
+    const from = t.bed ? { from: { frame: t.in ?? 0, fps: factsOf(ctx, t.material).fps } } : {};
+    return [{ id: t.id, src: materialSrc(material(ctx, t.material)), start: span.start, ...(t.during ? { end: span.end } : {}), gain: t.gain ?? 0, ...from }];
   });
   const byId = new Map(items.map((it) => [it.id, it] as const));
   const sounds = ctx.project.tracks.flatMap((t): ResolvedAudio[] => {
@@ -112,14 +113,17 @@ const footageAudio = (ctx: Ctx, segments: readonly ResolvedSegment[], items: rea
     return s.base.kind === 'video' && spec && 'material' in spec ? [{ id: s.id, spec: spec as FootageSpec, play: s.base.play, end: s.end }] : [];
   });
   // A project with a sound of its own (a voice-over, music) keeps footage silent unless a use says otherwise.
-  const ownSound = ctx.project.tracks.some((t) => t.type === 'audio');
+  const ownSound = ctx.project.tracks.some((t) => t.type === 'audio' && !t.bed);
+  // Under a bed (the sound of a clip running on under the shots cut from it) those shots do not sound a second time.
+  const beds = ctx.project.tracks.flatMap((t) => { const s = t.type === 'audio' && t.bed ? (t.during ? spanFrames(ctx.tl, t.during) : wholeVideo(ctx.tl)) : undefined; return s ? [s] : []; });
+  const bedded = (frame: number): boolean => beds.some((s) => frame >= s.start && frame < s.end);
   const byId = new Map(items.map((it) => [it.id, it] as const));
   const fromItems = ctx.project.tracks.flatMap((t) => {
     const it = byId.get(t.id);
     return t.type === 'video' && it?.play ? [{ id: t.id, spec: t as FootageSpec, play: it.play, end: it.end }] : [];
   });
   return [...fromBases, ...fromItems].flatMap((u): ResolvedAudio[] => {
-    const gain = u.spec.audio ?? (ownSound ? false : 0);
+    const gain = u.spec.audio ?? (ownSound || bedded(u.play.start) ? false : 0);
     const facts = factsOf(ctx, u.play.material);
     if (gain === false || !facts.hasAudio) return [];
     const src = materialSrc(material(ctx, u.play.material));

@@ -59,7 +59,9 @@ const audioSpan = (ctx: CheckContext, t: AudioTrack, at: string): Problem[] => {
 const checkAudio = (ctx: CheckContext, t: AudioTrack, i: number): Problem[] => {
   const at = 'tracks[' + i + ']';
   const span = audioSpan(ctx, t, at);
-  return [...span, ...materialRef(ctx, t.material, at + '.material', 'audio', 'audio track "' + t.id + '"')];
+  // A bed plays the sound of a clip: its material is the video material the shots are cut from.
+  const own = t.in !== undefined && !t.bed ? [error(at + '.in', '"in" is the source frame a bed starts at; audio "' + t.id + '" is not a bed.', 'Remove "in", or add "bed": true and name the video material.')] : [];
+  return [...span, ...own, ...materialRef(ctx, t.material, at + '.material', t.bed ? 'video' : 'audio', (t.bed ? 'bed "' : 'audio track "') + t.id + '"')];
 };
 
 export const checkTracks = (ctx: CheckContext): Problem[] =>

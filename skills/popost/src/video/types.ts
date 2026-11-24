@@ -345,7 +345,12 @@ export interface ImageTrack extends ItemCommon { type: 'image'; material: string
 export interface ShapeTrack extends ItemCommon { type: 'shape'; shape: 'rect' | 'ellipse'; color: Fill; radius?: number }
 /** A video material in a box. fit default 'contain'; radius and mask as for a picture. */
 export interface VideoTrack extends ItemCommon, FootageSpec { type: 'video'; material: string; fit?: 'cover' | 'contain'; radius?: number; mask?: 'ellipse' }
-export interface AudioTrack { id: string; type: 'audio'; material: string; gain?: number; during?: Span; note?: string }
+/**
+ * bed: the track is the sound of a clip that runs on under several shots cut from that clip: its material is that video
+ * material, 'in' is the source frame the sound starts at, and footage that starts inside its span is silent unless it
+ * says "audio". A bed is not a sound of the video's own: footage outside its span keeps its automatic sound.
+ */
+export interface AudioTrack { id: string; type: 'audio'; material: string; gain?: number; during?: Span; note?: string; bed?: true; in?: number }
 
 /** One caption: shown on its span (which may run past its segment), in the track's box, style, entrance and exit. */
 export interface CaptionCue { text: string; during: Span; spans?: TextSpanStyle[]; note?: string }

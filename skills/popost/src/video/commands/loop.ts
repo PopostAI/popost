@@ -15,7 +15,7 @@ import { contrastByShot } from '../eval/contrast';
 import { errorText } from '../../core/error-text';
 import { scrub } from '../../providers/secrets';
 import { characterAnchor } from '../generate/character';
-import { checkRequests, commandGenerator, makeMaterials, NOTES, type AnchorPicture, type MaterialRequest } from '../generate/index';
+import { checkRequests, commandGenerator, groupingAdvice, makeMaterials, NOTES, type AnchorPicture, type MaterialRequest } from '../generate/index';
 import { platform } from './generate';
 import { lookAt, secondMoments, shotMoments, type LookMoment } from '../look/index';
 import { sheetsLike } from '../look/like';
@@ -223,9 +223,10 @@ const materials = command(
     const requests = (await readUserJson(rt, args.req('requests'))) as MaterialRequest[];
     const dir = userPath(rt, args.req('out'));
     if (args.flag('check')) {
-      const problems = await checkRequests(rt, requests, dir);
-      printJson(rt, { ok: problems.length === 0, requests: Array.isArray(requests) ? requests.length : 0, problems });
-      return problems.length ? 2 : 0;
+      const wrong = await checkRequests(rt, requests, dir);
+      // Advice on how the list is cut into calls is a warning: the list can be made as it is.
+      printJson(rt, { ok: wrong.length === 0, requests: Array.isArray(requests) ? requests.length : 0, problems: [...wrong, ...groupingAdvice(requests)] });
+      return wrong.length ? 2 : 0;
     }
     const [image, character, off] = [args.string('anchor-image'), args.string('character'), args.flag('no-anchor')];
     if ([image !== undefined, character !== undefined, off].filter(Boolean).length > 1) throw new VideoCommandError('Give one of --anchor-image, --character and --no-anchor: a video has one anchor picture, or none.');
@@ -238,12 +239,12 @@ const materials = command(
       onStep: (file, done, total) => rt.stderr(file + ' (' + (done + 1) + '/' + total + ')\n'),
     });
     printJson(rt, {
-      ok: r.problems.length === 0, dir, notes: rt.path.join(dir, NOTES),
+      ok: errorsIn(r.problems) === 0, dir, notes: rt.path.join(dir, NOTES),
       made: r.materials.filter((m) => m.made).length, kept: r.materials.filter((m) => !m.made && !m.error && !m.waiting).length, failed: r.materials.filter((m) => m.error).length,
       ...(r.materials.some((m) => m.waiting) ? { waiting: r.materials.filter((m) => m.waiting).length } : {}),
-      credits: r.credits, ...(r.anchor ? { anchor: r.anchor } : {}), ...(r.toConfirm ? { toConfirm: r.toConfirm } : {}), materials: r.materials, problems: r.problems,
+      credits: r.credits, ...(r.anchor ? { anchor: r.anchor } : {}), ...(r.toConfirm ? { toConfirm: r.toConfirm } : {}), materials: r.materials, problems: [...r.problems, ...groupingAdvice(requests)],
     });
-    return r.problems.length ? 2 : 0;
+    return errorsIn(r.problems) ? 2 : 0;
   },
 );
 
