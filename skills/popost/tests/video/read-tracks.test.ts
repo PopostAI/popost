@@ -84,6 +84,17 @@ describe('trajectories of a transition', () => {
     expect(measureTracks(t, [{ frame: 30, kind: 'cut', start: 29, end: 30, confidence: 1 }], [still(0, 0, 30), still(1, 30, N)])).toEqual([]);
   });
 
+  it('keep a shape with a trail that starts at its tail thinner than a pixel', () => {
+    // The wedge's tip is at the back of the disc, so the two touch in a point.
+    const tailed = (p: number, x: number, y: number): number => {
+      const cx = 14 + p * 100, dx = x - cx, dy = y - H / 2, behind = -(dx + 9);
+      return Math.hypot(dx, dy) <= 9 || (behind > 0 && Math.abs(dy) <= behind * Math.tan((20 * Math.PI) / 180)) ? 1 : 0;
+    };
+    const [t] = read(thumbs(tailed));
+    expect(t).toMatchObject({ what: 'object', reveal: { edge: { shape: 'wedge' } } });
+    expect(Math.abs((t?.size[1] ?? 0) - 19 / H)).toBeLessThan(0.06);
+  });
+
   it('are the same on every run', () => {
     expect(JSON.stringify(read(thumbs(led(30))))).toBe(JSON.stringify(read(thumbs(led(30)))));
   });

@@ -71,6 +71,51 @@ popost video scene library project        # writes project/lib/gsap.min.js; a sc
 
 Items in a template fill may specify `span: [0.15, 1]` to appear from fifteen percent of the shot until its end. The interval follows the shot when speech changes its length. `enter` and `exit` use native motions, for example `{ "preset": "fade", "frames": 9 }`; the clip starts at `in` when its visible interval starts. `audio: 0` preserves its source sound; omitted audio is silent.
 
+## Example scenes with parameters
+
+Four effects that are easy to get wrong by hand are in the Skill as scenes with declared parameters. Each is a scene
+like any other (one HTML file, drawn from the time given to `render(seconds)`, no clock of its own, drawn shapes only),
+with a block `<script type="application/json" id="popost-params">`: `params` declares every parameter (name, type,
+default, range or options, what it does), `values` holds what this copy sets.
+
+| Example | What it draws | Its main parameters |
+|---|---|---|
+| `object-reveal` | an object crosses the frame and the next picture opens behind it, then fills the frame | `startX` `startY` `endX` `endY` (the path), `object` (plane, arrow, dot, none), `objectSize`, `objectLength`, `edge` (wedge, straight, circle), `spread`, `travel`, `duration` |
+| `card-flip` | a card turns half a turn in depth, front to back | `axis`, `toward`, `depth`, `lift`, `shade`, `width` `height` `x` `y` `radius` |
+| `folding-doors` | the old picture splits and its panels fold away to both sides | `panels` (2, 4, 6, 8), `axis`, `swing`, `depth`, `shade` |
+| `streak-wipe` | the next picture arrives along one direction in bands, softened while they move | `angle`, `streaks`, `reach`, `order`, `blur` |
+
+All take `duration`, `delay` (seconds from the start of the shot) and `ease` (linear, in, out, in-out).
+
+```bash
+popost video scene example                                   # every example with its parameters, ranges and defaults
+popost video scene example object-reveal --set startY=0.5 --set endY=0.5 --set objectSize=0.32 --set spread=45 \
+  --set travel=1.2 --set duration=1.8 --sheet look/reveal.jpg   # a sheet of its frames, each with its time; no project needed
+popost video scene example object-reveal --set ... --size 1280x720 --out project/scenes/shot-02.html
+```
+
+How to use one:
+
+1. Start from the example nearest to what the reference's frames show; write your own scene only when none is near.
+2. Set its parameters from the measured path of the reference (`ref/shots/NN.md`, "Paths"), not from an impression:
+   the object's start and end are the path's `from` and `to` (carried on past the frame's border by half the object's
+   length when it enters or leaves the frame: `from` and `to` are measured while it is cut by the border), `objectSize`
+   is its size across the path as a share of the height, `objectLength` its size along the path as a share of the
+   width, `travel` the seconds the object takes, `duration` the seconds of the whole change, `delay` when it starts in
+   the shot, `edge` and `spread` the shape of the edge and the opening of a wedge, `ease` the path's ease. An angle
+   is the same everywhere: 0 is to the right, 90 down, -90 up.
+3. Render a sheet (`--sheet`, with `--seconds` and `--frames` as the reference's picture of the effect has them) and
+   hold it against `ref/transitions/NN.jpg`; change the values until they agree. `--size` is the project's canvas.
+4. Write it into the project (`--out`). Its two pictures are slots on `<img>` elements (`old` and `next`; the card's
+   are `front`, `back` and `ground`): a fill gives them as `"slots": {"old": "../assets/a.png", "next": "../assets/b.png"}`.
+   Or replace what is inside the picture elements with your own HTML (the drawn stand-ins are only there to be seen).
+   A parameter can still be changed by hand in `values`.
+5. After the render, `popost video compare` holds the path of your effect to the reference's (`paths`): fix what its
+   `differs` names and compare again.
+
+A value outside its range is refused with the range; a scene changed beyond its parameters is your own scene and is
+checked like one (`popost video scene check`).
+
 ## Content that can be replaced
 
 Mark every piece of content that belongs to the subject, not to the design, with `data-slot="name"`: a title, a

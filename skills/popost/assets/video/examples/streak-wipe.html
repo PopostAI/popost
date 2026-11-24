@@ -1,0 +1,78 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>directional streak wipe</title>
+<style>
+  html, body { margin: 0; width: 1280px; height: 720px; overflow: hidden; background: #0c0e14; }
+  #stage { position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: hidden; }
+  .pic { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
+  .pic img { position: absolute; left: 0; top: 0; width: 100%; height: 100%; object-fit: cover; }
+  /* Drawn stand-ins for the two pictures, seen until a slot gives a picture or you put your own HTML inside. */
+  .old { background: linear-gradient(#ee6c4d, #ee6c4d) 50% 46% / 42% 9% no-repeat, linear-gradient(#fca311, #fca311) 50% 62% / 18% 3% no-repeat, #14213d; }
+  .next { background: linear-gradient(#3d5a80, #3d5a80) 0 0 / 100% 12% no-repeat, linear-gradient(#ee6c4d, #ee6c4d) 9% 30% / 34% 9% no-repeat, linear-gradient(#98c1d9, #98c1d9) 9% 50% / 46% 5% no-repeat,
+                      linear-gradient(#98c1d9, #98c1d9) 9% 62% / 38% 5% no-repeat, linear-gradient(#5c7ea8, #5c7ea8) 88% 70% / 32% 44% no-repeat, #f4f5f7; }
+</style></head>
+<body>
+  <!-- The next picture arrives along one direction in streaks: bands that run ahead of and behind a moving edge, both
+       pictures softened while it passes. "old" is seen first, "next" after: give each a picture with a slot, or put
+       your own HTML inside the two divs. -->
+  <div id="stage">
+    <div class="pic old" id="old"><img data-slot="old" alt="" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="></div>
+    <div class="pic next" id="next"><img data-slot="next" alt="" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="></div>
+  </div>
+  <script type="application/json" id="popost-params">
+  {
+   "about": "A directional streak wipe: the next picture comes in along one direction as bands of unequal reach, softened while they move.",
+   "params": [
+    { "name": "angle", "type": "number", "default": 0, "min": -180, "max": 180, "unit": "degrees", "what": "the direction the edge travels: 0 is to the right, 90 down, -90 up, 180 to the left" },
+    { "name": "streaks", "type": "number", "default": 18, "min": 2, "max": 80, "unit": "bands", "what": "how many bands the edge is cut into, across its direction" },
+    { "name": "reach", "type": "number", "default": 0.35, "min": 0, "max": 1, "unit": "fraction of the way", "what": "how far apart the first and the last band run: 0 is one straight edge" },
+    { "name": "order", "type": "choice", "default": "scattered", "options": [ "scattered", "cascade" ], "what": "scattered: neighbouring bands differ; cascade: each band a little behind the one before it" },
+    { "name": "blur", "type": "number", "default": 12, "min": 0, "max": 60, "unit": "pixels", "what": "how soft both pictures are at the middle of the wipe" },
+    { "name": "duration", "type": "number", "default": 0.6, "min": 0.1, "max": 20, "unit": "seconds", "what": "how long the wipe takes" },
+    { "name": "delay", "type": "number", "default": 0.2, "min": 0, "max": 20, "unit": "seconds", "what": "when the effect starts, from the start of the shot" },
+    { "name": "ease", "type": "choice", "default": "in-out", "options": [ "linear", "in", "out", "in-out" ], "what": "how the motion speeds up and slows down" }
+   ],
+   "values": {}
+  }
+  </script>
+  <script>
+    // The declared parameters: each default, replaced by what "values" gives.
+    var block = JSON.parse(document.getElementById('popost-params').textContent), P = {};
+    block.params.forEach(function (p) { P[p.name] = block.values && block.values[p.name] !== undefined ? block.values[p.name] : p.default; });
+    var clamp01 = function (t) { return Math.min(1, Math.max(0, t)); };
+    var ease = function (t) {
+      t = clamp01(t);
+      return P.ease === 'in' ? t * t * t : P.ease === 'out' ? 1 - Math.pow(1 - t, 3) : P.ease === 'in-out' ? (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(2 - 2 * t, 3) / 2) : t;
+    };
+
+    // Everything that depends on the size of the canvas is made on the first frame that shows the scene: while a scene
+    // waits for its shot it is not laid out, and measures 0.
+    function make() {
+      var W = document.documentElement.clientWidth, H = document.documentElement.clientHeight;
+      if (!W || !H) return null;
+      var rad = P.angle * Math.PI / 180, ux = Math.cos(rad), uy = Math.sin(rad), n = Math.round(P.streaks);
+      // The canvas along the direction (s) and across it (c).
+      var corners = [[0, 0], [W, 0], [W, H], [0, H]], along = corners.map(function (p) { return p[0] * ux + p[1] * uy; }), acrossAll = corners.map(function (p) { return -p[0] * uy + p[1] * ux; });
+      var s0 = Math.min.apply(null, along), s1 = Math.max.apply(null, along), c0 = Math.min.apply(null, acrossAll), c1 = Math.max.apply(null, acrossAll);
+      var way = s1 - s0, lag = P.reach * way;
+      // How far behind each band runs, 0 to 1: from its index alone, the same on every render.
+      var behind = function (i) { return P.order === 'cascade' ? i / Math.max(1, n - 1) : (i * 0.618034) % 1; };
+      var point = function (s, c) { return (s * ux - c * uy).toFixed(1) + 'px ' + (s * uy + c * ux).toFixed(1) + 'px'; };
+
+      return function (seconds) {
+        var e = ease((seconds - P.delay) / P.duration), edge = [];
+        for (var i = 0; i < n; i++) {
+          var s = s0 + (way + lag) * e - lag * behind(i), a = c0 + (c1 - c0) * i / n, b = c0 + (c1 - c0) * (i + 1) / n;
+          edge.push(point(s, a), point(s, b));
+        }
+        var next = document.getElementById('next');
+        next.style.clipPath = e >= 1 ? 'none' : 'polygon(' + edge.concat([point(s0 - 10, c1), point(s0 - 10, c0)]).join(', ') + ')';
+        var soft = P.blur * Math.sin(Math.PI * e);
+        next.style.filter = document.getElementById('old').style.filter = soft > 0.05 ? 'blur(' + soft.toFixed(2) + 'px)' : 'none';
+      };
+    }
+    var drawing = null;
+    function draw(seconds) { drawing = drawing || make(); if (drawing) drawing(seconds); }
+    window.__popostScene = { render: function (seconds) { draw(seconds); } };
+    draw(0);
+  </script>
+</body></html>

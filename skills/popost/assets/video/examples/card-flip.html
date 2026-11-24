@@ -1,0 +1,92 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>3D card flip</title>
+<style>
+  html, body { margin: 0; width: 1280px; height: 720px; overflow: hidden; background: #0c0e14; }
+  #stage { position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: hidden; }
+  .pic { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
+  .pic img { position: absolute; left: 0; top: 0; width: 100%; height: 100%; object-fit: cover; }
+  /* Drawn stand-ins for the two pictures, seen until a slot gives a picture or you put your own HTML inside. */
+  .old { background: linear-gradient(#ee6c4d, #ee6c4d) 50% 46% / 42% 9% no-repeat, linear-gradient(#fca311, #fca311) 50% 62% / 18% 3% no-repeat, #14213d; }
+  .next { background: linear-gradient(#3d5a80, #3d5a80) 0 0 / 100% 12% no-repeat, linear-gradient(#ee6c4d, #ee6c4d) 9% 30% / 34% 9% no-repeat, linear-gradient(#98c1d9, #98c1d9) 9% 50% / 46% 5% no-repeat,
+                      linear-gradient(#98c1d9, #98c1d9) 9% 62% / 38% 5% no-repeat, linear-gradient(#5c7ea8, #5c7ea8) 88% 70% / 32% 44% no-repeat, #f4f5f7; }
+  .ground { background: #1d2b53; }
+  #card { position: absolute; }
+  .face { position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: hidden; }
+  /* Drawn stand-ins for the two faces. */
+  .face.front { background: linear-gradient(#1d2b53, #1d2b53) 12% 20% / 50% 12% no-repeat, linear-gradient(#98c1d9, #98c1d9) 12% 46% / 70% 7% no-repeat, linear-gradient(#98c1d9, #98c1d9) 12% 60% / 58% 7% no-repeat, #ffffff; }
+  .face.back { background: linear-gradient(#ffffff, #ffffff) 50% 30% / 36% 22% no-repeat, linear-gradient(#1d2b53, #1d2b53) 50% 68% / 60% 8% no-repeat, #e76f51; }
+  .face img { position: absolute; left: 0; top: 0; width: 100%; height: 100%; object-fit: cover; }
+  #shade { position: absolute; left: 0; top: 0; width: 100%; height: 100%; background: #000000; opacity: 0; }
+</style></head>
+<body>
+  <!-- A card turns over in depth: "front" is seen first, "back" after the turn. Give each a picture with a slot, or put
+       your own HTML inside the two faces (write the back the right way round: the scene turns it). -->
+  <div id="stage">
+    <div class="pic ground"><img data-slot="ground" alt="" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="></div>
+    <div id="card">
+      <div class="face front" id="front"><img data-slot="front" alt="" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="></div>
+      <div class="face back" id="back"><img data-slot="back" alt="" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="></div>
+      <div id="shade"></div>
+    </div>
+  </div>
+  <script type="application/json" id="popost-params">
+  {
+   "about": "A 3D card flip: a card turns half a turn about its middle, in depth, from its front to its back.",
+   "params": [
+    { "name": "x", "type": "number", "default": 0.5, "min": -0.5, "max": 1.5, "unit": "fraction of the canvas width", "what": "the centre of the card" },
+    { "name": "y", "type": "number", "default": 0.5, "min": -0.5, "max": 1.5, "unit": "fraction of the canvas height", "what": "the centre of the card" },
+    { "name": "width", "type": "number", "default": 0.5, "min": 0.05, "max": 1, "unit": "fraction of the canvas width", "what": "the width of the card" },
+    { "name": "height", "type": "number", "default": 0.6, "min": 0.05, "max": 1, "unit": "fraction of the canvas height", "what": "the height of the card" },
+    { "name": "radius", "type": "number", "default": 0.06, "min": 0, "max": 0.5, "unit": "fraction of the smaller side", "what": "the corner radius of the card" },
+    { "name": "axis", "type": "choice", "default": "vertical", "options": [ "vertical", "horizontal" ], "what": "the axis the card turns about: vertical turns it sideways, horizontal turns it over top to bottom" },
+    { "name": "toward", "type": "choice", "default": "right", "options": [ "right", "left", "down", "up" ], "what": "which way the near edge goes: right or left for a vertical axis, down or up for a horizontal one" },
+    { "name": "depth", "type": "number", "default": 2.2, "min": 0.5, "max": 8, "unit": "card widths", "what": "how far the viewer stands from the card: smaller is a stronger perspective" },
+    { "name": "lift", "type": "number", "default": 1.08, "min": 1, "max": 1.6, "unit": "times", "what": "how much larger the card is half-way through the turn" },
+    { "name": "shade", "type": "number", "default": 0.35, "min": 0, "max": 1, "unit": "0 to 1", "what": "how dark the card gets when it is edge-on" },
+    { "name": "duration", "type": "number", "default": 0.8, "min": 0.1, "max": 20, "unit": "seconds", "what": "how long the turn takes" },
+    { "name": "delay", "type": "number", "default": 0.3, "min": 0, "max": 20, "unit": "seconds", "what": "when the effect starts, from the start of the shot" },
+    { "name": "ease", "type": "choice", "default": "in-out", "options": [ "linear", "in", "out", "in-out" ], "what": "how the motion speeds up and slows down" }
+   ],
+   "values": {}
+  }
+  </script>
+  <script>
+    // The declared parameters: each default, replaced by what "values" gives.
+    var block = JSON.parse(document.getElementById('popost-params').textContent), P = {};
+    block.params.forEach(function (p) { P[p.name] = block.values && block.values[p.name] !== undefined ? block.values[p.name] : p.default; });
+    var clamp01 = function (t) { return Math.min(1, Math.max(0, t)); };
+    var ease = function (t) {
+      t = clamp01(t);
+      return P.ease === 'in' ? t * t * t : P.ease === 'out' ? 1 - Math.pow(1 - t, 3) : P.ease === 'in-out' ? (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(2 - 2 * t, 3) / 2) : t;
+    };
+
+    // Everything that depends on the size of the canvas is made on the first frame that shows the scene: while a scene
+    // waits for its shot it is not laid out, and measures 0.
+    function make() {
+      var W = document.documentElement.clientWidth, H = document.documentElement.clientHeight;
+      if (!W || !H) return null;
+      var card = document.getElementById('card'), front = document.getElementById('front'), back = document.getElementById('back');
+      var cw = P.width * W, ch = P.height * H, round = P.radius * Math.min(cw, ch) + 'px';
+      card.style.left = (P.x * W - cw / 2) + 'px'; card.style.top = (P.y * H - ch / 2) + 'px';
+      card.style.width = cw + 'px'; card.style.height = ch + 'px';
+      [front, back, document.getElementById('shade')].forEach(function (el) { el.style.borderRadius = round; });
+      var turn = P.axis === 'horizontal' ? 'rotateX' : 'rotateY';
+      var sign = (P.toward === 'left' || P.toward === 'down') ? -1 : 1;
+      back.style.transform = turn + '(180deg)';
+
+      return function (seconds) {
+        var e = ease((seconds - P.delay) / P.duration), angle = sign * 180 * e, rad = angle * Math.PI / 180;
+        card.style.transform = 'perspective(' + (P.depth * cw) + 'px) ' + turn + '(' + angle.toFixed(3) + 'deg) scale(' + (1 + (P.lift - 1) * Math.sin(Math.PI * e)).toFixed(4) + ')';
+        // The face that looks at the viewer is shown; the other one is hidden, never mirrored.
+        var facing = Math.cos(rad) >= 0;
+        front.style.visibility = facing ? 'visible' : 'hidden';
+        back.style.visibility = facing ? 'hidden' : 'visible';
+        document.getElementById('shade').style.opacity = (P.shade * Math.abs(Math.sin(rad))).toFixed(3);
+      };
+    }
+    var drawing = null;
+    function draw(seconds) { drawing = drawing || make(); if (drawing) drawing(seconds); }
+    window.__popostScene = { render: function (seconds) { draw(seconds); } };
+    draw(0);
+  </script>
+</body></html>

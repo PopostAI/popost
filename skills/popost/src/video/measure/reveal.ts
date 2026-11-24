@@ -37,8 +37,11 @@ export const revealMask = (f: Uint8Array, a: Uint8Array, b: Uint8Array): RevealM
   return { mask, total, fresh, foreign, mixed: total > foreign ? mixed / (total - foreign) : 0 };
 };
 
+/** New pixels this many pixels apart are one part: a shape joined to its trail by less than a pixel stays with it. */
+const JOIN = 2;
+
 /**
- * The region among the new pixels: their largest connected part (8 neighbours) that lies within two pixels of the region
+ * The region among the new pixels: their largest connected part (pixels within JOIN of each other) that lies within two pixels of the region
  * of the frame after (later: the frames are read from the last one back, since the region ends as the whole picture and
  * begins as a few pixels). Other new pixels (a caption that appears meanwhile) are left out of the mask. The mask is
  * changed in place; the number of pixels of the region is returned, 0 when nothing continues the later region.
@@ -64,7 +67,7 @@ export const keepRegion = (mask: Uint8Array, w: number, h: number, later?: Uint8
       const p = stack.pop() as number, x = p % w, y = Math.floor(p / w);
       sizes[id] = (sizes[id] as number) + 1;
       if (!near[id] && touches(p)) near[id] = true;
-      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+      for (let dy = -JOIN; dy <= JOIN; dy++) for (let dx = -JOIN; dx <= JOIN; dx++) {
         const xx = x + dx, yy = y + dy, q = yy * w + xx;
         if (xx >= 0 && yy >= 0 && xx < w && yy < h && mask[q] === NEW && !label[q]) { label[q] = id; stack.push(q); }
       }
@@ -188,7 +191,8 @@ export interface Head { box: [number, number, number, number]; neck: [number, nu
 /**
  * The head of the region: going back from the front along the way it came, the region broadens (the shape) and then
  * narrows to NECK of that breadth or less; the head ends at the narrowest place before the region is broader than the
- * shape again (the last one of several, within a pixel). A region that only broadens (a wedge, a straight edge) has none.
+ * shape again (the last one of several, within a pixel, or the first gap). A region that only broadens (a wedge, a
+ * straight edge) has none.
  */
 const headOf = (mask: Uint8Array, w: number, h: number, front: [number, number], u: [number, number]): Head | undefined => {
   const lo: number[] = [], hi: number[] = [];

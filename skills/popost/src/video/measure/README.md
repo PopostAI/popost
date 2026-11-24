@@ -71,7 +71,8 @@ The same file always gives the same JSON, byte for byte.
 - Trajectories: colours differ at 30 levels a channel on average; the pictures must differ on 15% of the frame; a
   picture holds still under 0.2% of pixels changing in 1/15 s, and the window reaches at most 1 s past the measured span
   (not into a camera move of the next shot); at most a quarter of the pixels neither picture and a mix under 0.2 (a
-  dissolve stands near 0.5); the cover must reach 0.9 and fall back by at most 0.1; straight or circle at a fit of 0.9,
+  dissolve stands near 0.5); new pixels within 2 px of each other are one part (a shape and a trail that touch in a
+  point), and the region is the largest part that continues the next frame's; the cover must reach 0.9 and fall back by at most 0.1; straight or circle at a fit of 0.9,
   wedge at 0.85 and at most 170 degrees; a head is 3 px broad with a neck of at most 0.6 of it, found on half of the
   frames whose front is inside the frame, its area steady within 3 times; an element travels 3% of the width with its
   area within 0.6 (`tracks.ts`, `reveal.ts`).

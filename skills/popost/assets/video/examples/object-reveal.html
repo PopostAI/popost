@@ -1,0 +1,107 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>object-led reveal</title>
+<style>
+  html, body { margin: 0; width: 1280px; height: 720px; overflow: hidden; background: #0c0e14; }
+  #stage { position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: hidden; }
+  .pic { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
+  .pic img { position: absolute; left: 0; top: 0; width: 100%; height: 100%; object-fit: cover; }
+  /* Drawn stand-ins for the two pictures, seen until a slot gives a picture or you put your own HTML inside. */
+  .old { background: linear-gradient(#ee6c4d, #ee6c4d) 50% 46% / 42% 9% no-repeat, linear-gradient(#fca311, #fca311) 50% 62% / 18% 3% no-repeat, #14213d; }
+  .next { background: linear-gradient(#3d5a80, #3d5a80) 0 0 / 100% 12% no-repeat, linear-gradient(#ee6c4d, #ee6c4d) 9% 30% / 34% 9% no-repeat, linear-gradient(#98c1d9, #98c1d9) 9% 50% / 46% 5% no-repeat,
+                      linear-gradient(#98c1d9, #98c1d9) 9% 62% / 38% 5% no-repeat, linear-gradient(#5c7ea8, #5c7ea8) 88% 70% / 32% 44% no-repeat, #f4f5f7; }
+  #object { position: absolute; left: 0; top: 0; overflow: visible; }
+</style></head>
+<body>
+  <!-- An object crosses the frame and the next picture opens behind it. "old" is what is seen first, "next" what the
+       effect reveals: give each a picture with a slot, or replace what is inside the two divs with your own HTML. -->
+  <div id="stage">
+    <div class="pic old"><img data-slot="old" alt="" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="></div>
+    <div class="pic next" id="next"><img data-slot="next" alt="" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="></div>
+    <svg id="object" width="1" height="1"><path id="shape" d=""/></svg>
+  </div>
+  <script type="application/json" id="popost-params">
+  {
+   "about": "An object-led reveal: an object travels from start to end and the next picture opens behind it, then fills the frame. Set the values from the measured path of the reference (shots/NN.md, \"Paths\").",
+   "params": [
+    { "name": "startX", "type": "number", "default": -0.1, "min": -0.5, "max": 1.5, "unit": "fraction of the canvas width", "what": "where the centre of the object starts" },
+    { "name": "startY", "type": "number", "default": 0.5, "min": -0.5, "max": 1.5, "unit": "fraction of the canvas height", "what": "where the centre of the object starts" },
+    { "name": "endX", "type": "number", "default": 1.1, "min": -0.5, "max": 1.5, "unit": "fraction of the canvas width", "what": "where the centre of the object ends; the path angle follows from start and end" },
+    { "name": "endY", "type": "number", "default": 0.5, "min": -0.5, "max": 1.5, "unit": "fraction of the canvas height", "what": "where the centre of the object ends" },
+    { "name": "object", "type": "choice", "default": "plane", "options": [ "plane", "arrow", "dot", "none" ], "what": "the shape that leads; none: only the edge" },
+    { "name": "objectSize", "type": "number", "default": 0.3, "min": 0.02, "max": 1, "unit": "fraction of the canvas height", "what": "the breadth of the object across its path" },
+    { "name": "objectLength", "type": "number", "default": 0, "min": 0, "max": 1.5, "unit": "fraction of the canvas width", "what": "the length of the object along its path; 0 keeps the shape's own proportions" },
+    { "name": "objectColor", "type": "colour", "default": "next", "what": "a colour such as #ffffff, or \"next\": the object is cut out and shows the next picture" },
+    { "name": "edge", "type": "choice", "default": "wedge", "options": [ "wedge", "straight", "circle" ], "what": "the shape of the region that shows the next picture: a wedge whose tip is the tail of the object, a straight edge across the path at the tail, or a circle about the start that reaches the tail" },
+    { "name": "spread", "type": "number", "default": 45, "min": 5, "max": 170, "unit": "degrees", "what": "wedge only: its opening while the object travels" },
+    { "name": "travel", "type": "number", "default": 1.2, "min": 0.1, "max": 20, "unit": "seconds", "what": "how long the object takes from start to end" },
+    { "name": "duration", "type": "number", "default": 1.8, "min": 0.1, "max": 30, "unit": "seconds", "what": "how long until the next picture fills the frame; after \"travel\" the wedge opens all the way (the straight edge and the circle go on)" },
+    { "name": "delay", "type": "number", "default": 0, "min": 0, "max": 20, "unit": "seconds", "what": "when the effect starts, from the start of the shot" },
+    { "name": "ease", "type": "choice", "default": "linear", "options": [ "linear", "in", "out", "in-out" ], "what": "how the motion speeds up and slows down" }
+   ],
+   "values": {}
+  }
+  </script>
+  <script>
+    // The declared parameters: each default, replaced by what "values" gives.
+    var block = JSON.parse(document.getElementById('popost-params').textContent), P = {};
+    block.params.forEach(function (p) { P[p.name] = block.values && block.values[p.name] !== undefined ? block.values[p.name] : p.default; });
+    var clamp01 = function (t) { return Math.min(1, Math.max(0, t)); };
+    var ease = function (t) {
+      t = clamp01(t);
+      return P.ease === 'in' ? t * t * t : P.ease === 'out' ? 1 - Math.pow(1 - t, 3) : P.ease === 'in-out' ? (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(2 - 2 * t, 3) / 2) : t;
+    };
+
+    // Everything that depends on the size of the canvas is made on the first frame that shows the scene: while a scene
+    // waits for its shot it is not laid out, and measures 0.
+    function make() {
+      var W = document.documentElement.clientWidth, H = document.documentElement.clientHeight;
+      if (!W || !H) return null;
+      // Outlines in a box of 100 x 100 about the centre, heading to the right; drawn here, no picture file.
+      var SHAPES = {
+        plane: [[50, 0], [30, -5], [8, -5], [-12, -46], [-22, -46], [-10, -5], [-34, -5], [-42, -20], [-48, -20], [-44, 0], [-48, 20], [-42, 20], [-34, 5], [-10, 5], [-22, 46], [-12, 46], [8, 5], [30, 5]],
+        arrow: [[50, 0], [10, -32], [10, -12], [-50, -12], [-50, 12], [10, 12], [10, 32]],
+        dot: (function () { var a = []; for (var i = 0; i < 24; i++) a.push([50 * Math.cos(i * Math.PI / 12), 50 * Math.sin(i * Math.PI / 12)]); return a; })(),
+        none: []
+      };
+      var sx = P.startX * W, sy = P.startY * H, ex = P.endX * W, ey = P.endY * H;
+      var len = Math.hypot(ex - sx, ey - sy) || 1, ux = (ex - sx) / len, uy = (ey - sy) / len;
+      var shape = SHAPES[P.object] || [], far = 3 * Math.hypot(W, H);
+      // The outline is scaled so that its breadth across the path is objectSize, and its length objectLength when one is given.
+      var breadth = shape.length ? Math.max.apply(null, shape.map(function (p) { return p[1]; })) - Math.min.apply(null, shape.map(function (p) { return p[1]; })) : 1;
+      var scale = P.objectSize * H / breadth, long = P.objectLength > 0 ? P.objectLength * W / 100 : scale;
+      var half = shape.length ? 50 * long : 0;
+      var path = function (points) { return points.length ? 'M' + points.map(function (p) { return p[0].toFixed(1) + ' ' + p[1].toFixed(1); }).join('L') + 'Z' : ''; };
+
+      return function (seconds) {
+        var t = seconds - P.delay, go = ease(t / P.travel);
+        // After the object has arrived the region goes on until it holds the whole frame.
+        var after = P.duration > P.travel ? ease((t - P.travel) / (P.duration - P.travel)) : (t >= P.travel ? 1 : 0);
+        var cx = sx + (ex - sx) * go, cy = sy + (ey - sy) * go;
+        var tx = cx - ux * half, ty = cy - uy * half;                       // the tail of the object: where the region begins
+        var placed = shape.map(function (p) { return [cx + p[0] * long * ux - p[1] * scale * uy, cy + p[0] * long * uy + p[1] * scale * ux]; });
+        var region = '';
+        if (t > 0 && P.edge === 'wedge') {
+          var open = (P.spread / 2 + (180 - P.spread / 2) * after) * Math.PI / 180, back = Math.atan2(-uy, -ux), fan = [[tx, ty]];
+          for (var i = 0; i <= 16; i++) { var a = back - open + (2 * open * i) / 16; fan.push([tx + far * Math.cos(a), ty + far * Math.sin(a)]); }
+          region = path(fan);
+        } else if (t > 0 && P.edge === 'straight') {
+          var lx = tx + ux * far * after, ly = ty + uy * far * after;
+          region = path([[lx - uy * far, ly + ux * far], [lx + uy * far, ly - ux * far], [lx + uy * far - ux * far, ly - ux * far - uy * far], [lx - uy * far - ux * far, ly + ux * far - uy * far]]);
+        } else if (t > 0) {
+          var r = Math.hypot(tx - sx, ty - sy) + far * after;
+          region = 'M' + (sx - r).toFixed(1) + ' ' + sy.toFixed(1) + 'a' + r.toFixed(1) + ' ' + r.toFixed(1) + ' 0 1 0 ' + (2 * r).toFixed(1) + ' 0a' + r.toFixed(1) + ' ' + r.toFixed(1) + ' 0 1 0 ' + (-2 * r).toFixed(1) + ' 0Z';
+        }
+        var cut = P.objectColor === 'next';
+        var seen = t > 0 && after < 1 ? path(placed) : '';
+        document.getElementById('next').style.clipPath = 'path("' + (after >= 1 ? 'M0 0H' + W + 'V' + H + 'H0Z' : (region + (cut ? seen : '')) || 'M0 0Z') + '")';
+        var s = document.getElementById('shape');
+        s.setAttribute('d', cut ? '' : seen);
+        s.setAttribute('fill', cut ? 'none' : P.objectColor);
+      };
+    }
+    var drawing = null;
+    function draw(seconds) { drawing = drawing || make(); if (drawing) drawing(seconds); }
+    window.__popostScene = { render: function (seconds) { draw(seconds); } };
+    draw(0);
+  </script>
+</body></html>

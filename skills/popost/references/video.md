@@ -396,7 +396,10 @@ pictures and the moving object, frame by frame as `ref/transitions/NN.jpg` shows
 before": that scene ends with the effect, and `template fill` moves the cut to the effect's end, so the scene runs on
 over the first frames of the next shot and must show that shot's beginning as the effect reveals it. "Drawn by this
 shot's scene": the cut moves to the effect's start, and the scene begins with the effect over the end of the shot
-before. Never replace the effect by a preset, and never patch `video.json` with a script after `template fill`: the
+before. Start from the nearest example scene when there is one (an object that leads a reveal, a card that turns in
+depth, doors that fold, a wipe in streaks: `popost video scene example` lists them with their parameters), set its
+parameters from the shot's measured "Paths" and hold a sheet of its frames against the reference's
+(`<skill>/references/video-scenes.md`, "Example scenes with parameters"). Never replace the effect by a preset, and never patch `video.json` with a script after `template fill`: the
 template holds it. Layers the reading gave the role `platform` or `creator` (a watermark, an account, the platform's
 end card, the author's face or name) are never drawn.
 

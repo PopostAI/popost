@@ -24,6 +24,7 @@ import { captionSizeProblems } from '../template/project';
 import { projectReadingProblems, projectSceneSources, readingOfFacts } from '../elements/findings';
 import type { Problem, Project } from '../types';
 import { command, userPath, VideoCommandError, type Body, type Commands } from './shared';
+import { sceneExample } from './example';
 
 const PROJECT = { name: 'project-dir', help: 'the directory that holds video.json' } as const;
 const SCALE = { flag: '--scale', kind: 'number', help: 'size of the picture against the canvas, for example 0.5' } as const;
@@ -296,4 +297,4 @@ const sceneLibrary = command(
 );
 
 /** Command groups with commands of their own, e.g. `popost video scene check`. */
-export const makeGroups: Readonly<Record<string, Commands>> = { scene: { check: sceneCheck, write: sceneWrite, library: sceneLibrary } };
+export const makeGroups: Readonly<Record<string, Commands>> = { scene: { check: sceneCheck, write: sceneWrite, library: sceneLibrary, example: sceneExample } };
