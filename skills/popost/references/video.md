@@ -35,6 +35,9 @@ popost video doctor
   - `speak` null: no voice-over. Leave out `--voice`, `"voice"`, `--speak`, `--keep-length`, `--fit-tempo` and
     `--pace` below; say in the delivery that the video has no voice.
   - `generate` null: no generated clips; use captured pages, the user's files and scenes.
+  - `generate` set: generated clips cost money. With the built-in generator (`popost video generate`, popost.ai
+    credits) and no budget set, `popost video materials` first prices the list and makes nothing (`toConfirm`): tell
+    the user the total and go on only after they agree (`video-tools.md`, "The built-in generator").
 
 Done when: `"ok": true`, and you know which tools are `null`.
 

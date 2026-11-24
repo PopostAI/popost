@@ -52,12 +52,13 @@ https://github.com/PopostAI/popost/tree/main/skills/popost/tools/video
 | `POPOST_OCR_CMD` (text reader) | `<cmd> <list.json> <out.json>`; list.json is `[{ "frame": 120, "file": "/abs/000120.jpg" }]` | out.json: `[{ "frame": 120, "lines": [{ "text": "...", "confidence": 0.97, "box": [x, y, w, h] }] }]`, boxes as fractions of the frame |
 | `POPOST_ASR_CMD` (transcriber) | `<cmd> <audio.wav> <out.json> [language]` | out.json: `{ "language": "zh", "words": [{ "text": "...", "start": 1.02, "end": 1.16, "confidence": 0.99 }] }`, times in seconds |
 | `POPOST_TTS_CMD` (speaker) | `<cmd> <text.txt> <out.wav> [voice] [speed]` | a WAV at out.wav; optionally `<out.wav>.words.json`: `{ "words": [{ "text", "start", "end" }] }` in seconds |
-| `POPOST_GEN_CMD` (generator) | `<cmd> video\|image <request.json> <out-file>`; request `{ "prompt", "seconds"?, "aspect"?, "images"? }` | the clip or picture at out-file, and one JSON line on stdout: `{ "credits"?: number }` |
+| `POPOST_GEN_CMD` (generator) | `<cmd> video\|image <request.json> <out-file>`; request `{ "prompt", "seconds"?, "aspect"?, "images"?, "videos"?, "audios"? }`, references as paths | the clip or picture at out-file, and one JSON line on stdout: `{ "credits"?: number }`. To have a price agreed first: nothing made, `{ "confirm": { "credits": n, ... } }` and exit code 3 |
 
 - What they change: a text reader lets `describe` read the captions (the beats) and `readback` check the render; a
   transcriber reads what is said (spoken beats) and times a voice's words; a speaker makes the voice-over
   (`plan --voice`, `template fill --speak`); a generator makes clips and pictures from prompts with
-  `popost video materials` (every call may cost money: the tool must price and limit it).
+  `popost video materials` (every call may cost money: the tool must price and limit it; the built-in one below
+  asks before it charges).
 - The voice argument is passed to the speaker as it is: the README beside the tool that `POPOST_TTS_CMD` names says
   which voices exist (for a male voice, pick one it calls male). `POPOST_OCR_JOBS` runs several readers side by side (default 1).
 - `POPOST_CPUS=2` keeps all video work to two processors (ffmpeg threads, Chrome pages, tool threads, parts run side
@@ -66,6 +67,54 @@ https://github.com/PopostAI/popost/tree/main/skills/popost/tools/video
 - `POPOST_LLM_URL`, `POPOST_LLM_MODEL`, `POPOST_LLM_KEY` configure a model for `plan` without `--dry`,
   `template see` and `scene write`. An agent that writes the fill and the scenes itself does not need them. A key
   is never written to a file or printed.
+
+## The built-in generator
+
+`popost video generate` makes clips and pictures on popost.ai, in the user's own popost.ai account. Every clip and
+every picture costs popost.ai credits. Set it up once:
+
+```bash
+popost auth login                         # the account (or POPOST_API_KEY; POPOST_BASE_URL for another address)
+export POPOST_GEN_CMD="popost video generate"
+popost video generate --models            # the video models: ids, resolutions, seconds, aspect ratios, reference limits, credits
+```
+
+| Variable | What it sets | Unset |
+|---|---|---|
+| `POPOST_VIDEO_MODEL` | the model of a clip: an `id` from `--models` | the platform's default model |
+| `POPOST_VIDEO_RESOLUTION` | the resolution of a clip, one its model lists | the model's default |
+| `POPOST_IMAGE_MODEL` | the model of a picture (`popost provider cli models` lists them) | the platform's default |
+| `POPOST_GEN_MAX_CREDITS` | the most one call may cost without asking: a budget the user approved | every call asks first |
+| `POPOST_GEN_WAIT_MIN` | the minutes a clip is waited for | 30 |
+
+The request never chooses the model, the resolution or the budget. Its `"aspect"` goes to the model as it is (some
+models take `"adaptive"`; `--models` lists each model's ratios), and a clip without `"seconds"` is 5 seconds long.
+References are uploaded to the account first: `"images"` JPEG, PNG or WebP, `"videos"` MP4 or MOV, `"audios"` MP3 or
+WAV (clips and sounds for a clip only).
+
+**The price is agreed before anything is charged.** Every request is priced first. Within `POPOST_GEN_MAX_CREDITS` it
+goes on. Otherwise nothing is charged: the command prints one line,
+`{"confirm": {"credits": 25, "model": "<id>", "resolution": "480p", "seconds": 5, "aspectRatio": "9:16", "balance": 900}}`,
+and exits with 3; `popost video materials` puts that price on the file (`confirm`), the total of the list in
+`toConfirm`, and makes nothing. Show the user the price or the total. Only after they agree, run again with
+`POPOST_GEN_MAX_CREDITS` set to the highest price they approved for one file, or once with
+`POPOST_GEN_CMD="popost video generate --yes"`. A price above a budget that is set asks again, `--yes` or not. Without
+enough credits it fails before asking (`popost account` shows the balance).
+
+Then the clip is made on popost.ai, which takes minutes: the command checks every 10 seconds, downloads the clip to
+out-file and prints `{"credits": n}`, what was charged.
+
+- **Kept 7 days.** popost.ai keeps a generated clip, and the reference files uploaded for it, for 7 days and then
+  deletes them. Once downloaded, the clip is a file of the project.
+- **A retry never pays twice.** A request goes out with an idempotency key derived from it (model, resolution,
+  prompt, seconds, aspect ratio and the contents of its references), and what was sent is kept in
+  `~/.cache/popost/tasks/videos/` (`POPOST_TASK_DIR` moves it). After a crash or a timeout, run the same command again:
+  it finds the clip, waits for it or downloads it, and pays nothing more. Only a clip that failed (its credits were
+  refunded) or expired is made again, as a new attempt that is priced again.
+- **Failures** print one line on stderr and exit with 1 (2: the setup or the request needs fixing): no account
+  connected, video generation not available for the account (`VIDEO_GENERATION_DISABLED`), not enough credits, a
+  setting the model does not take (`VIDEO_OPTION_UNSUPPORTED`), content rejected (`CONTENT_REJECTED`, refunded), or
+  still being made after `POPOST_GEN_WAIT_MIN` (run the same command again later).
 
 ## Capture plans
 
@@ -123,6 +172,7 @@ under the band). Pointer, boxes and zoom are drawn into the recording, the same 
 | `scene check`: `is cut off ... X around it hides what lies outside it` | Make the element X larger or remove its fixed height, or shorten the text. |
 | `scene check`: `shows the same flat picture` | Its elements are invisible (opacity, colour on the ground, outside the canvas) or its motion starts after the shot. |
 | `plan --voice`: `needs a speaker` | No speaker: run `plan` without `--voice`. |
+| `materials`: `the user has not agreed to that price` | Nothing was charged. Show the user `toConfirm`; after they agree, set `POPOST_GEN_MAX_CREDITS` (the built-in generator above) and run `materials` again. |
 | `capture`: `The page answered HTTP 429` (or 503) | Wait a minute and run it again, or record another page. |
 | `capture` notes: `the scroll does not move` | The page is shorter than the plan: scroll to a heading from `--outline` or to `"bottom"`. |
 | `capture` notes: `a fixed element ... covers` | Add the selector it names to `--hide`; keep the site's header if you want it. |
