@@ -27,7 +27,17 @@ const s6 = (v: number): string => String(Math.round(v * 1e6) / 1e6);
 
 interface AudioInput { file: string; chain: string }
 
-/** One filter chain per audio item that sounds inside the range: trimmed, delayed to its start, gain applied. */
+/**
+ * atempo filters that play a sound at a rate (pitch kept); one filter takes 0.5 to 2, so a rate outside that is two
+ * in a row. '' for rate 1.
+ */
+export const tempoChain = (rate: number): string => {
+  if (!(rate > 0) || rate === 1) return '';
+  const steps = rate < 0.5 || rate > 2 ? [Math.sqrt(rate), Math.sqrt(rate)] : [rate];
+  return steps.map((r) => ',atempo=' + s6(r)).join('');
+};
+
+/** One filter chain per audio item that sounds inside the range: trimmed, played at its rate, delayed to its start, gain applied. */
 const audioInputs = (job: EncodeJob): AudioInput[] => {
   const duration = (job.to - job.from) / job.fps;
   return job.audio.flatMap((a) => {
@@ -35,11 +45,13 @@ const audioInputs = (job: EncodeJob): AudioInput[] => {
     const end = a.end === undefined ? duration : Math.min(duration, (a.end - job.from) / job.fps);
     if (end <= Math.max(0, start) || start >= duration) return [];
     // Footage sound starts at its "in": source frame from.frame at the file's own rate.
-    const skip = Math.max(0, -start) + (a.from ? a.from.frame / a.from.fps : 0);
+    // A sound at another rate: the time before the range and the length heard are the timeline's, taken from the file at its rate.
+    const rate = a.speed ?? 1;
+    const skip = Math.max(0, -start) * rate + (a.from ? a.from.frame / a.from.fps : 0);
     const delay = Math.round(Math.max(0, start) * RATE);
     const length = end - Math.max(0, start);
-    const chain = 'aresample=' + RATE + ',aformat=sample_fmts=fltp:channel_layouts=stereo,atrim=start=' + s6(skip) + ':duration=' + s6(length) +
-      ',asetpts=PTS-STARTPTS,adelay=delays=' + delay + 'S:all=1,volume=' + s6(a.gain) + 'dB';
+    const chain = 'aresample=' + RATE + ',aformat=sample_fmts=fltp:channel_layouts=stereo,atrim=start=' + s6(skip) + ':duration=' + s6(length * rate) +
+      ',asetpts=PTS-STARTPTS' + tempoChain(rate) + ',adelay=delays=' + delay + 'S:all=1,volume=' + s6(a.gain) + 'dB';
     return [{ file: a.src, chain }];
   });
 };

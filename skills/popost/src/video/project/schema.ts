@@ -91,7 +91,7 @@ const footage = {
   speed: z.number().min(0.25).max(4).optional(),
   audio: z.custom<false | number>((v) => v === false || (typeof v === 'number' && v >= -60 && v <= 24), {
     error: 'must be false (no sound) or a gain in dB from -60 to 24',
-    params: { allowed: ['false', '-60 .. 24'], fix: 'Write "audio": 0 for the footage\'s own level, or remove "audio" to keep the footage silent.' },
+    params: { allowed: ['false', '-60 .. 24'], fix: 'Write "audio": 0 for the footage\'s own level, false for none, or remove "audio": the footage then sounds only in a project with no audio track.' },
   }).optional(),
 };
 

@@ -174,7 +174,11 @@ export interface FootageSpec {
   in?: number;
   /** Playback rate, 0.25 to 4. Default 1. */
   speed?: number;
-  /** false (default): silent. A number: the footage's own sound is mixed at this gain in dB. Speed 1 only. */
+  /**
+   * The footage's own sound. false: silent. A number: mixed at this gain in dB. Left out: automatic, which is 0 dB
+   * in a project with no audio track and silent in one that has an audio track (a voice-over, music): a clip that
+   * came with sound keeps it unless the video brings a sound of its own. It plays at the footage's speed, pitch kept.
+   */
   audio?: false | number;
 }
 
@@ -535,6 +539,8 @@ export interface ResolvedAudio {
   gain: number;
   /** Where in the file the sound starts: source frame 'frame' at the file's own rate 'fps' (footage: its "in"). Default 0. */
   from?: { frame: number; fps: number };
+  /** Footage played faster or slower: its sound at the same rate (tempo changed, pitch kept). Default 1. */
+  speed?: number;
 }
 
 export interface Resolved {

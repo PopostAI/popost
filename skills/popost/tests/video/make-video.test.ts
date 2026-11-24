@@ -28,20 +28,21 @@ const FACTS: Record<string, FootageInfo> = {
  * 130 frames at 30 fps. Left half: the bases. s0 plays c30 from 0; a dissolve (26..33) into s1, c30 from in 10; a slide
  * (57..62) into s2, the 25 fps clip c25; a cut to s3, c30 from in 80, which runs out at frame 110 and holds frame 89.
  * Right half: item "fast" plays c30 at speed 2 on 0..29; item "voice" plays c30 from in 30 with its sound on 30..59;
- * then the bases show through.
+ * then the bases show through. Every other use of c30 is muted ("audio": false): left out, its sound would be kept
+ * (footage-sound.test.ts).
  */
 const project = (): Project => ({
   version: 1,
   canvas: { width: W, height: H, fps: 30 },
   materials: [{ id: 'c30', kind: 'video', file: 'assets/c30.mp4' }, { id: 'c25', kind: 'video', file: 'assets/c25.mp4' }],
   segments: [
-    { id: 's0', frames: 30, base: { material: 'c30' } },
-    { id: 's1', frames: 30, base: { material: 'c30', in: 10 }, in: { transition: 'dissolve', frames: 8 } },
+    { id: 's0', frames: 30, base: { material: 'c30', audio: false } },
+    { id: 's1', frames: 30, base: { material: 'c30', in: 10, audio: false }, in: { transition: 'dissolve', frames: 8 } },
     { id: 's2', frames: 40, base: { material: 'c25' }, in: { transition: 'slide', frames: 6 } },
-    { id: 's3', frames: 30, base: { material: 'c30', in: 80 } },
+    { id: 's3', frames: 30, base: { material: 'c30', in: 80, audio: false } },
   ],
   tracks: [
-    { id: 'fast', type: 'video', material: 'c30', box: [0.5, 0, 0.5, 1], fit: 'cover', speed: 2, during: { segment: 's0' } },
+    { id: 'fast', type: 'video', material: 'c30', box: [0.5, 0, 0.5, 1], fit: 'cover', speed: 2, audio: false, during: { segment: 's0' } },
     { id: 'voice', type: 'video', material: 'c30', box: [0.5, 0, 0.5, 1], fit: 'cover', in: 30, audio: 0, during: { segment: 's1' } },
   ],
 });
@@ -74,7 +75,7 @@ describe('video footage: format, check and frame mapping', () => {
   it('parses video bases and video items, and refuses wrong values with a fix', () => {
     const parsed = parseProject(project());
     expect(parsed.problems).toEqual([]);
-    expect(seg(parsed.project as Project, 1).base).toEqual({ material: 'c30', in: 10 });
+    expect(seg(parsed.project as Project, 1).base).toEqual({ material: 'c30', in: 10, audio: false });
     const bad = parseProject({ ...project(), tracks: [{ ...video(project(), 1), speed: 8, audio: true, repeat: true }] });
     expect(bad.project).toBeUndefined();
     expect(at(bad.problems, 'tracks[0].speed').message).toContain('at most 4');
@@ -88,7 +89,10 @@ describe('video footage: format, check and frame mapping', () => {
     expect(ok.filter((p) => p.level === 'error')).toEqual([]);
     expect(at(ok, 'segments[3].base', 'warning').message).toContain('from project frame 110');
     expect(at(problemsOf(change((p) => { seg(p, 1).base = { material: 'c30', in: 90 }; }), FACTS), 'segments[1].base.in').fix).toContain('at most 89');
-    expect(at(problemsOf(change((p) => { video(p, 1).speed = 2; }), FACTS), 'tracks[1].audio', 'warning').message).toContain('speed 1');
+    // A sound plays at its footage's speed: no warning, and the mix is told the rate.
+    const fastVoice = change((p) => { video(p, 1).speed = 2; });
+    expect(problemsOf(fastVoice, FACTS).filter((p) => p.at === 'tracks[1].audio')).toEqual([]);
+    expect(resolve(fastVoice, FACTS).audio[0]).toMatchObject({ id: 'voice.audio', speed: 2 });
     expect(at(problemsOf(change((p) => { seg(p, 2).base = { material: 'c25', audio: -6 }; }), FACTS), 'segments[2].base.audio', 'warning').message).toContain('no sound');
     const image = change((p) => { p.materials.push({ id: 'pic', kind: 'image', file: 'assets/pic.png' }); seg(p, 0).base = { material: 'pic', in: 3 }; });
     expect(at(problemsOf(image), 'segments[0].base.in').message).toContain('applies to a video material');

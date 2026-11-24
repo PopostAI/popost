@@ -1,6 +1,7 @@
 /**
  * Checks of video footage: in / speed / audio only on a video material, and, with what the build step read from the
- * file (CheckContext.footage), "in" inside the source, the source running out before the use ends, and the sound.
+ * file (CheckContext.footage), "in" inside the source, the source running out before the use ends, and a gain set on
+ * a file that has no sound.
  */
 import type { FootageFacts, FootageSpec, Problem } from '../types';
 import { error, warning, type CheckContext } from './check-common';
@@ -29,9 +30,8 @@ const sourceText = (file: string | undefined, f: FootageFacts): string =>
   '"' + (file ?? '?') + '" has ' + f.frames + ' frames (' + (f.frames / f.fps).toFixed(2) + ' s at ' + Number(f.fps.toFixed(3)) + ' fps)';
 
 const soundProblems = (spec: FootageSpec, f: FootageFacts, id: string, at: string): Problem[] => {
+  // Left out, the sound is automatic (FootageSpec.audio): a file without sound is then simply silent.
   if (spec.audio === undefined || spec.audio === false) return [];
-  if ((spec.speed ?? 1) !== 1)
-    return [warning(at + '.audio', 'The footage\'s own sound is left out: it is mixed only at speed 1, and "speed" is ' + spec.speed + '.', 'Set "speed": 1 to hear it, or remove "audio".')];
   if (!f.hasAudio) return [warning(at + '.audio', 'Material "' + id + '" has no sound track, so "audio" has no effect.', 'Remove "audio", or use a file with sound.')];
   return [];
 };

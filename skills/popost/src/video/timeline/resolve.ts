@@ -102,23 +102,28 @@ const resolveAudio = (ctx: Ctx, items: readonly ResolvedItem[]): ResolvedAudio[]
   return [...tracks, ...sounds];
 };
 
-/** The footage's own sound of every base and video item that asks for it (speed 1 only; check warns otherwise). */
+/**
+ * The footage's own sound of every base and video item: at the gain its "audio" gives, never with false, and with
+ * no "audio" at 0 dB when the project has no audio track (FootageSpec.audio). It plays at the footage's speed.
+ */
 const footageAudio = (ctx: Ctx, segments: readonly ResolvedSegment[], items: readonly ResolvedItem[]): ResolvedAudio[] => {
   const fromBases = segments.flatMap((s, k) => {
     const spec = ctx.project.segments[k]?.base;
     return s.base.kind === 'video' && spec && 'material' in spec ? [{ id: s.id, spec: spec as FootageSpec, play: s.base.play, end: s.end }] : [];
   });
+  // A project with a sound of its own (a voice-over, music) keeps footage silent unless a use says otherwise.
+  const ownSound = ctx.project.tracks.some((t) => t.type === 'audio');
   const byId = new Map(items.map((it) => [it.id, it] as const));
   const fromItems = ctx.project.tracks.flatMap((t) => {
     const it = byId.get(t.id);
     return t.type === 'video' && it?.play ? [{ id: t.id, spec: t as FootageSpec, play: it.play, end: it.end }] : [];
   });
   return [...fromBases, ...fromItems].flatMap((u): ResolvedAudio[] => {
-    const gain = u.spec.audio;
+    const gain = u.spec.audio ?? (ownSound ? false : 0);
     const facts = factsOf(ctx, u.play.material);
-    if (gain === undefined || gain === false || u.play.speed !== 1 || !facts.hasAudio) return [];
+    if (gain === false || !facts.hasAudio) return [];
     const src = materialSrc(material(ctx, u.play.material));
-    return [{ id: u.id + '.audio', src, start: u.play.start, end: u.end, gain, from: { frame: u.play.in, fps: facts.fps } }];
+    return [{ id: u.id + '.audio', src, start: u.play.start, end: u.end, gain, from: { frame: u.play.in, fps: facts.fps }, ...(u.play.speed !== 1 ? { speed: u.play.speed } : {}) }];
   });
 };
 

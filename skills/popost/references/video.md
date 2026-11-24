@@ -247,6 +247,13 @@ the most characters that can be said in its beat, the voice sped up at most 1.12
   goes on what the new line says, that strongest point, never on the new subject's version of the reference's fact.
 - `voice`: the same `<voice>`, as `answer` and `rules` say: `template fill --speak` reads it from the fill. No times, no
   frame numbers except `in`, no other keys.
+- A reference without speech (REFERENCE.md: `Speech: none recognised`) is re-made without a voice-over, unless the
+  request asks for one: leave out `--voice`, `"voice"`, `--speak`, `--keep-length`, `--fit-tempo` and `--pace` here
+  and in step 6; its caption lines are still drawn.
+- Sound: a video without a voice keeps the sound its clips came with (a generated clip has sound), each at its own
+  level; with a voice or a `"sound"` file the clips are silent unless a shot says `"audio"` (`video-templates.md`).
+  Never make up music or a tone to fill silence, and never mute a clip to be safe: `"sound"` is for a file the user
+  gave. A quiet video is not a fault to repair; the user can add sound in an editor.
 
 ```bash
 popost video template check template --fill fill.json --pace <budgets.pace> --fit-tempo 1.12
@@ -359,7 +366,7 @@ re-flows each beat to its spoken line; `--keep-length` keeps each beat at least 
 cuts keep its rhythm; `--fit-tempo 1.12` speeds a line that would run over its beat up as far as it needs, at most
 12% (hardly heard; the pitch stays), and only the rest makes the beat longer. Its `notes` say which lines were sped
 up and give the new length. When the reading says the words appear one by one, add `"captionReveal": "words"` to the fill (`template check` warns when it is missing). From now on run `template fill` only with these options, or the voice is dropped.
-Without a speaker, leave out `--speak --keep-length --fit-tempo 1.12 --pace <budgets.pace>`. The last command
+Without a speaker, or for a video without a voice (step 4), leave out `--speak --keep-length --fit-tempo 1.12 --pace <budgets.pace>`. The last command
 looks at the files of the fill and at `project/video.json`: run it again after every hand edit of `video.json`; it
 warns when the captions are much smaller or larger than the reference's, with both sizes in pixels (`video check` does
 too). `scene check` also warns when a scene is far emptier than its reference shot (draw what the shot holds, as

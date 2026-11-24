@@ -31,7 +31,8 @@ it runs, so make hand edits last, after the fill is final, and keep a copy of th
 - **Segment**: one shot, in order; the video is the segments one after another, each `frames` long. Its **base** is
   what fills it: `{ "color": "#101014" }` (or a gradient: `{ "type": "linear", "angle": 160, "stops": [ { "at": 0,
   "color": "#1b1f3b" }, { "at": 1, "color": "#e94e77" } ] }`), `{ "material": "<id>", "fit": "cover" }` for a picture
-  or footage (footage also takes `in`, `speed`, `audio`; a picture a `camera`: `{ "zoom": 0.04 }` or keyframed
+  or footage (footage also takes `in`, `speed`, `audio`: a gain in dB or `false`; left out, its own sound is kept only in
+  a project with no `audio` track; a picture a `camera`: `{ "zoom": 0.04 }` or keyframed
   `moves`), or `{ "scene": "scenes/x.html", "slots": { ... } }`.
 - **Transition**: the segment's `in`, the change from the shot before: `transition` is one of `cut`, `fade`,
   `flash`, `dissolve`, `wipe`, `slide`, `zoom`, `spin`, `blur`, `glitch`, `shake`, `whip`, with `frames` and,

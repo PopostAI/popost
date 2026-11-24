@@ -47,10 +47,15 @@ A shot is exactly one of:
 | Form | Keys | Notes |
 |---|---|---|
 | scene | `scene`, `slots` | an HTML page in the project that draws the shot (`video-scenes.md`); a slot of an `<img>` takes a picture path relative to the scene file (`"../assets/logo.png"`) |
-| footage | `footage`, `in`, `speed` (0.25 to 4), `audio` (false or -60 to 24 dB), `fit` (`cover` or `contain`), `ground` | `in` is the first frame to show; audio is silent by default, 0 keeps the original level |
+| footage | `footage`, `in`, `speed` (0.25 to 4), `audio` (false or -60 to 24 dB), `fit` (`cover` or `contain`), `ground` | `in` is the first frame to show; `audio`: the clip's own sound, below |
 | picture | `picture`, `zoom`, `fit`, `ground` | `zoom`: growth per second (0.04 is a slow push in), not a scale |
 | color | `color` | neighbouring colour shots need clearly different colours |
 | card | `card`: `title`, `lines`, `background`, `color` | a title and lines that enter one after another; 1 s or more |
+
+The sound a clip came with (a footage shot, a `"video"` item) is kept or dropped by itself when the fill says no
+`"audio"`: a video with no voice (`--speak`) and no `"sound"` keeps every clip's sound at its own level; a video with
+one keeps the clips silent, so that nothing sounds under the voice. `"audio": 0` keeps a clip's sound in any case, a
+negative number keeps it lower (`-18` sits under a voice), `false` mutes it. The sound plays at the clip's `speed`.
 
 `fit` decides what happens to a picture or footage whose proportions differ from the canvas's: `"cover"` (the default)
 fills the shot and cuts off what lies outside it, text included; `"contain"` shows the whole file with bands of

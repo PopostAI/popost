@@ -150,9 +150,10 @@ shot whose ground moves on across the cuts: start its animation at minus the sho
 (a picture: `"image"`) and its `box`, the opening in canvas pixels divided by the canvas size, at the clip's
 proportions (a 9:16 clip 576 px tall is 324 px wide; for the frame of `describe`, the box it gives); `"fit": "cover"`
 fills it, `radius` rounds its corners (a fraction of the box's smaller side), `"in"` is the clip's first frame.
-  Add `"audio": 0` to a video item to retain its source audio, or a lower dB gain under narration; omitted or
-  `false` is silent. The sound follows the same trim, speed and segment as its picture. Studio exposes its source
-  audio gain too; clear the field to mute it.
+  A video item's own sound follows the rule of footage (`video-templates.md`): with no `"audio"` it is kept in a video
+  that has no voice and no `"sound"`, and silent in one that has; `"audio": 0` keeps it, a lower dB gain keeps it
+  under narration, `false` mutes it. The sound follows the same trim, speed and segment as its picture. Studio shows
+  the gain too; an empty field is the automatic rule.
   `template fill` (and `retarget`) writes each item into `video.json` as a material and a track during the shot's
 segment, so the clip stays through every later fill and moves with the shot when time is re-flowed to speech;
 `template check` says when its file is missing or the box would crop it. Never add it to `video.json` by hand in a

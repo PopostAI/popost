@@ -26,7 +26,7 @@ const isObject = (v: unknown): v is Record<string, unknown> => typeof v === 'obj
 const err = (at: string, message: string, fix: string): Problem => ({ level: 'error', at, message, fix });
 
 export const footageAudioProblems = (value: unknown, at: string): Problem[] =>
-  value === undefined || value === false || (typeof value === 'number' && Number.isFinite(value) && value >= -60 && value <= 24) ? [] : [err(at, 'Source audio is false (muted) or a gain from -60 to 24 dB.', 'Write "audio": 0 for the original level, a lower gain, or remove it to mute.')];
+  value === undefined || value === false || (typeof value === 'number' && Number.isFinite(value) && value >= -60 && value <= 24) ? [] : [err(at, 'Source audio is false (muted) or a gain from -60 to 24 dB.', 'Write "audio": 0 for the original level, a lower gain, false to mute, or remove it (the clip then sounds only in a video with no voice and no "sound").')];
 
 /** One item's shape: a file, a box inside the canvas, and values the engine takes. */
 const itemProblems = (item: unknown, at: string): Problem[] => {
