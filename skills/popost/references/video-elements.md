@@ -57,6 +57,7 @@ can be wrong, and what you see wins. Write nothing you cannot see.
 | `emphasis` | list | every mark: `what` (box, zoom, pointer, circle, underline, arrow, other), `on` (what it marks), `why` (what the line at that moment says that makes it worth marking) |
 | `rebuild` | words | two or three sentences on how to draw the shot again |
 | `drop` | words | only on a last shot that is the platform's end card or the author's sign-off: the shot is not re-made, and why |
+| `status` | object | how the fields beside it are known, by field name: see "How each value is known". A shot labels `time`, `job`, `layout`, `captions`, `emphasis`; a layer and `transitionIn` carry their own |
 
 When OCR mistakes a page heading for a caption, give `captions.lines` the actual caption lines visible in this shot.
 Use `[]` when the shot has no captions; omit it to keep the automatic roles. Give the caption layer its real box.
@@ -79,7 +80,9 @@ A layer:
 
 The change into a shot: `kind` is cut, fade, flash, dissolve, wipe, slide, zoom, spin, blur, glitch, shake or whip
 when the change is exactly that, with `seconds`; otherwise `custom`, with a `description` of what happens frame by
-frame: which object moves and along which path, the shape of the edge, what is revealed, where it starts and ends. A
+frame: which object moves and along which path, the shape of the edge, what is revealed, where it starts and ends
+(when the shot's file has a "Paths" line for the change, take the path angle, the size, the positions, the seconds and
+the edge from it, and say what the object is). A
 change the list says does not fit well is most often custom; if you call it a standard kind, say why in
 `description`. An effect that starts in one shot and finishes in the next is the next shot's `transitionIn`, and
 the shot it starts in says `sameEffectAsNext`.
@@ -107,6 +110,25 @@ Any of them may act on one side only: the old shot leaves that way and the new o
 simply ends and the new one arrives that way; say which in `description`. Streaks along a movement are a whip, not a
 wipe; a moving edge with something drawn along it, a shape that leads it, objects that fly in or apart, a page that
 turns or folds are custom.
+
+### How each value is known
+
+The reading's files tag their values: `[measured 0.76]` was read off the frames by a program (0.76 is its confidence),
+`[inferred: ...]` is concluded from measured facts and may be wrong, `[unknown: ...]` could not be read. Say the same of
+what you write, in a `status` object beside the fields it labels (a shot's, a layer's `box`, `look`, `content`,
+`enters`, `moves`, `leaves`, a change's `kind`, `seconds`, `description`):
+
+- `"measured"`: you copied the value from the reading (`shots/NN.md`, `timeline.md`): a time, how long a change
+  lasts, a path, a text's box, a colour. What a thing is, what it is for and how to draw it are never measured.
+- `"inferred"`: you saw it in the frames. This is most of what you write.
+- `"unknown"`: you could not tell (too small, too fast, covered, between two frames). Leave the value out or give your
+  best guess; never present a guess as seen.
+
+A label is one of the three words, or `{"status": "inferred", "note": "..."}`. The note is needed when your value
+contradicts a measured one: `elements check` warns when a change the reading measured (its kind, how long it lasts,
+its path) is given differently without a note or a `description` that says what the frames show instead, and when a
+field labelled `measured` does not agree with the reading. Copy measured numbers exactly: a re-make is set from them.
+A file without `status` is still valid; its values count as unlabelled.
 
 ### Roles
 
@@ -146,11 +168,13 @@ picture in behind a curved edge, a recording of an app follows, and the platform
    ],
    "rebuild": "A deep blue card with the title rising in; at 1.6 s a paper plane enters at the left and flies up and to the right. The plane carries on into shot 2."},
   {"shot": 2, "time": [2.2, 6.0], "job": "demo: the fix in the app", "layout": "a full-frame screen recording",
-   "transitionIn": {"kind": "custom", "seconds": 0.5, "description": "The plane from shot 1 keeps flying up and to the right; a curved edge trails it, and behind the edge the recording of shot 2 is revealed from the lower left until it fills the frame at 2.5 s."},
+   "transitionIn": {"kind": "custom", "seconds": 0.5, "description": "The plane from shot 1 keeps flying up and to the right; a curved edge trails it, and behind the edge the recording of shot 2 is revealed from the lower left until it fills the frame at 2.5 s.",
+     "status": {"kind": "inferred", "seconds": "measured"}},
    "layers": [
      {"id": "page", "kind": "screen", "box": [0, 0, 1, 1], "look": "a light app screen, full frame, no device frame", "content": "the app's settings page", "role": "content", "moves": "scrolls down slowly 3.0-5.5 s"},
      {"id": "box", "kind": "highlight", "box": [0.55, 0.4, 0.3, 0.1], "look": "orange rounded rectangle, 4 px outline, no fill", "content": "around the sync switch", "role": "design", "enters": "draws itself clockwise 4.2-4.6 s"},
-     {"id": "captions", "kind": "caption", "box": [0.1, 0.84, 0.8, 0.08], "look": "white bold sans on a black plate at 70%", "role": "design"},
+     {"id": "captions", "kind": "caption", "box": [0.1, 0.84, 0.8, 0.08], "look": "white bold sans on a black plate at 70%", "role": "design",
+      "status": {"box": "measured", "look": "inferred"}},
      {"id": "handle", "kind": "platform", "box": [0.72, 0.03, 0.25, 0.05], "look": "small white text at 60%", "content": "the account handle", "role": "platform"}
    ],
    "captions": {"base": "white bold sans on a black plate at 70%", "highlight": "the name of the setting in yellow", "reveal": "word by word as spoken"},

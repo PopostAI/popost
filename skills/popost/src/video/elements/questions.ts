@@ -11,6 +11,7 @@ import { shownIn } from '../describe/kind';
 import type { TextTrack } from '../text/types';
 import type { Measure } from '../types';
 import { measuredLabel } from './check';
+import { trackBrief, transitionTrack } from '../describe/paths';
 import { ELEMENTS_FILE } from './types';
 
 /** The page that holds the instructions, in the Skill, and the heading they start at. */
@@ -54,8 +55,10 @@ export const questionShots = (m: Measure): QuestionShot[] => {
     const transition = b && b.kind !== 'cut' ? transitionFile(k + 1) : undefined;
     const doubts = b && b.kind !== 'cut' ? [...(fitsPoorly(b) ? ['does not fit the frames well'] : []), ...(b.confidence < 0.4 ? ['unsure'] : [])] : [];
     const into = !b ? 'start' : b.kind === 'cut' ? 'a cut' : measuredLabel(b) + ' ' + Math.max(0, b.end - b.start - 1) + 'f' + (doubts.length ? ', ' + doubts.join(', ') : '');
+    const track = transitionTrack(m, k + 1);
+    const path = track ? '; measured ' + trackBrief(track, fps) + ' (shots/' + String(k + 1).padStart(2, '0') + '.md, "Paths")' : '';
     const part = joined.has(k) ? '; very short, on a flat ground with something moving: most likely part of the change into shot ' + (k + 2) : '';
-    return { shot: k + 1, time: [two(s.start / fps), two(s.end / fps)], frames: shotSheetFile(k + 1), ...(transition ? { transition } : {}), in: into + part };
+    return { shot: k + 1, time: [two(s.start / fps), two(s.end / fps)], frames: shotSheetFile(k + 1), ...(transition ? { transition } : {}), in: into + path + part };
   });
 };
 

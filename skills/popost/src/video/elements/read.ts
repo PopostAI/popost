@@ -5,12 +5,12 @@
  * shot, a shot whose number, time or layers are wrong is left out, and the shots that have an entry are listed apart.
  */
 import { error, warning } from '../project/check-common';
-import { TRANSITION_KINDS, type Box, type Problem } from '../types';
-import { LAYER_KINDS, MARKS, ROLES, type Elements, type Layer, type Mark, type ReadTransition, type ShotReading } from './types';
+import { KNOWN_AS, TRANSITION_KINDS, type Box, type Problem } from '../types';
+import { LAYER_KINDS, MARKS, ROLES, STATUS_FIELDS, type Elements, type FieldStatus, type Layer, type Mark, type ReadTransition, type ShotReading } from './types';
 
-const SHOT_KEYS = ['shot', 'time', 'job', 'layout', 'sameEffectAsNext', 'transitionIn', 'layers', 'captions', 'emphasis', 'rebuild', 'drop'];
-const LAYER_KEYS = ['id', 'kind', 'box', 'look', 'content', 'role', 'enters', 'moves', 'leaves'];
-const TRANSITION_KEYS = ['kind', 'seconds', 'description'];
+const SHOT_KEYS = ['shot', 'time', 'job', 'layout', 'sameEffectAsNext', 'transitionIn', 'layers', 'captions', 'emphasis', 'rebuild', 'drop', 'status'];
+const LAYER_KEYS = ['id', 'kind', 'box', 'look', 'content', 'role', 'enters', 'moves', 'leaves', 'status'];
+const TRANSITION_KEYS = ['kind', 'seconds', 'description', 'status'];
 const READ_KINDS: readonly string[] = [...TRANSITION_KINDS, 'custom'];
 const LAYER_EXAMPLE = '{"id": "title", "kind": "title", "box": [0.1, 0.2, 0.8, 0.15], "look": "white heavy sans, 7% of the height, yellow underline", "content": "the question the video answers", "role": "content"}';
 /** A box may run past the frame by this much (a reader's rounding). */
@@ -29,6 +29,27 @@ const extraKeys = (o: Record<string, unknown>, keys: readonly string[], at: stri
 /** Words a key holds when it is there: free text, never a number or a list. */
 const wordsProblems = (o: Record<string, unknown>, keys: readonly string[], at: string): Problem[] =>
   keys.filter((k) => o[k] !== undefined && !isText(o[k])).map((k) => error(at + '.' + k, '"' + k + '" is free words; it is ' + JSON.stringify(o[k]) + '.', 'Write it as a string, or leave it out.'));
+
+/**
+ * "status": how the fields beside it are known, { field: "measured" | "inferred" | "unknown" } or { field: { "status",
+ * "note" } }. The labels that are well formed are kept; a wrong one is an error with what to write, a field that
+ * cannot be labelled here a warning.
+ */
+const statusOf = (raw: unknown, fields: readonly string[], at: string): { status?: FieldStatus; problems: Problem[] } => {
+  if (raw === undefined) return { problems: [] };
+  const example = '"status": {"' + fields[0] + '": "measured", "' + (fields[1] ?? fields[0]) + '": {"status": "inferred", "note": "why"}}';
+  if (!isObject(raw)) return { problems: [error(at, '"status" says how the fields beside it are known: an object of field names, each measured, inferred or unknown.', 'Write ' + example + ', or leave it out.', [...KNOWN_AS])] };
+  const problems: Problem[] = [];
+  const status: FieldStatus = {};
+  for (const [k, v] of Object.entries(raw)) {
+    const here = at + '.' + k;
+    if (!fields.includes(k)) { problems.push(warning(here, 'There is no field "' + k + '" to label here; the label is ignored.', 'Label one of the fields listed, beside which this "status" stands.', [...fields])); continue; }
+    if (oneOf(KNOWN_AS, v)) status[k] = v;
+    else if (isObject(v) && oneOf(KNOWN_AS, v.status) && (v.note === undefined || isText(v.note))) status[k] = { status: v.status, ...(filled(v.note) ? { note: v.note } : {}) };
+    else problems.push(error(here, 'The label of "' + k + '" is ' + JSON.stringify(v) + '; it is measured (copied from the reading), inferred (seen in the frames) or unknown (could not be told), or {"status": one of them, "note": "..."}.', 'Write "' + k + '": "inferred", or {"status": "inferred", "note": "why it differs from the measured value"}.', [...KNOWN_AS]));
+  }
+  return { ...(Object.keys(status).length ? { status } : {}), problems };
+};
 
 export const boxProblems = (box: unknown, at: string): Problem[] => {
   if (!(Array.isArray(box) && box.length === 4 && box.every(isNumber)))
@@ -51,12 +72,14 @@ const layerOf = (raw: unknown, at: string): { layer?: Layer; problems: Problem[]
   out.push(...boxProblems(raw.box, at + '.box'));
   if (!isText(raw.look)) out.push(error(at + '.look', 'A layer needs a "look": its colours, shape, weight, outline, plate and angle, precisely enough to redraw it.', 'Write for example "look": "white heavy sans, 7% of the height, on a yellow plate with round corners".'));
   out.push(...wordsProblems(raw, ['content', 'enters', 'moves', 'leaves'], at));
+  const labels = statusOf(raw.status, STATUS_FIELDS.layer, at + '.status');
+  out.push(...labels.problems);
   if (hasError(out)) return { problems: out };
   const layer = raw as unknown as Layer;
   if (layer.role === 'design' && !layer.look.trim()) out.push(warning(at + '.look', 'Layer "' + layer.id + '" keeps its look in the re-make, and its "look" is empty.', 'Say its colours, shape, weight, outline and angle, precisely enough to redraw it.'));
   if (layer.role === 'content' && !filled(layer.content)) out.push(warning(at + '.content', 'Layer "' + layer.id + '" is a place for the new subject, and its "content" does not say what the reference showed there.', 'Say what it shows or says, so that the re-make knows what to put in its place.'));
   const pick = (k: 'content' | 'enters' | 'moves' | 'leaves') => (filled(layer[k]) ? { [k]: layer[k] } : {});
-  return { layer: { id: layer.id, kind: layer.kind, box: layer.box, look: layer.look, ...pick('content'), role: layer.role, ...pick('enters'), ...pick('moves'), ...pick('leaves') }, problems: out };
+  return { layer: { id: layer.id, kind: layer.kind, box: layer.box, look: layer.look, ...pick('content'), role: layer.role, ...pick('enters'), ...pick('moves'), ...pick('leaves'), ...(labels.status ? { status: labels.status } : {}) }, problems: out };
 };
 
 const transitionOf = (raw: unknown, at: string): { transition?: ReadTransition; problems: Problem[] } => {
@@ -65,9 +88,11 @@ const transitionOf = (raw: unknown, at: string): { transition?: ReadTransition; 
   if (!oneOf(READ_KINDS, raw.kind)) out.push(error(at + '.kind', '"kind" is ' + JSON.stringify(raw.kind) + '; it is a standard transition the engine has, or "custom" for an effect of its own.', 'Write the standard kind the frames show, or "custom" with a "description".', [...READ_KINDS]));
   if (raw.seconds !== undefined && !(isNumber(raw.seconds) && raw.seconds >= 0)) out.push(error(at + '.seconds', '"seconds" is how long the change lasts, a number from 0; it is ' + JSON.stringify(raw.seconds) + '.', 'Write for example "seconds": 0.5, or leave it out.'));
   out.push(...wordsProblems(raw, ['description'], at));
+  const labels = statusOf(raw.status, STATUS_FIELDS.transition, at + '.status');
+  out.push(...labels.problems);
   if (hasError(out)) return { problems: out };
   const t = raw as unknown as ReadTransition;
-  return { transition: { kind: t.kind, ...(t.seconds !== undefined ? { seconds: t.seconds } : {}), ...(filled(t.description) ? { description: t.description } : {}) }, problems: out };
+  return { transition: { kind: t.kind, ...(t.seconds !== undefined ? { seconds: t.seconds } : {}), ...(filled(t.description) ? { description: t.description } : {}), ...(labels.status ? { status: labels.status } : {}) }, problems: out };
 };
 
 const captionsOf = (raw: unknown, at: string): { captions?: ShotReading['captions']; problems: Problem[] } => {
@@ -103,7 +128,7 @@ const headProblems = (raw: Record<string, unknown>, at: string): Problem[] => {
   if (!filled(raw.layout)) out.push(error(at + '.layout', 'A shot needs a "layout": the kind of picture in generic words.', 'Write for example "layout": "a full-frame screen recording", "a window on a designed ground", "a title card" or "a person to camera with inserts".'));
   if (!Array.isArray(raw.layers) || !raw.layers.length) out.push(error(at + '.layers', 'A shot needs "layers": everything it shows, the ground first.', 'Write "layers": [{"id": "ground", "kind": "ground", "box": [0, 0, 1, 1], "look": "...", "role": "design"}, ...].'));
   if (raw.sameEffectAsNext !== undefined && typeof raw.sameEffectAsNext !== 'boolean') out.push(error(at + '.sameEffectAsNext', '"sameEffectAsNext" is true or false.', 'Write true when an animation of this shot runs across the boundary into the next one, else leave it out.'));
-  return [...out, ...wordsProblems(raw, ['job', 'rebuild', 'drop'], at)];
+  return [...out, ...wordsProblems(raw, ['job', 'rebuild', 'drop'], at), ...statusOf(raw.status, STATUS_FIELDS.shot, at + '.status').problems];
 };
 
 const shotOf = (raw: unknown, k: number): { shot?: ShotReading; number?: number; problems: Problem[] } => {
@@ -123,11 +148,14 @@ const shotOf = (raw: unknown, k: number): { shot?: ShotReading; number?: number;
   const marks = raw.emphasis === undefined ? undefined : marksOf(raw.emphasis, at + '.emphasis');
   out.push(...(into?.problems ?? []), ...(caps?.problems ?? []), ...(marks?.problems ?? []));
   const r = raw as unknown as ShotReading;
+  // Its problems are already among the head's.
+  const labels: FieldStatus | undefined = statusOf(raw.status, STATUS_FIELDS.shot, at + '.status').status;
   const shot: ShotReading = {
     shot: r.shot, time: [r.time[0], r.time[1]], ...(filled(r.job) ? { job: r.job } : {}), layout: r.layout,
     ...(r.sameEffectAsNext ? { sameEffectAsNext: true } : {}), ...(into?.transition ? { transitionIn: into.transition } : {}),
     layers, ...(caps?.captions ? { captions: caps.captions } : {}), ...(marks ? { emphasis: marks.emphasis } : {}),
     ...(filled(r.rebuild) ? { rebuild: r.rebuild } : {}), ...(filled(r.drop) ? { drop: r.drop } : {}),
+    ...(labels ? { status: labels } : {}),
   };
   return { shot, number: r.shot, problems: out };
 };

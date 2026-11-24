@@ -6,7 +6,7 @@
  * the file to the measurement, `template save` carries it into the template, and the checks of a fill and a project
  * use it. Nothing here names a kind of video: a screen, a product or a platform is one kind of layer among others.
  */
-import type { Box, TransitionKind } from '../types';
+import type { Box, KnownAs, TransitionKind } from '../types';
 
 /** The file, in the directory describe wrote. */
 export const ELEMENTS_FILE = 'elements.json';
@@ -32,6 +32,26 @@ export type MarkKind = (typeof MARKS)[number];
 /** The change into a shot as the reader saw it: one of the engine's kinds, or "custom" for an effect of its own. */
 export type ReadKind = TransitionKind | 'custom';
 
+/**
+ * How the fields of an entry are known, by field name: "measured" (copied from the reading: shots/NN.md, timeline.md),
+ * "inferred" (seen in the frames by the model that wrote the entry) or "unknown" (could not be told; the value is a
+ * guess or is left out). With a note when it needs one: { "status": "inferred", "note": "why it differs from the
+ * measured value" }. A field without a label is unlabelled, as in every file written before labels existed.
+ */
+export type FieldLabel = KnownAs | { status: KnownAs; note?: string };
+export type FieldStatus = Record<string, FieldLabel>;
+export const labelOf = (s: FieldStatus | undefined, field: string): { status?: KnownAs; note?: string } => {
+  const v = s?.[field];
+  return v === undefined ? {} : typeof v === 'string' ? { status: v } : { status: v.status, ...(v.note ? { note: v.note } : {}) };
+};
+/** The fields of each object that may be labelled, and those of them the reading measures (the others are never "measured"). */
+export const STATUS_FIELDS = {
+  shot: ['time', 'job', 'layout', 'captions', 'emphasis'],
+  layer: ['box', 'look', 'content', 'enters', 'moves', 'leaves'],
+  transition: ['kind', 'seconds', 'description'],
+} as const;
+export const MEASURABLE: readonly string[] = ['time', 'captions', 'box', 'look', 'enters', 'moves', 'leaves', 'kind', 'seconds'];
+
 export interface Layer {
   /** Unique in its shot; the template names content places by it. */
   id: string;
@@ -47,6 +67,8 @@ export interface Layer {
   enters?: string;
   moves?: string;
   leaves?: string;
+  /** How box, look, content, enters, moves and leaves are known. */
+  status?: FieldStatus;
 }
 
 export interface ReadTransition {
@@ -55,6 +77,8 @@ export interface ReadTransition {
   seconds?: number;
   /** Frame by frame what happens (which object moves, its path, the shape of the edge, what is revealed); for "custom", or a standard kind the measurement doubted, why it is that kind. */
   description?: string;
+  /** How kind, seconds and description are known. */
+  status?: FieldStatus;
 }
 
 /** A mark on something: what kind, on what, and what the line at that moment says that makes it worth marking. */
@@ -80,6 +104,8 @@ export interface ShotReading {
   rebuild?: string;
   /** The whole shot is not re-made (the platform's end card, the author's sign-off), and why; only shots at the end. */
   drop?: string;
+  /** How time, job, layout, captions and emphasis are known. */
+  status?: FieldStatus;
 }
 
 export interface Elements { shots: ShotReading[] }

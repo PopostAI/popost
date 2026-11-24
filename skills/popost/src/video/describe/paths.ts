@@ -4,6 +4,9 @@
  * themselves are in tracks.json.
  */
 import type { Measure, RevealEdge, Trajectory } from '../types';
+import { edgeKnown, ownEffect, tag, trackKnown } from './known';
+
+export { ownEffect };
 
 export const TRACKS_FILE = 'tracks.json';
 export const ANGLES = '0 is to the right, 90 down, -90 up, 180 to the left';
@@ -29,7 +32,8 @@ const travelText = (t: Trajectory, fps: number): string =>
 
 /** One trajectory as a line of a shot's file. */
 export const trackText = (t: Trajectory, fps: number): string => {
-  const known = ' Measured (' + t.method + ', confidence ' + t.confidence.toFixed(2) + ').';
+  const edge = edgeKnown(t);
+  const known = ' By ' + t.method + '.' + tag(trackKnown(t)) + (edge && edge.status !== 'measured' ? ' The shape of the edge:' + tag(edge) : '');
   if (t.of === 'event' || !t.reveal) return 'Motion event ' + ((t.event ?? 0) + 1) + ': the element travels ' + travelText(t, fps) + '.' + known;
   const r = t.reveal;
   const head = 'The change into shot ' + String(t.shot).padStart(2, '0') + ', frames ' + r.start + '-' + r.end + ' (' + seconds(r.end - r.start, fps) + '): the new picture opens ' + edgeText(r.edge) + '.';
@@ -45,9 +49,6 @@ export const trackBrief = (t: Trajectory, fps: number): string =>
 export const transitionTrack = (m: Measure, n: number): Trajectory | undefined => m.tracks?.find((t) => t.of === 'transition' && t.shot === n);
 export const eventTracks = (m: Measure, n: number): Trajectory[] => (m.tracks ?? []).filter((t) => t.of === 'event' && t.shot === n);
 
-/** A change that a standard transition does not make: an object leads it, or its edge is not straight. */
-export const ownEffect = (t: Trajectory): boolean => t.of === 'transition' && (t.what === 'object' || (t.reveal !== undefined && t.reveal.edge.shape !== 'straight'));
-
 /** tracks.json: the trajectories with what their numbers mean. */
 export const tracksFile = (m: Measure): Record<string, unknown> => ({
   version: 1,
@@ -57,5 +58,7 @@ export const tracksFile = (m: Measure): Record<string, unknown> => ({
     time: 'frames of the video at ' + m.source.fps + ' fps',
     length: 'canvas widths; speed: canvas widths a second',
   },
+  // How each path is known, and the shape of its edge when that is not measured (describe/known.ts).
+  known: Object.fromEntries((m.tracks ?? []).flatMap((t) => { const e = edgeKnown(t); return [[t.id, trackKnown(t)], ...(e ? [[t.id + '.edge', e]] : [])]; })),
   tracks: m.tracks ?? [],
 });

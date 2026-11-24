@@ -11,6 +11,7 @@ import { fitsPoorly, joinedShots, transitionFile } from '../describe/frames';
 import { describeReference } from '../describe/index';
 import { INSET_FILE, insetText } from '../describe/inset';
 import { TRACKS_FILE, tracksFile } from '../describe/paths';
+import { knownOf } from '../describe/known';
 import { readReference } from '../describe/parts';
 import { buildDraft } from '../draft/build';
 import { measureVideo } from '../measure/index';
@@ -190,7 +191,8 @@ const describe = command(
     const cues = read ? rolesWithSpeech(read, spoken) : undefined;
     const d = describeReference(m, cues, args.string('name') ?? 'reference', spoken, inset, { pictures: true });
     for (const [name, content] of Object.entries(d.files)) await rt.fs.writeFile(rt.path.join(dir, name), content);
-    await writeJsonFile(rt, rt.path.join(dir, 'measure.json'), m);
+    // measure.json says of each value how it is known (describe/known.ts), as the files a model reads do.
+    await writeJsonFile(rt, rt.path.join(dir, 'measure.json'), { ...m, known: knownOf(m) });
     await writeJsonFile(rt, rt.path.join(dir, TRACKS_FILE), tracksFile(m));
     if (cues) await writeJsonFile(rt, rt.path.join(dir, 'text.json'), cues);
     if (spoken) await writeJsonFile(rt, rt.path.join(dir, 'transcript.json'), spoken);

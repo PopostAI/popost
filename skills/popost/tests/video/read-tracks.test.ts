@@ -119,7 +119,7 @@ describe('paths in the description and in compare', () => {
 
   it('describe writes the path where the shot is read, names the change as an effect of its own, and lists tracks.json', () => {
     const d = describeReference(object, undefined, 'reference');
-    expect(d.files['shots/02.md']).toMatch(/## Paths .*\n\n- The change into shot 02, frames 21-40 \(0\.63 s\): the new picture opens as a wedge of \d+ degrees whose tip points at -?\d+ degrees .* An object leads it: its centre goes from \[0\.\d+, 0\.5\d\] to \[0\.\d+, 0\.5\d\] on frames \d+-\d+ .*path angle 0 degrees, straight, .* size 1\d% x 2\d% of the canvas\. Measured \(reveal-front, confidence 0\.\d+\)\./);
+    expect(d.files['shots/02.md']).toMatch(/## Paths .*\n\n- The change into shot 02, frames 21-40 \(0\.63 s\): the new picture opens as a wedge of \d+ degrees whose tip points at -?\d+ degrees .* An object leads it: its centre goes from \[0\.\d+, 0\.5\d\] to \[0\.\d+, 0\.5\d\] on frames \d+-\d+ .*path angle 0 degrees, straight, .* size 1\d% x 2\d% of the canvas\. By reveal-front\. \[measured 0\.\d+\]/);
     expect(d.files['timeline.md']).toContain('; path: an object at 0 degrees leads a wedge edge, 0.63 s');
     expect(d.files['REFERENCE.md']).toContain('1 change is not a standard transition by its measured path: the change into shot 02');
     expect(d.files['REFERENCE.md']).toContain('| tracks.json | The sampled positions of 1 path');

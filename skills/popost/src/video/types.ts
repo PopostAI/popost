@@ -641,6 +641,16 @@ export interface ShotMeasure {
   fill?: number;
 }
 
+/**
+ * How a value is known. measured: read off the pixels (or the sound) by a program; inferred: concluded from measured
+ * facts or seen in the frames by a model, to be confirmed; unknown: could not be read. The same three words label the
+ * values of a reading (Measure.known, the tags in describe's files) and the fields of elements.json.
+ */
+export const KNOWN_AS = ['measured', 'inferred', 'unknown'] as const;
+export type KnownAs = (typeof KNOWN_AS)[number];
+/** confidence: 0..1 where the measurement has one; basis: in a few words what the value rests on, or why it is not known. */
+export interface Status { status: KnownAs; confidence?: number; basis: string }
+
 /** One sample of a trajectory: the frame, the centre and the size ([x, y] and [width, height], fractions of the canvas). */
 export interface TrajectorySample {
   frame: number;
@@ -714,6 +724,12 @@ export interface Measure {
   source: Probe;
   boundaries: Boundary[];
   shots: ShotMeasure[];
+  /**
+   * How each value is known, by its path in this document ("boundaries[1].kind", "shots[2].camera", "tracks[0]"):
+   * written by describe (describe/known.ts). Absent in a measurement of a render and in one written before it existed:
+   * its values are then unlabelled.
+   */
+  known?: Record<string, Status>;
   /** Trajectories of what moves along a way (measure/tracks.ts). Absent in a measurement written before they existed. */
   tracks?: Trajectory[];
   /** How much of the picture changes between sampled frames, 0..1, one value every step frames. */

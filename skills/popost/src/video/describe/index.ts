@@ -16,6 +16,8 @@ import { barsOf, markedText } from '../text/bar';
 import type { CaptionLook, TextCue, TextTrack } from '../text/types';
 import { shotAmount, videoAmount } from '../measure/amount';
 import { ANGLES, ownEffect, trackBrief, trackText, TRACKS_FILE } from './paths';
+import { amountKnown, cameraKnown, kindKnown, LEGEND, NO_PATH, tag } from './known';
+import type { Status } from '../types';
 
 export interface Description {
   /** File name (relative to reference/) -> content. */
@@ -40,7 +42,9 @@ const where = (box: [number, number, number, number]): string => {
 const boxText = (b: [number, number, number, number]): string => 'x ' + pct(b[0]) + '-' + pct(b[0] + b[2]) + ', y ' + pct(b[1]) + '-' + pct(b[1] + b[3]);
 
 /** What the description says of the pictures: whether they were written, and which shots go with the change after them. */
-interface Pictures { written: boolean; joined: ReadonlySet<number>; amounts: readonly (number | undefined)[]; amount: number | undefined; tracks: readonly Trajectory[] }
+interface Pictures { written: boolean; joined: ReadonlySet<number>; amounts: readonly (number | undefined)[]; amount: number | undefined; tracks: readonly Trajectory[]; measure: Measure }
+
+const MEASURED: Status = { status: 'measured', basis: '' };
 
 /** The trajectory of the change into shot k (from 0). */
 const pathInto = (p: Pictures, k: number): Trajectory | undefined => p.tracks.find((t) => t.of === 'transition' && t.shot === k + 1);
@@ -124,19 +128,20 @@ const shotFile = (s: ShotMeasure, into: Boundary | undefined, out: Boundary | un
   // A label that does not fit already names its picture; one that fits gets it at the end of the line.
   const link = (b: Boundary | undefined, sheet: string | undefined): string => (b && sheet && !fitsPoorly(b) ? '; frame by frame: ' + sheet : '');
   L.push('- In: ' + transitionText(into, inSheet) + (into && into.kind !== 'cut' ? ', mixed on frames ' + (into.start + 1) + '-' + (into.end - 1) + ', confidence ' + into.confidence.toFixed(2) : '')
-    + (p.joined.has(k - 1) ? '; one effect with shot ' + two(k) + ' before it' : '') + link(into, inSheet));
-  L.push('- Out: ' + (out ? transitionText(out, outSheet) + link(out, outSheet) : 'end of the video'));
+    + (p.joined.has(k - 1) ? '; one effect with shot ' + two(k) + ' before it' : '') + link(into, inSheet) + (into ? tag(kindKnown(into, pathInto(p, k))) : ''));
+  L.push('- Out: ' + (out ? transitionText(out, outSheet) + link(out, outSheet) + tag(kindKnown(out, pathInto(p, k + 1))) : 'end of the video'));
+  if (into && into.kind !== 'cut' && p.measure.tracks && !pathInto(p, k)) L.push('- Path of the change in:' + tag(NO_PATH) + ' The frames show it' + (inSheet ? ' (' + inSheet + ')' : '') + '.');
   if (p.joined.has(k)) L.push('- This shot is ' + joinedText(s, fps, outSheet) + '. Re-make the two as one effect, a scene that draws it.');
-  L.push('- Camera: ' + cameraText(s) + (s.camera.kind !== 'unknown' ? ' (confidence ' + s.camera.confidence.toFixed(2) + ')' : ''));
+  L.push('- Camera: ' + cameraText(s) + (s.camera.kind !== 'unknown' ? ' (confidence ' + s.camera.confidence.toFixed(2) + ')' : '') + tag(cameraKnown(s)));
   // Where a clear zoom or pan goes, as a box a capture plan or a scene camera can aim at ([x, y, width, height]).
   const aim = cameraAim(s, fps);
   if (aim) L.push('- The camera ' + aimText(aim) + ' ([x, y, width, height] of the canvas)');
   const amount = p.amounts[k];
-  if (amount !== undefined) L.push('- Motion amount: ' + amount + (p.amount !== undefined ? ' (the whole video: ' + p.amount + ')' : '') + '. The mean change of the picture between frames 1/15 s apart, in levels of 255; 0 is a still picture.');
-  if (s.background) L.push('- Ground colour: ' + s.background + (s.palette.length ? '; palette ' + s.palette.slice(0, 5).map((p) => p.hex + ' ' + pct(p.share)).join(', ') : ''));
+  if (amount !== undefined) L.push('- Motion amount: ' + amount + (p.amount !== undefined ? ' (the whole video: ' + p.amount + ')' : '') + '. The mean change of the picture between frames 1/15 s apart, in levels of 255; 0 is a still picture.' + tag(amountKnown(p.measure, k)));
+  if (s.background) L.push('- Ground colour: ' + s.background + (s.palette.length ? '; palette ' + s.palette.slice(0, 5).map((p) => p.hex + ' ' + pct(p.share)).join(', ') : '') + tag(MEASURED));
   // A hint, not a finding: said only when the measured facts agree (kind.ts), for the pictures to confirm or correct. A
   // shot that is part of an effect is not a picture of its own kind.
-  if (looks && !p.joined.has(k)) L.push('- Most likely: ' + looksText(looks) + '. The pictures confirm or correct this.');
+  if (looks && !p.joined.has(k)) L.push('- Most likely: ' + looksText(looks) + '. The pictures confirm or correct this.' + tag({ status: 'inferred', basis: 'from the measured facts named' }));
   const said = saidIn(phrases, s);
   if (said.length) {
     L.push('', '## Said (recognised speech; names are often misheard, a caption is the better spelling)', '');
@@ -159,7 +164,7 @@ const shotFile = (s: ShotMeasure, into: Boundary | undefined, out: Boundary | un
   }
   if (s.events.length) {
     L.push('', '## Motion events', '');
-    for (const e of s.events) L.push('- ' + eventText(e, fps));
+    for (const e of s.events) L.push('- ' + eventText(e, fps) + tag({ status: 'measured', confidence: e.confidence, basis: '' }));
   }
   // The change into the shot, the change out of a shot that is part of it, and the shot's own elements that travel.
   const paths = [pathInto(p, k), ...(p.joined.has(k) ? [pathInto(p, k + 1)] : []), ...p.tracks.filter((t) => t.of === 'event' && t.shot === k + 1)].filter((t): t is Trajectory => t !== undefined);
@@ -279,6 +284,7 @@ const card = (m: Measure, text: TextTrack | undefined, transcript: Transcript | 
     }
   } else L.push(transcript ? '- Speech: none recognised' : '- Speech was not transcribed (no transcriber was available)');
   L.push(beatsLine(beats, transcript, text));
+  L.push('- ' + LEGEND);
   if (p.written) L.push(...picturesBlock(m));
   const unsure = m.boundaries.filter((b) => b.confidence < 0.4).length + m.shots.filter((s) => s.camera.kind === 'unknown').length;
   L.push('', '## Open questions', '');
@@ -319,7 +325,7 @@ const timeline = (m: Measure, cues: TextCue[], beats: Beat[], step: number, p: P
  * content (inset.ts). o.pictures: the pictures of frames.ts were written beside the text, which then names them.
  */
 export const describeReference = (m: Measure, text: TextTrack | undefined, name: string, transcript?: Transcript, inset?: Inset, o: { pictures?: boolean } = {}): Description => {
-  const p: Pictures = { written: o.pictures === true, joined: joinedShots(m), amounts: m.shots.map((_s, k) => shotAmount(m, k)), amount: videoAmount(m), tracks: m.tracks ?? [] };
+  const p: Pictures = { written: o.pictures === true, joined: joinedShots(m), amounts: m.shots.map((_s, k) => shotAmount(m, k)), amount: videoAmount(m), tracks: m.tracks ?? [], measure: m };
   const fps = m.source.fps;
   const boundaries = m.boundaries.map((b) => b.frame);
   const read = referenceBeats({ ...(text ? { text } : {}), ...(transcript ? { transcript } : {}), total: m.source.frames, boundaries });

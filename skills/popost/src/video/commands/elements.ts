@@ -10,6 +10,7 @@ import { checkElements } from '../elements/check';
 import { captionHintProblems } from '../elements/caption-roles';
 import { GUIDE_FILE, questionShots, readerGuide, videoQuestions } from '../elements/questions';
 import { readElements } from '../elements/read';
+import type { LabelCounts } from '../elements/status';
 import { ELEMENTS_FILE, type Elements } from '../elements/types';
 import { OPENING_FILE } from '../describe/frames';
 import type { TextTrack } from '../text/types';
@@ -30,7 +31,7 @@ const measureIn = async (rt: Runtime, dir: string): Promise<Measure> => {
  * The reading in a describe directory, checked against its measurement: undefined when there is no elements.json;
  * otherwise the well-formed part with every problem. A file that is not JSON is a failure with what to do.
  */
-export const readingIn = async (rt: Runtime, dir: string, m: Measure, text: TextTrack | undefined): Promise<{ elements: Elements; problems: Problem[]; summary: string[] } | undefined> => {
+export const readingIn = async (rt: Runtime, dir: string, m: Measure, text: TextTrack | undefined): Promise<{ elements: Elements; problems: Problem[]; summary: string[]; labels: LabelCounts } | undefined> => {
   const file = rt.path.join(dir, ELEMENTS_FILE);
   const raw = await rt.fs.readText(file).catch(() => undefined);
   if (raw === undefined) return undefined;
@@ -68,7 +69,7 @@ const questions = command(
 );
 
 const check = command(
-  'elements.json against the measurement: a shot without an entry, a box outside the frame, a custom change with no description, a change the measurement doubts called standard without a reason, a watermark no platform layer covers, captions with no caption layer, a mark with no why, a last shot that is the platform\'s end card; summary has one line per shot',
+  'elements.json against the measurement: a shot without an entry, a box outside the frame, a custom change with no description, a change the measurement doubts called standard without a reason, a watermark no platform layer covers, captions with no caption layer, a mark with no why, a last shot that is the platform\'s end card, a field labelled measured that contradicts the reading; summary has one line per shot, status counts the fields labelled measured, inferred and unknown',
   { positionals: [DIR] },
   async (args, rt) => {
     const typed = args.req('describe-dir');
@@ -79,7 +80,10 @@ const check = command(
     if (!r) throw new VideoCommandError('There is no ' + ELEMENTS_FILE + ' in ' + dir + '. Open the pictures and write it: popost video elements questions ' + typed + ' says how.');
     const errors = r.problems.filter((p) => p.level === 'error').length;
     printJson(rt, {
-      ok: errors === 0, file: rt.path.join(dir, ELEMENTS_FILE), shots: m.shots.length, errors, warnings: r.problems.length - errors, summary: r.summary, problems: r.problems,
+      ok: errors === 0, file: rt.path.join(dir, ELEMENTS_FILE), shots: m.shots.length, errors, warnings: r.problems.length - errors, summary: r.summary,
+      // How many fields say how they are known ("status"), and the shots that say it of none.
+      status: { measured: r.labels.measured, inferred: r.labels.inferred, unknown: r.labels.unknown, ...(r.labels.unlabelledShots.length ? { unlabelledShots: r.labels.unlabelledShots } : {}) },
+      problems: r.problems,
       next: errors ? 'correct ' + ELEMENTS_FILE + ' and run this again' : 'answer every warning, then: popost video template save ' + typed + ' --out template --name <name>',
     });
     return errors ? 2 : 0;

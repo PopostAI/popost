@@ -87,7 +87,7 @@ describe.skipIf(!ffmpeg)('what a shot most likely is', () => {
 
   it('writes the line into shots/NN.md and the template card, and nothing where it cannot tell', () => {
     const d = describeReference(m, text, 'kinds');
-    expect(d.files['shots/01.md']).toMatch(/\n- Most likely: a recording of a page or an app \(12 small lines of text, median height 3%; a flat light ground, .+; the picture moves vertically .+, as a scroll does\)\. The pictures confirm or correct this\.\n/);
+    expect(d.files['shots/01.md']).toMatch(/\n- Most likely: a recording of a page or an app \(12 small lines of text, median height 3%; a flat light ground, .+; the picture moves vertically .+, as a scroll does\)\. The pictures confirm or correct this\. \[inferred: from the measured facts named\]\n/);
     expect(d.files['shots/02.md']).toContain('\n- Most likely: a designed picture (2 large lines of text, up to 9% of the height; ');
     expect(d.files['shots/03.md']).toContain('\n- Most likely: filmed or photographic material (little text (0 lines); a textured picture');
     expect(d.files['shots/04.md']).not.toContain('Most likely');

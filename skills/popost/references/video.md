@@ -103,6 +103,9 @@ recording, a window on a designed ground, a title card, a person to camera), its
 precise enough to redraw it, what it shows and its role: `design` keeps its look, `content` gets the new subject,
 `platform` and `creator` are never re-made), the change into it (`custom`, described frame by frame, when it is no
 standard transition), the captions' style and the words drawn differently, and every mark with what it marks and why.
+Label what you write with `status`: `measured` for a value copied from the reading (its lines end in a tag such as
+`[measured 0.76]`, `[inferred: ...]`, `[unknown: ...]`), `inferred` for what you saw in the frames, `unknown` for what
+you could not tell.
 The schema, the roles and an example: `<skill>/references/video-elements.md`; `popost video elements questions ref`
 prints them with this video's shots and the pictures in order. Then:
 
@@ -117,7 +120,7 @@ popost video elements check ref
 
 It holds the file to the measurement: a shot without an entry, a box outside the frame, a custom change without a
 description, a watermark no `platform` layer covers, a mark without its reason, an end card of the platform that is not
-dropped. Correct every error and answer every warning (each says what it found and what to write) until it prints
+dropped, a measured value contradicted without a note. Correct every error and answer every warning (each says what it found and what to write) until it prints
 `"ok": true`.
 
 Done when: you have opened every picture of `ref/`, and `popost video elements check ref` prints `"ok": true`: every
