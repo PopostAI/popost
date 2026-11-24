@@ -82,6 +82,23 @@ const message = (code: string | undefined, d: Record<string, unknown>, keyEnv: s
       return msg(`This popost Skill version ${VERSION} is too old (the platform needs ≥ ${num(d.minVersion)}); update the popost Skill and try again`, `当前 popost Skill 版本 ${VERSION} 过旧（平台要求 ≥ ${num(d.minVersion)}），请更新 popost Skill 后重试`);
     case 'CONTENT_REJECTED':
       return msg('The content did not pass popost.ai moderation; change the prompt or the reference images and quote again', '内容未通过 popost.ai 审核，请调整提示词或参考图后重新报价');
+    case 'VIDEO_GENERATION_DISABLED':
+      return msg('Video generation on popost.ai is not available for this account yet; nothing was charged', 'popost.ai 视频生成暂未对当前账户开放，未扣费');
+    case 'VIDEO_MODEL_UNAVAILABLE':
+      return msg('popost.ai does not offer this video model now (popost video generate --models lists those it does); nothing was charged', 'popost.ai 目前不提供这个视频模型（popost video generate --models 列出可用模型），未扣费');
+    case 'VIDEO_OPTION_UNSUPPORTED':
+      return msg(
+        'The video model does not take these settings (resolution, seconds, aspect ratio or references; popost video generate --models lists what each model takes); nothing was charged',
+        '该视频模型不支持这些设置（分辨率、时长、画幅或参考素材；popost video generate --models 列出各模型支持的设置），未扣费',
+      );
+    case 'GENERATION_FAILED':
+      return msg('popost.ai could not make it', 'popost.ai 未能生成');
+    case 'QUOTE_EXPIRED':
+      return msg('The price quote has expired; nothing was charged. Price it again', '报价已过期，未扣费；请重新报价');
+    case 'QUOTE_MISMATCH':
+      return msg('The request differs from its price quote; nothing was charged. Price it again', '请求与报价不一致，未扣费；请重新报价');
+    case 'IDEMPOTENCY_KEY_REUSED':
+      return msg('popost.ai already has a request with this idempotency key and other settings; nothing was charged', 'popost.ai 已有使用该幂等键但设置不同的请求，未扣费');
     case 'UPSTREAM_ERROR':
       return msg('The popost.ai generation service failed for now; try again later', 'popost.ai 生成服务暂时失败，请稍后重试');
     case 'SERVICE_UNAVAILABLE':

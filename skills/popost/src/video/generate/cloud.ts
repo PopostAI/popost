@@ -1,0 +1,418 @@
+/**
+ * The built-in generator on popost.ai: `popost video generate video|image <request.json> <out-file>` keeps the
+ * POPOST_GEN_CMD contract (index.ts) and makes the clip or picture through the popost.ai Open API, in the user's own
+ * account (the key and address every platform command reads: POPOST_API_KEY or the file `popost auth set` wrote,
+ * POPOST_BASE_URL), paid in credits. This file makes clips; cloud-image.ts makes pictures.
+ *
+ * A clip: the reference files are uploaded (POST /videos/uploads, then their bytes to the address it gives), the
+ * request is priced (POST /videos/quote) and goes on only when the price is agreed: within POPOST_GEN_MAX_CREDITS, a
+ * budget for one call the user approved in advance, or with --yes once the user has seen it. Otherwise nothing is
+ * charged and ConfirmNeeded carries the price. Then POST /videos/generations with the quote and an idempotency key
+ * derived from the request, GET /videos/generations?id= every 10 s until the task ends, and the clip is downloaded
+ * from the signed link of the task. Model and resolution come from the environment (POPOST_VIDEO_MODEL,
+ * POPOST_VIDEO_RESOLUTION), never from the request; unset, the platform chooses.
+ *
+ * A retry never pays twice. What was sent for a request (its uploads, its quote, its task) is kept in a small record in
+ * the task directory (`videos/<key>.json`). Run again, the request finds its task and waits for it or downloads it, and
+ * an upload or a quote that is still valid is used again, so the same key always goes with the same body. Only a task
+ * that failed (its credits were refunded) or whose result expired (the platform keeps it 7 days) is made again, under
+ * the next key (`<key>.2`, ...).
+ */
+import { networkReason } from '../../core/error-text';
+import { sha256, writeAtomic } from '../../core/util';
+import { checkUrl, downloadResult, sniffImageMime, type PopostClient } from '../../providers/api';
+import { describeError } from '../../providers/api-errors';
+import { isRecord, type JsonRecord } from '../../providers/base';
+import { AmbiguousSubmitError, PopostApiError } from '../../providers/errors';
+import { defaultTaskDir } from '../../providers/paths';
+import { sleep, timeoutSignal } from '../../providers/time';
+import type { Runtime } from '../../runtime';
+import { ConfirmNeeded, type GenerateKind, type GenerateRequest, type PriceToConfirm } from './index';
+
+/** A failure of the generator, with the exit code it ends with (1: refused or failed; 2: the request or the setup needs fixing). */
+export class GenerateError extends Error {
+  override name = 'GenerateError';
+  constructor(
+    message: string,
+    readonly exitCode = 1,
+  ) {
+    super(message);
+  }
+}
+
+export interface CloudSettings {
+  readonly videoModel?: string;
+  readonly resolution?: string;
+  readonly imageModel?: string;
+  /** POPOST_GEN_MAX_CREDITS: the most one call may cost without asking. */
+  readonly maxCredits?: number;
+  /** POPOST_GEN_WAIT_MIN: how long a clip is waited for. */
+  readonly waitMinutes: number;
+  /** --yes: the user has agreed to the price. */
+  readonly yes: boolean;
+}
+
+const MINUTE_MS = 60_000;
+const POLL_MS = 10_000;
+const DEFAULT_WAIT_MIN = 30;
+const DEFAULT_SECONDS = 5;
+const CREATE_TRIES = 3;
+const CREATE_TIMEOUT_SEC = 120;
+const UPLOAD_TIMEOUT_MS = 10 * MINUTE_MS;
+const DOWNLOAD_TIMEOUT_SEC = 900;
+const MAX_CLIP_BYTES = 1024 * 1024 * 1024;
+export const RETRY_HINT = 'Run the same command again: it sends the same idempotency key, so it is never paid twice.';
+
+const setting = (rt: Runtime, name: string): string | undefined => rt.env[name]?.trim() || undefined;
+
+const numberSetting = (rt: Runtime, name: string, example: string): number | undefined => {
+  const raw = setting(rt, name);
+  if (raw === undefined) return undefined;
+  const value = Number(raw);
+  if (!Number.isFinite(value) || value < 0) throw new GenerateError(name + ' is a number, such as ' + example + '; it is "' + raw + '".', 2);
+  return value;
+};
+
+/** The settings of the environment; the request has no say in them. */
+export const cloudSettings = (rt: Runtime, yes: boolean): CloudSettings => ({
+  videoModel: setting(rt, 'POPOST_VIDEO_MODEL'),
+  resolution: setting(rt, 'POPOST_VIDEO_RESOLUTION'),
+  imageModel: setting(rt, 'POPOST_IMAGE_MODEL'),
+  maxCredits: numberSetting(rt, 'POPOST_GEN_MAX_CREDITS', '60'),
+  waitMinutes: numberSetting(rt, 'POPOST_GEN_WAIT_MIN', '30') || DEFAULT_WAIT_MIN,
+  yes,
+});
+
+/**
+ * Goes on only with the user's agreement to the price: within POPOST_GEN_MAX_CREDITS when it is set (--yes never passes
+ * a budget), else with --yes. A balance that cannot pay is said first: there is nothing to agree to then.
+ */
+export const agreeToPrice = (s: CloudSettings, price: PriceToConfirm): void => {
+  if (typeof price.balance === 'number' && price.balance < price.credits)
+    throw new GenerateError('Not enough credits: this needs ' + price.credits + ' credits and the balance is ' + price.balance + '. Nothing was charged; popost account shows the balance and where to buy more. [INSUFFICIENT_CREDITS]');
+  if (s.maxCredits !== undefined ? price.credits <= s.maxCredits : s.yes) return;
+  throw new ConfirmNeeded(
+    price,
+    s.maxCredits !== undefined
+      ? 'This costs ' + price.credits + ' credits, more than POPOST_GEN_MAX_CREDITS (' + s.maxCredits + '), so nothing was charged. Show the user the price; only if they agree, raise POPOST_GEN_MAX_CREDITS and run again.'
+      : 'This costs ' + price.credits + ' credits and nothing was charged: show the user the price, and run again with --yes (or with POPOST_GEN_MAX_CREDITS) only after they agree.',
+  );
+};
+
+/** The idempotency key of a request: what it asks for, with its references by content. The same request, the same key. */
+export const requestKey = (kind: GenerateKind, fields: JsonRecord): string => kind + '-' + sha256(JSON.stringify(fields));
+
+// ---------- references ----------
+
+export type MediaKind = 'image' | 'video' | 'audio';
+type ListName = 'images' | 'videos' | 'audios';
+const LISTS: readonly (readonly [MediaKind, ListName, string])[] = [
+  ['image', 'images', 'a JPEG, PNG or WebP picture'],
+  ['video', 'videos', 'an MP4 or MOV clip'],
+  ['audio', 'audios', 'an MP3 or WAV sound'],
+];
+
+const has = (head: Uint8Array, from: number, text: string): boolean => String.fromCharCode(...head.subarray(from, from + text.length)) === text;
+
+/** The type of a reference file by its first bytes (the extension is not trusted); null when the platform does not take it. */
+export const mediaType = (kind: MediaKind, head: Uint8Array): string | null => {
+  if (kind === 'image') {
+    const mime = sniffImageMime(head);
+    return mime === 'image/gif' ? null : mime;
+  }
+  if (kind === 'video') {
+    if (has(head, 4, 'ftyp')) return has(head, 8, 'qt  ') ? 'video/quicktime' : 'video/mp4';
+    return ['moov', 'mdat', 'wide', 'free'].some((box) => has(head, 4, box)) ? 'video/quicktime' : null;
+  }
+  if (has(head, 0, 'RIFF') && has(head, 8, 'WAVE')) return 'audio/wav';
+  return has(head, 0, 'ID3') || (head[0] === 0xff && ((head[1] ?? 0) & 0xe0) === 0xe0) ? 'audio/mpeg' : null;
+};
+
+interface Reference {
+  readonly kind: MediaKind;
+  readonly name: string;
+  readonly bytes: Uint8Array;
+  readonly sha256: string;
+  readonly mimeType: string;
+}
+
+const readReferences = async (rt: Runtime, request: GenerateRequest): Promise<Reference[]> => {
+  const out: Reference[] = [];
+  for (const [kind, list, what] of LISTS) {
+    for (const path of request[list] ?? []) {
+      const name = rt.path.basename(path);
+      const bytes = await rt.fs.readFile(path).catch(() => {
+        throw new GenerateError('The reference file ' + path + ' cannot be read; nothing was sent.', 2);
+      });
+      const mimeType = mediaType(kind, bytes.subarray(0, 16));
+      if (!mimeType) throw new GenerateError(name + ' in "' + list + '" is not ' + what + '; nothing was sent.', 2);
+      out.push({ kind, name, bytes, sha256: sha256(bytes), mimeType });
+    }
+  }
+  return out;
+};
+
+// ---------- what was sent ----------
+
+interface Upload {
+  readonly uploadId: string;
+  readonly expiresAt: string | null;
+}
+
+interface Quote {
+  readonly quoteId: string;
+  readonly expiresAt: string | null;
+  /** The body that was priced: a generation must send the same. */
+  readonly body: string;
+  readonly price: PriceToConfirm;
+}
+
+/** The record of one request: its uploads by content, its quote, its task. */
+interface Sent {
+  readonly key: string;
+  /** 1, and one more for every task that failed or expired. */
+  readonly attempt: number;
+  readonly uploads: Readonly<Record<string, Upload>>;
+  readonly quote?: Quote;
+  readonly taskId?: string;
+}
+
+const recordFile = (rt: Runtime, key: string): string => rt.path.join(defaultTaskDir(rt), 'videos', key + '.json');
+
+const readRecord = async (rt: Runtime, file: string, key: string): Promise<Sent> => {
+  const fresh: Sent = { key, attempt: 1, uploads: {} };
+  const text = await rt.fs.readText(file).catch(() => undefined);
+  if (text === undefined) return fresh;
+  try {
+    const data: unknown = JSON.parse(text);
+    return isRecord(data) && data.key === key && typeof data.attempt === 'number' && isRecord(data.uploads) ? (data as unknown as Sent) : fresh;
+  } catch {
+    return fresh;
+  }
+};
+
+const save = async (rt: Runtime, file: string, sent: Sent): Promise<Sent> => {
+  await writeAtomic(rt, file, JSON.stringify({ schema: 'popost-video-generation.v1', ...sent }, null, 1) + '\n');
+  return sent;
+};
+
+const keyOf = (sent: Sent): string => (sent.attempt > 1 ? sent.key + '.' + sent.attempt : sent.key);
+
+/** Whether a time the platform gave is still more than marginMs away. */
+const stillValid = (rt: Runtime, at: string | null | undefined, marginMs: number): boolean => typeof at === 'string' && Date.parse(at) - rt.now().getTime() > marginMs;
+
+const text = (value: unknown): string | undefined => (typeof value === 'string' ? value : undefined);
+
+// ---------- uploads ----------
+
+const putBytes = async (rt: Runtime, ticket: JsonRecord, ref: Reference): Promise<void> => {
+  const url = checkUrl(String(ticket.uploadUrl), 'uploadUrl');
+  const headers = Object.fromEntries(Object.entries(isRecord(ticket.headers) ? ticket.headers : {}).map(([k, v]) => [k, String(v)]));
+  if (!Object.keys(headers).some((k) => k.toLowerCase() === 'content-type')) headers['Content-Type'] = ref.mimeType;
+  let response: Response;
+  try {
+    // The bytes go to the storage address as the ticket says, without the platform's key.
+    response = await rt.fetch(url, { method: String(ticket.method || 'PUT').toUpperCase(), headers, body: ref.bytes as Uint8Array<ArrayBuffer>, signal: timeoutSignal(rt, UPLOAD_TIMEOUT_MS) });
+  } catch (error) {
+    throw new GenerateError('Uploading ' + ref.name + ' failed (' + networkReason(error, url) + '); nothing was charged. Run the command again.');
+  }
+  await response.body?.cancel().catch(() => undefined);
+  if (!response.ok) throw new GenerateError('The storage service refused the upload of ' + ref.name + ' (HTTP ' + response.status + '); nothing was charged. Run the command again.');
+};
+
+const upload = async (rt: Runtime, client: PopostClient, ref: Reference): Promise<Upload> => {
+  const ticket = await client.request('POST', '/videos/uploads', { body: { kind: ref.kind, mimeType: ref.mimeType, bytes: ref.bytes.length, sha256: ref.sha256 } });
+  if (!isRecord(ticket) || typeof ticket.uploadId !== 'string' || typeof ticket.uploadUrl !== 'string')
+    throw new GenerateError('popost.ai answered the upload of ' + ref.name + ' without an upload address; nothing was charged. Try again later.');
+  await putBytes(rt, ticket, ref);
+  return { uploadId: ticket.uploadId, expiresAt: text(ticket.expiresAt) ?? null };
+};
+
+/** Every reference uploaded; an upload of the same bytes that is kept for another hour is used again. */
+const ensureUploads = async (rt: Runtime, client: PopostClient, refs: readonly Reference[], start: Sent, file: string): Promise<Sent> => {
+  let sent = start;
+  for (const ref of refs) {
+    if (stillValid(rt, sent.uploads[ref.sha256]?.expiresAt, 60 * MINUTE_MS)) continue;
+    sent = await save(rt, file, { ...sent, uploads: { ...sent.uploads, [ref.sha256]: await upload(rt, client, ref) } });
+  }
+  return sent;
+};
+
+// ---------- quote, task ----------
+
+/** The body of the quote, and of the generation besides its prompt, quote id and key. */
+const specOf = (s: CloudSettings, request: GenerateRequest, seconds: number, refs: readonly Reference[], sent: Sent): JsonRecord => {
+  const ids = (kind: MediaKind): string[] => refs.filter((r) => r.kind === kind).map((r) => sent.uploads[r.sha256]?.uploadId ?? '');
+  const references = Object.fromEntries(LISTS.map(([kind, list]) => [list, ids(kind)] as const).filter(([, list]) => list.length));
+  return {
+    ...(s.videoModel ? { model: s.videoModel } : {}),
+    ...(s.resolution ? { resolution: s.resolution } : {}),
+    seconds,
+    ...(request.aspect ? { aspectRatio: request.aspect } : {}),
+    ...(refs.length ? { references } : {}),
+  };
+};
+
+/** The price of the body: the recorded quote while it is valid for another minute, else a new one. */
+const ensureQuote = async (rt: Runtime, client: PopostClient, body: JsonRecord, sent: Sent, file: string): Promise<Sent> => {
+  const json = JSON.stringify(body);
+  if (sent.quote?.body === json && stillValid(rt, sent.quote.expiresAt, MINUTE_MS)) return sent;
+  const data = await client.request('POST', '/videos/quote', { body });
+  if (!isRecord(data) || typeof data.quoteId !== 'string' || typeof data.credits !== 'number')
+    throw new GenerateError('popost.ai answered the quote without a quote id or a price; nothing was charged. Try again later.');
+  const price: PriceToConfirm = {
+    credits: data.credits,
+    model: text(data.model),
+    resolution: text(data.resolution),
+    seconds: typeof data.seconds === 'number' ? data.seconds : undefined,
+    aspectRatio: text(data.aspectRatio),
+    balance: typeof data.balance === 'number' ? data.balance : null,
+  };
+  return save(rt, file, { ...sent, quote: { quoteId: data.quoteId, expiresAt: text(data.quoteExpiresAt) ?? null, body: json, price } });
+};
+
+interface Task {
+  readonly id: string;
+  readonly status: string;
+  readonly credits?: unknown;
+  readonly video?: { readonly url?: unknown; readonly bytes?: unknown };
+  readonly error?: { readonly code?: unknown; readonly message?: unknown };
+}
+
+const taskOf = (data: unknown): Task | undefined => (isRecord(data) && typeof data.id === 'string' && typeof data.status === 'string' ? (data as unknown as Task) : undefined);
+
+const createTask = async (rt: Runtime, client: PopostClient, body: JsonRecord): Promise<Task> => {
+  for (let tries = 1; ; tries++) {
+    try {
+      const task = taskOf(await client.request('POST', '/videos/generations', { body, ambiguous: true, hint: RETRY_HINT, timeoutSec: CREATE_TIMEOUT_SEC }));
+      if (task) return task;
+      throw new AmbiguousSubmitError('popost.ai answered without a task, so whether it took the request is unknown. ' + RETRY_HINT);
+    } catch (error) {
+      // One key and one body make one task at most: asking again is safe, and finds out what happened.
+      if (!(error instanceof AmbiguousSubmitError) || tries >= CREATE_TRIES) throw error;
+      await sleep(rt, POLL_MS);
+    }
+  }
+};
+
+interface Job {
+  readonly request: GenerateRequest;
+  readonly seconds: number;
+  readonly refs: readonly Reference[];
+  readonly file: string;
+}
+
+const submit = async (rt: Runtime, client: PopostClient, s: CloudSettings, job: Job, start: Sent): Promise<Task> => {
+  let sent = start;
+  for (let round = 1; ; round++) {
+    sent = await ensureUploads(rt, client, job.refs, sent, job.file);
+    const body = specOf(s, job.request, job.seconds, job.refs, sent);
+    sent = await ensureQuote(rt, client, body, sent, job.file);
+    const quote = sent.quote as Quote;
+    agreeToPrice(s, quote.price);
+    try {
+      const task = await createTask(rt, client, { ...body, prompt: job.request.prompt, quoteId: quote.quoteId, idempotencyKey: keyOf(sent) });
+      await save(rt, job.file, { ...sent, taskId: task.id });
+      return task;
+    } catch (error) {
+      // A quote that ran out while the user decided: priced again (and agreed again) once.
+      if (round > 1 || !(error instanceof PopostApiError) || error.code !== 'QUOTE_EXPIRED') throw error;
+      const { quote: _expired, ...rest } = sent;
+      sent = rest;
+    }
+  }
+};
+
+const getTask = async (client: PopostClient, id: string): Promise<Task> => {
+  const task = taskOf(await client.request('GET', '/videos/generations', { query: { id } }));
+  if (!task) throw new PopostApiError('popost.ai answered without the task ' + id, { code: 'BAD_RESPONSE' });
+  return task;
+};
+
+/** The task as it is now, or undefined when the platform no longer has it. */
+const findTask = (client: PopostClient, id: string): Promise<Task | undefined> =>
+  getTask(client, id).catch((error: unknown) => {
+    if (error instanceof PopostApiError && error.code === 'NOT_FOUND') return undefined;
+    throw error;
+  });
+
+const ENDED = ['succeeded', 'failed', 'expired'];
+/** Answers that say nothing about the task: the next poll asks again. */
+const PASSING = new Set(['NETWORK', 'BAD_RESPONSE', 'RATE_LIMITED', 'SERVICE_UNAVAILABLE', 'INTERNAL_ERROR', 'TIMEOUT', 'UPSTREAM_ERROR']);
+
+const waitFor = async (rt: Runtime, client: PopostClient, first: Task, minutes: number): Promise<Task> => {
+  const deadline = rt.now().getTime() + minutes * MINUTE_MS;
+  let task = first;
+  while (!ENDED.includes(task.status)) {
+    if (rt.now().getTime() >= deadline)
+      throw new GenerateError('The clip is still being made on popost.ai after ' + minutes + ' minutes (task ' + task.id + ', ' + task.status + '). Run the same command again later to pick it up: it is not paid twice. POPOST_GEN_WAIT_MIN waits longer.');
+    await sleep(rt, POLL_MS);
+    const last = task;
+    task = await getTask(client, task.id).catch((error: unknown) => {
+      if (error instanceof PopostApiError && PASSING.has(error.code ?? '')) return last;
+      throw error;
+    });
+  }
+  return task;
+};
+
+const ended = (task: Task): GenerateError => {
+  if (task.status === 'expired')
+    return new GenerateError('The clip of task ' + task.id + ' was kept 7 days on popost.ai and has been deleted. Run the command again to make it again (it is priced again).');
+  const code = text(task.error?.code) ?? 'GENERATION_FAILED';
+  return new GenerateError('The clip could not be made: ' + describeError(code, task.error?.message) + '. Its credits were refunded; running the command again makes a new attempt, priced again.');
+};
+
+const fetchClip = async (rt: Runtime, client: PopostClient, done: Task, out: string): Promise<void> => {
+  const labels = { what: 'the clip', retry: 'run the same command again: it downloads the clip without paying again' };
+  let task = done;
+  for (let tries = 1; ; tries++) {
+    const url = task.video?.url;
+    if (typeof url !== 'string') throw new GenerateError('popost.ai says the clip of task ' + task.id + ' is made but gives no link to it. Run the command again later.');
+    try {
+      const data = await downloadResult(rt, url, out, MAX_CLIP_BYTES, DOWNLOAD_TIMEOUT_SEC, labels);
+      const bytes = task.video?.bytes;
+      if (typeof bytes === 'number' && data.length !== bytes) {
+        await rt.fs.rm(out);
+        throw new PopostApiError('The clip arrived with ' + data.length + ' of its ' + bytes + ' bytes; ' + labels.retry, { code: 'DOWNLOAD_FAILED' });
+      }
+      return;
+    } catch (error) {
+      // A link that ran out: the task gives a new one.
+      if (tries >= 2 || !(error instanceof PopostApiError) || error.code !== 'DOWNLOAD_FAILED') throw error;
+      task = await getTask(client, task.id);
+    }
+  }
+};
+
+/** Makes the clip a request asks for at out, on popost.ai; resolves with the credits it was charged. */
+export const makeClip = async (rt: Runtime, client: PopostClient, s: CloudSettings, request: GenerateRequest, out: string): Promise<{ credits?: number }> => {
+  const seconds = request.seconds ?? DEFAULT_SECONDS;
+  const refs = await readReferences(rt, request);
+  const byContent = Object.fromEntries(LISTS.map(([kind, list]) => [list, refs.filter((r) => r.kind === kind).map((r) => r.sha256)]));
+  const key = requestKey('video', { model: s.videoModel ?? null, resolution: s.resolution ?? null, prompt: request.prompt, seconds, aspect: request.aspect ?? null, ...byContent });
+  const file = recordFile(rt, key);
+  let sent = await readRecord(rt, file, key);
+  let task = sent.taskId ? await findTask(client, sent.taskId) : undefined;
+  if (sent.taskId && (!task || task.status === 'failed' || task.status === 'expired')) {
+    // That attempt is over and nothing more comes of it: the next one has a key of its own.
+    sent = { key, attempt: sent.attempt + 1, uploads: sent.uploads };
+    task = undefined;
+  }
+  task ??= await submit(rt, client, s, { request, seconds, refs, file }, sent);
+  const done = await waitFor(rt, client, task, s.waitMinutes);
+  if (done.status !== 'succeeded') throw ended(done);
+  await fetchClip(rt, client, done, out);
+  return typeof done.credits === 'number' ? { credits: done.credits } : {};
+};
+
+/** GET /videos/models: the models a clip can be made with, and the one used when POPOST_VIDEO_MODEL is unset. */
+export const listModels = async (client: PopostClient): Promise<JsonRecord> => {
+  const data = await client.request('GET', '/videos/models');
+  if (!isRecord(data) || !Array.isArray(data.models)) throw new GenerateError('popost.ai answered without a list of video models. Try again later.');
+  return {
+    models: data.models,
+    default: data.default ?? null,
+    note: 'POPOST_VIDEO_MODEL takes an id, POPOST_VIDEO_RESOLUTION one of its resolutions. Every clip costs credits, and popost.ai keeps it 7 days.',
+  };
+};
