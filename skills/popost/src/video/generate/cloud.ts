@@ -4,8 +4,8 @@
  * account (the key and address every platform command reads: POPOST_API_KEY or the file `popost auth set` wrote,
  * POPOST_BASE_URL), paid in credits. This file makes clips; cloud-image.ts makes pictures.
  *
- * A clip: the reference files are uploaded (POST /videos/uploads, then their bytes to the address it gives), the
- * request is priced (POST /videos/quote) and goes on only when the price is agreed: within POPOST_GEN_MAX_CREDITS, a
+ * A clip: the reference files are uploaded (POST /videos/uploads, then their bytes to the address it gives; the first
+ * and last frame of a request the same way, sent as `frames` instead of `references`), the request is priced (POST /videos/quote) and goes on only when the price is agreed: within POPOST_GEN_MAX_CREDITS, a
  * budget for one call the user approved in advance, or with --yes once the user has seen it. Otherwise nothing is
  * charged and ConfirmNeeded carries the price. Then POST /videos/generations with the quote and an idempotency key
  * derived from the request, GET /videos/generations?id= every 10 s until the task ends, and the clip is downloaded
@@ -130,26 +130,41 @@ export const mediaType = (kind: MediaKind, head: Uint8Array): string | null => {
 
 interface Reference {
   readonly kind: MediaKind;
+  /** A frame the clip starts from or ends on, not a reference: sent as frames.first or frames.last. */
+  readonly frame?: 'first' | 'last';
   readonly name: string;
   readonly bytes: Uint8Array;
   readonly sha256: string;
   readonly mimeType: string;
 }
 
+const readReference = async (rt: Runtime, kind: MediaKind, path: string, where: string, what: string): Promise<Reference> => {
+  const name = rt.path.basename(path);
+  const bytes = await rt.fs.readFile(path).catch(() => {
+    throw new GenerateError('The reference file ' + path + ' cannot be read; nothing was sent.', 2);
+  });
+  const mimeType = mediaType(kind, bytes.subarray(0, 16));
+  if (!mimeType) throw new GenerateError(name + ' in "' + where + '" is not ' + what + '; nothing was sent.', 2);
+  return { kind, name, bytes, sha256: sha256(bytes), mimeType };
+};
+
+/**
+ * The files of a request: its references, or the frames it starts from and ends on. The platform takes one or the
+ * other (a model starts from a frame or follows references), so a request with both is refused here, before anything
+ * is uploaded.
+ */
 const readReferences = async (rt: Runtime, request: GenerateRequest): Promise<Reference[]> => {
   const out: Reference[] = [];
-  for (const [kind, list, what] of LISTS) {
-    for (const path of request[list] ?? []) {
-      const name = rt.path.basename(path);
-      const bytes = await rt.fs.readFile(path).catch(() => {
-        throw new GenerateError('The reference file ' + path + ' cannot be read; nothing was sent.', 2);
-      });
-      const mimeType = mediaType(kind, bytes.subarray(0, 16));
-      if (!mimeType) throw new GenerateError(name + ' in "' + list + '" is not ' + what + '; nothing was sent.', 2);
-      out.push({ kind, name, bytes, sha256: sha256(bytes), mimeType });
-    }
-  }
-  return out;
+  for (const [kind, list, what] of LISTS) for (const path of request[list] ?? []) out.push(await readReference(rt, kind, path, list, what));
+  const { firstFrame, lastFrame } = request;
+  if (firstFrame === undefined && lastFrame === undefined) return out;
+  if (out.length) throw new GenerateError('"firstFrame" and "lastFrame" cannot be combined with "images", "videos" or "audios": a clip starts from a frame or follows references, not both. Nothing was sent.', 2);
+  if (firstFrame === undefined) throw new GenerateError('"lastFrame" needs "firstFrame": the picture the clip starts from. Nothing was sent.', 2);
+  const picture = 'a JPEG, PNG or WebP picture';
+  return [
+    { ...(await readReference(rt, 'image', firstFrame, 'firstFrame', picture)), frame: 'first' },
+    ...(lastFrame === undefined ? [] : [{ ...(await readReference(rt, 'image', lastFrame, 'lastFrame', picture)), frame: 'last' as const }]),
+  ];
 };
 
 // ---------- what was sent ----------
@@ -242,14 +257,17 @@ const ensureUploads = async (rt: Runtime, client: PopostClient, refs: readonly R
 
 /** The body of the quote, and of the generation besides its prompt, quote id and key. */
 const specOf = (s: CloudSettings, request: GenerateRequest, seconds: number, refs: readonly Reference[], sent: Sent): JsonRecord => {
-  const ids = (kind: MediaKind): string[] => refs.filter((r) => r.kind === kind).map((r) => sent.uploads[r.sha256]?.uploadId ?? '');
+  const idOf = (r: Reference | undefined): string => sent.uploads[r?.sha256 ?? '']?.uploadId ?? '';
+  const ids = (kind: MediaKind): string[] => refs.filter((r) => r.kind === kind && !r.frame).map(idOf);
   const references = Object.fromEntries(LISTS.map(([kind, list]) => [list, ids(kind)] as const).filter(([, list]) => list.length));
+  const [first, last] = [refs.find((r) => r.frame === 'first'), refs.find((r) => r.frame === 'last')];
   return {
     ...(s.videoModel ? { model: s.videoModel } : {}),
     ...(s.resolution ? { resolution: s.resolution } : {}),
     seconds,
     ...(request.aspect ? { aspectRatio: request.aspect } : {}),
-    ...(refs.length ? { references } : {}),
+    ...(first ? { frames: { first: idOf(first), ...(last ? { last: idOf(last) } : {}) } } : {}),
+    ...(Object.keys(references).length ? { references } : {}),
   };
 };
 
@@ -257,7 +275,12 @@ const specOf = (s: CloudSettings, request: GenerateRequest, seconds: number, ref
 const ensureQuote = async (rt: Runtime, client: PopostClient, body: JsonRecord, sent: Sent, file: string): Promise<Sent> => {
   const json = JSON.stringify(body);
   if (sent.quote?.body === json && stillValid(rt, sent.quote.expiresAt, MINUTE_MS)) return sent;
-  const data = await client.request('POST', '/videos/quote', { body });
+  const data = await client.request('POST', '/videos/quote', { body }).catch((error: unknown) => {
+    // The platform names the field a model does not take: a model without frames is said in so many words.
+    if (body.frames && error instanceof PopostApiError && error.code === 'VIDEO_OPTION_UNSUPPORTED' && error.details.field === 'frames')
+      throw new GenerateError('This video model does not take a first or last frame (popost video generate --models lists "frames" for each model): choose another with POPOST_VIDEO_MODEL, or give the picture as a reference in "images" instead. Nothing was charged.');
+    throw error;
+  });
   if (!isRecord(data) || typeof data.quoteId !== 'string' || typeof data.credits !== 'number')
     throw new GenerateError('popost.ai answered the quote without a quote id or a price; nothing was charged. Try again later.');
   const price: PriceToConfirm = {
@@ -391,8 +414,10 @@ const fetchClip = async (rt: Runtime, client: PopostClient, done: Task, out: str
 export const makeClip = async (rt: Runtime, client: PopostClient, s: CloudSettings, request: GenerateRequest, out: string): Promise<{ credits?: number }> => {
   const seconds = request.seconds ?? DEFAULT_SECONDS;
   const refs = await readReferences(rt, request);
-  const byContent = Object.fromEntries(LISTS.map(([kind, list]) => [list, refs.filter((r) => r.kind === kind).map((r) => r.sha256)]));
-  const key = requestKey('video', { model: s.videoModel ?? null, resolution: s.resolution ?? null, prompt: request.prompt, seconds, aspect: request.aspect ?? null, ...byContent });
+  const byContent = Object.fromEntries(LISTS.map(([kind, list]) => [list, refs.filter((r) => r.kind === kind && !r.frame).map((r) => r.sha256)]));
+  // The frames join the key only when there are any, so a request without them keeps the key it always had.
+  const frames = Object.fromEntries(refs.flatMap((r) => (r.frame ? [[r.frame + 'Frame', r.sha256]] : [])));
+  const key = requestKey('video', { model: s.videoModel ?? null, resolution: s.resolution ?? null, prompt: request.prompt, seconds, aspect: request.aspect ?? null, ...byContent, ...frames });
   const file = recordFile(rt, key);
   let sent = await readRecord(rt, file, key);
   let task = sent.taskId ? await findTask(client, sent.taskId) : undefined;
@@ -415,6 +440,6 @@ export const listModels = async (client: PopostClient): Promise<JsonRecord> => {
   return {
     models: data.models,
     default: data.default ?? null,
-    note: 'POPOST_VIDEO_MODEL takes an id, POPOST_VIDEO_RESOLUTION one of its resolutions. Every clip costs credits, and popost.ai keeps it 7 days.',
+    note: 'POPOST_VIDEO_MODEL takes an id, POPOST_VIDEO_RESOLUTION one of its resolutions. "frames": true is a model that takes "firstFrame" and "lastFrame". Every clip costs credits, and popost.ai keeps it 7 days.',
   };
 };

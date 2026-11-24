@@ -55,7 +55,14 @@ const readRequest = async (rt: Runtime, file: string): Promise<GenerateRequest> 
     if (!isPaths(paths)) throw new GenerateError('"' + list + '" is a list of file paths.', 2);
     if (paths.length) lists[list] = paths.map((p) => userPath(rt, p));
   }
-  return { prompt: data.prompt, ...(seconds !== undefined ? { seconds } : {}), ...(aspect !== undefined ? { aspect } : {}), ...lists, ...(data.priceOnly === true ? { priceOnly: true as const } : {}) };
+  const frames: { firstFrame?: string; lastFrame?: string } = {};
+  for (const key of ['firstFrame', 'lastFrame'] as const) {
+    const path = data[key];
+    if (path === undefined) continue;
+    if (typeof path !== 'string' || !path.trim()) throw new GenerateError('"' + key + '" is the path of a picture.', 2);
+    frames[key] = userPath(rt, path);
+  }
+  return { prompt: data.prompt, ...(seconds !== undefined ? { seconds } : {}), ...(aspect !== undefined ? { aspect } : {}), ...lists, ...frames, ...(data.priceOnly === true ? { priceOnly: true as const } : {}) };
 };
 
 const USAGE = 'Give the kind, the request and the output file: popost video generate video|image <request.json> <out-file> (or --models).';
@@ -99,7 +106,7 @@ const generate: Subcommand = {
       'the built-in generator for POPOST_GEN_CMD="popost video generate": makes a clip or a picture on popost.ai with your account, paid in credits, only at a price the user agreed to (POPOST_GEN_MAX_CREDITS, or --yes); prints {"credits": n}, or {"confirm": {...}} with exit code 3',
     positionals: [
       { name: 'kind', choices: ['video', 'image'], required: false, help: 'a clip or a picture' },
-      { name: 'request', required: false, help: 'request.json: { "prompt", "seconds"?, "aspect"?, "images"?, "videos"?, "audios"?, "priceOnly"? }' },
+      { name: 'request', required: false, help: 'request.json: { "prompt", "seconds"?, "aspect"?, "images"?, "videos"?, "audios"?, "firstFrame"?, "lastFrame"?, "priceOnly"? }; frames never together with references' },
       { name: 'out', required: false, help: 'the file to write: .mp4 for a clip, .png, .jpg or .webp for a picture' },
     ],
     options: [

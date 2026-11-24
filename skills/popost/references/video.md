@@ -210,6 +210,10 @@ request, the price, what it prints). Two rules about motion:
   takes care of by itself. When the request names a character of the user's popost.ai library, pass it with
   `--character <id>`; when it gives a photo of the person or the product, with `--anchor-image <file>`. A clip that
   shares nothing with the others says `"anchor": false` (`video-tools.md`).
+- A shot longer than the longest clip the model makes: `template save --max-shot <seconds>` cuts it into parts, and
+  the clip of each later part says `"continues"` with the file of the part before it, so it starts from that clip's
+  last frame. Reference pictures stay the default; frames are for that and for a clip
+  that must begin on an exact picture (`video-tools.md`, "Reference pictures or frames").
 
 Then write `project/materials.json`, one entry per file, saying what it shows:
 `{ "assets/page-01.mp4": "the pricing page: zooms to the Pro plan, boxes its price, the pointer clicks Buy" }`.

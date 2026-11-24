@@ -3,7 +3,8 @@
  * does not live in this package: a Generator is the interface, and POPOST_GEN_CMD names a command that implements it,
  * called as
  *   <command> video|image <request.json> <out-file>
- * with request.json = { "prompt", "seconds"?, "aspect"?, "images"?, "videos"?, "audios"? } (references as paths); on
+ * with request.json = { "prompt", "seconds"?, "aspect"?, "images"?, "videos"?, "audios"?, "firstFrame"?, "lastFrame"? }
+ * (references and frames as paths; frames never together with references); on
  * success it prints one JSON line, { "credits"?: number }. A command that wants the user to agree to a price first
  * makes nothing, charges nothing, prints { "confirm": { "credits": n, ... } } and exits with 3 (ConfirmNeeded). Such a
  * command answers a request with "priceOnly": true the same way whatever budget it has: only the price is wanted.
@@ -17,6 +18,7 @@
 import type { Runtime } from '../../runtime';
 import { programsOf, toolCommand, withTempDir } from '../host';
 import { toolEnv } from '../tool';
+import { extractFrame } from '../media/decode';
 import { probe, runFfmpegOk } from '../media/ffmpeg';
 import { clipAmount } from '../measure/index';
 import { error, warning } from '../project/check-common';
@@ -35,6 +37,12 @@ export interface GenerateRequest {
   /** Reference clips and sounds, as paths, for a clip; a generator that cannot use them refuses the request. */
   videos?: string[];
   audios?: string[];
+  /**
+   * The picture the clip starts from, and the one it ends on (a path; lastFrame only with firstFrame). A clip made from
+   * frames takes no references: a generator refuses a request that has both, and one whose model takes no frames.
+   */
+  firstFrame?: string;
+  lastFrame?: string;
   /**
    * Only the price is wanted: a generator that asks before it charges answers with the price (ConfirmNeeded) and makes
    * nothing, whatever budget it has. Sent only to a generator that has just asked for another clip of the same list.
@@ -118,10 +126,12 @@ export interface MaterialRequest extends GenerateRequest {
   note?: string;
   /** false: this clip shares nothing with the others, so it neither gives nor takes the anchor picture. */
   anchor?: boolean;
+  /** The file of another clip (of this list, or of the project): this clip starts from its last frame, as its firstFrame. */
+  continues?: string;
 }
 
 /** motionAmount: how much a clip's picture moves (measure/amount.ts), to hold against the reference shot it is for. */
-export interface MadeMaterial { file: string; kind: GenerateKind; made: boolean; credits?: number; seconds?: number; motionAmount?: number; error?: string; anchor?: true; waiting?: true; unanchored?: true; confirm?: PriceToConfirm }
+export interface MadeMaterial { file: string; kind: GenerateKind; made: boolean; credits?: number; seconds?: number; motionAmount?: number; error?: string; anchor?: true; waiting?: true; waitsFor?: string; unanchored?: true; confirm?: PriceToConfirm }
 /**
  * toConfirm: the prices the user has to agree to before the files that wait for them are made. anchor: the picture the
  * clips got as a reference, and where it came from. A material with waiting was not made because the anchor clip is
@@ -149,6 +159,36 @@ const kindOf = (file: string): GenerateKind | undefined => {
   return VIDEOS.includes(ext) ? 'video' : PICTURES.includes(ext) ? 'image' : undefined;
 };
 
+const FRAME_FIX = 'Use frames for a shot that goes on from another clip or needs an exact first picture, and reference pictures ("images") for who or what is in the clip.';
+
+/** What is wrong with the frames of a request: firstFrame, lastFrame and continues. found: the files that exist; clips: the list's clips by file. */
+const frameProblems = (r: Partial<MaterialRequest>, at: string, found: ReadonlySet<string>, clips: ReadonlyMap<string, Partial<MaterialRequest>>): Problem[] => {
+  if (!usesFrames(r)) return [];
+  const out: Problem[] = [];
+  const key = r.continues !== undefined ? 'continues' : r.firstFrame !== undefined ? 'firstFrame' : 'lastFrame';
+  if (typeof r.file === 'string' && kindOf(r.file) === 'image') return [error(at + '.' + key, 'Only a clip starts from a frame or continues another clip; "' + r.file + '" is a picture.', 'Remove "' + key + '"; a picture takes reference pictures in "images".')];
+  if (LISTS.some((k) => Array.isArray(r[k]) && (r[k] as unknown[]).length > 0))
+    out.push(error(at + '.' + key, '"firstFrame", "lastFrame" and "continues" cannot be combined with "images", "videos" or "audios": a model starts from a frame or follows references, not both.', FRAME_FIX));
+  if (r.continues !== undefined && r.firstFrame !== undefined) out.push(error(at + '.firstFrame', 'A clip that continues another starts from that clip\'s last frame; it cannot name a "firstFrame" too.', 'Remove "firstFrame" or "continues".'));
+  if (r.lastFrame !== undefined && r.firstFrame === undefined && r.continues === undefined) out.push(error(at + '.lastFrame', '"lastFrame" is where a clip ends; it needs the picture the clip starts from.', 'Add "firstFrame" (or "continues"), or remove "lastFrame".'));
+  for (const k of ['firstFrame', 'lastFrame'] as const) {
+    const p = r[k];
+    if (p === undefined) continue;
+    if (typeof p !== 'string' || !found.has(p) || !PICTURES.includes(extOf(p).toLowerCase())) out.push(error(at + '.' + k, '"' + k + '" is a picture of the project (.png, .jpg or .webp) that exists; ' + JSON.stringify(p) + ' is not.', 'Put the picture into the project and write its path, or remove "' + k + '".'));
+  }
+  const c = r.continues;
+  if (c === undefined) return out;
+  const fix = 'Write the "file" of the clip this one goes on from: another clip of this list, or a clip that is already in the project.';
+  if (typeof c !== 'string' || kindOf(c) !== 'video' || !(clips.has(c) || found.has(c))) return [...out, error(at + '.continues', '"continues" names a clip of this list or of the project; ' + JSON.stringify(c) + ' is neither.', fix)];
+  // Followed back through the list, a chain must end: a clip cannot go on from itself.
+  let seen = 0;
+  for (let from: string | undefined = c; from !== undefined && seen <= clips.size; seen++) {
+    if (from === r.file) return [...out, error(at + '.continues', '"' + r.file + '" would continue itself' + (c === r.file ? '' : ' (through ' + c + ')') + '.', fix)];
+    from = clips.get(from)?.continues;
+  }
+  return out;
+};
+
 /** What is wrong with a list of requests, before anything is paid for. */
 export const checkRequests = async (rt: Runtime, requests: unknown, dir: string): Promise<Problem[]> => {
   if (!Array.isArray(requests)) return [error('(root)', 'The requests are a JSON list: one entry per material to make.', 'Write [{ "file": "assets/desk.mp4", "prompt": "...", "seconds": 5 }].')];
@@ -158,7 +198,8 @@ export const checkRequests = async (rt: Runtime, requests: unknown, dir: string)
     const list = r[k];
     return Array.isArray(list) ? list : [];
   };
-  const named = requests.flatMap((r: Partial<MaterialRequest> | null) => (r && typeof r === 'object' ? LISTS.flatMap((k) => listed(r, k).filter((p): p is string => typeof p === 'string')) : []));
+  const named = requests.flatMap((r: Partial<MaterialRequest> | null) => (r && typeof r === 'object' ? [...LISTS.flatMap((k) => listed(r, k)), r.firstFrame, r.lastFrame, r.continues].filter((p): p is string => typeof p === 'string') : []));
+  const clips = new Map(requests.flatMap((r: Partial<MaterialRequest> | null) => (r && typeof r === 'object' && typeof r.file === 'string' && kindOf(r.file) === 'video' ? [[r.file, r] as const] : [])));
   const found = new Set<string>();
   for (const p of named) if ((await rt.fs.stat(rt.path.resolve(dir, p))) !== null) found.add(p);
   return requests.flatMap((r: Partial<MaterialRequest> | null, i): Problem[] => {
@@ -178,6 +219,7 @@ export const checkRequests = async (rt: Runtime, requests: unknown, dir: string)
     if (r.seconds !== undefined && !(Number.isInteger(r.seconds) && r.seconds >= 1 && r.seconds <= 30)) out.push(error(at + '.seconds', '"seconds" is a whole number from 1 to 30; it is ' + JSON.stringify(r.seconds) + '.', 'Write "seconds": 5.'));
     if (r.anchor !== undefined && typeof r.anchor !== 'boolean') out.push(error(at + '.anchor', '"anchor" is false for a clip that shares nothing with the others; it is ' + JSON.stringify(r.anchor) + '.', 'Write "anchor": false, or remove it.'));
     if (r.aspect !== undefined && !(typeof r.aspect === 'string' && ASPECT.test(r.aspect))) out.push(error(at + '.aspect', '"aspect" is a ratio such as "16:9", "9:16" or "1:1", or "adaptive"; it is ' + JSON.stringify(r.aspect) + '.', 'Write "aspect": "16:9".', ['16:9', '9:16', '1:1', 'adaptive']));
+    out.push(...frameProblems(r, at, found, clips));
     for (const k of LISTS) {
       for (const [j, p] of listed(r, k).entries()) {
         if (typeof p !== 'string' || !found.has(p)) out.push(error(at + '.' + k + '[' + j + ']', 'The reference ' + REFERENCES[k] + ' ' + JSON.stringify(p) + ' does not exist in ' + dir + '.', 'Put the file there, or remove it from "' + k + '".'));
@@ -191,8 +233,14 @@ export const checkRequests = async (rt: Runtime, requests: unknown, dir: string)
 export const ANCHOR_FILE = 'anchor.jpg';
 const CLOSE = /close-?up|macro|detail shot|特写/i;
 
-/** A clip that may give or take the anchor picture: any clip whose request does not say "anchor": false. */
-const takesAnchor = (r: MaterialRequest): boolean => kindOf(r.file) === 'video' && r.anchor !== false;
+/** A clip made from frames: it starts from a picture (its own, or the last frame of the clip it continues). */
+const usesFrames = (r: Partial<MaterialRequest>): boolean => r.firstFrame !== undefined || r.lastFrame !== undefined || r.continues !== undefined;
+
+/**
+ * A clip that may give or take the anchor picture: any clip whose request does not say "anchor": false and that is not
+ * made from frames (a model starts from a frame or follows references, not both).
+ */
+const takesAnchor = (r: MaterialRequest): boolean => kindOf(r.file) === 'video' && r.anchor !== false && !usesFrames(r);
 
 /**
  * Which clip the others should look like: the first one that is not a close-up (a close-up shows a hand or a
@@ -242,6 +290,38 @@ const anchored = (r: MaterialRequest, picture: string, source: AnchorSource, per
 const readNotes = (rt: Runtime, dir: string): Promise<Record<string, string>> =>
   rt.fs.readText(rt.path.join(dir, NOTES)).then((t) => JSON.parse(t) as Record<string, string>, () => ({}));
 
+/** The requests in the order they are made: the anchor clip first, and a clip after the one it continues. */
+const inOrder = (requests: MaterialRequest[], first: number): MaterialRequest[] => {
+  const out = first >= 0 ? [requests[first] as MaterialRequest] : [];
+  const listed = new Set(requests.map((r) => r.file));
+  const placed = new Set(out.map((r) => r.file));
+  let left = requests.filter((_r, i) => i !== first);
+  while (left.length) {
+    const ready = left.filter((r) => !r.continues || placed.has(r.continues) || !listed.has(r.continues));
+    // checkRequests refuses a circle; should one get here, the rest goes in the order written.
+    for (const r of ready.length ? ready : left) {
+      out.push(r);
+      placed.add(r.file);
+    }
+    left = left.filter((r) => !placed.has(r.file));
+  }
+  return out;
+};
+
+/** Where the last frame of a clip is kept, beside it: "assets/walk.mp4" -> "assets/walk.last.png". */
+export const lastFrameFile = (clip: string): string => clip.slice(0, clip.length - extOf(clip).length) + '.last.png';
+
+/** The last frame of a clip of the project as a picture beside it, taken again when the clip is newer than the picture. */
+const lastFrameOf = async (rt: Runtime, dir: string, clip: string): Promise<string> => {
+  const from = rt.path.resolve(dir, clip), to = rt.path.resolve(dir, lastFrameFile(clip));
+  const [a, b] = [await rt.fs.stat(from), await rt.fs.stat(to)];
+  if (!b || (a && a.mtimeMs > b.mtimeMs)) {
+    const p = await probe(rt, from);
+    await extractFrame(rt, from, Math.max(0, p.frames - 1), to);
+  }
+  return to;
+};
+
 /**
  * Makes every requested material that does not exist yet, one after another, and records what each shows. A request
  * that fails is reported and the others go on: what was made stays made.
@@ -251,10 +331,15 @@ const readNotes = (rt: Runtime, dir: string): Promise<Record<string, string>> =>
  * points at it (anchorSentence). The picture is o.picture when the caller gives one. Otherwise one of the requested
  * clips is made first (anchorIndex) and a frame of it is saved beside the clips (ANCHOR_FILE): no clip is made that
  * was not asked for. That is the default for two or more such clips (o.anchor undefined), off with o.anchor false,
- * and on for a single clip too with o.anchor true (a later run then finds the picture). While the anchor clip is not
- * there, the clips that would take its frame are not made: without it they would be paid for and not match. When it
- * failed they are not sent at all; when its price waits for the user they are sent for their price only
- * (GenerateRequest.priceOnly), so that the user is shown the total of the whole list at once.
+ * and on for a single clip too with o.anchor true (a later run then finds the picture).
+ *
+ * A clip that continues another starts from that clip's last frame (lastFrameOf), so it is made after it. A clip
+ * with frames takes no anchor: a model starts from a frame or follows references, never both.
+ *
+ * While a clip another one needs is not there (the anchor clip, the clip it continues), the one that needs it is
+ * not made: without it, it would be paid for and not match. When the needed clip failed it is not sent at all; when
+ * the needed clip's price waits for the user it is sent for its price only (GenerateRequest.priceOnly, without the
+ * frames or the anchor, which do not change a price), so that the user is shown the total of the whole list at once.
  */
 export const makeMaterials = async (rt: Runtime, o: { requests: MaterialRequest[]; dir: string; generator: Generator; anchor?: boolean; picture?: AnchorPicture; onStep?: (file: string, done: number, total: number) => void }): Promise<MaterialsReport> => {
   const problems = await checkRequests(rt, o.requests, o.dir);
@@ -265,38 +350,47 @@ export const makeMaterials = async (rt: Runtime, o: { requests: MaterialRequest[
   const takers = o.requests.filter(takesAnchor).length;
   const fromClip = !o.picture && o.anchor !== false && takers >= (o.anchor ? 1 : 2);
   const first = fromClip ? anchorIndex(o.requests) : -1;
-  const order = first > 0 ? [o.requests[first] as MaterialRequest, ...o.requests.filter((_r, i) => i !== first)] : o.requests;
+  const order = inOrder(o.requests, first);
+  const anchorFile = first >= 0 ? (o.requests[first] as MaterialRequest).file : undefined;
   const source: AnchorSource | undefined = o.picture ? (o.picture.person ? 'character' : 'image') : fromClip ? 'clip' : undefined;
   let picture: string | undefined = o.picture?.file;
-  /** The anchor clip was asked for and is not there (it failed, or only its price came back): the clips that take its frame wait. */
-  let missing: false | 'failed' | 'priced' = false;
+  /** The clips that were asked for and are not there: failed (or waiting themselves), or priced and waiting for the user. */
+  const absent = new Map<string, 'failed' | 'priced'>();
   for (const [i, asked] of order.entries()) {
-    const takes = source !== undefined && takesAnchor(asked) && !(first >= 0 && i === 0);
-    const r = takes && picture ? anchored(asked, picture, source, o.picture?.person) : asked;
-    const kind = kindOf(r.file) as GenerateKind;
-    const target = rt.path.resolve(o.dir, r.file);
-    o.onStep?.(r.file, i, o.requests.length);
-    let entry: MadeMaterial = { file: r.file, kind, made: false };
+    const isAnchor = first >= 0 && i === 0;
+    const takes = source !== undefined && takesAnchor(asked) && !isAnchor;
+    const needs = [...(takes && anchorFile ? [anchorFile] : []), ...(asked.continues ? [asked.continues] : [])];
+    const kind = kindOf(asked.file) as GenerateKind;
+    const target = rt.path.resolve(o.dir, asked.file);
+    o.onStep?.(asked.file, i, o.requests.length);
+    let entry: MadeMaterial = { file: asked.file, kind, made: false };
     if (!(await exists(target))) {
-      if (takes && missing === 'failed') {
-        materials.push({ ...entry, waiting: true });
+      const failed = needs.find((f) => absent.get(f) === 'failed');
+      if (failed) {
+        absent.set(asked.file, 'failed');
+        materials.push({ ...entry, waiting: true, waitsFor: failed });
         continue;
       }
-      const priceOnly = takes && missing === 'priced';
+      const priced = needs.find((f) => absent.get(f) === 'priced');
+      const priceOnly = priced !== undefined;
       await rt.fs.mkdir(rt.path.dirname(target));
       const partial = target + '.partial' + rt.path.extname(target);
       try {
-        const references = Object.fromEntries(LISTS.flatMap((k) => (r[k]?.length ? [[k, (r[k] ?? []).map((p) => rt.path.resolve(o.dir, p))]] : [])));
-        const request: GenerateRequest = { prompt: r.prompt, ...(r.seconds ? { seconds: r.seconds } : {}), ...(r.aspect ? { aspect: r.aspect } : {}), ...references, ...(priceOnly ? { priceOnly: true as const } : {}) };
+        const r = takes && picture && !priceOnly ? anchored(asked, picture, source, o.picture?.person) : asked;
+        const at = (p: string): string => rt.path.resolve(o.dir, p);
+        const references = Object.fromEntries(LISTS.flatMap((k) => (r[k]?.length ? [[k, (r[k] ?? []).map(at)]] : [])));
+        const start = priceOnly ? undefined : asked.continues ? await lastFrameOf(rt, o.dir, asked.continues) : asked.firstFrame ? at(asked.firstFrame) : undefined;
+        const frames = { ...(start ? { firstFrame: start } : {}), ...(start && asked.lastFrame ? { lastFrame: at(asked.lastFrame) } : {}) };
+        const request: GenerateRequest = { prompt: r.prompt, ...(r.seconds ? { seconds: r.seconds } : {}), ...(r.aspect ? { aspect: r.aspect } : {}), ...references, ...frames, ...(priceOnly ? { priceOnly: true as const } : {}) };
         const made = await o.generator.make(kind, request, partial);
         if (!(await exists(partial))) throw new Error('The generator finished without writing the file.');
         await rt.fs.rename(partial, target);
-        // A generator that does not know "priceOnly" and had the budget made the clip: it is there, without the anchor.
-        entry = { ...entry, made: true, ...(made.credits !== undefined ? { credits: made.credits } : {}), ...(priceOnly ? { unanchored: true as const } : {}) };
+        // A generator that does not know "priceOnly" and had the budget made the clip: it is there, without what it waited for.
+        entry = { ...entry, made: true, ...(made.credits !== undefined ? { credits: made.credits } : {}), ...(priceOnly ? { unanchored: true as const, waitsFor: priced } : {}) };
       } catch (e) {
         await rt.fs.rm(partial);
-        if (first >= 0 && i === 0) missing = e instanceof ConfirmNeeded ? 'priced' : 'failed';
-        materials.push({ ...entry, error: e instanceof Error ? e.message : String(e), ...(e instanceof ConfirmNeeded ? { confirm: e.confirm } : {}), ...(priceOnly ? { waiting: true as const } : {}) });
+        absent.set(asked.file, e instanceof ConfirmNeeded ? 'priced' : 'failed');
+        materials.push({ ...entry, error: e instanceof Error ? e.message : String(e), ...(e instanceof ConfirmNeeded ? { confirm: e.confirm } : {}), ...(priceOnly ? { waiting: true as const, waitsFor: priced } : {}) });
         continue;
       }
     }
@@ -306,32 +400,30 @@ export const makeMaterials = async (rt: Runtime, o: { requests: MaterialRequest[
       const amount = p ? await clipAmount(rt, target).catch(() => undefined) : undefined;
       if (amount !== undefined) entry = { ...entry, motionAmount: amount };
     }
-    if (first >= 0 && i === 0 && kind === 'video') {
+    if (isAnchor && kind === 'video') {
       // The anchor's frame is taken once and kept: a second run uses the same picture.
-      const rel = rt.path.join(rt.path.dirname(r.file), ANCHOR_FILE);
+      const rel = rt.path.join(rt.path.dirname(asked.file), ANCHOR_FILE);
       // A clip no frame can be taken from (a damaged file) leaves the others waiting, like a clip that was not made.
       const got = (await exists(rt.path.resolve(o.dir, rel))) || (await grabAnchor(rt, target, rt.path.resolve(o.dir, rel)).then(() => true, () => false));
       if (got) picture = rel;
-      else missing = 'failed';
+      else absent.set(asked.file, 'failed');
       entry = { ...entry, anchor: true };
     }
-    notes[r.file] = asked.note ?? asked.prompt;
+    notes[asked.file] = asked.note ?? asked.prompt;
     await rt.fs.writeFile(rt.path.join(o.dir, NOTES), JSON.stringify(notes, null, 1) + '\n');
     materials.push(entry);
   }
-  const waiting = materials.filter((m) => m.waiting && !m.confirm);
-  const loose = materials.filter((m) => m.unanchored).map((m) => warning(m.file, 'It was made without the anchor picture: the generator was asked for its price only ("priceOnly": true in the request) while the anchor clip waited for the user\'s agreement, and made the clip.', 'Look at it beside the other clips; when it does not match them, delete the file and run the command again once the anchor clip exists.'));
-  const anchorFile = first >= 0 ? (o.requests[first] as MaterialRequest).file : '';
+  const why = (m: MadeMaterial): string => (m.waitsFor === anchorFile && !o.requests.some((r) => r.file === m.file && r.continues === m.waitsFor) ? 'a frame of it goes to this clip as a reference picture, so that the clips show the same person, product and place' : 'this clip starts from its last frame');
   const failed = materials.filter((m) => m.error).map((m) =>
     m.confirm
       ? error(m.file, 'It was not made: it costs ' + m.confirm.credits + ' credits, and the user has not agreed to that price. Nothing was charged.', 'Show the user the price (toConfirm has the total). Only after they agree, run again with POPOST_GEN_MAX_CREDITS set to the highest price they approved for one file, or with --yes added to POPOST_GEN_CMD.')
       : error(m.file, 'It could not be made: ' + m.error, 'Read the message; a request that was refused cost nothing. Run the command again to make only what is missing.' + (source && m.file !== anchorFile && takesAnchor(o.requests.find((r) => r.file === m.file) as MaterialRequest) ? ' It was sent with the anchor picture as a reference picture: a generator that takes none needs --no-anchor.' : '')),
   );
-  const held = waiting.length
-    ? [error(anchorFile, waiting.length + ' clip' + (waiting.length === 1 ? ' waits' : 's wait') + ' for this one (' + waiting.map((m) => m.file).join(', ') + '): a frame of it goes to each as a reference picture, so that they show the same person, product and place' + (materials.some((m) => m.file === anchorFile && !m.error) ? ', and no frame could be read from the file' : '') + '. Nothing was sent or charged for them.',
-      'Get this clip made first (its own problem says how; a file no frame can be read from is deleted and made again), then run the command again: it makes the others, each priced then. --no-anchor makes them now, without a shared picture.')]
-    : [];
+  const held = materials.filter((m) => m.waiting && !m.confirm).map((m) =>
+    error(m.file, 'It was not sent: it waits for ' + m.waitsFor + ' (' + why(m) + '), and that clip is not there' + (materials.some((x) => x.file === m.waitsFor && !x.error && !x.waiting) ? ' as a file a frame can be read from' : '') + '. Nothing was charged for it.',
+      'Get ' + m.waitsFor + ' made first (its own problem says how; a file no frame can be read from is deleted and made again), then run the command again.' + (m.waitsFor === anchorFile ? ' --no-anchor makes the clips now, without a shared picture.' : '')));
+  const loose = materials.filter((m) => m.unanchored).map((m) => warning(m.file, 'It was made without ' + (o.requests.some((r) => r.file === m.file && r.continues) ? 'the frame it should start from' : 'the anchor picture') + ': the generator was asked for its price only ("priceOnly": true in the request) while ' + m.waitsFor + ' waited for the user\'s agreement, and made the clip.', 'Look at it beside the other clips; when it does not match them, delete the file and run the command again once ' + m.waitsFor + ' exists.'));
   const asked = materials.filter((m) => m.confirm);
-  const toConfirm = asked.length ? { toConfirm: { credits: asked.reduce((n, m) => n + (m.confirm?.credits ?? 0), 0), materials: asked.length, } } : {};
+  const toConfirm = asked.length ? { toConfirm: { credits: asked.reduce((n, m) => n + (m.confirm?.credits ?? 0), 0), materials: asked.length } } : {};
   return { materials, credits: materials.reduce((n, m) => n + (m.credits ?? 0), 0), problems: [...failed, ...held, ...loose], ...(source && picture ? { anchor: { picture, from: source } } : {}), ...toConfirm };
 };

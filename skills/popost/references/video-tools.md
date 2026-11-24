@@ -52,7 +52,7 @@ https://github.com/PopostAI/popost/tree/main/skills/popost/tools/video
 | `POPOST_OCR_CMD` (text reader) | `<cmd> <list.json> <out.json>`; list.json is `[{ "frame": 120, "file": "/abs/000120.jpg" }]` | out.json: `[{ "frame": 120, "lines": [{ "text": "...", "confidence": 0.97, "box": [x, y, w, h] }] }]`, boxes as fractions of the frame |
 | `POPOST_ASR_CMD` (transcriber) | `<cmd> <audio.wav> <out.json> [language]` | out.json: `{ "language": "zh", "words": [{ "text": "...", "start": 1.02, "end": 1.16, "confidence": 0.99 }] }`, times in seconds |
 | `POPOST_TTS_CMD` (speaker) | `<cmd> <text.txt> <out.wav> [voice] [speed]` | a WAV at out.wav; optionally `<out.wav>.words.json`: `{ "words": [{ "text", "start", "end" }] }` in seconds |
-| `POPOST_GEN_CMD` (generator) | `<cmd> video\|image <request.json> <out-file>`; request `{ "prompt", "seconds"?, "aspect"?, "images"?, "videos"?, "audios"? }`, references as paths | the clip or picture at out-file, and one JSON line on stdout: `{ "credits"?: number }`. To have a price agreed first: nothing made, `{ "confirm": { "credits": n, ... } }` and exit code 3; such a tool answers a request with `"priceOnly": true` that way whatever its budget |
+| `POPOST_GEN_CMD` (generator) | `<cmd> video\|image <request.json> <out-file>`; request `{ "prompt", "seconds"?, "aspect"?, "images"?, "videos"?, "audios"?, "firstFrame"?, "lastFrame"? }`, references and frames as paths (frames only without references) | the clip or picture at out-file, and one JSON line on stdout: `{ "credits"?: number }`. To have a price agreed first: nothing made, `{ "confirm": { "credits": n, ... } }` and exit code 3; such a tool answers a request with `"priceOnly": true` that way whatever its budget |
 
 - What they change: a text reader lets `describe` read the captions (the beats) and `readback` check the render; a
   transcriber reads what is said (spoken beats) and times a voice's words; a speaker makes the voice-over
@@ -103,9 +103,22 @@ picture does not change the price.
 | `--no-anchor` | no anchor at all: unrelated clips, or a generator that takes no reference pictures |
 | `--anchor` | the anchor also for a list of one clip, so that a later list finds `anchor.jpg` |
 
-While the anchor clip is not there, the clips that take its frame are not made. When its price waits for the user
-they are only priced, so `toConfirm` is the total of the whole list; when it failed they are listed with
-`"waiting": true` and cost nothing. Run the command again once it exists.
+**Reference pictures or frames.** A clip is steered in one of two ways, never both in one request:
+
+- Reference pictures (`"images"`, the anchor): who or what is in the clip. The model composes the shot itself and
+  keeps the person or the product of the pictures. This is the default, and the way to keep identity across clips.
+- Frames: `"firstFrame"` is the exact picture the clip starts from, `"lastFrame"` (only with it) the one it ends on.
+  Use them for an exact composition (the clip must begin on this still: a product photo, the last picture of the
+  scene before it), and for a shot longer than one clip: `"continues": "assets/part-1.mp4"` makes a clip start from
+  the last frame of that clip (of the list, or already in the project), made after it. `template save --max-shot
+  <seconds>` cuts such a shot into parts, and each later part takes the clip that continues the part before it. A
+  clip with frames takes no `"images"`, `"videos"` or `"audios"` and no anchor: what it shows is
+  in its first frame.
+
+While a clip another one needs is not there (the anchor clip, the clip it continues), the one that needs it is not
+made. When the needed clip's price waits for the user it is only priced, so `toConfirm` is the total of the whole
+list; when the needed clip failed it is listed with `"waiting": true` and costs nothing. Run the command again once
+the needed clip exists.
 
 ## The built-in generator
 
@@ -129,7 +142,8 @@ popost video generate --models            # the video models: ids, resolutions, 
 The request never chooses the model, the resolution or the budget. Its `"aspect"` goes to the model as it is (some
 models take `"adaptive"`; `--models` lists each model's ratios), and a clip without `"seconds"` is 5 seconds long.
 References are uploaded to the account first: `"images"` JPEG, PNG or WebP, `"videos"` MP4 or MOV, `"audios"` MP3 or
-WAV (clips and sounds for a clip only).
+WAV (clips and sounds for a clip only). `"firstFrame"` and `"lastFrame"` (pictures) go the same way, for a model that
+`--models` lists with `"frames": true`; another model refuses them and says so, and nothing is charged.
 
 **The price is agreed before anything is charged.** Every request is priced first. Within `POPOST_GEN_MAX_CREDITS` it
 goes on. Otherwise nothing is charged: the command prints one line,
@@ -152,7 +166,8 @@ out-file and prints `{"credits": n}`, what was charged.
   refunded) or expired is made again, as a new attempt that is priced again.
 - **Failures** print one line on stderr and exit with 1 (2: the setup or the request needs fixing): no account
   connected, video generation not available for the account (`VIDEO_GENERATION_DISABLED`), not enough credits, a
-  setting the model does not take (`VIDEO_OPTION_UNSUPPORTED`), content rejected (`CONTENT_REJECTED`, refunded), or
+  setting the model does not take (`VIDEO_OPTION_UNSUPPORTED`; frames together with references are refused before
+  anything is sent), content rejected (`CONTENT_REJECTED`, refunded), or
   still being made after `POPOST_GEN_WAIT_MIN` (run the same command again later).
 
 ## Capture plans

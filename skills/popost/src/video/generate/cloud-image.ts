@@ -44,6 +44,7 @@ const place = async (rt: Runtime, provider: PopostProvider, taskId: string, out:
 
 /** Makes the picture a request asks for at out, on popost.ai; resolves with the credits it was charged. */
 export const makePicture = async (rt: Runtime, s: CloudSettings, config: JsonRecord, request: GenerateRequest, out: string): Promise<{ credits?: number }> => {
+  if (request.firstFrame !== undefined || request.lastFrame !== undefined) throw new GenerateError('Only a clip starts from a frame; a picture takes reference pictures ("images"). Nothing was sent.', 2);
   if (request.videos?.length || request.audios?.length) throw new GenerateError('A picture is made from reference pictures only; this request also names clips or sounds. Nothing was sent.', 2);
   const wanted = PICTURE_TYPES[rt.path.extname(out).toLowerCase()];
   if (!wanted) throw new GenerateError('A picture is written as .png, .jpg or .webp; "' + rt.path.basename(out) + '" is none of them. Nothing was sent.', 2);

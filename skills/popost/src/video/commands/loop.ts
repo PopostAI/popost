@@ -209,7 +209,7 @@ const characterOf = async (rt: Runtime, dir: string, id: string): Promise<Anchor
 const materials = command(
   'makes the clips and pictures a list asks for, from prompts; a file that exists is not made again, and what each shows goes to materials.json for plan. Two or more clips keep what they share the same through one reference picture (the anchor). Needs POPOST_GEN_CMD; --check only reads the list',
   {
-    positionals: [{ name: 'requests', help: 'a JSON list: [{ "file": "assets/desk.mp4", "prompt": "...", "seconds": 5, "aspect": "16:9", "images": [...], "videos": [...], "audios": [...], "note": "..." }]' }],
+    positionals: [{ name: 'requests', help: 'a JSON list: [{ "file": "assets/desk.mp4", "prompt": "...", "seconds": 5, "aspect": "16:9", "images": [...], "videos": [...], "audios": [...], "note": "..." }]; instead of references a clip may start from a picture ("firstFrame", with "lastFrame" to end on one) or from the last frame of another clip ("continues": its file); "anchor": false keeps a clip out of the anchor' }],
     options: [
       { flag: '--out', required: true, metavar: 'DIR', help: 'the project directory the files go into' },
       { flag: '--check', kind: 'flag', help: 'only say what is wrong with the list; nothing is made' },

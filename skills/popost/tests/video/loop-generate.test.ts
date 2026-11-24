@@ -3,7 +3,7 @@ import { chmod, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { anchorIndex, anchorSentence, checkRequests, commandGenerator, ConfirmNeeded, makeMaterials, type Generator, type GenerateRequest } from '../../src/video/generate/index';
+import { anchorIndex, anchorSentence, checkRequests, commandGenerator, ConfirmNeeded, lastFrameFile, makeMaterials, type Generator, type GenerateRequest } from '../../src/video/generate/index';
 import { createDiskRuntime } from '../../src/testing/disk';
 import { hasFfmpeg, runFfmpegOk } from '../../src/video/media/ffmpeg';
 
@@ -204,8 +204,8 @@ describe('generate: one person in every clip', () => {
     const broken = await makeMaterials(rt, { requests: requests.slice(0, 3), dir: path.join(root, 'waiting'), generator: { make: async (_k, request) => { failed.push(request); throw new Error('the content was rejected'); } } });
     expect(failed.map((q) => q.prompt)).toEqual(['A woman holds @image1 up and smiles']);
     expect(broken.materials.map((m) => [m.file, m.waiting === true])).toEqual([['assets/gen-02.mp4', false], ['assets/gen-01.mp4', true], ['assets/gen-03.mp4', true]]);
-    expect(broken.problems.map((p) => p.at)).toEqual(['assets/gen-02.mp4', 'assets/gen-02.mp4']);
-    expect(broken.problems[1]?.message).toContain('2 clips wait for this one (assets/gen-01.mp4, assets/gen-03.mp4)');
+    expect(broken.problems.map((p) => p.at)).toEqual(['assets/gen-02.mp4', 'assets/gen-01.mp4', 'assets/gen-03.mp4']);
+    expect(broken.problems[1]?.message).toContain('It was not sent: it waits for assets/gen-02.mp4 (a frame of it goes to this clip as a reference picture');
     expect(broken.problems[1]?.fix).toContain('--no-anchor');
     expect(broken.toConfirm).toBeUndefined();
     // A generator that does not know "priceOnly" and makes the clip: it is kept and named.
@@ -213,6 +213,71 @@ describe('generate: one person in every clip', () => {
     const loose = await makeMaterials(rt, { requests: requests.slice(1, 3), dir: path.join(root, 'waiting'), generator: eager });
     expect(loose.materials.map((m) => [m.file, m.made, m.unanchored === true])).toEqual([['assets/gen-02.mp4', false, false], ['assets/gen-03.mp4', true, true]]);
     expect(loose.problems.map((p) => p.level + ' ' + p.at)).toEqual(['error assets/gen-02.mp4', 'warning assets/gen-03.mp4']);
+  });
+});
+
+describe('generate: frames', () => {
+  it('names what is wrong with frames before anything is paid for', async () => {
+    const dir = path.join(root, 'frames-check');
+    await mkdir(path.join(dir, 'assets'), { recursive: true });
+    await writeFile(path.join(dir, 'assets', 'start.png'), 'p');
+    await writeFile(path.join(dir, 'assets', 'old.mp4'), 'v');
+    const problems = await checkRequests(rt, [
+      { file: 'assets/a.mp4', prompt: 'x', firstFrame: 'assets/start.png', lastFrame: 'assets/start.png' },
+      { file: 'assets/b.mp4', prompt: 'x', continues: 'assets/a.mp4' },
+      { file: 'assets/c.mp4', prompt: 'x', continues: 'assets/old.mp4' },
+      { file: 'assets/d.mp4', prompt: 'x', firstFrame: 'assets/start.png', images: ['assets/start.png'] },
+      { file: 'assets/e.mp4', prompt: 'x', lastFrame: 'assets/start.png' },
+      { file: 'assets/f.mp4', prompt: 'x', firstFrame: 'assets/missing.png' },
+      { file: 'assets/g.mp4', prompt: 'x', continues: 'assets/h.mp4' },
+      { file: 'assets/h.mp4', prompt: 'x', continues: 'assets/g.mp4' },
+      { file: 'assets/i.mp4', prompt: 'x', continues: 'assets/nowhere.mp4' },
+      { file: 'assets/j.mp4', prompt: 'x', continues: 'assets/a.mp4', firstFrame: 'assets/start.png' },
+      { file: 'assets/k.png', prompt: 'x', firstFrame: 'assets/start.png' },
+    ], dir);
+    expect(problems.map((p) => p.at)).toEqual(['[3].firstFrame', '[4].lastFrame', '[5].firstFrame', '[6].continues', '[7].continues', '[8].continues', '[9].firstFrame', '[10].firstFrame']);
+    expect(problems[0]?.message).toContain('a model starts from a frame or follows references, not both');
+    expect(problems[3]?.message).toContain('"assets/g.mp4" would continue itself (through assets/h.mp4)');
+    expect(problems.at(-1)?.message).toContain('Only a clip starts from a frame');
+  });
+
+  it.skipIf(!ffmpeg)('makes a clip after the one it continues, from that clip\'s last frame, and gives a clip with frames no anchor', async () => {
+    const dir = path.join(root, 'continues');
+    await mkdir(path.join(dir, 'assets'), { recursive: true });
+    await writeFile(path.join(dir, 'assets', 'start.png'), 'p');
+    const asked: GenerateRequest[] = [];
+    const generator: Generator = {
+      make: async (_kind, request, out) => {
+        asked.push(request);
+        if (request.prompt.includes('refuse')) throw new Error('the content was rejected');
+        await runFfmpegOk(rt, ['-y', '-f', 'lavfi', '-i', 'testsrc=size=90x160:rate=30:duration=1', '-pix_fmt', 'yuv420p', out]);
+        return {};
+      },
+    };
+    const list = [
+      { file: 'assets/part-2.mp4', prompt: 'she walks on to the door', continues: 'assets/part-1.mp4' },
+      { file: 'assets/part-1.mp4', prompt: 'a woman walks down the hall' },
+      { file: 'assets/open.mp4', prompt: 'the box opens', firstFrame: 'assets/start.png' },
+      { file: 'assets/street.mp4', prompt: 'the street outside' },
+    ];
+    const r = await makeMaterials(rt, { requests: list, dir, generator });
+    expect(r.problems).toEqual([]);
+    // part-1 gives the anchor and is made first; part-2 comes after it although it was written before it.
+    expect(r.materials.map((m) => m.file)).toEqual(['assets/part-1.mp4', 'assets/part-2.mp4', 'assets/open.mp4', 'assets/street.mp4']);
+    const last = path.join(dir, lastFrameFile('assets/part-1.mp4'));
+    expect(last).toBe(path.join(dir, 'assets', 'part-1.last.png'));
+    expect(existsSync(last)).toBe(true);
+    expect(asked).toEqual([
+      { prompt: 'a woman walks down the hall' },
+      { prompt: 'she walks on to the door', firstFrame: last },
+      { prompt: 'the box opens', firstFrame: path.join(dir, 'assets', 'start.png') },
+      { prompt: 'the street outside ' + anchorSentence(1, 'clip'), images: [path.join(dir, 'assets', 'anchor.jpg')] },
+    ]);
+    // The clip it continues fails: the one that goes on from it is not sent.
+    const failing = await makeMaterials(rt, { requests: [{ file: 'assets/x-2.mp4', prompt: 'on', continues: 'assets/x-1.mp4' }, { file: 'assets/x-1.mp4', prompt: 'refuse this', anchor: false }], dir, generator });
+    expect(failing.materials.map((m) => [m.file, m.waiting === true, m.waitsFor])).toEqual([['assets/x-1.mp4', false, undefined], ['assets/x-2.mp4', true, 'assets/x-1.mp4']]);
+    expect(failing.problems[1]?.message).toContain('it waits for assets/x-1.mp4 (this clip starts from its last frame)');
+    expect(asked.at(-1)?.prompt).toBe('refuse this');
   });
 });
 

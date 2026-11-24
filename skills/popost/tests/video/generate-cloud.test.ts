@@ -161,6 +161,48 @@ describe('popost video generate video', () => {
     expect([picture.code, oneLine(picture.stderr)]).toEqual([2, '"priceOnly" is for a clip; a picture is priced when it is made.']);
   });
 
+  it('sends a first and a last frame as frames, never as references, and refuses a request that has both', async () => {
+    const { rt, stub } = await scene({ POPOST_GEN_MAX_CREDITS: '100' });
+    await rt.fs.writeFile('/work/end.png', tinyPng([10, 200, 10]));
+    const req = await request(rt, { prompt: 'the lid opens', seconds: 5, firstFrame: '/work/product.png', lastFrame: '/work/end.png' });
+    const r = await generate(rt, 'video', req, '/work/out.mp4');
+    expect([r.code, r.stdout]).toEqual([0, '{"credits":25}\n']);
+    expect(stub.calls('POST', '/videos/uploads').map((c) => c.json?.kind)).toEqual(['image', 'image']);
+    const quoted = { seconds: 5, frames: { first: 'vu_1', last: 'vu_2' } };
+    expect(stub.calls('POST', '/videos/quote').map((c) => c.json)).toEqual([quoted]);
+    expect(stub.calls('POST', '/videos/generations')[0]?.json).toMatchObject({ ...quoted, prompt: 'the lid opens' });
+    // Another first frame is another clip: the key holds the frames by content.
+    const keys = async (body: Json): Promise<string> => {
+      const s = await scene({ POPOST_GEN_MAX_CREDITS: '100' });
+      await s.rt.fs.writeFile('/work/end.png', tinyPng([10, 200, 10]));
+      expect((await generate(s.rt, 'video', await request(s.rt, body), '/work/out.mp4')).code).toBe(0);
+      return s.stub.calls('POST', '/videos/generations')[0]?.json?.idempotencyKey;
+    };
+    expect(await keys({ prompt: 'x', firstFrame: '/work/product.png' })).not.toBe(await keys({ prompt: 'x', firstFrame: '/work/end.png' }));
+    expect(await keys({ prompt: 'x', firstFrame: '/work/product.png' })).not.toBe(await keys({ prompt: 'x', images: ['/work/product.png'] }));
+    for (const [body, said] of [
+      [{ prompt: 'x', firstFrame: '/work/product.png', images: ['/work/end.png'] }, /cannot be combined with "images", "videos" or "audios".*Nothing was sent/],
+      [{ prompt: 'x', lastFrame: '/work/end.png' }, /"lastFrame" needs "firstFrame"/],
+      [{ prompt: 'x', firstFrame: '/work/move.mov' }, /move\.mov in "firstFrame" is not a JPEG, PNG or WebP picture/],
+    ] as const) {
+      const refused = await generate(rt, 'video', await request(rt, body), '/work/no.mp4');
+      expect(refused.code).toBe(2);
+      expect(oneLine(refused.stderr)).toMatch(said);
+    }
+    expect(stub.calls('POST', '/videos/quote')).toHaveLength(1);
+    const picture = await generate(rt, 'image', await request(rt, { prompt: 'x', firstFrame: '/work/product.png' }), '/work/no.png');
+    expect([picture.code, oneLine(picture.stderr)]).toEqual([2, 'Only a clip starts from a frame; a picture takes reference pictures ("images"). Nothing was sent.']);
+  });
+
+  it('says so when the model takes no frames', async () => {
+    const { rt, stub } = await scene({ POPOST_GEN_MAX_CREDITS: '100' });
+    stub.set('POST', '/videos/quote', () => err(400, 'VIDEO_OPTION_UNSUPPORTED', 'The model does not take this', { field: 'frames' }));
+    const r = await generate(rt, 'video', await request(rt, { prompt: 'x', firstFrame: '/work/product.png' }), '/work/out.mp4');
+    expect(r.code).toBe(1);
+    expect(oneLine(r.stderr)).toMatch(/This video model does not take a first or last frame .*POPOST_VIDEO_MODEL.*"images" instead\. Nothing was charged\./);
+    expect(stub.calls('POST', '/videos/generations')).toEqual([]);
+  });
+
   it('derives the idempotency key from the request: the same request, the same key; another model or prompt, another one', async () => {
     const keyOf = async (env: Record<string, string>, body: Json): Promise<string> => {
       const { rt, stub } = await scene({ POPOST_GEN_MAX_CREDITS: '100', ...env });
