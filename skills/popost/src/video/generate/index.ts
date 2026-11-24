@@ -17,6 +17,7 @@ import type { Runtime } from '../../runtime';
 import { programsOf, toolCommand, withTempDir } from '../host';
 import { toolEnv } from '../tool';
 import { probe, runFfmpegOk } from '../media/ffmpeg';
+import { clipAmount } from '../measure/index';
 import { error } from '../project/check-common';
 import type { Problem } from '../types';
 
@@ -111,7 +112,8 @@ export interface MaterialRequest extends GenerateRequest {
   note?: string;
 }
 
-export interface MadeMaterial { file: string; kind: GenerateKind; made: boolean; credits?: number; seconds?: number; error?: string; anchor?: true; confirm?: PriceToConfirm }
+/** motionAmount: how much a clip's picture moves (measure/amount.ts), to hold against the reference shot it is for. */
+export interface MadeMaterial { file: string; kind: GenerateKind; made: boolean; credits?: number; seconds?: number; motionAmount?: number; error?: string; anchor?: true; confirm?: PriceToConfirm }
 /** toConfirm: the prices the user has to agree to before the files that wait for them are made. */
 export interface MaterialsReport { materials: MadeMaterial[]; credits: number; problems: Problem[]; toConfirm?: { credits: number; materials: number } }
 
@@ -241,6 +243,8 @@ export const makeMaterials = async (rt: Runtime, o: { requests: MaterialRequest[
     if (kind === 'video') {
       const p = await probe(rt, target).catch(() => undefined);
       if (p) entry = { ...entry, seconds: Math.round((p.frames / p.fps) * 100) / 100 };
+      const amount = p ? await clipAmount(rt, target).catch(() => undefined) : undefined;
+      if (amount !== undefined) entry = { ...entry, motionAmount: amount };
     }
     if (first >= 0 && i === 0 && kind === 'video') {
       // The anchor's frame is taken once and kept: a second run uses the same picture.

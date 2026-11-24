@@ -14,7 +14,7 @@ import { readReference } from '../describe/parts';
 import { buildDraft } from '../draft/build';
 import { measureVideo } from '../measure/index';
 import { scoreMeasures } from '../score/index';
-import { compareShots, momentsOf, type ShotDifference } from '../score/shots';
+import { compareShots, LESS_MOTION, momentsOf, MORE_MOTION, type MotionComparison, type ShotDifference } from '../score/shots';
 import { projectOf, reviewCompare, roundNext } from '../render/record';
 import { changeWindows } from '../score/project-windows';
 import { readFacts } from '../template/facts';
@@ -230,6 +230,16 @@ export const lookCommand = (typed: { reference: string; other: string }, m: Meas
   typed.reference.endsWith('.json') || typed.other.endsWith('.json') ? undefined
     : 'popost video look ' + typed.other + ' --at ' + (d.change ? momentsOf(d.change.other).join(',') : d.at.other) + ' --against ' + typed.reference + ' --against-at ' + (d.change ? momentsOf(d.change.reference).join(',') : d.at.reference) + ' --width ' + Math.min(1280, m.source.width) + ' --out review/shot-' + String(d.shot).padStart(2, '0');
 
+const list = (shots: readonly number[]): string => (shots.length === 1 ? 'Shot ' : 'Shots ') + shots.join(', ') + (shots.length === 1 ? ' moves' : ' move');
+
+/** What the motion amounts say, and what to do about a shot that moves much less or much more than its reference shot. */
+export const motionNote = (m: MotionComparison): string => [
+  'The motion amount is how much the picture changes between frames 1/15 s apart (0 is a still); ratio is the other video\'s as a multiple of the reference\'s, for the whole video and in each shot\'s motionAmount.',
+  ...(m.less.length ? [list(m.less) + ' less than ' + LESS_MOTION + ' times as much as the reference\'s: give the shot the motion its reference has (generate the clip again with the action and the pace of shots/NN.md in its prompt, raise its "speed", or animate the scene), and never slow a clip down to fill a shot.'] : []),
+  ...(m.more.length ? [list(m.more) + ' more than ' + MORE_MOTION + ' times as much as the reference\'s: calm the shot (a steadier clip, a still where the reference holds one).'] : []),
+  ...(!m.less.length && !m.more.length ? ['No shot moves less than ' + LESS_MOTION + ' or more than ' + MORE_MOTION + ' times as much as its reference shot.'] : []),
+].join(' ');
+
 /** The change into each reference shot as the project of the render says, when the other video is a render of one. */
 const projectWindows = async (rt: Runtime, other: string, shots: number, m: Measure): Promise<ReturnType<typeof changeWindows>> => {
   if (other.endsWith('.json')) return undefined;
@@ -240,7 +250,7 @@ const projectWindows = async (rt: Runtime, other: string, shots: number, m: Meas
 };
 
 const compare = command(
-  'two videos, or two measure.json files, scored dimension by dimension (1 is the same); then shots (each shot of the reference against the matching part of the other) and worst (the shots that differ most, each with the dimension that makes it so, its seconds in both and a look command that shows it); for a render, round (the review rounds so far), stillWorst and next',
+  'two videos, or two measure.json files, scored dimension by dimension (1 is the same); then shots (each shot of the reference against the matching part of the other, with its motion amount in both), motionAmount (how much the picture moves in both videos, and the shots that move much less or more than the reference\'s) and worst (the shots that differ most, each with the dimension that makes it so, its seconds in both and a look command that shows it); for a render, round (the review rounds so far), stillWorst and next',
   {
     positionals: [{ name: 'reference', help: 'a video, or the measure.json of one' }, { name: 'other', help: 'a video, or the measure.json of one' }],
     options: [
@@ -277,6 +287,7 @@ const compare = command(
     }).catch(() => undefined);
     printJson(rt, {
       ok: true, reference, other, composite: score.composite, dimensions: score.dimensions, shots: shots.shots, worst,
+      ...(shots.motion ? { motionAmount: { ...shots.motion, note: motionNote(shots.motion) } } : {}),
       ...(scope.omitted ? { scope: { seconds: [0, a.source.frames / a.source.fps], omittedShots: scope.omitted, note: 'Only retained reference content is compared. Declared trailing platform shots are excluded after verifying the full reference visual fingerprint.' } } : {}),
       ...((textA === undefined) !== (textB === undefined) ? { note: 'Text is compared shot by shot only with both --reference-text and --other-text.' } : {}),
       ...(review ? { round: review.round, ...(review.stillWorst.length ? { stillWorst: review.stillWorst } : {}) } : {}),

@@ -6,6 +6,7 @@
  * moves and stretches with the shot when time is re-flowed to speech.
  */
 import type { Box, MotionSpec, Problem, Track } from '../types';
+import { slowProblems } from '../project/check-footage';
 import { MotionSchema } from '../project/schema';
 
 interface ItemTiming {
@@ -47,6 +48,7 @@ const itemProblems = (item: unknown, at: string): Problem[] => {
   out.push(...footageAudioProblems(item.audio, at + '.audio'));
   if (item.in !== undefined && !(Number.isInteger(item.in) && (item.in as number) >= 0)) out.push(err(at + '.in', '"in" is the clip\'s first frame, a whole number from 0; it is ' + JSON.stringify(item.in) + '.', 'Write "in": 0.'));
   if (item.speed !== undefined && !(typeof item.speed === 'number' && item.speed >= 0.25 && item.speed <= 4)) out.push(err(at + '.speed', '"speed" is 0.25 to 4; it is ' + JSON.stringify(item.speed) + '.', 'Write "speed": 1, or remove it.'));
+  else if ('video' in item) out.push(...slowProblems(item as { speed?: number }, at, 'The clip of this item'));
   if (item.span !== undefined && !(Array.isArray(item.span) && item.span.length === 2 && item.span.every((v) => typeof v === 'number' && Number.isFinite(v)) && item.span[0] >= 0 && item.span[0] < item.span[1] && item.span[1] <= 1))
     out.push(err(at + '.span', '"span" is [start, end] as fractions of this shot, with 0 <= start < end <= 1.', 'Write "span": [0.15, 1] to enter fifteen percent into the shot and stay to its end.'));
   for (const key of ['enter', 'exit'] as const) if (item[key] !== undefined) {

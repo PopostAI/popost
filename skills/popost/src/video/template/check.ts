@@ -13,6 +13,7 @@ import { probe } from '../media/ffmpeg';
 import { deltaE, hexToRgb, toLab } from '../measure/colour';
 import { error, warning } from '../project/check-common';
 import { isOutside } from '../project/check';
+import { SLOWED, slowProblems } from '../project/check-footage';
 import { pictureSlotNames } from '../scene/lint';
 import { charsOf, scriptOf, usageOf } from './capacity';
 import { fitProblems, itemFitProblems } from './fit';
@@ -67,6 +68,7 @@ const valueProblems = (s: Shot, at: string): Problem[] => {
   else if (typeof file === 'string' && isOutside(file)) out.push(error(at, quote(file) + ' lies outside the project directory.', 'Copy it under assets/ and write its path relative to the project, for example "assets/' + (file.split(/[\\/]/).pop() ?? file) + '".'));
   if (s.in !== undefined && !(Number.isInteger(s.in) && (s.in as number) >= 0)) out.push(error(at + '.in', '"in" is the first frame of the clip, a whole number from 0; it is ' + JSON.stringify(s.in) + '.', 'Write for example "in": 0.'));
   if (s.speed !== undefined && !(typeof s.speed === 'number' && s.speed >= 0.25 && s.speed <= 4)) out.push(error(at + '.speed', '"speed" is from 0.25 to 4; it is ' + JSON.stringify(s.speed) + '.', 'Write a number from 0.25 to 4, or remove it for normal speed.'));
+  else if ('footage' in s) out.push(...slowProblems(s as { speed?: number }, at, 'The footage of this shot'));
   if ('color' in s && (typeof s.color !== 'string' || !s.color.trim())) out.push(error(at + '.color', 'A colour is a CSS colour such as "#101014".', 'Write "color": "#101014".'));
   if ('card' in s && !(isObject(s.card) && typeof s.card.title === 'string' && s.card.title.trim())) out.push(error(at + '.card.title', 'A card needs a title.', 'Write "card": { "title": "a few words" }.'));
   if ('scene' in s && s.slots !== undefined && !(isObject(s.slots) && Object.values(s.slots).every((v) => typeof v === 'string')))
@@ -256,7 +258,8 @@ const footageLength = async (rt: Runtime, pkg: TemplatePackage, s: Shot, k: numb
   const ways = [
     'use a clip with at least ' + ((need * speed) / fps).toFixed(2) + ' s after "in"',
     ...(from > 0 && earlier >= 0 ? ['start earlier ("in": ' + earlier + ')'] : []),
-    ...(slower >= 0.25 ? ['slow it down ("speed": ' + slower + ')'] : []),
+    // Only a little: a clip slowed further plays visibly slowed down (project/check-footage.ts, SLOWED).
+    ...(slower >= SLOWED ? ['slow it down a little ("speed": ' + slower + ')'] : []),
   ];
   return [error(at + '.footage', 'Shot ' + (k + 1) + ' needs ' + need + ' frames of footage (' + (need / fps).toFixed(2) + ' s at speed 1, the shot and half the transition after it), but ' + has + ': from frame ' + from + ' at speed ' + speed + ' it runs out ' + (last - f.frames + 1) + ' source frames early and its last frame holds.',
     ways.length > 1 ? ways.slice(0, -1).join(', ') + ' or ' + ways[ways.length - 1] + '.' : ways[0] + '.')];

@@ -14,6 +14,7 @@
 import type { Measure, MotionEvent } from '../types';
 import type { TextCue, TextTrack } from '../text/types';
 import { deltaE, hexToRgb, toLab } from '../measure/colour';
+import { amountIn, videoAmount } from '../measure/amount';
 import { signatureFrames } from '../measure/signature';
 import { boxIoU, fpsOf, matchGreedy, type Pair } from './pair';
 import { paletteDistance, thumbSimilarity } from './picture';
@@ -41,11 +42,43 @@ export interface ShotDifference {
   by: ShotDimension;
   /** The moment to look at, in seconds of both videos: the least alike pair of pictures, or the middle of the shot. */
   at: { reference: number; other: number };
+  /**
+   * The motion amount of the shot in both videos (measure/amount.ts) and the other's as a multiple of the reference's
+   * (amountRatio); left out when a measurement has no curve or the shot holds no value clear of its changes.
+   */
+  motionAmount?: MotionAmounts;
   /** by transition only: the change into the shot, in seconds of both videos (a look command shows it frame by frame). */
   change?: { reference: ShotSpan; other: ShotSpan };
 }
 
-export interface ShotComparison { shots: ShotDifference[]; worst: ShotDifference[] }
+export interface MotionAmounts { reference: number; other: number; ratio: number }
+
+/**
+ * The whole videos' motion amounts, and the shots (from 1) whose picture moves much less or much more than the
+ * reference's: a ratio outside LESS_MOTION .. MORE_MOTION where one of the two clearly moves (CLEAR_MOTION).
+ */
+export interface MotionComparison extends MotionAmounts { less: number[]; more: number[] }
+
+export interface ShotComparison { shots: ShotDifference[]; worst: ShotDifference[]; motion?: MotionComparison }
+
+/** Under this amount a picture reads as still (an encoder alone moves a still picture by a few tenths of a level): both sides of a ratio are held to it, so that two still shots compare as 1. */
+export const STILL_AMOUNT = 0.5;
+/**
+ * A shot is named when it moves less than half or more than twice as much as its reference shot. Set on the shots of
+ * the first re-makes made of generated clips (66 shots of five videos): the shots that looked right for their
+ * reference lay between 0.6 and 1.95, clips generated or slowed down to move gently for a lively reference shot
+ * between 0.2 and 0.4, a still scene for a filmed shot under 0.2, and footage for a still card above 2.5. Nothing
+ * lay between 0.4 and 0.6, so the lower bound is firm; the upper one is close to the largest shot that looked right.
+ */
+export const LESS_MOTION = 0.5;
+export const MORE_MOTION = 2;
+/** A ratio counts only when one of the two shots moves at least this much: between two nearly still shots it is noise. */
+export const CLEAR_MOTION = 2;
+
+export const amountRatio = (reference: number, other: number): number => Math.round((Math.max(other, STILL_AMOUNT) / Math.max(reference, STILL_AMOUNT)) * 100) / 100;
+
+const amounts = (reference: number | undefined, other: number | undefined): MotionAmounts | undefined =>
+  reference === undefined || other === undefined ? undefined : { reference, other, ratio: amountRatio(reference, other) };
 
 const r2 = (v: number): number => Math.round(v * 100) / 100;
 const r3 = (v: number): number => Math.round(v * 1000) / 1000;
@@ -216,6 +249,7 @@ export const compareShots = (ref: Measure, other: Measure, o: CompareShotsOption
     const theirs = { from: map(span.from), to: map(span.to) };
     const ends = (k === 0 || anchored.has(k - 1)) && (k === ref.shots.length - 1 || anchored.has(k));
     const picture = pictureOf(ref, other, span, map);
+    const amount = amounts(amountIn(ref, s.start, s.end), amountIn(other, Math.round(theirs.from * fb), Math.round(theirs.to * fb)));
     const textA = o.text ? linesIn(o.text.reference, span, fa) : undefined, textB = o.text ? linesIn(o.text.other, theirs, fb) : undefined;
     const scores: Partial<Record<ShotDimension, number>> = Object.fromEntries(([
       ['picture', picture?.score], ['colour', colourOf(s, coveringShot(other, theirs))], ['motion', motionOf(ref, other, s, span, theirs, map)],
@@ -236,10 +270,13 @@ export const compareShots = (ref: Measure, other: Measure, o: CompareShotsOption
     return {
       shot: k + 1, reference: { from: r2(span.from), to: r2(span.to) }, other: { from: r2(theirs.from), to: r2(theirs.to) }, paired: ends ? 'cuts' : 'share',
       scores, score: r3(mean(values.map((x) => x.v))), by: lowest?.d ?? 'picture', at: { reference: r2(at.reference), other: r2(at.other) },
+      ...(amount ? { motionAmount: amount } : {}),
       ...(change ? { change: { reference: { from: r2(change.reference.from), to: r2(change.reference.to) }, other: { from: r2(change.other.from), to: r2(change.other.to) } } } : {}),
     };
   });
   const n = o.worst ?? Math.min(5, Math.max(3, Math.round(shots.length / 3)));
   const worst = [...shots].sort((a, b) => a.score - b.score || a.shot - b.shot).slice(0, Math.min(n, shots.length));
-  return { shots, worst };
+  const whole = amounts(videoAmount(ref), videoAmount(other));
+  const named = (far: (ratio: number) => boolean): number[] => shots.flatMap((s) => (s.motionAmount && Math.max(s.motionAmount.reference, s.motionAmount.other) >= CLEAR_MOTION && far(s.motionAmount.ratio) ? [s.shot] : []));
+  return { shots, worst, ...(whole ? { motion: { ...whole, less: named((x) => x < LESS_MOTION), more: named((x) => x > MORE_MOTION) } } : {}) };
 };

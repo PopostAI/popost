@@ -36,6 +36,16 @@ const soundProblems = (spec: FootageSpec, f: FootageFacts, id: string, at: strin
   return [];
 };
 
+/** Footage slower than this plays visibly slowed down. */
+export const SLOWED = 0.9;
+
+/** A use slowed down: its motion is slower than the footage's own, which a shot that should move as its reference does not want. */
+export const slowProblems = (spec: Pick<FootageSpec, 'speed'>, at: string, what: string): Problem[] =>
+  typeof spec.speed === 'number' && spec.speed < SLOWED
+    ? [warning(at + '.speed', what + ' plays at ' + spec.speed + ' of its speed: everything in it moves slower than it was made, and a clip slowed down to fill a shot looks slowed down.',
+      'Set "speed" to 1 or more and give the shot enough footage (a longer clip, a second clip, an earlier "in"); keep a lower speed only when the reference shot itself is in slow motion.')]
+    : [];
+
 /** in / speed / audio of one use of material id at the JSON path at. what names the use for messages. */
 export const checkPlay = (ctx: CheckContext, spec: FootageSpec, id: string, at: string, what: string, span: PlaySpan | undefined): Problem[] => {
   const m = ctx.materials.get(id);
@@ -44,8 +54,8 @@ export const checkPlay = (ctx: CheckContext, spec: FootageSpec, id: string, at: 
     return FOOTAGE_KEYS.filter((k) => spec[k] !== undefined).map((k) =>
       error(at + '.' + k, '"' + k + '" applies to a video material, but "' + id + '" is ' + (m.kind === 'image' ? 'an image' : 'a ' + m.kind) + ' material.', 'Remove "' + k + '", or use a video material.'));
   const f = factsOf(ctx, id);
-  if (!f) return [];
-  const sound = soundProblems(spec, f, id, at);
+  if (!f) return slowProblems(spec, at, what);
+  const sound = [...slowProblems(spec, at, what), ...soundProblems(spec, f, id, at)];
   if ((spec.in ?? 0) > f.frames - 1)
     return [error(at + '.in', what + ' starts at source frame ' + spec.in + ', but ' + sourceText(m.file, f) + '.', 'Set "in" to at most ' + (f.frames - 1) + ' (frames are counted from 0 at the source\'s own rate).'), ...sound];
   const out = span ? runsOutAt(ctx, spec, f, span) : undefined;

@@ -14,6 +14,7 @@ import { AROUND, fitsPoorly, joinedShots, LEAD_IN, OPENING_FILE, OPENING_PER_SEC
 import type { Phrase, Transcript } from '../speech/types';
 import { barsOf, markedText } from '../text/bar';
 import type { CaptionLook, TextCue, TextTrack } from '../text/types';
+import { shotAmount, videoAmount } from '../measure/amount';
 
 export interface Description {
   /** File name (relative to reference/) -> content. */
@@ -38,7 +39,7 @@ const where = (box: [number, number, number, number]): string => {
 const boxText = (b: [number, number, number, number]): string => 'x ' + pct(b[0]) + '-' + pct(b[0] + b[2]) + ', y ' + pct(b[1]) + '-' + pct(b[1] + b[3]);
 
 /** What the description says of the pictures: whether they were written, and which shots go with the change after them. */
-interface Pictures { written: boolean; joined: ReadonlySet<number> }
+interface Pictures { written: boolean; joined: ReadonlySet<number>; amounts: readonly (number | undefined)[]; amount: number | undefined }
 
 /** A change into a shot; sheet: its frame-by-frame picture, named when a label that does not fit sends the reader there. */
 const transitionText = (b: Boundary | undefined, sheet?: string): string => {
@@ -125,6 +126,8 @@ const shotFile = (s: ShotMeasure, into: Boundary | undefined, out: Boundary | un
   // Where a clear zoom or pan goes, as a box a capture plan or a scene camera can aim at ([x, y, width, height]).
   const aim = cameraAim(s, fps);
   if (aim) L.push('- The camera ' + aimText(aim) + ' ([x, y, width, height] of the canvas)');
+  const amount = p.amounts[k];
+  if (amount !== undefined) L.push('- Motion amount: ' + amount + (p.amount !== undefined ? ' (the whole video: ' + p.amount + ')' : '') + '. The mean change of the picture between frames 1/15 s apart, in levels of 255; 0 is a still picture.');
   if (s.background) L.push('- Ground colour: ' + s.background + (s.palette.length ? '; palette ' + s.palette.slice(0, 5).map((p) => p.hex + ' ' + pct(p.share)).join(', ') : ''));
   // A hint, not a finding: said only when the measured facts agree (kind.ts), for the pictures to confirm or correct. A
   // shot that is part of an effect is not a picture of its own kind.
@@ -233,6 +236,9 @@ const card = (m: Measure, text: TextTrack | undefined, transcript: Transcript | 
   if (m.boundaries.length) L.push('- Changes between shots: ' + histogram(m.boundaries.map((b) => b.kind)));
   const moving = m.shots.filter((s) => s.camera.kind === 'move').length;
   L.push('- Camera moves in ' + moving + ' of ' + m.shots.length + ' shots; ' + m.shots.reduce((n, s) => n + s.events.length, 0) + ' motion events in all');
+  const moved = p.amounts.flatMap((a, k) => (a === undefined ? [] : [{ a, k }])).sort((x, y) => x.a - y.a);
+  if (p.amount !== undefined && moved.length)
+    L.push('- Motion amount: ' + p.amount + ' over the video, by shot from ' + moved[0]?.a + ' (#' + two((moved[0]?.k ?? 0) + 1) + ') to ' + moved[moved.length - 1]?.a + ' (#' + two((moved[moved.length - 1]?.k ?? 0) + 1) + '): the mean change of the picture between frames 1/15 s apart, in levels of 255 (0 is a still picture); shots/NN.md has each shot\'s');
   if (inset) L.push('- ' + insetText(inset, m.shots.length));
   if (text) {
     const captions = text.cues.filter((c) => c.role === 'caption');
@@ -299,7 +305,7 @@ const timeline = (m: Measure, cues: TextCue[], beats: Beat[], step: number, p: P
  * content (inset.ts). o.pictures: the pictures of frames.ts were written beside the text, which then names them.
  */
 export const describeReference = (m: Measure, text: TextTrack | undefined, name: string, transcript?: Transcript, inset?: Inset, o: { pictures?: boolean } = {}): Description => {
-  const p: Pictures = { written: o.pictures === true, joined: joinedShots(m) };
+  const p: Pictures = { written: o.pictures === true, joined: joinedShots(m), amounts: m.shots.map((_s, k) => shotAmount(m, k)), amount: videoAmount(m) };
   const fps = m.source.fps;
   const boundaries = m.boundaries.map((b) => b.frame);
   const read = referenceBeats({ ...(text ? { text } : {}), ...(transcript ? { transcript } : {}), total: m.source.frames, boundaries });

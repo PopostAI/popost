@@ -18,6 +18,7 @@ import { cropThumbs, liveBox } from './bars';
 import { measureCamera } from './camera';
 import { measureColour } from './colour';
 import { measureEvents } from './motion';
+import { measureAmount } from './amount';
 import { measureRhythm } from './rhythm';
 import { measureSignature } from './signature';
 
@@ -109,8 +110,21 @@ export const measureVideo = async (rt: Runtime, file: string, opts: MeasureOptio
     source: { width: p.width, height: p.height, fps: round(fps, 4), frames, duration: round(frames / fps, 4), hasAudio: p.hasAudio },
     boundaries, shots,
     rhythm: measureRhythm(t.rgb, fps),
+    motion: measureAmount(t.gray, fps),
     signature: measureSignature(t.gray, t.width, t.height),
   };
+};
+
+/**
+ * The motion amount of a whole clip (amount.ts), from its every-frame thumbnails alone: what a clip that was just made
+ * is held against, the amount of the reference shot it is for. No cuts are looked for: a clip is one shot.
+ */
+export const clipAmount = async (rt: Runtime, file: string): Promise<number | undefined> => {
+  const p = await probe(rt, file);
+  const fps = p.fps > 0 ? p.fps : 30;
+  const d = await decodeFrames(rt, file, { gray: false, probe: p, colour: await readColour(rt, file, p), width: thumbWidth(p.width, p.height, THUMB_AREA) });
+  const curve = measureAmount(d.frames.map(grayOf), fps);
+  return curve.amount.length ? round(curve.amount.reduce((a, b) => a + b, 0) / curve.amount.length, 2) : undefined;
 };
 
 export { detectBoundaries };

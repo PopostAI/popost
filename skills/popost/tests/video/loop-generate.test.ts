@@ -83,7 +83,10 @@ describe('generate: making materials', () => {
     const dir = path.join(root, 'clip');
     const generator: Generator = { make: async (_kind, _request, out) => { await runFfmpegOk(rt, ['-y', '-f', 'lavfi', '-i', 'testsrc=size=90x160:rate=30:duration=2', '-pix_fmt', 'yuv420p', out]); return {}; } };
     const r = await makeMaterials(rt, { requests: [{ file: 'assets/t.mp4', prompt: 'a test pattern' }], dir, generator });
-    expect(r.materials[0]).toEqual({ file: 'assets/t.mp4', kind: 'video', made: true, seconds: 2 });
+    expect(r.materials[0]).toEqual({ file: 'assets/t.mp4', kind: 'video', made: true, seconds: 2, motionAmount: expect.any(Number) });
+    // The pattern's counter and its moving bar change a little of the picture: more than a still, far less than footage.
+    expect(r.materials[0]?.motionAmount).toBeGreaterThan(0.2);
+    expect(r.materials[0]?.motionAmount).toBeLessThan(3);
   });
 });
 

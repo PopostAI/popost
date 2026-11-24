@@ -49,7 +49,7 @@ Put the reference at `reference.mp4` (`cp` a local file, or `curl -L -o referenc
 popost video describe reference.mp4 --out ref
 ```
 
-`describe` measures shots, cuts, transitions, camera, motion, colours (captions and speech with those tools) and draws
+`describe` measures shots, cuts, transitions, camera, motion, how much the picture moves, colours (captions and speech with those tools) and draws
 the pictures to open, consecutive frames with the time of each under it: `ref/opening.jpg` (the first 3 s, 6 frames a
 second), `ref/shots/NN-frames.jpg` (each shot from just before the change into it to its end, up to 12 frames) and
 `ref/transitions/NN.jpg` (each change that is not a plain cut, frame by frame from 0.2 s before to 0.2 s after, named
@@ -85,6 +85,10 @@ do not say. The line "The camera ends on [x, y, width, height]" gives the part o
 (fractions of the canvas; a pull-out "starts on" one): aim your capture plan's zoom or your scene's camera at the same
 part of your picture. To see a moment closer, `popost video look reference.mp4 --at 3.6,3.9,4.2 --out ref/look-in`
 (seconds of the video; the pictures give them) writes those frames full size: open `ref/look-in/at-01.jpg` and the next ones.
+
+The line `Motion amount:` of a shot says how much its picture changes between frames 1/15 s apart (0 is a still
+picture; REFERENCE.md has the video's). It is a measurement, and it does not say why the picture moves (the camera,
+the people, footage played fast). The shots of the re-make are held to it: `compare` gives both amounts for every shot.
 
 Write `ref/elements.json` from what you saw, one entry per shot: its layout in generic words (a full-frame screen
 recording, a window on a designed ground, a title card, a person to camera), its layers (each with its box, a look
@@ -189,6 +193,19 @@ the `box` of each element from `--outline` (`<skill>/references/video-scenes.md`
    `popost video look project/assets/page-01.mp4 --at 3,8 --out look/page-01`, then open `look/page-01/at-01.jpg`
    and `at-02.jpg`. Use the recording only when the text the line is about is readable, the element is large near
    the middle and nothing covers it. Otherwise zoom closer or hide what covers it, and record again.
+
+A shot of filmed material that no file of the user's shows can be generated when `generate` is set (step 0): write
+the requests and run `popost video materials requests.json --out project` (`video-tools.md`, "Generated clips": the
+request, the price, what it prints). Two rules about motion:
+
+- The words about speed in a prompt follow the shot's measured `Motion amount` and its frames, not habit. Write the
+  action and its pace as the shot has them ("walks briskly", "quick hand movements"), and write "slowly" or "gently"
+  only for a shot that measures low. As a rough guide: clips generated from prompts that said "slowly" measured 2 to
+  4, handheld footage of people 5 to 10, fast or sped-up footage above 12. `materials` prints each clip's
+  `motionAmount`: hold it against the shot's before you use the clip.
+- A clip is never slowed down to fill a shot (the checks warn about a `"speed"` under 0.9): ask for a clip as long as
+  the shot needs (`footage.seconds` in `template show`), make a second clip, or start earlier. A clip that moves less
+  than its shot may be sped up with a `"speed"` above 1 when it is long enough.
 
 Then write `project/materials.json`, one entry per file, saying what it shows:
 `{ "assets/page-01.mp4": "the pricing page: zooms to the Pro plan, boxes its price, the pointer clicks Buy" }`.
@@ -382,7 +399,9 @@ popost video compare reference.mp4 final.mp4
 ```
 
 `compare` scores the whole video per dimension from 0 to 1 (1 is the same), then prints `shots` (each shot of the
-reference against the matching part of yours) and `worst`: the shots that differ most, each with `by` (the dimension
+reference against the matching part of yours), `motionAmount` (how much the picture moves in both videos; `less` and
+`more` list the shots that move less than half or more than twice as much as the reference's, and its `note` says what
+to do: fix them like a shot of `worst`) and `worst`: the shots that differ most, each with `by` (the dimension
 that makes it so: `picture`, `colour`, `motion`, `text` or `transition`), its seconds in both videos and a `look` command. With a
 text reader, run `popost video text final.mp4 --out final.text.json` first and add
 `--reference-text ref/text.json --other-text final.text.json`: the shots are then compared on their text too. A round:

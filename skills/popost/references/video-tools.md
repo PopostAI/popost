@@ -68,6 +68,26 @@ https://github.com/PopostAI/popost/tree/main/skills/popost/tools/video
   `template see` and `scene write`. An agent that writes the fill and the scenes itself does not need them. A key
   is never written to a file or printed.
 
+## Generated clips
+
+`popost video materials requests.json --out project` makes the clips and pictures of a list through the generator
+(`POPOST_GEN_CMD`), one after another; `--check` only reads the list. A file that exists is never made again, so
+running it twice costs once, and what each file shows goes to `project/materials.json`.
+
+```json
+[{ "file": "assets/walk.mp4", "prompt": "a woman walks briskly through a market, handheld, the camera follows",
+   "seconds": 5, "aspect": "9:16", "images": ["assets/product.png"], "note": "the walk through the market" }]
+```
+
+- `file`: where it goes in the project; `.mp4` is a clip, `.png`, `.jpg` or `.webp` a picture. `seconds`: whole
+  seconds of a clip. `aspect`: the canvas's ratio. `images`, `videos`, `audios`: reference files of the project, which
+  the prompt names in order as `@image1`, `@video1`, `@audio1`. `note`: what it shows, for `materials.json`
+  (default: the prompt).
+- It prints, per file, `made`, `credits`, a clip's `seconds` and its `motionAmount`: how much its picture changes
+  between frames 1/15 s apart, the measure `describe` gives every reference shot (`shots/NN.md`, `Motion amount`).
+  A clip far under its shot's amount moves too little for it: ask again with the action and the pace of the shot in
+  the prompt before building on it. `popost video compare` gives the same pair for every shot of the finished video.
+
 ## The built-in generator
 
 `popost video generate` makes clips and pictures on popost.ai, in the user's own popost.ai account. Every clip and

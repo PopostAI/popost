@@ -643,6 +643,11 @@ export interface Measure {
   shots: ShotMeasure[];
   /** How much of the picture changes between sampled frames, 0..1, one value every step frames. */
   rhythm: { step: number; change: number[] };
+  /**
+   * The motion amount (measure/amount.ts): the mean absolute change of the gray thumbnail between frames 'step' frames
+   * apart, in levels of 255 per 1/15 s, one value every 'step' frames. Absent in a measurement written before it existed.
+   */
+  motion?: { step: number; amount: number[] };
   /** Small gray thumbnails sampled every 'every' frames, row by row, one byte per pixel, base64. For comparing pictures
    *  of two videos without decoding them again. */
   signature: { every: number; width: number; height: number; count: number; data: string };
