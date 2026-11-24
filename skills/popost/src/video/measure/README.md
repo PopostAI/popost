@@ -25,6 +25,7 @@ The same file always gives the same JSON, byte for byte.
 | `colour.ts` | background (the cluster on the border) and up to 6 palette colours, Lab clusters 12 ΔE apart |
 | `rhythm.ts` `signature.ts` | change every 0.1 s; 16 x 16 gray thumbnails, at most 240 |
 | `curve.ts` | the progress curve of one region between two frames (ease, overshoot, kind) |
+| `tracks.ts` `reveal.ts` | trajectories (`Measure.tracks`): the region of the new picture during a transition whose two pictures hold still (each pixel old, new or neither; the connected region followed from the last frame back), as the object at its front (the part before the narrowest place behind the front) or as its edge, with the edge's shape (straight, circle, wedge: the model that parts the two sides best); and an element that travels while it appears or disappears (the pixels of the event's box that differ from the picture without it). Samples of centre and size in fractions of the canvas, at most 24 |
 
 ## Thresholds worth knowing
 
@@ -67,6 +68,13 @@ The same file always gives the same JSON, byte for byte.
   cover before the first shot is a shot of its own).
 - Events within 2 frames of a gradual transition's span are its eased tail, not elements (`index.ts`).
 - Camera still under 0.005 per second; texture under 1.5 levels per pixel is "unknown" (`camera.ts`).
+- Trajectories: colours differ at 30 levels a channel on average; the pictures must differ on 15% of the frame; a
+  picture holds still under 0.2% of pixels changing in 1/15 s, and the window reaches at most 1 s past the measured span
+  (not into a camera move of the next shot); at most a quarter of the pixels neither picture and a mix under 0.2 (a
+  dissolve stands near 0.5); the cover must reach 0.9 and fall back by at most 0.1; straight or circle at a fit of 0.9,
+  wedge at 0.85 and at most 170 degrees; a head is 3 px broad with a neck of at most 0.6 of it, found on half of the
+  frames whose front is inside the frame, its area steady within 3 times; an element travels 3% of the width with its
+  area within 0.6 (`tracks.ts`, `reveal.ts`).
 - Events: samples softened by 1 px, pixel change > 12, cell 15% active, steps with > 50% active cells skipped, cells
   active > 70% of the shot are a layer, at least 0.2% of the frame, confidence at least 0.55, 24 per shot
   (`motion.ts`).

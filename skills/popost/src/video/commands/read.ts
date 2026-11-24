@@ -10,11 +10,13 @@ import type { Runtime } from '../../runtime';
 import { fitsPoorly, joinedShots, transitionFile } from '../describe/frames';
 import { describeReference } from '../describe/index';
 import { INSET_FILE, insetText } from '../describe/inset';
+import { TRACKS_FILE, tracksFile } from '../describe/paths';
 import { readReference } from '../describe/parts';
 import { buildDraft } from '../draft/build';
 import { measureVideo } from '../measure/index';
 import { scoreMeasures } from '../score/index';
-import { compareShots, LESS_MOTION, momentsOf, MORE_MOTION, type MotionComparison, type ShotDifference } from '../score/shots';
+import { compareShots, LESS_MOTION, momentsOf, MORE_MOTION, shotTimeMap, type MotionComparison, type ShotDifference } from '../score/shots';
+import { compareTracks, type TrackDifference } from '../score/tracks';
 import { projectOf, reviewCompare, roundNext } from '../render/record';
 import { changeWindows } from '../score/project-windows';
 import { readFacts } from '../template/facts';
@@ -189,6 +191,7 @@ const describe = command(
     const d = describeReference(m, cues, args.string('name') ?? 'reference', spoken, inset, { pictures: true });
     for (const [name, content] of Object.entries(d.files)) await rt.fs.writeFile(rt.path.join(dir, name), content);
     await writeJsonFile(rt, rt.path.join(dir, 'measure.json'), m);
+    await writeJsonFile(rt, rt.path.join(dir, TRACKS_FILE), tracksFile(m));
     if (cues) await writeJsonFile(rt, rt.path.join(dir, 'text.json'), cues);
     if (spoken) await writeJsonFile(rt, rt.path.join(dir, 'transcript.json'), spoken);
     // The frame around the content, for template save; a frame an earlier describe found must not outlive this one.
@@ -200,8 +203,8 @@ const describe = command(
     ];
     printJson(rt, {
       ok: true, dir,
-      files: ['REFERENCE.md', 'timeline.md', 'measure.json', ...(cues ? ['text.json'] : []), ...(spoken ? ['transcript.json'] : []), ...(inset ? [INSET_FILE] : [])],
-      shotFiles: m.shots.length,
+      files: ['REFERENCE.md', 'timeline.md', 'measure.json', TRACKS_FILE, ...(cues ? ['text.json'] : []), ...(spoken ? ['transcript.json'] : []), ...(inset ? [INSET_FILE] : [])],
+      shotFiles: m.shots.length, paths: m.tracks?.length ?? 0,
       tokens: { 'REFERENCE.md': d.tokens['REFERENCE.md'], 'timeline.md': d.tokens['timeline.md'] },
       sound: m.source.hasAudio, text: cues !== undefined, speech: spoken !== undefined,
       ...(inset ? { inset: { ...inset, note: insetText(inset, m.shots.length) } } : {}),
@@ -240,6 +243,13 @@ export const motionNote = (m: MotionComparison): string => [
   ...(!m.less.length && !m.more.length ? ['No shot moves less than ' + LESS_MOTION + ' or more than ' + MORE_MOTION + ' times as much as its reference shot.'] : []),
 ].join(' ');
 
+/** What the paths say: how many of the reference's differ, and where the numbers to set a scene from are. */
+export const pathsNote = (paths: readonly TrackDifference[]): string => {
+  const off = paths.filter((p) => p.differs.length);
+  return 'Each path measured in the reference (an object or an edge of a transition, an element that travels; angles: 0 is to the right, 90 down) against the other video\'s at the same moment. '
+    + (off.length ? off.length + ' of ' + paths.length + ' differ' + (off.length === 1 ? 's' : '') + ' (differs says how, the reference\'s number first): set the scene from the reference\'s numbers (shots/NN.md, "Paths"; tracks.json has the samples) and compare again.' : 'None differs beyond the tolerances.');
+};
+
 /** The change into each reference shot as the project of the render says, when the other video is a render of one. */
 const projectWindows = async (rt: Runtime, other: string, shots: number, m: Measure): Promise<ReturnType<typeof changeWindows>> => {
   if (other.endsWith('.json')) return undefined;
@@ -250,7 +260,7 @@ const projectWindows = async (rt: Runtime, other: string, shots: number, m: Meas
 };
 
 const compare = command(
-  'two videos, or two measure.json files, scored dimension by dimension (1 is the same); then shots (each shot of the reference against the matching part of the other, with its motion amount in both), motionAmount (how much the picture moves in both videos, and the shots that move much less or more than the reference\'s) and worst (the shots that differ most, each with the dimension that makes it so, its seconds in both and a look command that shows it); for a render, round (the review rounds so far), stillWorst and next',
+  'two videos, or two measure.json files, scored dimension by dimension (1 is the same); then shots (each shot of the reference against the matching part of the other, with its motion amount in both), motionAmount (how much the picture moves in both videos, and the shots that move much less or more than the reference\'s), paths (each measured path of the reference against the other\'s: path angle, size, duration, edge shape, and what differs) and worst (the shots that differ most, each with the dimension that makes it so, its seconds in both and a look command that shows it); for a render, round (the review rounds so far), stillWorst and next',
   {
     positionals: [{ name: 'reference', help: 'a video, or the measure.json of one' }, { name: 'other', help: 'a video, or the measure.json of one' }],
     options: [
@@ -274,6 +284,7 @@ const compare = command(
     const score = scoreMeasures(a, b);
     const windows = await projectWindows(rt, other, a.shots.length, b);
     const shots = compareShots(a, b, { ...(text ? { text } : {}), ...(windows ? { windows } : {}) });
+    const paths = compareTracks(a, b, shotTimeMap(a, b));
     const typed = { reference: args.req('reference'), other: args.req('other') };
     const worst = shots.worst.map((d) => {
       const look = lookCommand(typed, b, d);
@@ -288,6 +299,7 @@ const compare = command(
     printJson(rt, {
       ok: true, reference, other, composite: score.composite, dimensions: score.dimensions, shots: shots.shots, worst,
       ...(shots.motion ? { motionAmount: { ...shots.motion, note: motionNote(shots.motion) } } : {}),
+      ...(paths.length ? { paths: { tracks: paths, note: pathsNote(paths) } } : {}),
       ...(scope.omitted ? { scope: { seconds: [0, a.source.frames / a.source.fps], omittedShots: scope.omitted, note: 'Only retained reference content is compared. Declared trailing platform shots are excluded after verifying the full reference visual fingerprint.' } } : {}),
       ...((textA === undefined) !== (textB === undefined) ? { note: 'Text is compared shot by shot only with both --reference-text and --other-text.' } : {}),
       ...(review ? { round: review.round, ...(review.stillWorst.length ? { stillWorst: review.stillWorst } : {}) } : {}),

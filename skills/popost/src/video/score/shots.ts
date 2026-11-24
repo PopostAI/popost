@@ -115,6 +115,9 @@ export const pairCutsByShare = (ref: Measure, other: Measure): Pair[] => {
   return inOrder(matchGreedy(cands));
 };
 
+/** Seconds of the reference to seconds of the other, as compareShots maps them. */
+export const shotTimeMap = (ref: Measure, other: Measure): ((t: number) => number) => timeMap(ref, other, pairCutsByShare(ref, other));
+
 /** Seconds of the reference to seconds of the other: piecewise linear through the paired cuts and the two ends. */
 const timeMap = (ref: Measure, other: Measure, pairs: Pair[]): ((t: number) => number) => {
   const fa = fpsOf(ref), fb = fpsOf(other);

@@ -4,7 +4,7 @@
  * were available) by a program; no model writes any of it. A key ending in "~" would be an inference; everything
  * written here is measured.
  */
-import type { Boundary, Measure, MotionEvent, ShotMeasure } from '../types';
+import type { Boundary, Measure, MotionEvent, ShotMeasure, Trajectory } from '../types';
 import { phrasesOf } from '../speech/index';
 import { coverTolerance, referenceBeats, uncoveredSpeech, UNSURE, type Beat } from './beats';
 import { aimText, cameraAim } from './aim';
@@ -15,6 +15,7 @@ import type { Phrase, Transcript } from '../speech/types';
 import { barsOf, markedText } from '../text/bar';
 import type { CaptionLook, TextCue, TextTrack } from '../text/types';
 import { shotAmount, videoAmount } from '../measure/amount';
+import { ANGLES, ownEffect, trackBrief, trackText, TRACKS_FILE } from './paths';
 
 export interface Description {
   /** File name (relative to reference/) -> content. */
@@ -39,7 +40,10 @@ const where = (box: [number, number, number, number]): string => {
 const boxText = (b: [number, number, number, number]): string => 'x ' + pct(b[0]) + '-' + pct(b[0] + b[2]) + ', y ' + pct(b[1]) + '-' + pct(b[1] + b[3]);
 
 /** What the description says of the pictures: whether they were written, and which shots go with the change after them. */
-interface Pictures { written: boolean; joined: ReadonlySet<number>; amounts: readonly (number | undefined)[]; amount: number | undefined }
+interface Pictures { written: boolean; joined: ReadonlySet<number>; amounts: readonly (number | undefined)[]; amount: number | undefined; tracks: readonly Trajectory[] }
+
+/** The trajectory of the change into shot k (from 0). */
+const pathInto = (p: Pictures, k: number): Trajectory | undefined => p.tracks.find((t) => t.of === 'transition' && t.shot === k + 1);
 
 /** A change into a shot; sheet: its frame-by-frame picture, named when a label that does not fit sends the reader there. */
 const transitionText = (b: Boundary | undefined, sheet?: string): string => {
@@ -92,7 +96,8 @@ const timelineLine = (s: ShotMeasure, into: Boundary | undefined, out: Boundary 
   const inShot = (c: TextCue, sh: ShotMeasure): boolean => shownIn(c, sh, step);
   const k = s.index;
   const together = p.joined.has(k - 1) ? ', one effect with #' + two(k) + ' before it' : '';
-  const parts = ['#' + two(k + 1) + ' ' + sec(s.start, fps) + '-' + sec(s.end, fps) + ' @' + s.start + '-' + s.end, 'in ' + transitionText(into, sheetInto(into, k, p)) + together, 'camera ' + cameraText(s)];
+  const path = pathInto(p, k);
+  const parts = ['#' + two(k + 1) + ' ' + sec(s.start, fps) + '-' + sec(s.end, fps) + ' @' + s.start + '-' + s.end, 'in ' + transitionText(into, sheetInto(into, k, p)) + together + (path ? '; ' + trackBrief(path, fps) : ''), 'camera ' + cameraText(s)];
   if (p.joined.has(k)) parts.push(joinedText(s, fps, sheetInto(out, k + 1, p)));
   const range = beatRange(beats, s);
   if (range) parts.push(range);
@@ -155,6 +160,12 @@ const shotFile = (s: ShotMeasure, into: Boundary | undefined, out: Boundary | un
   if (s.events.length) {
     L.push('', '## Motion events', '');
     for (const e of s.events) L.push('- ' + eventText(e, fps));
+  }
+  // The change into the shot, the change out of a shot that is part of it, and the shot's own elements that travel.
+  const paths = [pathInto(p, k), ...(p.joined.has(k) ? [pathInto(p, k + 1)] : []), ...p.tracks.filter((t) => t.of === 'event' && t.shot === k + 1)].filter((t): t is Trajectory => t !== undefined);
+  if (paths.length) {
+    L.push('', '## Paths (positions are fractions of the canvas; angles: ' + ANGLES + '; samples in ' + TRACKS_FILE + ')', '');
+    for (const t of paths) L.push('- ' + trackText(t, fps));
   }
   return L.join('\n') + '\n';
 };
@@ -220,7 +231,9 @@ const effectQuestions = (m: Measure, p: Pictures): string[] => {
   const where = (k: number): string => (p.written ? transitionFile(k + 2) : 'the change into shot ' + two(k + 2));
   const poor = m.boundaries.flatMap((b, k) => (fitsPoorly(b) ? [where(k) + ' (' + [b.kind, b.mode, b.direction].filter(Boolean).join(' ') + ')'] : []));
   const joined = [...p.joined].map((k) => 'shot ' + two(k + 1) + ' with ' + where(k));
+  const own = p.tracks.filter(ownEffect).map((t) => (p.written ? transitionFile(t.shot) : 'the change into shot ' + two(t.shot)) + ' (' + trackBrief(t, m.source.fps).replace('path: ', '') + ')');
   return [
+    ...(own.length ? ['- ' + own.length + ' change' + (own.length === 1 ? ' is' : 's are') + ' not a standard transition by ' + (own.length === 1 ? 'its' : 'their') + ' measured path: ' + own.join(', ') + '. Re-make each as a scene set from the path in its shot\'s file.'] : []),
     ...(poor.length ? ['- ' + poor.length + ' measured transition kind' + (poor.length === 1 ? ' does' : 's do') + ' not fit the frames well: ' + poor.join(', ') + '. Each may be an effect of its own: look at it first.'] : []),
     ...(joined.length ? ['- Very short shots that are most likely part of the effect after them: ' + joined.join(', ') + '.'] : []),
   ];
@@ -278,6 +291,7 @@ const card = (m: Measure, text: TextTrack | undefined, transcript: Transcript | 
   if (p.written) {
     L.push('| ' + OPENING_FILE + ', shots/NN-frames.jpg, transitions/NN.jpg | The pictures above: consecutive frames, each with its time | one picture each |');
   }
+  if (m.tracks?.length) L.push('| ' + TRACKS_FILE + ' | The sampled positions of ' + m.tracks.length + ' path' + (m.tracks.length === 1 ? '' : 's') + ' (an object or an edge of a transition, an element that travels); shots/NN.md has each in a line | - |');
   L.push('| measure.json | All measured data. Do not read it whole | - |');
   return L.join('\n') + '\n';
 };
@@ -305,7 +319,7 @@ const timeline = (m: Measure, cues: TextCue[], beats: Beat[], step: number, p: P
  * content (inset.ts). o.pictures: the pictures of frames.ts were written beside the text, which then names them.
  */
 export const describeReference = (m: Measure, text: TextTrack | undefined, name: string, transcript?: Transcript, inset?: Inset, o: { pictures?: boolean } = {}): Description => {
-  const p: Pictures = { written: o.pictures === true, joined: joinedShots(m), amounts: m.shots.map((_s, k) => shotAmount(m, k)), amount: videoAmount(m) };
+  const p: Pictures = { written: o.pictures === true, joined: joinedShots(m), amounts: m.shots.map((_s, k) => shotAmount(m, k)), amount: videoAmount(m), tracks: m.tracks ?? [] };
   const fps = m.source.fps;
   const boundaries = m.boundaries.map((b) => b.frame);
   const read = referenceBeats({ ...(text ? { text } : {}), ...(transcript ? { transcript } : {}), total: m.source.frames, boundaries });

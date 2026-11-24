@@ -641,11 +641,81 @@ export interface ShotMeasure {
   fill?: number;
 }
 
+/** One sample of a trajectory: the frame, the centre and the size ([x, y] and [width, height], fractions of the canvas). */
+export interface TrajectorySample {
+  frame: number;
+  centre: [number, number];
+  size: [number, number];
+  /** A transition's only: the share of the picture that already shows the new shot, 0..1. */
+  cover?: number;
+}
+
+/** The way from a trajectory's first sample to its last. */
+export interface TrajectoryPath {
+  from: [number, number];
+  to: [number, number];
+  /** Degrees on screen, in pixels and not in fractions: 0 is to the right, 90 down, -90 up, 180 to the left. */
+  angle: number;
+  /** The straight way from 'from' to 'to' in canvas widths, and that way per second. */
+  length: number;
+  speed: number;
+  /** The straight way as a share of the way gone: 1 is a straight line. */
+  straightness: number;
+  ease: Ease;
+}
+
+/**
+ * The edge of the region that shows the new picture during a transition. shape: the model that parts the two pictures
+ * best (irregular: none does); fit: the share of the smaller side the model puts on its right side of the edge, the
+ * median over the frames of that shape; share: the share of the transition's frames that have that shape.
+ */
+export interface RevealEdge {
+  shape: 'straight' | 'wedge' | 'circle' | 'irregular';
+  fit: number;
+  share: number;
+  /** straight: where the edge travels; wedge: where its tip points. Degrees as in TrajectoryPath. */
+  angle?: number;
+  /** wedge: its opening in degrees. */
+  spread?: number;
+  /** circle: its centre (fractions of the canvas; it may lie outside), and whether the new picture is inside it. */
+  centre?: [number, number];
+  grows?: boolean;
+}
+
+/**
+ * Where something was on screen over time (measure/tracks.ts). of 'transition': the region of the new picture during the
+ * change into shot 'shot' (from 1), followed as the object at its front when a shape leads it (what 'object', method
+ * 'reveal-front') or as the region's edge (what 'region', method 'reveal-region'). of 'event': an element of shot
+ * 'shot' that travels while it appears or disappears (what 'element', method 'changed-region': the pixels that differ
+ * from the picture without it), the event's index among the shot's events in 'event'. Valid on frames start .. end.
+ */
+export interface Trajectory {
+  id: string;
+  of: 'transition' | 'event';
+  shot: number;
+  event?: number;
+  what: 'object' | 'region' | 'element';
+  method: 'reveal-front' | 'reveal-region' | 'changed-region';
+  start: number;
+  end: number;
+  /** At most 24, in order of frame, the first and the last kept. */
+  samples: TrajectorySample[];
+  path: TrajectoryPath;
+  /** The median size over the samples. */
+  size: [number, number];
+  /** A transition's only: all of it, in frames (the first frame that shows the new picture to the first that shows only it), and its edge. */
+  reveal?: { start: number; end: number; edge: RevealEdge };
+  /** 0..1. */
+  confidence: number;
+}
+
 export interface Measure {
   version: 1;
   source: Probe;
   boundaries: Boundary[];
   shots: ShotMeasure[];
+  /** Trajectories of what moves along a way (measure/tracks.ts). Absent in a measurement written before they existed. */
+  tracks?: Trajectory[];
   /** How much of the picture changes between sampled frames, 0..1, one value every step frames. */
   rhythm: { step: number; change: number[] };
   /**

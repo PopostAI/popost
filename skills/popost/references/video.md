@@ -90,6 +90,14 @@ The line `Motion amount:` of a shot says how much its picture changes between fr
 picture; REFERENCE.md has the video's). It is a measurement, and it does not say why the picture moves (the camera,
 the people, footage played fast). The shots of the re-make are held to it: `compare` gives both amounts for every shot.
 
+A section `Paths` in a shot's file gives what was followed across the screen. For a change that an object leads, or
+whose edge is not straight: the object's start and end (its centre, fractions of the canvas), its path angle (0 is to
+the right, 90 down, -90 up), its speed, its size, the frames it takes, and the shape of the edge that opens the new
+picture (straight with where it travels, a wedge with its opening, a circle with its centre). For an element that
+travels while it enters or leaves: the same way and size. These are measured: set a scene from these numbers, not from
+an impression of the frames (`ref/tracks.json` has the sampled positions, for a path that bends). A change that moves or
+mixes its pictures (a push, a dissolve) has no path, and neither has what moves over a picture that does not hold still.
+
 Write `ref/elements.json` from what you saw, one entry per shot: its layout in generic words (a full-frame screen
 recording, a window on a designed ground, a title card, a person to camera), its layers (each with its box, a look
 precise enough to redraw it, what it shows and its role: `design` keeps its look, `content` gets the new subject,
@@ -434,7 +442,9 @@ popost video compare reference.mp4 final.mp4
 `compare` scores the whole video per dimension from 0 to 1 (1 is the same), then prints `shots` (each shot of the
 reference against the matching part of yours), `motionAmount` (how much the picture moves in both videos; `less` and
 `more` list the shots that move less than half or more than twice as much as the reference's, and its `note` says what
-to do: fix them like a shot of `worst`) and `worst`: the shots that differ most, each with `by` (the dimension
+to do: fix them like a shot of `worst`), `paths` (each path measured in the reference against yours at the same moment:
+`differs` names what is not alike, the reference's number first: the path angle, the size, the duration, the shape of
+the edge; set the scene from the reference's numbers) and `worst`: the shots that differ most, each with `by` (the dimension
 that makes it so: `picture`, `colour`, `motion`, `text` or `transition`), its seconds in both videos and a `look` command. With a
 text reader, run `popost video text final.mp4 --out final.text.json` first and add
 `--reference-text ref/text.json --other-text final.text.json`: the shots are then compared on their text too. A round:

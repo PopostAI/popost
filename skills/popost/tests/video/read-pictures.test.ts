@@ -174,7 +174,12 @@ describe.skipIf(!ok)('describe draws the pictures of a reference', () => {
     expect(m.boundaries).toHaveLength(1);
     expect(m.boundaries[0]?.bend).toBeGreaterThanOrEqual(0.1);
     const line = (await read('curved/timeline.md')).split('\n').find((l) => l.startsWith('#02')) ?? '';
-    expect(line).toMatch(/\| in (wipe|slide)[^|]* \(does not fit well: look at transitions\/02\.jpg; it may be an effect of its own\) \|/);
+    expect(line).toMatch(/\| in (wipe|slide)[^|]* \(does not fit well: look at transitions\/02\.jpg; it may be an effect of its own\)(; path: [^|]*)? \|/);
+    // Its path is measured too: the new picture opens to the right behind an edge that is not straight.
+    expect(m.tracks?.[0]).toMatchObject({ id: 'transition-02', of: 'transition', shot: 2 });
+    expect(m.tracks?.[0]?.reveal?.edge.shape).not.toBe('straight');
+    expect(Math.abs(m.tracks?.[0]?.path.angle ?? 99)).toBeLessThan(10);
+    expect(JSON.parse(await read('curved/tracks.json'))).toMatchObject({ version: 1, tracks: [{ id: 'transition-02' }] });
     expect(await read('curved/shots/02.md')).toContain('(does not fit well: look at transitions/02.jpg; it may be an effect of its own)');
     expect(await read('curved/REFERENCE.md')).toContain('not fit the frames well: transitions/02.jpg');
     // The sheet holds the frames the plan says, each with its time, and the disc moves right across them.

@@ -19,6 +19,7 @@ import { measureCamera } from './camera';
 import { measureColour } from './colour';
 import { measureEvents } from './motion';
 import { measureAmount } from './amount';
+import { measureTracks } from './tracks';
 import { measureRhythm } from './rhythm';
 import { measureSignature } from './signature';
 
@@ -109,6 +110,7 @@ export const measureVideo = async (rt: Runtime, file: string, opts: MeasureOptio
     version: 1,
     source: { width: p.width, height: p.height, fps: round(fps, 4), frames, duration: round(frames / fps, 4), hasAudio: p.hasAudio },
     boundaries, shots,
+    tracks: measureTracks(t, boundaries, shots),
     rhythm: measureRhythm(t.rgb, fps),
     motion: measureAmount(t.gray, fps),
     signature: measureSignature(t.gray, t.width, t.height),
