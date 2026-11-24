@@ -178,7 +178,7 @@ const plan = command(
 const materials = command(
   'makes the clips and pictures a list asks for, from prompts; a file that exists is not made again, and what each shows goes to materials.json for plan. Needs POPOST_GEN_CMD; --check only reads the list',
   {
-    positionals: [{ name: 'requests', help: 'a JSON list: [{ "file": "assets/desk.mp4", "prompt": "...", "seconds": 5, "aspect": "16:9", "images": [...], "note": "..." }]' }],
+    positionals: [{ name: 'requests', help: 'a JSON list: [{ "file": "assets/desk.mp4", "prompt": "...", "seconds": 5, "aspect": "16:9", "images": [...], "videos": [...], "audios": [...], "note": "..." }]' }],
     options: [
       { flag: '--out', required: true, metavar: 'DIR', help: 'the project directory the files go into' },
       { flag: '--check', kind: 'flag', help: 'only say what is wrong with the list; nothing is made' },
@@ -194,7 +194,7 @@ const materials = command(
       return problems.length ? 2 : 0;
     }
     const generator = commandGenerator(rt);
-    if (!generator) throw new VideoCommandError('No generator is configured: set POPOST_GEN_CMD to a tool of yours (skills/popost/tools/video/ has examples), or use --check.');
+    if (!generator) throw new VideoCommandError('No generator is configured: set POPOST_GEN_CMD to a tool of yours (skills/popost/tools/video/ has examples), or to "popost video generate" (popost.ai, paid in credits), or use --check.');
     const r = await makeMaterials(rt, {
       requests, dir, generator, anchor: args.flag('anchor'),
       // A clip takes minutes: a person watching sees which one, on stderr; stdout keeps the one JSON document.
@@ -203,7 +203,7 @@ const materials = command(
     printJson(rt, {
       ok: r.problems.length === 0, dir, notes: rt.path.join(dir, NOTES),
       made: r.materials.filter((m) => m.made).length, kept: r.materials.filter((m) => !m.made && !m.error).length, failed: r.materials.filter((m) => m.error).length,
-      credits: r.credits, materials: r.materials, problems: r.problems,
+      credits: r.credits, ...(r.toConfirm ? { toConfirm: r.toConfirm } : {}), materials: r.materials, problems: r.problems,
     });
     return r.problems.length ? 2 : 0;
   },

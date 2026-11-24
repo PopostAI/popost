@@ -3,7 +3,7 @@ import { chmod, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { anchorIndex, checkRequests, commandGenerator, makeMaterials, type Generator, type GenerateRequest } from '../../src/video/generate/index';
+import { anchorIndex, checkRequests, commandGenerator, ConfirmNeeded, makeMaterials, type Generator, type GenerateRequest } from '../../src/video/generate/index';
 import { createDiskRuntime } from '../../src/testing/disk';
 import { hasFfmpeg, runFfmpegOk } from '../../src/video/media/ffmpeg';
 
@@ -37,11 +37,13 @@ describe('generate: the requests', () => {
       { file: '../out.mp4', prompt: 'x' },
       { file: 'assets/a.mp4', prompt: 'again' },
       { file: 'assets/b.gif', prompt: 'x' },
-      { file: 'assets/c.png', prompt: ' ', seconds: 2.5, aspect: '4:3', images: ['missing.png'] },
+      { file: 'assets/c.png', prompt: ' ', seconds: 2.5, aspect: 'wide', images: ['missing.png'] },
+      { file: 'assets/d.mp4', prompt: 'x', aspect: 'adaptive', videos: ['missing.mp4'], audios: ['missing.mp3'] },
     ], dir);
-    expect(problems.map((p) => p.at)).toEqual(['[1].file', '[2].file', '[3].file', '[4].prompt', '[4].seconds', '[4].aspect', '[4].images[0]']);
+    expect(problems.map((p) => p.at)).toEqual(['[1].file', '[2].file', '[3].file', '[4].prompt', '[4].seconds', '[4].aspect', '[4].images[0]', '[5].videos[0]', '[5].audios[0]']);
+    expect(problems.at(-1)?.message).toContain('The reference sound "missing.mp3" does not exist');
     expect(problems[0]?.message).toContain('outside the project directory');
-    expect(await checkRequests(rt, [{ file: 'assets/a.mp4', prompt: 'a desk', seconds: 5 }], dir)).toEqual([]);
+    expect(await checkRequests(rt, [{ file: 'assets/a.mp4', prompt: 'a desk', seconds: 5, aspect: '4:3' }], dir)).toEqual([]);
   });
 });
 
@@ -140,5 +142,21 @@ describe('generate: the command behind POPOST_GEN_CMD', () => {
     expect(await generator?.make('video', { prompt: 'a desk', seconds: 5 }, out)).toEqual({ credits: 45 });
     expect(await readFile(out, 'utf8')).toBe('video|a desk|5');
     await expect(generator?.make('image', { prompt: 'fail' }, path.join(root, 'no.png'))).rejects.toThrow('Paid generation is off');
+  });
+
+  it('reads a price to agree to from exit code 3, and materials lists it with the total and makes nothing', async () => {
+    const script = path.join(root, 'asking-gen.mjs');
+    await writeFile(script, "console.log(JSON.stringify({ confirm: { credits: 25, model: 'm', seconds: 5 } }));\nconsole.error('This costs 25 credits and nothing was charged.');\nprocess.exit(3);\n");
+    const generator = commandGenerator({ ...rt, env: { ...rt.env, POPOST_GEN_CMD: process.execPath + ' ' + script } });
+    if (!generator) throw new Error('no generator');
+    const asked = await generator.make('video', { prompt: 'a desk', seconds: 5 }, path.join(root, 'asked.mp4')).catch((e: unknown) => e);
+    expect(asked).toBeInstanceOf(ConfirmNeeded);
+    expect(asked).toMatchObject({ confirm: { credits: 25, model: 'm', seconds: 5 }, message: 'This costs 25 credits and nothing was charged.' });
+    const dir = path.join(root, 'asking');
+    const r = await makeMaterials(rt, { requests: [{ file: 'assets/a.mp4', prompt: 'a desk', seconds: 5 }, { file: 'assets/b.mp4', prompt: 'a chair', seconds: 5 }], dir, generator });
+    expect(r.materials.map((m) => [m.made, m.confirm?.credits])).toEqual([[false, 25], [false, 25]]);
+    expect([r.credits, r.toConfirm]).toEqual([0, { credits: 50, materials: 2 }]);
+    expect(r.problems[0]?.message).toContain('Nothing was charged');
+    expect(existsSync(path.join(dir, 'assets', 'a.mp4'))).toBe(false);
   });
 });

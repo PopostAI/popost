@@ -3,9 +3,12 @@
  * does not live in this package: a Generator is the interface, and POPOST_GEN_CMD names a command that implements it,
  * called as
  *   <command> video|image <request.json> <out-file>
- * with request.json = { "prompt", "seconds"?, "aspect"?, "images"? }; on success it prints one JSON line,
- * { "credits"?: number }. Set POPOST_GEN_CMD to a tool of yours; skills/popost/tools/video/ has examples. Which model runs, at what resolution and under
- * what spending limit is the command's business (and its environment's), never the request's.
+ * with request.json = { "prompt", "seconds"?, "aspect"?, "images"?, "videos"?, "audios"? } (references as paths); on
+ * success it prints one JSON line, { "credits"?: number }. A command that wants the user to agree to a price first
+ * makes nothing, charges nothing, prints { "confirm": { "credits": n, ... } } and exits with 3 (ConfirmNeeded).
+ * `popost video generate` is such a command on popost.ai (cloud.ts); skills/popost/tools/video/ has examples of tools
+ * of your own. Which model runs, at what resolution and under what spending limit is the command's business (and its
+ * environment's), never the request's.
  *
  * makeMaterials turns a list of requests into files of a project and writes what each one shows into materials.json,
  * where the plan step reads it. A file that exists is never made again: asking twice costs once.
@@ -23,10 +26,38 @@ export interface GenerateRequest {
   prompt: string;
   /** Video: whole seconds. */
   seconds?: number;
-  aspect?: '16:9' | '9:16' | '1:1';
+  /** "16:9", "9:16", "1:1", another W:H, or "adaptive"; which ones a model takes is the generator's business. */
+  aspect?: string;
   /** Reference pictures, as paths the command can read. */
   images?: string[];
+  /** Reference clips and sounds, as paths, for a clip; a generator that cannot use them refuses the request. */
+  videos?: string[];
+  audios?: string[];
 }
+
+/** A price the user has not agreed to: what a generator answers instead of charging, with exit code 3. */
+export interface PriceToConfirm {
+  credits: number;
+  model?: string;
+  resolution?: string;
+  seconds?: number;
+  aspectRatio?: string;
+  balance?: number | null;
+}
+
+/** Nothing was made or charged: the user has to agree to the price first. */
+export class ConfirmNeeded extends Error {
+  override name = 'ConfirmNeeded';
+  constructor(
+    readonly confirm: PriceToConfirm,
+    message: string,
+  ) {
+    super(message);
+  }
+}
+
+/** The exit code of a generator that asks for the user's agreement to a price. */
+export const CONFIRM_EXIT = 3;
 
 export interface Generator {
   /** Makes one file at out. Resolves with what it cost, when the command says. */
@@ -41,6 +72,18 @@ const run = async (rt: Runtime, words: string[], args: string[]): Promise<{ code
   return { code: r.code, stdout: new TextDecoder().decode(r.stdout).slice(-8000), stderr: r.stderr.slice(-4000) };
 };
 
+/** The last line of a generator's standard output as the object it should be; {} when it is not one. */
+const lastObject = (stdout: string): Record<string, unknown> => {
+  try {
+    const value: unknown = JSON.parse(stdout.trim().split('\n').pop() ?? '');
+    return value !== null && typeof value === 'object' && !Array.isArray(value) ? (value as Record<string, unknown>) : {};
+  } catch {
+    return {};
+  }
+};
+
+const isPrice = (value: unknown): value is PriceToConfirm => value !== null && typeof value === 'object' && typeof (value as { credits?: unknown }).credits === 'number';
+
 /** The generator behind POPOST_GEN_CMD, or undefined when it is not set. It runs its command through `rt`. */
 export const commandGenerator = (rt: Runtime): Generator | undefined => {
   const words = toolCommand(rt, 'POPOST_GEN_CMD');
@@ -51,9 +94,10 @@ export const commandGenerator = (rt: Runtime): Generator | undefined => {
         const file = rt.path.join(dir, 'request.json');
         await rt.fs.writeFile(file, JSON.stringify(request));
         const r = await run(rt, words, [kind, file, out]);
-        if (r.code !== 0) throw new Error(r.stderr.trim().split('\n').slice(-2).join(' | ') || 'The generator exited with ' + r.code + '.');
-        const last = r.stdout.trim().split('\n').pop() ?? '';
-        const said = await Promise.resolve(last).then((t) => JSON.parse(t) as { credits?: unknown }, () => ({} as { credits?: unknown }));
+        const said = lastObject(r.stdout);
+        const why = r.stderr.trim().split('\n').slice(-2).join(' | ');
+        if (r.code === CONFIRM_EXIT && isPrice(said.confirm)) throw new ConfirmNeeded(said.confirm, why || 'It costs ' + said.confirm.credits + ' credits and needs the user\'s agreement first; nothing was charged.');
+        if (r.code !== 0) throw new Error(why || 'The generator exited with ' + r.code + '.');
         return typeof said.credits === 'number' ? { credits: said.credits } : {};
       }),
   };
@@ -67,12 +111,17 @@ export interface MaterialRequest extends GenerateRequest {
   note?: string;
 }
 
-export interface MadeMaterial { file: string; kind: GenerateKind; made: boolean; credits?: number; seconds?: number; error?: string; anchor?: true }
-export interface MaterialsReport { materials: MadeMaterial[]; credits: number; problems: Problem[] }
+export interface MadeMaterial { file: string; kind: GenerateKind; made: boolean; credits?: number; seconds?: number; error?: string; anchor?: true; confirm?: PriceToConfirm }
+/** toConfirm: the prices the user has to agree to before the files that wait for them are made. */
+export interface MaterialsReport { materials: MadeMaterial[]; credits: number; problems: Problem[]; toConfirm?: { credits: number; materials: number } }
 
 const VIDEOS = ['.mp4', '.mov', '.webm'];
 const PICTURES = ['.png', '.jpg', '.jpeg', '.webp'];
 export const NOTES = 'materials.json';
+/** The reference lists of a request, and what one entry of each is called. */
+const REFERENCES = { images: 'picture', videos: 'clip', audios: 'sound' } as const;
+const LISTS = Object.keys(REFERENCES) as (keyof typeof REFERENCES)[];
+const ASPECT = /^(\d{1,2}:\d{1,2}|adaptive)$/;
 
 /** The extension of a path as node:path's extname gives it ("" for none, and for a name that starts with its only dot). */
 const extOf = (file: string): string => {
@@ -90,10 +139,14 @@ const kindOf = (file: string): GenerateKind | undefined => {
 export const checkRequests = async (rt: Runtime, requests: unknown, dir: string): Promise<Problem[]> => {
   if (!Array.isArray(requests)) return [error('(root)', 'The requests are a JSON list: one entry per material to make.', 'Write [{ "file": "assets/desk.mp4", "prompt": "...", "seconds": 5 }].')];
   const seen = new Set<string>();
-  // The reference pictures that exist, looked up first: the checks below stay one pass over the list.
-  const pictures = requests.flatMap((r: Partial<MaterialRequest> | null) => (r && typeof r === 'object' && Array.isArray(r.images) ? r.images.filter((p): p is string => typeof p === 'string') : []));
+  // The reference files that exist, looked up first: the checks below stay one pass over the list.
+  const listed = (r: Partial<MaterialRequest>, k: keyof typeof REFERENCES): unknown[] => {
+    const list = r[k];
+    return Array.isArray(list) ? list : [];
+  };
+  const named = requests.flatMap((r: Partial<MaterialRequest> | null) => (r && typeof r === 'object' ? LISTS.flatMap((k) => listed(r, k).filter((p): p is string => typeof p === 'string')) : []));
   const found = new Set<string>();
-  for (const p of pictures) if ((await rt.fs.stat(rt.path.resolve(dir, p))) !== null) found.add(p);
+  for (const p of named) if ((await rt.fs.stat(rt.path.resolve(dir, p))) !== null) found.add(p);
   return requests.flatMap((r: Partial<MaterialRequest> | null, i): Problem[] => {
     const at = '[' + i + ']';
     if (!r || typeof r !== 'object') return [error(at, 'A request is an object with "file" and "prompt".', 'Write { "file": "assets/desk.mp4", "prompt": "..." }.')];
@@ -109,9 +162,11 @@ export const checkRequests = async (rt: Runtime, requests: unknown, dir: string)
     }
     if (typeof r.prompt !== 'string' || !r.prompt.trim()) out.push(error(at + '.prompt', 'A request says what the material should show.', 'Write "prompt": "a tidy desk by a window, slow push-in".'));
     if (r.seconds !== undefined && !(Number.isInteger(r.seconds) && r.seconds >= 1 && r.seconds <= 30)) out.push(error(at + '.seconds', '"seconds" is a whole number from 1 to 30; it is ' + JSON.stringify(r.seconds) + '.', 'Write "seconds": 5.'));
-    if (r.aspect !== undefined && !['16:9', '9:16', '1:1'].includes(r.aspect)) out.push(error(at + '.aspect', '"aspect" is "16:9", "9:16" or "1:1"; it is ' + JSON.stringify(r.aspect) + '.', 'Write "aspect": "16:9".', ['16:9', '9:16', '1:1']));
-    for (const [j, p] of (Array.isArray(r.images) ? r.images : []).entries()) {
-      if (typeof p !== 'string' || !found.has(p)) out.push(error(at + '.images[' + j + ']', 'The reference picture ' + JSON.stringify(p) + ' does not exist in ' + dir + '.', 'Put the file there, or remove it from "images".'));
+    if (r.aspect !== undefined && !(typeof r.aspect === 'string' && ASPECT.test(r.aspect))) out.push(error(at + '.aspect', '"aspect" is a ratio such as "16:9", "9:16" or "1:1", or "adaptive"; it is ' + JSON.stringify(r.aspect) + '.', 'Write "aspect": "16:9".', ['16:9', '9:16', '1:1', 'adaptive']));
+    for (const k of LISTS) {
+      for (const [j, p] of listed(r, k).entries()) {
+        if (typeof p !== 'string' || !found.has(p)) out.push(error(at + '.' + k + '[' + j + ']', 'The reference ' + REFERENCES[k] + ' ' + JSON.stringify(p) + ' does not exist in ' + dir + '.', 'Put the file there, or remove it from "' + k + '".'));
+      }
     }
     return out;
   });
@@ -171,14 +226,15 @@ export const makeMaterials = async (rt: Runtime, o: { requests: MaterialRequest[
       await rt.fs.mkdir(rt.path.dirname(target));
       const partial = target + '.partial' + rt.path.extname(target);
       try {
-        const request: GenerateRequest = { prompt: r.prompt, ...(r.seconds ? { seconds: r.seconds } : {}), ...(r.aspect ? { aspect: r.aspect } : {}), ...(r.images?.length ? { images: r.images.map((p) => rt.path.resolve(o.dir, p)) } : {}) };
+        const references = Object.fromEntries(LISTS.flatMap((k) => (r[k]?.length ? [[k, (r[k] ?? []).map((p) => rt.path.resolve(o.dir, p))]] : [])));
+        const request: GenerateRequest = { prompt: r.prompt, ...(r.seconds ? { seconds: r.seconds } : {}), ...(r.aspect ? { aspect: r.aspect } : {}), ...references };
         const made = await o.generator.make(kind, request, partial);
         if (!(await exists(partial))) throw new Error('The generator finished without writing the file.');
         await rt.fs.rename(partial, target);
         entry = { ...entry, made: true, ...(made.credits !== undefined ? { credits: made.credits } : {}) };
       } catch (e) {
         await rt.fs.rm(partial);
-        materials.push({ ...entry, error: e instanceof Error ? e.message : String(e) });
+        materials.push({ ...entry, error: e instanceof Error ? e.message : String(e), ...(e instanceof ConfirmNeeded ? { confirm: e.confirm } : {}) });
         continue;
       }
     }
@@ -197,6 +253,12 @@ export const makeMaterials = async (rt: Runtime, o: { requests: MaterialRequest[
     await rt.fs.writeFile(rt.path.join(o.dir, NOTES), JSON.stringify(notes, null, 1) + '\n');
     materials.push(entry);
   }
-  const failed = materials.filter((m) => m.error).map((m) => error(m.file, 'It could not be made: ' + m.error, 'Read the message; a request that was refused cost nothing. Run the command again to make only what is missing.'));
-  return { materials, credits: materials.reduce((n, m) => n + (m.credits ?? 0), 0), problems: failed };
+  const failed = materials.filter((m) => m.error).map((m) =>
+    m.confirm
+      ? error(m.file, 'It was not made: it costs ' + m.confirm.credits + ' credits, and the user has not agreed to that price. Nothing was charged.', 'Show the user the price (toConfirm has the total). Only after they agree, run again with POPOST_GEN_MAX_CREDITS set to the highest price they approved for one file, or with --yes added to POPOST_GEN_CMD.')
+      : error(m.file, 'It could not be made: ' + m.error, 'Read the message; a request that was refused cost nothing. Run the command again to make only what is missing.'),
+  );
+  const asked = materials.filter((m) => m.confirm);
+  const toConfirm = asked.length ? { toConfirm: { credits: asked.reduce((n, m) => n + (m.confirm?.credits ?? 0), 0), materials: asked.length } } : {};
+  return { materials, credits: materials.reduce((n, m) => n + (m.credits ?? 0), 0), problems: failed, ...toConfirm };
 };
