@@ -42,7 +42,14 @@ can be wrong, and what you see wins. Write nothing you cannot see.
 
 ### The file
 
-`{"shots": [...]}`, one object per shot, with these keys:
+`{"shots": [...], "unrecovered": [...]}`. `unrecovered` lists what you could not see or tell (too small, too fast,
+covered, between two frames) and what of the reading's own list (REFERENCE.md, "Not recovered") you could not settle
+from the pictures: `{"what": "...", "where": {"shot": 3}, "why": "...", "assumed": "what the re-make does instead"}`;
+`where` is `{"shot": N}`, `{"transition": N}` (the change into shot N) or `{"time": [from, to]}` in seconds. Leave it
+out when there is nothing. A field labelled `unknown` needs an entry for its shot. The list is kept with the template
+and the project, and the delivery notes repeat it.
+
+`shots`: one object per shot, with these keys:
 
 | Key | Type | What |
 |---|---|---|

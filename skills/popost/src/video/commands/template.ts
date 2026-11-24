@@ -29,7 +29,7 @@ import type { TextTrack } from '../text/types';
 import type { Measure, Problem, Project } from '../types';
 import { workDir } from '../work';
 import { configuredModel } from './make';
-import { readingIn } from './elements';
+import { readingIn, unrecoveredIn } from './elements';
 import { ELEMENTS_FILE } from '../elements/types';
 import { FIT_TEMPO, fitTempoOf, looping } from './loop-shared';
 import { command, userPath, VideoCommandError, type Commands } from './shared';
@@ -107,6 +107,7 @@ const save = command(
     const r = await saveTemplate(rt, {
       measure: split.measure, ...(text ? { text } : {}), ...(transcript ? { transcript } : {}), ...(inset ? { inset } : {}), name: args.req('name'), ...(label ? { label } : {}), outDir: out,
       ...(reading ? { reading: { elements: reading.elements, dir: ref, measure: read } } : {}),
+      unrecovered: await unrecoveredIn(rt, ref, reading?.elements ?? { shots: [] }),
     });
     const pkg = await loadTemplate(rt, out);
     const cap = pkg.slots.captions?.capacity;
@@ -163,6 +164,8 @@ const show = command(
       card: await rt.fs.readText(rt.path.join(dir, FILES.card)), slots,
       ...(notes ? { shotNotes: slots.shots.map((s, k) => ({ at: s.at, note: notes[k] ?? '' })) } : {}),
       ...(read.length ? { shotElements: read } : {}), ...(t.dropped?.length ? { dropped: t.dropped } : {}),
+      // What was not recovered of the reference: the delivery notes say of each what was assumed instead.
+      ...(t.unrecovered?.length ? { notRecovered: t.unrecovered } : {}),
       next: 'write fill.json, then: popost video template check ' + dir + ' --fill fill.json (template fill looks at its files once they are in the project)',
     });
   }),

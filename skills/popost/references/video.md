@@ -58,7 +58,8 @@ transcriber `describe` can take a few minutes; every 15 s it writes a line on st
 (`describe, 45 s: measure: done in 12 s; text: the reader is reading 150 frames (40 s); ...`). Give it up to five
 minutes if your shell limits how long a command runs.
 
-Read `ref/REFERENCE.md` (length, size, shots, what could not be read) and `ref/timeline.md` (the beats: the lines
+Read `ref/REFERENCE.md` (length, size, shots, and under "Not recovered" what the reading could not tell: each entry
+says what, where, why and how to settle it) and `ref/timeline.md` (the beats: the lines
 said or shown, numbered from 0; one line per shot). A line `Frame:` in REFERENCE.md means the shots show their content
 inside one constant frame (a ground, a border): it gives the box of the content and what to build; `Black bars:` means
 a picture of other proportions with bars around it; when it says the captions or a title sit on the black, every shot
@@ -103,7 +104,9 @@ recording, a window on a designed ground, a title card, a person to camera), its
 precise enough to redraw it, what it shows and its role: `design` keeps its look, `content` gets the new subject,
 `platform` and `creator` are never re-made), the change into it (`custom`, described frame by frame, when it is no
 standard transition), the captions' style and the words drawn differently, and every mark with what it marks and why.
-Label what you write with `status`: `measured` for a value copied from the reading (its lines end in a tag such as
+What stays open after you looked (an entry of "Not recovered" you could not settle, anything you could not see: too
+small, too fast, covered) goes into `"unrecovered"` beside `"shots"`: `{"what", "where": {"shot": N}, "why", "assumed":
+what the re-make does instead}`. Label what you write with `status`: `measured` for a value copied from the reading (its lines end in a tag such as
 `[measured 0.76]`, `[inferred: ...]`, `[unknown: ...]`), `inferred` for what you saw in the frames, `unknown` for what
 you could not tell.
 The schema, the roles and an example: `<skill>/references/video-elements.md`; `popost video elements questions ref`
@@ -447,7 +450,8 @@ reference against the matching part of yours), `motionAmount` (how much the pict
 `more` list the shots that move less than half or more than twice as much as the reference's, and its `note` says what
 to do: fix them like a shot of `worst`), `paths` (each path measured in the reference against yours at the same moment:
 `differs` names what is not alike, the reference's number first: the path angle, the size, the duration, the shape of
-the edge; set the scene from the reference's numbers) and `worst`: the shots that differ most, each with `by` (the dimension
+the edge; set the scene from the reference's numbers), `notRecovered` (what the reading of the reference did not
+recover and what you added: it goes into the delivery notes) and `worst`: the shots that differ most, each with `by` (the dimension
 that makes it so: `picture`, `colour`, `motion`, `text` or `transition`), its seconds in both videos and a `look` command. With a
 text reader, run `popost video text final.mp4 --out final.text.json` first and add
 `--reference-text ref/text.json --other-text final.text.json`: the shots are then compared on their text too. A round:
@@ -497,6 +501,8 @@ that produced the delivered video. The URL is a local editor on this computer wh
 
 When a template deliberately drops trailing platform shots, `compare` reports the retained reference interval and `omittedShots` after checking its sampled visual fingerprint. An unrelated reference or an older project without that provenance is compared in full; do not read the omitted endcard as a failure of the new closing.
 
-Deliver `final.mp4`, its editable Studio URL, the `project/` directory and the delivery notes: what is as in the
-reference, what differs and why (no voice, a missing tool, a source that did not have something), and each shot of
-the last `worst` that was not fixed, with its reason. Say the Studio is open only after it has actually loaded.
+Deliver `final.mp4`, its editable Studio URL, the `project/` directory and the delivery notes (`NOTES.md`): what is as in
+the reference, what differs and why (no voice, a missing tool, a source that did not have something), each shot of
+the last `worst` that was not fixed, with its reason, and under "Not recovered" every entry of `compare`'s
+`notRecovered` (the reading's list and what you added to `elements.json`): what was not recovered and what the video
+does instead. Never leave an entry out because the result looks fine: the user decides whether the assumption holds. Say the Studio is open only after it has actually loaded.

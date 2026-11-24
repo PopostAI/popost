@@ -56,7 +56,10 @@ describe('layered description', () => {
   it('says in the card what is uncertain and what a watermark is', () => {
     const card = d.files['REFERENCE.md'] ?? '';
     expect(card).toContain('Length 10.00 s (300 frames), 1080x1920 portrait, with sound');
-    expect(card).toContain('1 changes between shots were measured with low confidence, and the camera of 1 shots could not be read');
+    // One list of what was not recovered: the change measured with low confidence and the camera that could not be read.
+    expect(card).toContain('## Not recovered');
+    expect(card).toMatch(/\n- the change into shot 03 \([\d.]+-[\d.]+ s\): how shot 03 begins: the kind of the change/);
+    expect(card).toMatch(/\n- shot 03 \([\d.]+-[\d.]+ s\): the camera of shot 03\. Why: /);
     expect(card).toContain('Watermark text (not to be re-created): "brand"');
     expect(card).toContain('Captions: 1 lines');
   });

@@ -7,7 +7,7 @@
  */
 import type { Runtime } from '../../runtime';
 import { looksText } from '../describe/kind';
-import type { Box, Canvas, Measure, Project } from '../types';
+import type { Box, Canvas, Measure, Project, Unrecovered } from '../types';
 import type { TextTrack } from '../text/types';
 import { extrasOf, type ReadingExtras } from '../elements/main';
 import type { DroppedShot, SourceKind, TemplatePackage, TemplateShot } from './types';
@@ -53,6 +53,8 @@ export interface ReferenceFacts {
   dropped?: string[];
   /** Whole trailing platform shots intentionally omitted by the template, on the original reference clock. */
   omittedShots?: DroppedShot[];
+  /** What was not recovered of the reference (the template's list), for compare and the delivery notes. */
+  unrecovered?: Unrecovered[];
 }
 
 const tidy = (text: string): string => text.replace(/\s+/g, ' ').trim();
@@ -101,6 +103,7 @@ export const factsOf = (rt: Runtime, pkg: TemplatePackage, project: Project, pro
     })),
     ...(pkg.dropped?.length ? { dropped: pkg.dropped } : {}),
     ...(t.dropped?.length ? { omittedShots: t.dropped } : {}),
+    ...(t.unrecovered?.length ? { unrecovered: t.unrecovered } : {}),
   };
 };
 

@@ -12,7 +12,7 @@ import type { TextTrack } from '../text/types';
 import type { Boundary, Box, Measure, Problem } from '../types';
 import type { ReadElements } from './read';
 import { isDropped, ROLES, type ShotReading } from './types';
-import { countLabels, statusProblems, type LabelCounts } from './status';
+import { countLabels, statusProblems, unknownProblems, type LabelCounts } from './status';
 
 /** A shot's time may differ from the measured one by this much (seconds) before it is worth a word. */
 const TIME_SLACK = 0.25;
@@ -165,7 +165,7 @@ const summaryOf = ({ m, byNumber }: Context): string[] =>
 export const checkElements = (r: ReadElements, m: Measure, text?: TextTrack): { problems: Problem[]; summary: string[]; labels: LabelCounts } => {
   const ctx: Context = { r, m, text, at: (shot) => 'shots[' + (r.where[shot] ?? 0) + ']', byNumber: (shot) => r.elements.shots.find((s) => s.shot === shot) };
   return {
-    problems: [...r.problems, ...coverageProblems(ctx), ...transitionProblems(ctx), ...watermarkProblems(ctx), ...captionProblems(ctx), ...markProblems(ctx), ...endProblems(ctx), ...statusProblems(r, m, ctx.at)],
+    problems: [...r.problems, ...coverageProblems(ctx), ...transitionProblems(ctx), ...watermarkProblems(ctx), ...captionProblems(ctx), ...markProblems(ctx), ...endProblems(ctx), ...statusProblems(r, m, ctx.at), ...unknownProblems(r, ctx.at)],
     summary: summaryOf(ctx), labels: countLabels(r),
   };
 };

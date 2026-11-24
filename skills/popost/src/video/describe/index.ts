@@ -17,13 +17,16 @@ import type { CaptionLook, TextCue, TextTrack } from '../text/types';
 import { shotAmount, videoAmount } from '../measure/amount';
 import { ANGLES, ownEffect, trackBrief, trackText, TRACKS_FILE } from './paths';
 import { amountKnown, cameraKnown, kindKnown, LEGEND, NO_PATH, tag } from './known';
-import type { Status } from '../types';
+import type { Status, Unrecovered } from '../types';
+import { LISTED, UNRECOVERED_FILE, unrecoveredLine, unrecoveredOf } from './unrecovered';
 
 export interface Description {
   /** File name (relative to reference/) -> content. */
   files: Record<string, string>;
   /** Rough size of each file in tokens, for the map in REFERENCE.md. */
   tokens: Record<string, number>;
+  /** What the reading did not recover (unrecovered.ts): the list REFERENCE.md prints, for unrecovered.json. */
+  unrecovered: Unrecovered[];
 }
 
 /** A rough count that is good enough to plan a context: CJK characters count one each, other text four characters a token. */
@@ -244,7 +247,7 @@ const effectQuestions = (m: Measure, p: Pictures): string[] => {
   ];
 };
 
-const card = (m: Measure, text: TextTrack | undefined, transcript: Transcript | undefined, phrases: Phrase[], beats: Beat[], name: string, tokens: Record<string, number>, inset: Inset | undefined, p: Pictures): string => {
+const card = (m: Measure, text: TextTrack | undefined, transcript: Transcript | undefined, phrases: Phrase[], beats: Beat[], name: string, tokens: Record<string, number>, inset: Inset | undefined, p: Pictures, lost: readonly Unrecovered[]): string => {
   const { fps, frames, width, height, duration, hasAudio } = m.source;
   const lengths = m.shots.map((s) => (s.end - s.start) / fps);
   const L: string[] = ['# Reference: ' + name, ''];
@@ -286,10 +289,11 @@ const card = (m: Measure, text: TextTrack | undefined, transcript: Transcript | 
   L.push(beatsLine(beats, transcript, text));
   L.push('- ' + LEGEND);
   if (p.written) L.push(...picturesBlock(m));
-  const unsure = m.boundaries.filter((b) => b.confidence < 0.4).length + m.shots.filter((s) => s.camera.kind === 'unknown').length;
-  L.push('', '## Open questions', '');
+  L.push('', '## Not recovered', '');
+  L.push('What the reading could not tell, one entry each (all of them, as data, in ' + UNRECOVERED_FILE + '). Settle what you can from the pictures; append what stays open, and what you could not see yourself, to "unrecovered" in elements.json. The delivery notes list every entry that is still open with what was assumed instead.', '');
+  L.push(...lost.slice(0, LISTED).map(unrecoveredLine), ...(lost.length > LISTED ? ['- ' + (lost.length - LISTED) + ' more in ' + UNRECOVERED_FILE + '.'] : []));
   L.push(...effectQuestions(m, p));
-  L.push(unsure ? '- ' + m.boundaries.filter((b) => b.confidence < 0.4).length + ' changes between shots were measured with low confidence, and the camera of ' + m.shots.filter((s) => s.camera.kind === 'unknown').length + ' shots could not be read. They are marked "(unsure)" or "unknown".' : '- None from the measurement.');
+  if (!lost.length) L.push('- Nothing from the measurement: every value above was read.');
   L.push(transcript ? '- What each shot shows is not in this description: that needs a vision model.' : '- What each shot shows, and what was said, are not in this description: they need a vision model and a transcript.');
   L.push('', '## Files', '', '| File | What it holds | About how many tokens |', '|---|---|---|');
   L.push('| timeline.md | The numbered beats; one line per shot: time, the change into it, camera, its beats, text, motion | ' + (tokens['timeline.md'] ?? 0) + ' |');
@@ -339,7 +343,8 @@ export const describeReference = (m: Measure, text: TextTrack | undefined, name:
   // Without a text reader the text facts are unknown, not absent: shotLooks is given no cues then.
   m.shots.forEach((s, k) => { files['shots/' + two(k + 1) + '.md'] = shotFile(s, k > 0 ? m.boundaries[k - 1] : undefined, m.boundaries[k], cues, phrases, read.beats, fps, step, shotLooks(s, roles?.cues, step), p); });
   const tokens = Object.fromEntries(Object.entries(files).map(([k, v]) => [k, roughTokens(v)]));
-  files['REFERENCE.md'] = card(m, roles, transcript, phrases, read.beats, name, tokens, inset, p);
+  const unrecovered = unrecoveredOf(m, { text: roles, transcript, beats: read.beats });
+  files['REFERENCE.md'] = card(m, roles, transcript, phrases, read.beats, name, tokens, inset, p, unrecovered);
   tokens['REFERENCE.md'] = roughTokens(files['REFERENCE.md']);
-  return { files, tokens };
+  return { files, tokens, unrecovered };
 };

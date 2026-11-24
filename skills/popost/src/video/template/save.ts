@@ -6,7 +6,7 @@
 import { createHash } from 'node:crypto';
 import type { Runtime } from '../../runtime';
 import type { Inset } from '../describe/inset';
-import type { Measure, Problem } from '../types';
+import type { Measure, Problem, Unrecovered } from '../types';
 import { droppedFrom, droppedShots, droppedTexts, endAt, withReading } from '../elements/carry';
 import type { Elements } from '../elements/types';
 import { withCaptionRoles } from '../elements/caption-roles';
@@ -67,6 +67,8 @@ export interface SaveOptions {
    * (--max-shot); by default the measure above.
    */
   reading?: { elements: Elements; dir: string; measure?: Measure };
+  /** What was not recovered of the reference: describe's list (unrecovered.json) and what the reader added. Kept in the template. */
+  unrecovered?: Unrecovered[];
 }
 
 /** The inputs of a template: as given, or ending where the shots the reading drops whole at the end begin. */
@@ -90,7 +92,8 @@ export const saveTemplate = async (rt: Runtime, o: SaveOptions): Promise<{ probl
   const numbered = reading?.measure ?? o.measure;
   const picture = (file: string): string => rt.path.relative(o.outDir, rt.path.join(reading?.dir ?? '', file));
   const dropped = reading && src.from !== undefined ? droppedShots(reading.elements, numbered, src.from) : [];
-  const template = reading ? { ...withReading(made, m, numbered, reading.elements, picture), ...(dropped.length ? { dropped } : {}) } : made;
+  const read0 = reading ? { ...withReading(made, m, numbered, reading.elements, picture), ...(dropped.length ? { dropped } : {}) } : made;
+  const template = o.unrecovered?.length ? { ...read0, unrecovered: o.unrecovered } : read0;
   const { capacity, card: cardSlot, problems } = await capacitiesOf(rt, template);
   // The same beats templateFrom kept, with their wording, and the text with the roles the speech gave it.
   const read = sourceBeats(m, src.text, src.transcript);

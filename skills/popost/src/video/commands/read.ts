@@ -12,6 +12,7 @@ import { describeReference } from '../describe/index';
 import { INSET_FILE, insetText } from '../describe/inset';
 import { TRACKS_FILE, tracksFile } from '../describe/paths';
 import { knownOf } from '../describe/known';
+import { UNRECOVERED_FILE, unrecoveredFile } from '../describe/unrecovered';
 import { readReference } from '../describe/parts';
 import { buildDraft } from '../draft/build';
 import { measureVideo } from '../measure/index';
@@ -27,7 +28,8 @@ import { synthCase } from '../synth/generate';
 import { writeCase } from '../synth/write';
 import { commandTextReader, cuesOf, readSamples, withCaptionLook, type TextReading, type TextTrack } from '../text/index';
 import { rolesWithSpeech } from '../text/speech';
-import type { Boundary, Measure, ShotMeasure } from '../types';
+import type { Boundary, Measure, ShotMeasure, Unrecovered } from '../types';
+import { unrecoveredIn } from './elements';
 import { command, userPath, VideoCommandError, type Commands } from './shared';
 
 const VIDEO: PositionalSpec = { name: 'video', help: 'a video file ffmpeg can read' };
@@ -194,6 +196,7 @@ const describe = command(
     // measure.json says of each value how it is known (describe/known.ts), as the files a model reads do.
     await writeJsonFile(rt, rt.path.join(dir, 'measure.json'), { ...m, known: knownOf(m) });
     await writeJsonFile(rt, rt.path.join(dir, TRACKS_FILE), tracksFile(m));
+    await writeJsonFile(rt, rt.path.join(dir, UNRECOVERED_FILE), unrecoveredFile(d.unrecovered));
     if (cues) await writeJsonFile(rt, rt.path.join(dir, 'text.json'), cues);
     if (spoken) await writeJsonFile(rt, rt.path.join(dir, 'transcript.json'), spoken);
     // The frame around the content, for template save; a frame an earlier describe found must not outlive this one.
@@ -205,8 +208,8 @@ const describe = command(
     ];
     printJson(rt, {
       ok: true, dir,
-      files: ['REFERENCE.md', 'timeline.md', 'measure.json', TRACKS_FILE, ...(cues ? ['text.json'] : []), ...(spoken ? ['transcript.json'] : []), ...(inset ? [INSET_FILE] : [])],
-      shotFiles: m.shots.length, paths: m.tracks?.length ?? 0,
+      files: ['REFERENCE.md', 'timeline.md', 'measure.json', TRACKS_FILE, UNRECOVERED_FILE, ...(cues ? ['text.json'] : []), ...(spoken ? ['transcript.json'] : []), ...(inset ? [INSET_FILE] : [])],
+      shotFiles: m.shots.length, paths: m.tracks?.length ?? 0, notRecovered: d.unrecovered.length,
       tokens: { 'REFERENCE.md': d.tokens['REFERENCE.md'], 'timeline.md': d.tokens['timeline.md'] },
       sound: m.source.hasAudio, text: cues !== undefined, speech: spoken !== undefined,
       ...(inset ? { inset: { ...inset, note: insetText(inset, m.shots.length) } } : {}),
@@ -252,6 +255,17 @@ export const pathsNote = (paths: readonly TrackDifference[]): string => {
     + (off.length ? off.length + ' of ' + paths.length + ' differ' + (off.length === 1 ? 's' : '') + ' (differs says how, the reference\'s number first): set the scene from the reference\'s numbers (shots/NN.md, "Paths"; tracks.json has the samples) and compare again.' : 'None differs beyond the tolerances.');
 };
 
+/**
+ * What was not recovered of the reference, for a compare to carry forward: the record of the render's project
+ * (reference.facts.json), else the list beside a reference given as the measure.json describe wrote.
+ */
+const notRecovered = async (rt: Runtime, reference: string, facts: { unrecovered?: Unrecovered[] } | undefined): Promise<Unrecovered[]> => {
+  if (Array.isArray(facts?.unrecovered)) return facts.unrecovered;
+  return reference.endsWith('.json') ? unrecoveredIn(rt, rt.path.dirname(reference)) : [];
+};
+
+export const NOT_RECOVERED_NOTE = 'What the reading of the reference did not recover, and what its reader added. The delivery notes list every entry: what was not recovered, and what the re-make does instead ("assumed", or what you drew there). An entry you settled since says so.';
+
 /** The change into each reference shot as the project of the render says, when the other video is a render of one. */
 const projectWindows = async (rt: Runtime, other: string, shots: number, m: Measure): Promise<ReturnType<typeof changeWindows>> => {
   if (other.endsWith('.json')) return undefined;
@@ -262,7 +276,7 @@ const projectWindows = async (rt: Runtime, other: string, shots: number, m: Meas
 };
 
 const compare = command(
-  'two videos, or two measure.json files, scored dimension by dimension (1 is the same); then shots (each shot of the reference against the matching part of the other, with its motion amount in both), motionAmount (how much the picture moves in both videos, and the shots that move much less or more than the reference\'s), paths (each measured path of the reference against the other\'s: path angle, size, duration, edge shape, and what differs) and worst (the shots that differ most, each with the dimension that makes it so, its seconds in both and a look command that shows it); for a render, round (the review rounds so far), stillWorst and next',
+  'two videos, or two measure.json files, scored dimension by dimension (1 is the same); then shots (each shot of the reference against the matching part of the other, with its motion amount in both), motionAmount (how much the picture moves in both videos, and the shots that move much less or more than the reference\'s), paths (each measured path of the reference against the other\'s: path angle, size, duration, edge shape, and what differs), notRecovered (what the reading of the reference did not recover, for the delivery notes) and worst (the shots that differ most, each with the dimension that makes it so, its seconds in both and a look command that shows it); for a render, round (the review rounds so far), stillWorst and next',
   {
     positionals: [{ name: 'reference', help: 'a video, or the measure.json of one' }, { name: 'other', help: 'a video, or the measure.json of one' }],
     options: [
@@ -287,6 +301,7 @@ const compare = command(
     const windows = await projectWindows(rt, other, a.shots.length, b);
     const shots = compareShots(a, b, { ...(text ? { text } : {}), ...(windows ? { windows } : {}) });
     const paths = compareTracks(a, b, shotTimeMap(a, b));
+    const lost = await notRecovered(rt, reference, facts);
     const typed = { reference: args.req('reference'), other: args.req('other') };
     const worst = shots.worst.map((d) => {
       const look = lookCommand(typed, b, d);
@@ -302,6 +317,7 @@ const compare = command(
       ok: true, reference, other, composite: score.composite, dimensions: score.dimensions, shots: shots.shots, worst,
       ...(shots.motion ? { motionAmount: { ...shots.motion, note: motionNote(shots.motion) } } : {}),
       ...(paths.length ? { paths: { tracks: paths, note: pathsNote(paths) } } : {}),
+      ...(lost.length ? { notRecovered: { entries: lost, note: NOT_RECOVERED_NOTE } } : {}),
       ...(scope.omitted ? { scope: { seconds: [0, a.source.frames / a.source.fps], omittedShots: scope.omitted, note: 'Only retained reference content is compared. Declared trailing platform shots are excluded after verifying the full reference visual fingerprint.' } } : {}),
       ...((textA === undefined) !== (textB === undefined) ? { note: 'Text is compared shot by shot only with both --reference-text and --other-text.' } : {}),
       ...(review ? { round: review.round, ...(review.stillWorst.length ? { stillWorst: review.stillWorst } : {}) } : {}),

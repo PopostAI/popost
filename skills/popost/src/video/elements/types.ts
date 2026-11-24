@@ -6,7 +6,7 @@
  * the file to the measurement, `template save` carries it into the template, and the checks of a fill and a project
  * use it. Nothing here names a kind of video: a screen, a product or a platform is one kind of layer among others.
  */
-import type { Box, KnownAs, TransitionKind } from '../types';
+import type { Box, KnownAs, TransitionKind, Unrecovered } from '../types';
 
 /** The file, in the directory describe wrote. */
 export const ELEMENTS_FILE = 'elements.json';
@@ -108,4 +108,9 @@ export interface ShotReading {
   status?: FieldStatus;
 }
 
-export interface Elements { shots: ShotReading[] }
+/**
+ * unrecovered: what the reader could not see or tell in the frames, appended to the reading's own list
+ * (unrecovered.json): what, where ({"shot"}, {"transition"} or {"time": [from, to]}), why, and "assumed": what the
+ * re-make does instead.
+ */
+export interface Elements { shots: ShotReading[]; unrecovered?: Unrecovered[] }

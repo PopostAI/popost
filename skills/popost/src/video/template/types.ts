@@ -16,7 +16,7 @@ import type { Inset } from '../describe/inset';
 import type { ShotLooks } from '../describe/kind';
 import type { BarPlaces, WordPlace } from '../retarget/titles';
 import type { CaptionLook } from '../text/types';
-import type { Box, CameraRate, Canvas, Problem, TextStyle, TransitionSpec } from '../types';
+import type { Box, CameraRate, Canvas, Problem, TextStyle, TransitionSpec, Unrecovered } from '../types';
 
 export const TEMPLATE_FORMAT = 'popost-video-template';
 export const SLOTS_FORMAT = 'popost-video-template-slots';
@@ -164,6 +164,12 @@ export interface Template {
   bar?: BarPlaces;
   /** Shots of the reference left out because the reading dropped them whole; the last shot here is then the re-make's own closing. */
   dropped?: DroppedShot[];
+  /**
+   * What was not recovered of the reference (types.ts, Unrecovered): describe's list and what the reader of the frames
+   * added, shots and changes numbered as in the reference. Carried into the project's record, for compare and the
+   * delivery notes. Absent when nothing was listed.
+   */
+  unrecovered?: Unrecovered[];
 }
 
 /** How many characters a caption line may have. */

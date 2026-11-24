@@ -14,7 +14,8 @@ import type { LabelCounts } from '../elements/status';
 import { ELEMENTS_FILE, type Elements } from '../elements/types';
 import { OPENING_FILE } from '../describe/frames';
 import type { TextTrack } from '../text/types';
-import type { Measure, Problem } from '../types';
+import type { Measure, Problem, Unrecovered } from '../types';
+import { UNRECOVERED_FILE } from '../describe/unrecovered';
 import { command, userPath, VideoCommandError, type Commands } from './shared';
 
 const DIR: PositionalSpec = { name: 'describe-dir', help: 'what popost video describe wrote (measure.json and the pictures)' };
@@ -44,6 +45,16 @@ export const readingIn = async (rt: Runtime, dir: string, m: Measure, text: Text
   const read = readElements(parsed);
   const checked = checkElements(read, m, text);
   return { elements: read.elements, ...checked, problems: [...checked.problems, ...captionHintProblems(read.elements, m, text)] };
+};
+
+/**
+ * The one list of what was not recovered of a described reference: what describe wrote into its directory
+ * (unrecovered.json), then what the reader appended in elements.json. Empty when neither is there.
+ */
+export const unrecoveredIn = async (rt: Runtime, dir: string, elements?: Elements): Promise<Unrecovered[]> => {
+  const reading = await optionalJson<{ unrecovered?: Unrecovered[] }>(rt, rt.path.join(dir, UNRECOVERED_FILE));
+  const own = elements ?? (await optionalJson<unknown>(rt, rt.path.join(dir, ELEMENTS_FILE)).then((raw) => (raw === undefined ? undefined : readElements(raw).elements)));
+  return [...(Array.isArray(reading?.unrecovered) ? reading.unrecovered : []), ...(own?.unrecovered ?? [])];
 };
 
 const questions = command(
@@ -83,6 +94,8 @@ const check = command(
       ok: errors === 0, file: rt.path.join(dir, ELEMENTS_FILE), shots: m.shots.length, errors, warnings: r.problems.length - errors, summary: r.summary,
       // How many fields say how they are known ("status"), and the shots that say it of none.
       status: { measured: r.labels.measured, inferred: r.labels.inferred, unknown: r.labels.unknown, ...(r.labels.unlabelledShots.length ? { unlabelledShots: r.labels.unlabelledShots } : {}) },
+      // The reading's own list of what it did not recover, and what this file adds to it.
+      notRecovered: { reading: (await unrecoveredIn(rt, dir, { shots: [] })).length, added: r.elements.unrecovered?.length ?? 0 },
       problems: r.problems,
       next: errors ? 'correct ' + ELEMENTS_FILE + ' and run this again' : 'answer every warning, then: popost video template save ' + typed + ' --out template --name <name>',
     });

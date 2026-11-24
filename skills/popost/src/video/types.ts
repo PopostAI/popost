@@ -651,6 +651,23 @@ export type KnownAs = (typeof KNOWN_AS)[number];
 /** confidence: 0..1 where the measurement has one; basis: in a few words what the value rests on, or why it is not known. */
 export interface Status { status: KnownAs; confidence?: number; basis: string }
 
+/**
+ * Something of a reference that was not recovered: what, where (a shot or the change into a shot, both numbered from 1
+ * as the reading numbers them, and seconds of the reference), why, and how to settle it. One list for the whole chain:
+ * describe fills it with what the programs could not read (by 'measurement'), the model that reads the frames appends
+ * what it could not see to elements.json (by 'reader'), a template and a project keep it, and compare and the delivery
+ * notes carry it forward with what was assumed instead.
+ */
+export interface Unrecovered {
+  what: string;
+  where: { shot?: number; transition?: number; time?: [number, number] };
+  why: string;
+  settle?: string;
+  /** What the re-make does in its place. */
+  assumed?: string;
+  by?: 'measurement' | 'reader';
+}
+
 /** One sample of a trajectory: the frame, the centre and the size ([x, y] and [width, height], fractions of the canvas). */
 export interface TrajectorySample {
   frame: number;

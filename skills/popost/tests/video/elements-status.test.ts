@@ -102,7 +102,8 @@ describe('the labels of elements.json', () => {
     expect(read.elements.shots[0]?.layers[0]?.status).toEqual({ box: 'measured', look: { status: 'inferred', note: 'the blue may be a gradient' }, enters: 'unknown' });
     expect(read.elements.shots[1]?.transitionIn?.status).toEqual({ kind: 'inferred', seconds: 'measured' });
     const r = checkElements(read, MEASURE);
-    expect(r.problems).toEqual([]);
+    // The one field labelled unknown asks for its entry in "unrecovered" (unrecovered.test.ts).
+    expect(r.problems.map((p) => p.level + ' ' + p.at)).toEqual(['warning shots[0].status']);
     expect(r.labels).toEqual({ measured: 4, inferred: 3, unknown: 1, unlabelledShots: [4] });
   });
 

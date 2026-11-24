@@ -67,6 +67,16 @@ export const statusProblems = (r: ReadElements, m: Measure, at: (shot: number) =
     ];
   });
 
+/** A shot with a field labelled "unknown" has an entry in "unrecovered" that says what was assumed instead. */
+export const unknownProblems = (r: ReadElements, at: (shot: number) => string): Problem[] =>
+  r.elements.shots.flatMap((s) => {
+    const maps: [FieldStatus | undefined, string, number][] = [[s.status, 'shot ' + s.shot, s.shot], [s.transitionIn?.status, 'the change into shot ' + s.shot, s.shot], ...s.layers.map((l): [FieldStatus | undefined, string, number] => [l.status, 'layer "' + l.id + '" of shot ' + s.shot, s.shot])];
+    const unknown = maps.flatMap(([m, what]) => Object.keys(m ?? {}).filter((k) => labelOf(m, k).status === 'unknown').map((k) => '"' + k + '" of ' + what));
+    const listed = (r.elements.unrecovered ?? []).some((u) => u.where.shot === s.shot || u.where.transition === s.shot || (u.where.time !== undefined && u.where.time[0] < s.time[1] && u.where.time[1] > s.time[0]));
+    return unknown.length && !listed ? [warning(at(s.shot) + '.status', unknown.join(', ') + ' ' + (unknown.length === 1 ? 'is' : 'are') + ' labelled "unknown", and "unrecovered" has no entry for shot ' + s.shot + '.',
+      'Add to "unrecovered" (beside "shots"): {"what": "...", "where": {"shot": ' + s.shot + '}, "why": "...", "assumed": "what the re-make does instead"}: the delivery notes carry it forward.')] : [];
+  });
+
 export interface LabelCounts { measured: number; inferred: number; unknown: number; unlabelledShots: number[] }
 
 /** How many fields carry each label, and the shots whose entry carries none. */

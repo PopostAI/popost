@@ -5,7 +5,7 @@
  * shot, a shot whose number, time or layers are wrong is left out, and the shots that have an entry are listed apart.
  */
 import { error, warning } from '../project/check-common';
-import { KNOWN_AS, TRANSITION_KINDS, type Box, type Problem } from '../types';
+import { KNOWN_AS, TRANSITION_KINDS, type Box, type Problem, type Unrecovered } from '../types';
 import { LAYER_KINDS, MARKS, ROLES, STATUS_FIELDS, type Elements, type FieldStatus, type Layer, type Mark, type ReadTransition, type ShotReading } from './types';
 
 const SHOT_KEYS = ['shot', 'time', 'job', 'layout', 'sameEffectAsNext', 'transitionIn', 'layers', 'captions', 'emphasis', 'rebuild', 'drop', 'status'];
@@ -160,6 +160,30 @@ const shotOf = (raw: unknown, k: number): { shot?: ShotReading; number?: number;
   return { shot, number: r.shot, problems: out };
 };
 
+const UNRECOVERED_EXAMPLE = '{"what": "what the small label under the title says", "where": {"shot": 3}, "why": "too small to read in the frames", "assumed": "left out of the re-make"}';
+
+/** "unrecovered": what the reader could not see, each with what, where, why and what is assumed instead. */
+const unrecoveredOf = (raw: unknown): { unrecovered: Unrecovered[]; problems: Problem[] } => {
+  if (raw === undefined) return { unrecovered: [], problems: [] };
+  if (!Array.isArray(raw)) return { unrecovered: [], problems: [error('unrecovered', '"unrecovered" is a list of what you could not see or tell in the frames.', 'Write "unrecovered": [' + UNRECOVERED_EXAMPLE + '], or leave it out.')] };
+  const problems: Problem[] = [];
+  const unrecovered = raw.flatMap((u, k): Unrecovered[] => {
+    const at = 'unrecovered[' + k + ']';
+    const w = isObject(u) && isObject(u.where) ? u.where : undefined;
+    const time = w && Array.isArray(w.time) && w.time.length === 2 && w.time.every(isNumber) ? (w.time as [number, number]) : undefined;
+    const shot = w && Number.isInteger(w.shot) && (w.shot as number) >= 1 ? (w.shot as number) : undefined;
+    const transition = w && Number.isInteger(w.transition) && (w.transition as number) >= 2 ? (w.transition as number) : undefined;
+    if (!isObject(u) || !filled(u.what) || !filled(u.why) || (shot === undefined && transition === undefined && !time) || [u.settle, u.assumed].some((x) => x !== undefined && !isText(x))) {
+      problems.push(error(at, 'An entry says "what" was not recovered, "where" ({"shot": N}, {"transition": N} for the change into shot N, or {"time": [from, to]} in seconds), "why", and "assumed": what the re-make does instead.', 'Write ' + UNRECOVERED_EXAMPLE + '.'));
+      return [];
+    }
+    problems.push(...extraKeys(u, ['what', 'where', 'why', 'settle', 'assumed', 'by'], at));
+    if (!filled(u.assumed)) problems.push(warning(at + '.assumed', 'The entry ' + JSON.stringify(u.what) + ' does not say what the re-make does instead.', 'Add "assumed": what you draw or leave out in its place; the delivery notes repeat it.'));
+    return [{ what: u.what, where: { ...(shot !== undefined ? { shot } : {}), ...(transition !== undefined ? { transition } : {}), ...(time ? { time } : {}) }, why: u.why, ...(filled(u.settle) ? { settle: u.settle } : {}), ...(filled(u.assumed) ? { assumed: u.assumed } : {}), by: 'reader' }];
+  });
+  return { unrecovered, problems };
+};
+
 export interface ReadElements {
   /** The well-formed part. */
   elements: Elements;
@@ -174,7 +198,8 @@ export interface ReadElements {
 export const readElements = (raw: unknown): ReadElements => {
   if (!isObject(raw) || !Array.isArray(raw.shots))
     return { elements: { shots: [] }, present: [], where: {}, problems: [error('shots', 'elements.json is {"shots": [...]}: one entry per measured shot.', 'Write {"shots": [{"shot": 1, ...}, {"shot": 2, ...}]}; popost video elements questions lists the shots.')] };
-  const problems = extraKeys(raw, ['shots'], '(root)');
+  const lost = unrecoveredOf(raw.unrecovered);
+  const problems = [...extraKeys(raw, ['shots', 'unrecovered'], '(root)'), ...lost.problems];
   const shots: ShotReading[] = [];
   const present: number[] = [];
   const where: Record<number, number> = {};
@@ -185,5 +210,5 @@ export const readElements = (raw: unknown): ReadElements => {
     else if (r.number !== undefined) { present.push(r.number); where[r.number] = k; }
     if (r.shot && !shots.some((x) => x.shot === r.number)) shots.push(r.shot);
   });
-  return { elements: { shots: [...shots].sort((a, b) => a.shot - b.shot) }, present: [...present].sort((a, b) => a - b), where, problems };
+  return { elements: { shots: [...shots].sort((a, b) => a.shot - b.shot), ...(lost.unrecovered.length ? { unrecovered: lost.unrecovered } : {}) }, present: [...present].sort((a, b) => a - b), where, problems };
 };
