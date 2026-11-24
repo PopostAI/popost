@@ -141,8 +141,29 @@ Done when: you know the canvas size, the number of shots and beats, and the capt
 
 ## 3. Collect the new content
 
-The user's topic decides what the video shows. Read the sources the request gives (`curl -sL <url>`) and use only
-what they say. When a source exists in several languages (a page with a language switch, a README in two languages),
+The user's topic decides what the video shows. Before designing any scene, collect every source the request names (a
+page, a README, a file), each with:
+
+```bash
+popost video source https://example.com/ --out project/source
+```
+
+It fetches that one page (no link is followed), saves its text into `project/source/` and downloads the pictures it
+references into `project/source/pictures/`, the logo first, badges and tracking pixels left out. It prints an
+inventory: each picture with its `file`, what the source `says` of it (its alt text), the `heading` it stands under and
+its pixel size; `colours` (those of an SVG logo, a page's theme colour; `neutral` marks white, black and grays);
+`site` (links to what is most likely the product's own site: candidates for `capture`) and `skipped`. Read the saved
+text and open the pictures you plan to use. Then:
+
+- Anything that shows the product or its interface is a real picture of the sources or a capture of its own pages (a
+  `picture` shot, an `"image"` item, an `<img>` in a scene: `../source/pictures/...` from the scene file). Never draw
+  an imitation of a product's interface in HTML. An abstract diagram (steps, a flow, a number) is fine, and must look
+  abstract. The logo is the collected file, never redrawn; brand colours come from `colours`.
+- Pictures from third parties are not used, and facts come from first-party sources only: the request, the product's
+  own pages and repository. `video check` and `scene check` warn when the sources gave pictures and nothing in the
+  project shows one.
+
+Use only what the sources say. When a source exists in several languages (a page with a language switch, a README in two languages),
 collect the one in the language of the video, so that what is shown and what is said match. Copy the user's pictures and clips into `project/assets/` (`mkdir -p project/assets project/scenes`).
 
 Every shot keeps its layout kind (TEMPLATE.md, `layout`): a full-frame recording stays a full-frame recording, a window

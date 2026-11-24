@@ -13,11 +13,12 @@ import { loopCommands, loopGroups } from '../video/commands/loop';
 import { makeCommands, makeGroups } from '../video/commands/make';
 import { mediaCommands } from '../video/commands/media';
 import { readCommands, readGroups } from '../video/commands/read';
+import { sourceCommands } from '../video/commands/source';
 import type { Commands } from '../video/commands/shared';
 import { runSubcommand, type Subcommand } from '../workflow/subcommands';
 
 const PROG = 'popost video';
-const COMMANDS: Commands = { ...mediaCommands, ...makeCommands, ...readCommands, ...loopCommands, ...generateCommands };
+const COMMANDS: Commands = { ...mediaCommands, ...makeCommands, ...readCommands, ...loopCommands, ...generateCommands, ...sourceCommands };
 const GROUPS: Readonly<Record<string, Commands>> = { ...makeGroups, ...readGroups, ...loopGroups, elements: elementsCommands };
 
 /** The groups appear in the command list (help, usage errors) as commands that take a command of their own. */

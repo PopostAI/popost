@@ -170,6 +170,23 @@ out-file and prints `{"credits": n}`, what was charged.
   anything is sent), content rejected (`CONTENT_REJECTED`, refunded), or
   still being made after `POPOST_GEN_WAIT_MIN` (run the same command again later).
 
+## Collecting a source
+
+`popost video source <https address or file> --out project/source [--max-pictures 40]` collects one source of the new
+video: a web page, a raw README, or a local `.md`, `.txt` or `.html` file. Only that page is fetched. It writes the
+text (`<name>.md` for Markdown, `<name>.txt` for a page without its tags), the pictures
+(`pictures/<name>/NN-<file>.<ext>`, at most 10 MB each and 80 MB in all) and `pictures.inventory.json`, which the
+checks read; a second source joins the same inventory, and running a source again replaces its entry.
+
+- Order: pictures that call themselves the logo, then the others as the source has them, then a page's own icon and
+  preview picture. Left out: status badges and counters (by their address), pictures of 3 px or less (tracking
+  pixels), anything over the limits; `skipped` counts them and lists what could not be fetched.
+- An SVG stays an SVG (it is not turned into pixels): an `<img>` of a scene shows it at any size. A GIF stays a GIF:
+  a scene shows its first picture only.
+- `site.hosts` is a guess from the addresses (the page's own site, the site its pictures come from, a host that
+  carries the repository's name); `otherHosts` are the rest. Nothing there is fetched.
+- A picture beside a local file is copied only from inside that file's directory.
+
 ## Capture plans
 
 `popost video capture <url> --plan plan.json --out page.mp4` records a page by a JSON list of steps, played one after

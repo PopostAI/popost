@@ -16,12 +16,13 @@ import { ProjectError } from '../render/session';
 import { BrowserStepTimeoutError } from '../render/browser-step';
 import type { SceneText } from '../scene/author';
 import { checkScenes, shotFileName } from '../scene/check';
+import { sourcePictureProblems } from '../source/used';
 import { addLibrary, LIBRARIES, LibraryError } from '../scene/library';
 import { writeScenes } from '../scene/write';
 import { readFacts } from '../template/facts';
 import { captionSizeProblems } from '../template/project';
 import { projectReadingProblems, projectSceneSources, readingOfFacts } from '../elements/findings';
-import type { Problem } from '../types';
+import type { Problem, Project } from '../types';
 import { command, userPath, VideoCommandError, type Body, type Commands } from './shared';
 
 const PROJECT = { name: 'project-dir', help: 'the directory that holds video.json' } as const;
@@ -59,7 +60,9 @@ const check = command(
     // The reading of the reference's frames, kept in the record: an effect a preset replaced, the layout changed, the platform's words shown.
     const root = userPath(rt, dir);
     const reading = facts && page.project ? projectReadingProblems(readingOfFacts(facts, (p) => rt.path.relative(rt.cwd, rt.path.resolve(root, p))), page.project, await projectSceneSources(rt, root, page.project)) : [];
-    const problems = [...page.problems, ...layout, ...sizes, ...reading];
+    // The pictures the sources gave (popost video source): a project that shows none of them is told.
+    const unused = page.project ? await sourcePictureProblems(rt, root, page.project) : [];
+    const problems = [...page.problems, ...layout, ...sizes, ...reading, ...unused];
     const errors = errorsIn(problems);
     printJson(rt, { ok: errors === 0, frames: page.resolved?.frames ?? 0, segments: page.resolved?.segments.length ?? 0, items: page.resolved?.items.length ?? 0, errors, problems });
     return errors ? 2 : 0;
@@ -204,8 +207,11 @@ const sceneCheck = command(
     const shots = shotsDir ? r.shots.map((s) => ({ ...s, file: rt.path.join(shotsDir, shotFileName(s.k, s.frame)) })) : [];
     if (shotsDir) await rt.fs.mkdir(userPath(rt, shotsDir));
     for (const s of shots) await rt.fs.writeFile(userPath(rt, s.file), s.png);
-    const errors = errorsIn(r.problems);
-    printJson(rt, { ok: errors === 0, opened: new Set(r.shots.map((s) => s.k)).size, errors, problems: r.problems, scenes: r.scenes, ...(shotsDir ? { shots: shots.map((s) => s.file) } : {}) });
+    const root = userPath(rt, args.req('project-dir'));
+    const project = await rt.fs.readText(rt.path.join(root, 'video.json')).then((t) => JSON.parse(t) as Project, () => undefined);
+    const problems = [...r.problems, ...(project && Array.isArray(project.segments) && Array.isArray(project.materials) ? await sourcePictureProblems(rt, root, project) : [])];
+    const errors = errorsIn(problems);
+    printJson(rt, { ok: errors === 0, opened: new Set(r.shots.map((s) => s.k)).size, errors, problems, scenes: r.scenes, ...(shotsDir ? { shots: shots.map((s) => s.file) } : {}) });
     return errors ? 2 : 0;
   }),
 );

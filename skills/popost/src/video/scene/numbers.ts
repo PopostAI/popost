@@ -137,9 +137,9 @@ const TEXT_FILES = /\.(?:md|markdown|txt|text|json|csv|tsv|html?|xml|srt|vtt)$/i
  * Files the programs write, full of numbers that are no source: the project itself (video.json, which holds the
  * captions and slots being checked), its backup, measurements, the words of a voice, the steps of a scene writer, and
  * the files that hold the reference's own text: the project's record of its template (reference.facts.json) and a
- * template's reference-text.json.
+ * template's reference-text.json; and the inventory of the pictures a source gave (pixel sizes, not facts).
  */
-const PROGRAM_FILES = /(?:^|\/)(?:video\.json(?:\.bak)?|(?:[^/]*\.)?measure\.json|text\.json|transcript\.json|slots\.json|reference\.facts\.json|reference-text\.json|[^/]*\.words\.json|[^/]*\.steps\.json)$/i;
+const PROGRAM_FILES = /(?:^|\/)(?:video\.json(?:\.bak)?|(?:[^/]*\.)?measure\.json|text\.json|transcript\.json|slots\.json|reference\.facts\.json|reference-text\.json|[^/]*\.words\.json|[^/]*\.steps\.json|[^/]*\.inventory\.json)$/i;
 /** A larger file is not read: a source saved as text is far smaller. */
 const MAX_BYTES = 4 * 1024 * 1024;
 
