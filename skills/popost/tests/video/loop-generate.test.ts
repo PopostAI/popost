@@ -3,7 +3,7 @@ import { chmod, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { anchorIndex, checkRequests, commandGenerator, ConfirmNeeded, makeMaterials, type Generator, type GenerateRequest } from '../../src/video/generate/index';
+import { anchorIndex, anchorSentence, checkRequests, commandGenerator, ConfirmNeeded, makeMaterials, type Generator, type GenerateRequest } from '../../src/video/generate/index';
 import { createDiskRuntime } from '../../src/testing/disk';
 import { hasFfmpeg, runFfmpegOk } from '../../src/video/media/ffmpeg';
 
@@ -102,9 +102,11 @@ describe('generate: one person in every clip', () => {
     expect(anchorIndex(requests)).toBe(1);
     expect(anchorIndex([requests[0]!])).toBe(0);
     expect(anchorIndex([requests[3]!])).toBe(-1);
+    // A clip that opted out is never the one the others follow.
+    expect(anchorIndex([requests[0]!, { ...requests[1]!, anchor: false }, requests[2]!])).toBe(2);
   });
 
-  it.skipIf(!ffmpeg)('makes that clip first and gives a frame of it to the other clips, and to none without the option', async () => {
+  it.skipIf(!ffmpeg)('makes that clip first and gives a frame of it to the other clips, without being asked; --no-anchor gives it to none', async () => {
     const asked: { kind: string; request: GenerateRequest }[] = [];
     const generator: Generator = {
       make: async (kind, request, out) => {
@@ -117,20 +119,100 @@ describe('generate: one person in every clip', () => {
     const dir = path.join(root, 'anchor');
     await mkdir(path.join(dir, 'assets'), { recursive: true });
     await writeFile(path.join(dir, 'assets', 'product.png'), 'p');
-    const r = await makeMaterials(rt, { requests, dir, generator, anchor: true });
+    const r = await makeMaterials(rt, { requests, dir, generator });
     expect(r.problems).toEqual([]);
+    expect(r.anchor).toEqual({ picture: 'assets/anchor.jpg', from: 'clip' });
+    // Four files were asked for and four were made: the anchor is one of the clips, never an extra one.
+    expect(asked).toHaveLength(4);
     expect(r.materials.map((m) => [m.file, m.anchor === true])).toEqual([['assets/gen-02.mp4', true], ['assets/gen-01.mp4', false], ['assets/gen-03.mp4', false], ['assets/logo.png', false]]);
     expect(existsSync(path.join(dir, 'assets', 'anchor.jpg'))).toBe(true);
     const sent = (file: string): GenerateRequest | undefined => asked[r.materials.findIndex((m) => m.file === file)]?.request;
     expect(sent('assets/gen-02.mp4')).toEqual({ prompt: 'A woman holds @image1 up and smiles', images: [path.join(dir, 'assets', 'product.png')] });
-    expect(sent('assets/gen-01.mp4')).toEqual({ prompt: 'Close-up of a hand on the fabric of @image1 Keep the same person, clothes and place as in @image2.', images: [path.join(dir, 'assets', 'product.png'), path.join(dir, 'assets', 'anchor.jpg')] });
-    expect(sent('assets/gen-03.mp4')).toEqual({ prompt: 'She turns to show the fit Keep the same person, clothes and place as in @image1.', images: [path.join(dir, 'assets', 'anchor.jpg')] });
+    expect(sent('assets/gen-01.mp4')).toEqual({ prompt: 'Close-up of a hand on the fabric of @image1 ' + anchorSentence(2, 'clip'), images: [path.join(dir, 'assets', 'product.png'), path.join(dir, 'assets', 'anchor.jpg')] });
+    expect(sent('assets/gen-03.mp4')).toEqual({ prompt: 'She turns to show the fit ' + anchorSentence(1, 'clip'), images: [path.join(dir, 'assets', 'anchor.jpg')] });
     expect(sent('assets/logo.png')).toEqual({ prompt: 'a red logo' });
     // The notes are the prompts as they were written, not as they were sent.
     expect((JSON.parse(await readFile(path.join(dir, 'materials.json'), 'utf8')) as Record<string, string>)['assets/gen-03.mp4']).toBe('She turns to show the fit');
     const plain: GenerateRequest[] = [];
-    await makeMaterials(rt, { requests: requests.slice(0, 3), dir: path.join(root, 'no-anchor'), generator: { make: async (_k, request, out) => { plain.push(request); await writeFile(out, 'x'); return {}; } } }).catch(() => undefined);
-    expect(plain.every((q) => !q.prompt.includes('Keep the same person'))).toBe(true);
+    const off = path.join(root, 'no-anchor');
+    await mkdir(path.join(off, 'assets'), { recursive: true });
+    await writeFile(path.join(off, 'assets', 'product.png'), 'p');
+    const none = await makeMaterials(rt, { requests: requests.slice(0, 3), dir: off, anchor: false, generator: { make: async (_k, request, out) => { plain.push(request); await writeFile(out, 'x'); return {}; } } });
+    expect([none.problems, none.anchor]).toEqual([[], undefined]);
+    expect(plain.map((q) => q.prompt)).toEqual(requests.slice(0, 3).map((q) => q.prompt));
+    expect(existsSync(path.join(off, 'assets', 'anchor.jpg'))).toBe(false);
+  });
+
+  it('asks only for what a clip shares with the picture, so a clip of a product alone gets no person', () => {
+    for (const s of [anchorSentence(1, 'clip'), anchorSentence(2, 'image')]) {
+      expect(s).toContain('Whatever this clip shares with it (a person and their clothes, a product, a place) looks exactly as it does there');
+      expect(s).toContain('add nothing from it that the description above does not ask for');
+      expect(s).not.toMatch(/Keep the same person/);
+    }
+    const mia = anchorSentence(1, 'character', { name: 'Mia', description: 'a barista in her twenties,\n short dark hair' });
+    expect(mia).toBe('@image1 is the person of this video (Mia: a barista in her twenties, short dark hair). When a person appears in this clip it is that person, with the same face, hair and build; add no person the description above does not ask for.');
+  });
+
+  it('a picture of the caller\'s is the anchor of every clip in the order asked; a request with "anchor": false stays out', async () => {
+    const dir = path.join(root, 'given');
+    await mkdir(path.join(dir, 'assets'), { recursive: true });
+    await writeFile(path.join(dir, 'assets', 'product.png'), 'p');
+    await writeFile(path.join(dir, 'assets', 'mia.png'), 'm');
+    const generator = counting();
+    const list = [requests[0]!, requests[1]!, { ...requests[2]!, anchor: false }, requests[3]!];
+    const r = await makeMaterials(rt, { requests: list, dir, generator, picture: { file: 'assets/mia.png', person: { name: 'Mia' } } });
+    expect(r.problems).toEqual([]);
+    expect(r.anchor).toEqual({ picture: 'assets/mia.png', from: 'character' });
+    expect(r.materials.map((m) => [m.file, m.anchor === true])).toEqual(list.map((q) => [q.file, false]));
+    expect(generator.asked.map((a) => a.request)).toEqual([
+      { prompt: requests[0]!.prompt + ' ' + anchorSentence(2, 'character', { name: 'Mia' }), images: [path.join(dir, 'assets', 'product.png'), path.join(dir, 'assets', 'mia.png')] },
+      { prompt: requests[1]!.prompt + ' ' + anchorSentence(2, 'character', { name: 'Mia' }), images: [path.join(dir, 'assets', 'product.png'), path.join(dir, 'assets', 'mia.png')] },
+      { prompt: 'She turns to show the fit' },
+      { prompt: 'a red logo' },
+    ]);
+    expect(existsSync(path.join(dir, 'assets', 'anchor.jpg'))).toBe(false);
+    expect((await checkRequests(rt, [{ file: 'assets/x.mp4', prompt: 'x', anchor: 'no' }], dir)).map((p) => p.at)).toEqual(['[0].anchor']);
+  });
+
+  it('makes no clip that takes the anchor\'s frame while the anchor clip is not there: priced only when its price waits, not sent when it failed', async () => {
+    const dir = path.join(root, 'waiting');
+    await mkdir(path.join(dir, 'assets'), { recursive: true });
+    await writeFile(path.join(dir, 'assets', 'product.png'), 'p');
+    const sent: GenerateRequest[] = [];
+    const asking: Generator = {
+      make: async (kind, request, out) => {
+        sent.push(request);
+        if (kind === 'video') throw new ConfirmNeeded({ credits: 25 }, 'It costs 25 credits.');
+        await writeFile(out, 'picture');
+        return {};
+      },
+    };
+    const r = await makeMaterials(rt, { requests, dir, generator: asking });
+    // The anchor clip's price waits for the user: the other clips are asked for their price only, so the total is whole.
+    const product = path.join(dir, 'assets', 'product.png');
+    expect(sent).toEqual([
+      { prompt: 'A woman holds @image1 up and smiles', images: [product] },
+      { prompt: 'Close-up of a hand on the fabric of @image1', images: [product], priceOnly: true },
+      { prompt: 'She turns to show the fit', priceOnly: true },
+      { prompt: 'a red logo' },
+    ]);
+    expect(r.materials.map((m) => [m.file, m.made, m.waiting === true, m.confirm?.credits])).toEqual([['assets/gen-02.mp4', false, false, 25], ['assets/gen-01.mp4', false, true, 25], ['assets/gen-03.mp4', false, true, 25], ['assets/logo.png', true, false, undefined]]);
+    expect(r.toConfirm).toEqual({ credits: 75, materials: 3 });
+    expect(r.problems.map((p) => p.at)).toEqual(['assets/gen-02.mp4', 'assets/gen-01.mp4', 'assets/gen-03.mp4']);
+    // The anchor clip fails for good: the others are not sent at all, and one problem says why.
+    const failed: GenerateRequest[] = [];
+    const broken = await makeMaterials(rt, { requests: requests.slice(0, 3), dir: path.join(root, 'waiting'), generator: { make: async (_k, request) => { failed.push(request); throw new Error('the content was rejected'); } } });
+    expect(failed.map((q) => q.prompt)).toEqual(['A woman holds @image1 up and smiles']);
+    expect(broken.materials.map((m) => [m.file, m.waiting === true])).toEqual([['assets/gen-02.mp4', false], ['assets/gen-01.mp4', true], ['assets/gen-03.mp4', true]]);
+    expect(broken.problems.map((p) => p.at)).toEqual(['assets/gen-02.mp4', 'assets/gen-02.mp4']);
+    expect(broken.problems[1]?.message).toContain('2 clips wait for this one (assets/gen-01.mp4, assets/gen-03.mp4)');
+    expect(broken.problems[1]?.fix).toContain('--no-anchor');
+    expect(broken.toConfirm).toBeUndefined();
+    // A generator that does not know "priceOnly" and makes the clip: it is kept and named.
+    const eager: Generator = { make: async (_k, request, out) => { if (!request.priceOnly) throw new ConfirmNeeded({ credits: 25 }, 'It costs 25 credits.'); await writeFile(out, 'clip'); return { credits: 25 }; } };
+    const loose = await makeMaterials(rt, { requests: requests.slice(1, 3), dir: path.join(root, 'waiting'), generator: eager });
+    expect(loose.materials.map((m) => [m.file, m.made, m.unanchored === true])).toEqual([['assets/gen-02.mp4', false, false], ['assets/gen-03.mp4', true, true]]);
+    expect(loose.problems.map((p) => p.level + ' ' + p.at)).toEqual(['error assets/gen-02.mp4', 'warning assets/gen-03.mp4']);
   });
 });
 

@@ -206,6 +206,10 @@ request, the price, what it prints). Two rules about motion:
 - A clip is never slowed down to fill a shot (the checks warn about a `"speed"` under 0.9): ask for a clip as long as
   the shot needs (`footage.seconds` in `template show`), make a second clip, or start earlier. A clip that moves less
   than its shot may be sped up with a `"speed"` above 1 when it is long enough.
+- The clips of one video keep the same person, product and place through one anchor picture, which `materials`
+  takes care of by itself. When the request names a character of the user's popost.ai library, pass it with
+  `--character <id>`; when it gives a photo of the person or the product, with `--anchor-image <file>`. A clip that
+  shares nothing with the others says `"anchor": false` (`video-tools.md`).
 
 Then write `project/materials.json`, one entry per file, saying what it shows:
 `{ "assets/page-01.mp4": "the pricing page: zooms to the Pro plan, boxes its price, the pointer clicks Buy" }`.

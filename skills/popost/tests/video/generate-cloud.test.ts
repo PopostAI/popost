@@ -146,6 +146,21 @@ describe('popost video generate video', () => {
     expect(waited).toEqual([10_000, 10_000]);
   });
 
+  it('answers a request for the price only with the price, inside a budget and with --yes too, and makes nothing', async () => {
+    const { rt, stub, api } = await scene({ POPOST_GEN_MAX_CREDITS: '100' });
+    const req = await request(rt, { prompt: 'a desk', seconds: 5, images: ['/work/product.png'], priceOnly: true });
+    for (const more of [[], ['--yes']]) {
+      const r = await generate(rt, 'video', req, '/work/out.mp4', ...more);
+      expect(r.code).toBe(3);
+      expect(r.data).toEqual({ confirm: { credits: 25, model: 'video-a', resolution: '480p', seconds: 5, aspectRatio: '16:9', balance: 500 } });
+      expect(oneLine(r.stderr)).toContain('Only its price was asked for: nothing was made or charged');
+    }
+    expect(stub.calls('POST', '/videos/generations')).toEqual([]);
+    expect([api.balance, await rt.fs.stat('/work/out.mp4')]).toEqual([500, null]);
+    const picture = await generate(rt, 'image', req, '/work/out.png');
+    expect([picture.code, oneLine(picture.stderr)]).toEqual([2, '"priceOnly" is for a clip; a picture is priced when it is made.']);
+  });
+
   it('derives the idempotency key from the request: the same request, the same key; another model or prompt, another one', async () => {
     const keyOf = async (env: Record<string, string>, body: Json): Promise<string> => {
       const { rt, stub } = await scene({ POPOST_GEN_MAX_CREDITS: '100', ...env });

@@ -28,7 +28,7 @@ interface Platform {
 }
 
 /** The client as every platform command builds it: the private config's popost section, then the environment. */
-const platform = async (rt: Runtime): Promise<Platform> => {
+export const platform = async (rt: Runtime): Promise<Platform> => {
   const cfg = await loadConfig(rt);
   const config = providerConfig(cfg, 'popost');
   const auth = isRecord(config.auth) ? config.auth : {};
@@ -55,7 +55,7 @@ const readRequest = async (rt: Runtime, file: string): Promise<GenerateRequest> 
     if (!isPaths(paths)) throw new GenerateError('"' + list + '" is a list of file paths.', 2);
     if (paths.length) lists[list] = paths.map((p) => userPath(rt, p));
   }
-  return { prompt: data.prompt, ...(seconds !== undefined ? { seconds } : {}), ...(aspect !== undefined ? { aspect } : {}), ...lists };
+  return { prompt: data.prompt, ...(seconds !== undefined ? { seconds } : {}), ...(aspect !== undefined ? { aspect } : {}), ...lists, ...(data.priceOnly === true ? { priceOnly: true as const } : {}) };
 };
 
 const USAGE = 'Give the kind, the request and the output file: popost video generate video|image <request.json> <out-file> (or --models).';
@@ -79,6 +79,7 @@ const run = async (args: ParsedArgs, rt: Runtime): Promise<number> => {
     const s = cloudSettings(rt, args.flag('yes'));
     const asked = await readRequest(rt, userPath(rt, request));
     const target = userPath(rt, out);
+    if (asked.priceOnly && kind !== 'video') throw new GenerateError('"priceOnly" is for a clip; a picture is priced when it is made.', 2);
     printJson(rt, kind === 'video' ? await makeClip(rt, found.client, s, asked, target) : await makePicture(rt, s, found.config, asked, target));
     return 0;
   } catch (error) {
@@ -98,7 +99,7 @@ const generate: Subcommand = {
       'the built-in generator for POPOST_GEN_CMD="popost video generate": makes a clip or a picture on popost.ai with your account, paid in credits, only at a price the user agreed to (POPOST_GEN_MAX_CREDITS, or --yes); prints {"credits": n}, or {"confirm": {...}} with exit code 3',
     positionals: [
       { name: 'kind', choices: ['video', 'image'], required: false, help: 'a clip or a picture' },
-      { name: 'request', required: false, help: 'request.json: { "prompt", "seconds"?, "aspect"?, "images"?, "videos"?, "audios"? }' },
+      { name: 'request', required: false, help: 'request.json: { "prompt", "seconds"?, "aspect"?, "images"?, "videos"?, "audios"?, "priceOnly"? }' },
       { name: 'out', required: false, help: 'the file to write: .mp4 for a clip, .png, .jpg or .webp for a picture' },
     ],
     options: [

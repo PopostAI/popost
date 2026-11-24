@@ -52,7 +52,7 @@ https://github.com/PopostAI/popost/tree/main/skills/popost/tools/video
 | `POPOST_OCR_CMD` (text reader) | `<cmd> <list.json> <out.json>`; list.json is `[{ "frame": 120, "file": "/abs/000120.jpg" }]` | out.json: `[{ "frame": 120, "lines": [{ "text": "...", "confidence": 0.97, "box": [x, y, w, h] }] }]`, boxes as fractions of the frame |
 | `POPOST_ASR_CMD` (transcriber) | `<cmd> <audio.wav> <out.json> [language]` | out.json: `{ "language": "zh", "words": [{ "text": "...", "start": 1.02, "end": 1.16, "confidence": 0.99 }] }`, times in seconds |
 | `POPOST_TTS_CMD` (speaker) | `<cmd> <text.txt> <out.wav> [voice] [speed]` | a WAV at out.wav; optionally `<out.wav>.words.json`: `{ "words": [{ "text", "start", "end" }] }` in seconds |
-| `POPOST_GEN_CMD` (generator) | `<cmd> video\|image <request.json> <out-file>`; request `{ "prompt", "seconds"?, "aspect"?, "images"?, "videos"?, "audios"? }`, references as paths | the clip or picture at out-file, and one JSON line on stdout: `{ "credits"?: number }`. To have a price agreed first: nothing made, `{ "confirm": { "credits": n, ... } }` and exit code 3 |
+| `POPOST_GEN_CMD` (generator) | `<cmd> video\|image <request.json> <out-file>`; request `{ "prompt", "seconds"?, "aspect"?, "images"?, "videos"?, "audios"? }`, references as paths | the clip or picture at out-file, and one JSON line on stdout: `{ "credits"?: number }`. To have a price agreed first: nothing made, `{ "confirm": { "credits": n, ... } }` and exit code 3; such a tool answers a request with `"priceOnly": true` that way whatever its budget |
 
 - What they change: a text reader lets `describe` read the captions (the beats) and `readback` check the render; a
   transcriber reads what is said (spoken beats) and times a voice's words; a speaker makes the voice-over
@@ -87,6 +87,25 @@ running it twice costs once, and what each file shows goes to `project/materials
   between frames 1/15 s apart, the measure `describe` gives every reference shot (`shots/NN.md`, `Motion amount`).
   A clip far under its shot's amount moves too little for it: ask again with the action and the pace of the shot in
   the prompt before building on it. `popost video compare` gives the same pair for every shot of the finished video.
+
+**One anchor picture keeps the clips alike.** Words do not: "the same woman" gives another woman in every clip. With
+two or more clips in the list, one of them is made first (the first that is not a close-up), a frame of it is saved
+as `anchor.jpg` beside it and goes to every other clip as a reference picture, with a sentence asking that whatever
+the clip shares with it (a person and their clothes, a product, a place) looks the same. It never asks for a person,
+so it holds for clips of a product alone. No clip is made that was not asked for, and on popost.ai a reference
+picture does not change the price.
+
+| Option | What it does |
+|---|---|
+| `--anchor-image <file>` | a picture of the user's (the person, the product) is the anchor of every clip; no clip is made first |
+| `--character <id>` | a character of the user's popost.ai character library is the anchor: its picture is downloaded to `assets/character-<id>.png` and every clip that shows a person shows that one. Needs the account (`popost auth login`) |
+| `"anchor": false` in a request | this clip neither gives nor takes the picture. For a clip that shares nothing with the others (another place and subject, a cutaway, an abstract ground): a reference picture pulls a clip towards what it shows |
+| `--no-anchor` | no anchor at all: unrelated clips, or a generator that takes no reference pictures |
+| `--anchor` | the anchor also for a list of one clip, so that a later list finds `anchor.jpg` |
+
+While the anchor clip is not there, the clips that take its frame are not made. When its price waits for the user
+they are only priced, so `toConfirm` is the total of the whole list; when it failed they are listed with
+`"waiting": true` and cost nothing. Run the command again once it exists.
 
 ## The built-in generator
 

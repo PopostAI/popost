@@ -12,7 +12,11 @@ import { buildPage } from '../compile/index';
 import { readback } from '../eval/readback';
 import { runReadback } from '../eval/readback-run';
 import { contrastByShot } from '../eval/contrast';
-import { checkRequests, commandGenerator, makeMaterials, NOTES, type MaterialRequest } from '../generate/index';
+import { errorText } from '../../core/error-text';
+import { scrub } from '../../providers/secrets';
+import { characterAnchor } from '../generate/character';
+import { checkRequests, commandGenerator, makeMaterials, NOTES, type AnchorPicture, type MaterialRequest } from '../generate/index';
+import { platform } from './generate';
 import { lookAt, secondMoments, shotMoments, type LookMoment } from '../look/index';
 import { sheetsLike } from '../look/like';
 import { probe } from '../media/ffmpeg';
@@ -175,14 +179,44 @@ const plan = command(
   }),
 );
 
+const PICTURE_EXT = ['.png', '.jpg', '.jpeg', '.webp'];
+
+/** --anchor-image: the caller's picture as a path in the project; a file from elsewhere is copied to assets/anchor-image.<ext>. */
+const givenAnchor = async (rt: Runtime, dir: string, given: string): Promise<AnchorPicture> => {
+  const from = userPath(rt, given);
+  const ext = rt.path.extname(from).toLowerCase();
+  if (!PICTURE_EXT.includes(ext) || !(await isFile(rt, from))) throw new VideoCommandError('--anchor-image is a PNG, JPEG or WebP picture that exists; "' + given + '" is not. Give the path of the picture every clip should keep to.');
+  const inside = rt.path.relative(dir, from);
+  if (inside && !inside.startsWith('..') && !rt.path.isAbsolute(inside)) return { file: inside.split(rt.path.sep).join('/') };
+  const file = 'assets/anchor-image' + ext;
+  await rt.fs.mkdir(rt.path.join(dir, 'assets'));
+  await rt.fs.writeFile(rt.path.join(dir, file), await rt.fs.readFile(from));
+  return { file };
+};
+
+/** --character: a character of the user's popost.ai library, its picture downloaded into the project. A key never reaches the message. */
+const characterOf = async (rt: Runtime, dir: string, id: string): Promise<AnchorPicture> => {
+  let secrets: string[] = [];
+  try {
+    const found = await platform(rt);
+    secrets = found.secrets;
+    return await characterAnchor(rt, found.client, id, dir);
+  } catch (error) {
+    throw new VideoCommandError('The character ' + id + ' could not be used: ' + scrub(errorText(error), secrets).replace(/\s*\n\s*/g, ' ').trim());
+  }
+};
+
 const materials = command(
-  'makes the clips and pictures a list asks for, from prompts; a file that exists is not made again, and what each shows goes to materials.json for plan. Needs POPOST_GEN_CMD; --check only reads the list',
+  'makes the clips and pictures a list asks for, from prompts; a file that exists is not made again, and what each shows goes to materials.json for plan. Two or more clips keep what they share the same through one reference picture (the anchor). Needs POPOST_GEN_CMD; --check only reads the list',
   {
     positionals: [{ name: 'requests', help: 'a JSON list: [{ "file": "assets/desk.mp4", "prompt": "...", "seconds": 5, "aspect": "16:9", "images": [...], "videos": [...], "audios": [...], "note": "..." }]' }],
     options: [
       { flag: '--out', required: true, metavar: 'DIR', help: 'the project directory the files go into' },
       { flag: '--check', kind: 'flag', help: 'only say what is wrong with the list; nothing is made' },
-      { flag: '--anchor', kind: 'flag', help: 'keep one person and place: one clip is made first and a frame of it goes to the others as a reference picture' },
+      { flag: '--anchor', kind: 'flag', help: 'the default for two or more clips: one of them is made first and a frame of it goes to the others as a reference picture, so that they keep the same person, product and place; given, it is done for a single clip too. A request with "anchor": false stays out' },
+      { flag: '--no-anchor', kind: 'flag', help: 'no shared reference picture: every clip is made from its own request alone' },
+      { flag: '--anchor-image', metavar: 'FILE', help: 'a picture of yours as the anchor of every clip (the person, the product); no clip is made first' },
+      { flag: '--character', metavar: 'ID', help: 'a character of your popost.ai character library as the anchor: its picture is downloaded into the project and every clip keeps that person' },
     ],
   },
   async (args, rt) => {
@@ -193,17 +227,21 @@ const materials = command(
       printJson(rt, { ok: problems.length === 0, requests: Array.isArray(requests) ? requests.length : 0, problems });
       return problems.length ? 2 : 0;
     }
+    const [image, character, off] = [args.string('anchor-image'), args.string('character'), args.flag('no-anchor')];
+    if ([image !== undefined, character !== undefined, off].filter(Boolean).length > 1) throw new VideoCommandError('Give one of --anchor-image, --character and --no-anchor: a video has one anchor picture, or none.');
     const generator = commandGenerator(rt);
     if (!generator) throw new VideoCommandError('No generator is configured: set POPOST_GEN_CMD to a tool of yours (skills/popost/tools/video/ has examples), or to "popost video generate" (popost.ai, paid in credits), or use --check.');
+    const picture = image !== undefined ? await givenAnchor(rt, dir, image) : character !== undefined ? await characterOf(rt, dir, character) : undefined;
     const r = await makeMaterials(rt, {
-      requests, dir, generator, anchor: args.flag('anchor'),
+      requests, dir, generator, ...(off ? { anchor: false } : args.flag('anchor') ? { anchor: true } : {}), ...(picture ? { picture } : {}),
       // A clip takes minutes: a person watching sees which one, on stderr; stdout keeps the one JSON document.
       onStep: (file, done, total) => rt.stderr(file + ' (' + (done + 1) + '/' + total + ')\n'),
     });
     printJson(rt, {
       ok: r.problems.length === 0, dir, notes: rt.path.join(dir, NOTES),
-      made: r.materials.filter((m) => m.made).length, kept: r.materials.filter((m) => !m.made && !m.error).length, failed: r.materials.filter((m) => m.error).length,
-      credits: r.credits, ...(r.toConfirm ? { toConfirm: r.toConfirm } : {}), materials: r.materials, problems: r.problems,
+      made: r.materials.filter((m) => m.made).length, kept: r.materials.filter((m) => !m.made && !m.error && !m.waiting).length, failed: r.materials.filter((m) => m.error).length,
+      ...(r.materials.some((m) => m.waiting) ? { waiting: r.materials.filter((m) => m.waiting).length } : {}),
+      credits: r.credits, ...(r.anchor ? { anchor: r.anchor } : {}), ...(r.toConfirm ? { toConfirm: r.toConfirm } : {}), materials: r.materials, problems: r.problems,
     });
     return r.problems.length ? 2 : 0;
   },

@@ -309,6 +309,8 @@ const submit = async (rt: Runtime, client: PopostClient, s: CloudSettings, job: 
     const body = specOf(s, job.request, job.seconds, job.refs, sent);
     sent = await ensureQuote(rt, client, body, sent, job.file);
     const quote = sent.quote as Quote;
+    // Only the price was asked for (GenerateRequest.priceOnly): it is answered as a price to agree to, whatever the budget.
+    if (job.request.priceOnly) throw new ConfirmNeeded(quote.price, 'This costs ' + quote.price.credits + ' credits. Only its price was asked for: nothing was made or charged.');
     agreeToPrice(s, quote.price);
     try {
       const task = await createTask(rt, client, { ...body, prompt: job.request.prompt, quoteId: quote.quoteId, idempotencyKey: keyOf(sent) });
