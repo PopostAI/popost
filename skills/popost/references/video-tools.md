@@ -40,6 +40,8 @@ terminated through that owned process handle. Screenshot capture waits for the b
 
 ## Tools
 
+Connected accounts can use the live Popost voice catalog without a local TTS tool. Run `popost video voice list`, choose a voice or the configured `default-male` / `default-female`, then follow the quote and confirmed synthesis steps in [people and shared voices](video-performers.md). Hosted narration requires an explicit `POPOST_VOICE_MAX_CREDITS` budget for `plan --voice` / `template fill --speak`; listing and quoting are free. Provider credentials and clone ids stay on the server.
+
 Each variable holds a command line: the program and its first arguments, split at spaces (so no spaces inside a
 path). The engine adds the arguments below, waits for the command to end, and reads the file it wrote; a non-zero
 exit is a failure, reported with the last lines of its stderr. Which model or service runs behind a tool is the
@@ -59,7 +61,7 @@ https://github.com/PopostAI/popost/tree/main/skills/popost/tools/video
   (`plan --voice`, `template fill --speak`); a generator makes clips and pictures from prompts with
   `popost video materials` (every call may cost money: the tool must price and limit it; the built-in one below
   asks before it charges).
-- The voice argument is passed to the speaker as it is: the README beside the tool that `POPOST_TTS_CMD` names says
+- For a custom tool, the voice argument is passed to the speaker as it is: the README beside the tool that `POPOST_TTS_CMD` names says
   which voices exist (for a male voice, pick one it calls male). `POPOST_OCR_JOBS` runs several readers side by side (default 1).
 - `POPOST_CPUS=2` keeps all video work to two processors (ffmpeg threads, Chrome pages, tool threads, parts run side
   by side); unset, it is what the process may use (its affinity and its container's CPU quota), and `popost video

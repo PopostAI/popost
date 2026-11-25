@@ -9,6 +9,7 @@ import type { Runtime } from '../../runtime';
 import { toolCommand, withTempDir } from '../host';
 import { runFfmpeg, runFfmpegOk } from '../media/ffmpeg';
 import { runTool } from '../tool';
+import { hasHostedVoice, hostedSpeaker } from './hosted';
 
 export interface Speaker {
   /** Speaks text into a WAV file at out. voice and speed are passed on as given. */
@@ -19,9 +20,11 @@ const VARIABLE = 'POPOST_TTS_CMD';
 
 /** The speaker behind POPOST_TTS_CMD, or undefined when it is not set. It runs its command through `rt`. */
 export const commandSpeaker = (rt: Runtime): Speaker | undefined => {
-  if (!toolCommand(rt, VARIABLE)) return undefined;
+  const custom = toolCommand(rt, VARIABLE);
+  if (!custom && !hasHostedVoice(rt)) return undefined;
+  const hosted = hostedSpeaker(rt);
   return {
-    speak: (text, out, opts = {}) =>
+    speak: (text, out, opts = {}) => !custom || opts.voice?.startsWith('popost:') ? hosted.speak(text, out, opts) :
       withTempDir(rt, 'popost-video-tts-', async (dir) => {
         const file = rt.path.join(dir, 'text.txt');
         await rt.fs.writeFile(file, text);

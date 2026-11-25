@@ -4,6 +4,7 @@ import { withTempDir } from '../host';
 import { audioSeconds } from './index';
 import { runTool } from '../tool';
 import { runFfmpegOk } from '../media/ffmpeg';
+import { hostedSpeech, selectHostedVoice } from './hosted';
 
 export interface VoiceProfile { id: string; reference: string; sha256: string; mode: 'audio-first' | 'native-reference'; providerVoice?: string }
 interface Voices { version: 1; speakers: VoiceProfile[] }
@@ -47,10 +48,13 @@ export const speakProfile = async (rt: Runtime, dir: string, id: string, text: s
   await withTempDir(rt,'popost-shared-voice-',async temp=>{
     const request=rt.path.join(temp,'request.json'), audio=rt.path.join(temp,'voice.wav');
     await rt.fs.writeFile(request,JSON.stringify({text,speaker:id,referenceAudio:rt.path.resolve(dir,profile.reference),voice:profile.providerVoice}));
-    await runTool(rt,'POPOST_VOICE_CMD','The shared-voice synthesizer',[request,audio]);
+    const hosted = profile.providerVoice?.startsWith('popost:');
+    if (hosted) await hostedSpeech(rt, await selectHostedVoice(rt, profile.providerVoice!), text, audio, Number(rt.env.POPOST_VOICE_MAX_CREDITS ?? NaN), 1, out);
+    else await runTool(rt,'POPOST_VOICE_CMD','The shared-voice synthesizer',[request,audio]);
     const seconds=await audioSeconds(rt,audio);
     const bytes=await rt.fs.readFile(audio);await rt.fs.writeFile(out,bytes);
-    await rt.fs.writeFile(out+'.voice.json',JSON.stringify({version:1,speaker:id,text,seconds,voiceReferenceHash:profile.sha256,audioSha256:sha256(bytes),tool:'POPOST_VOICE_CMD'},null,2));
+    const provenance = hosted ? JSON.parse(await rt.fs.readText(audio+'.voice.json')) as Record<string,unknown> : {};
+    await rt.fs.writeFile(out+'.voice.json',JSON.stringify({...provenance,version:1,speaker:id,text,seconds,voiceReferenceHash:profile.sha256,audioSha256:sha256(bytes),tool: hosted ? 'popost-hosted-voice' : 'POPOST_VOICE_CMD'},null,2));
   });
 };
 

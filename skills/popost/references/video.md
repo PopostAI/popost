@@ -272,7 +272,7 @@ Write the request in your own words into `brief.txt`: the topic, the audience, t
 popost video plan template --brief brief.txt --assets project --dry --voice <voice> --fit-tempo 1.12
 ```
 
-`<voice>`: a name the speaker understands (`video-tools.md`); `plan` speaks a sentence to time it. It prints `answer`
+`<voice>`: a name the custom speaker understands, or `popost:default-male`, `popost:default-female` or `popost:VOICE_ID` from the live platform catalog (`video-performers.md`). Hosted speech needs a quoted, authorized `POPOST_VOICE_MAX_CREDITS` budget, including pace calibration; `--dry` does not make speech free. `plan` speaks a sentence to time it. It prints `answer`
 (how many shots and captions, and the voice to name), `budgets` (`pace`: the voice's characters a second; per line,
 the most characters that can be said in its beat, the voice sped up at most 1.12 times), `rules`, `forms` and
 `materials`; `messages` repeats them. Write `fill.json`:
