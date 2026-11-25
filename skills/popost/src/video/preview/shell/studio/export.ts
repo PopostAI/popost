@@ -14,6 +14,7 @@ export const openExport = (store: Store, edit: EditActions): void => {
  const r=state.resolved, zh=store.get().lang==='zh';
  const text=(cn:string,en:string):string=>zh?cn:en;
  let tab='video', target='jianying', resolution='1080', fps='', bitrate='', premium=false, drafting=false;
+ let requestedAt: number | undefined, downloaded = false;
  let applications: (DraftApplication & { error?: string })[] | undefined, draftRequestId: string | undefined;
  const result=h('div',{class:'studio-export-result',attrs:{role:'status'}});
  const paid=h('div',{class:'studio-paid-info'});
@@ -61,7 +62,8 @@ export const openExport = (store: Store, edit: EditActions): void => {
     const answer=await request<{result:NativeDraftResult}>('/api/studio/draft',{target,requestId:draftRequestId});
     drafting=false;close();showDraftImported(store,answer.result);
    }else{
-    const answer=await request<{render:RenderInfo}>('/api/render',{name:'Popost-video',resolution,dynamicRange:'sdr',fps:fps?Number(fps):null,bitrate:bitrate?Number(bitrate):null,audio:true});edit.setRender(answer.render);
+    requestedAt=undefined;downloaded=false;
+    const answer=await request<{render:RenderInfo}>('/api/render',{name:'Popost-video',resolution,dynamicRange:'sdr',fps:fps?Number(fps):null,bitrate:bitrate?Number(bitrate):null,audio:true});requestedAt=answer.render.state==='running'?answer.render.started:answer.render.state==='done'||answer.render.state==='failed'?answer.render.finished:undefined;edit.setRender(answer.render);
    }
   }catch(e){result.replaceChildren(note(String(e),'bad'));}
   finally{drafting=false;draw();}
@@ -73,7 +75,10 @@ export const openExport = (store: Store, edit: EditActions): void => {
   if(tab==='draft'){if(drafting)progress.removeAttribute('value');return;}
   if(job?.state==='running'){progress.value=job.total?job.frame/job.total:0;result.replaceChildren();}
   if(job?.state==='failed')result.replaceChildren(note(job.message,'bad'));
-  if(job?.state==='done')result.replaceChildren(note(text('导出完成，视频已保存到工程目录。','Export complete. The video is saved in your project folder.')));
+  if(job?.state==='done'&&requestedAt!==undefined&&job.finished>=requestedAt){
+   if(requestedAt!==undefined&&job.finished>=requestedAt&&!downloaded){downloaded=true;const link=h('a',{attrs:{href:job.url,download:'Popost-video.mp4'}});link.click();}
+   result.replaceChildren(note(text('导出完成，视频已保存并开始下载。','Export complete. The video is saved and downloading.')));
+  }
  };
  const closeButton=button('×',close);
  dialog.append(h('div',{class:'studio-export-header'},[title(text('导出设置','Export settings')),closeButton]),tabs,body,paid,progress,submit,result);

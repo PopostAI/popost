@@ -185,7 +185,9 @@ describe.skipIf(!chrome)('preview shell in edit mode (Chrome)', () => {
     const dialog = page.getByRole('dialog');
     expect(await dialog.getByRole('tab').allTextContents()).toEqual(['Video', 'Draft']);
     await dialog.getByRole('button', { name: '480p', exact: true }).click();
+    const download=page.waitForEvent('download');
     await dialog.getByRole('button', { name: 'Export', exact: true }).click();
+    expect((await download).suggestedFilename()).toBe('Popost-video.mp4');
     await expect.poll(()=>page.locator('.studio-export-result').textContent(),{timeout:60000}).toContain('Export complete');
     expect(await dialog.locator('a[download]').count()).toBe(0);
     expect(await dialog.getByRole('button',{name:'Play',exact:true}).count()).toBe(0);
