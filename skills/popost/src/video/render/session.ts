@@ -154,6 +154,7 @@ const failureProblem = async (rt: Runtime, root: string, projectDir: string, r: 
 };
 
 export interface SessionOptions {
+  source?: unknown;
   scale?: number;
   /** false: take a screenshot of every frame, also when the page says the picture did not change. */
   reuse?: boolean;
@@ -162,7 +163,7 @@ export interface SessionOptions {
 /** projectDir: as the user typed it, against rt.cwd. The caller closes the session. */
 export const openSession = async (rt: Runtime, projectDir: string, opts: SessionOptions = {}): Promise<Session> => {
   const scale = opts.scale ?? 1;
-  const built = await buildPage(rt, projectDir, { scale });
+  const built = await buildPage(rt, projectDir, { scale, source: opts.source });
   if (!built.html || !built.resolved || !built.project)
     throw new ProjectError('The project in ' + projectDir + ' has errors, so it cannot be rendered:\n' + formatProblems(built.problems.filter((p) => p.level === 'error')), built.problems);
   const r = built.resolved;

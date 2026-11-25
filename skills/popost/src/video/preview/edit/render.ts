@@ -1,54 +1,48 @@
-/**
- * Rendering from the page (edit mode): one render at a time into <project-dir>/out.mp4 with renderVideo, its
- * progress sent over the event stream as "render" events. The renderer is loaded only when a render starts, so the
- * preview does not load Chrome's driver before it is needed.
- */
 import type { Runtime } from '../../../runtime';
+import { sha256 } from '../../../core/util';
 import type { RenderInfo } from '../protocol';
+import { exportScale, type VideoExportSettings } from '../export-settings';
 
 export const RENDER_FILE = 'out.mp4';
 export type { RenderInfo };
-
 export interface RenderJob {
-  /** Starts a render; false when one is running. */
-  start(): boolean;
+  start(settings?: VideoExportSettings, snapshot?: string): boolean;
   info(): RenderInfo;
-  /** Resolves when the running render (if any) has ended; for tests and for closing the server. */
   idle(): Promise<void>;
 }
-
-/** Progress is sent at most this often, so a long render does not flood the event stream. */
 const PROGRESS_MS = 250;
-
-/** dir: the project directory, absolute. */
 export const createRenderJob = (rt: Runtime, dir: string, send: (info: RenderInfo) => void): RenderJob => {
-  let info: RenderInfo = { state: 'idle' };
-  let running: Promise<void> | undefined;
-  let lastSent = 0;
+  let info: RenderInfo = { state: 'idle' }; let running: Promise<void> | undefined; let lastSent = 0;
   const set = (next: RenderInfo, force = true): void => {
     info = next;
     const now = performance.now();
     if (!force && now - lastSent < PROGRESS_MS) return;
-    lastSent = now;
-    send(next);
+    lastSent = now; send(next);
   };
-  const run = async (): Promise<void> => {
+  const run = async (settings?: VideoExportSettings, snapshot?: string): Promise<void> => {
     const started = rt.now().getTime();
     set({ state: 'running', frame: 0, total: 0, started });
     try {
+      const source = snapshot === undefined ? undefined : JSON.parse(snapshot) as { canvas: { width: number; height: number } };
+      const file = settings ? '.studio/exports/' + started + '-' + settings.name + '.mp4' : RENDER_FILE;
       const { renderVideo } = await import('../../render/index');
-      const r = await renderVideo(rt, { projectDir: dir, out: rt.path.join(dir, RENDER_FILE), onProgress: (frame, total) => set({ state: 'running', frame, total, started }, frame === total) });
+      const r = await renderVideo(rt, {
+        projectDir: dir, out: rt.path.join(dir, file), source,
+        ...(settings && source ? { scale: exportScale(settings, source.canvas), outputFps: settings.fps ?? undefined, bitrate: settings.bitrate ?? undefined, audioEnabled: settings.audio, from: settings.from, to: settings.to } : {}),
+        onProgress: (frame, total) => set({ state: 'running', frame, total, started }, frame === total),
+      });
       const finished = rt.now().getTime();
-      set({ state: 'done', frames: r.frames, seconds: Number((r.ms / 1000).toFixed(2)), file: rt.path.join(dir, RENDER_FILE), url: '/project/' + RENDER_FILE + '?t=' + finished, finished });
+      set({ state: 'done', frames: r.frames, seconds: Number((r.ms / 1000).toFixed(2)), file: rt.path.join(dir, file), url: '/project/' + file.split('/').map(encodeURIComponent).join('/') + '?t=' + finished, finished,
+        ...(source ? { sourceHash: sha256(JSON.stringify(source)), width: r.width, height: r.height, fps: r.fps } : {}) });
+      if (settings) await rt.fs.writeFile(rt.path.join(dir, '.studio', 'last-export.json'), JSON.stringify(info));
     } catch (e) {
-      const message = (e instanceof Error ? e.message : String(e)).split('\n').slice(0, 3).join(' ');
-      set({ state: 'failed', message, finished: rt.now().getTime() });
+      set({ state: 'failed', message: (e instanceof Error ? e.message : String(e)).split('\n').slice(0, 3).join(' '), finished: rt.now().getTime() });
     }
   };
   return {
-    start: () => {
+    start: (settings, snapshot) => {
       if (running) return false;
-      running = run().finally(() => { running = undefined; });
+      running = run(settings, snapshot).finally(() => { running = undefined; });
       return true;
     },
     info: () => info,

@@ -29,6 +29,12 @@ const SVG = 'http://www.w3.org/2000/svg';
 
 /** 16x16 line icons, drawn with the current text colour. */
 const ICONS = {
+  film: 'M2 2h12v12H2zM5 2v12M11 2v12M2 6h3M2 10h3M11 6h3M11 10h3',
+  media: 'M2 2h12v12H2zM2 12l4-5 4 4 2-2 2 3M5 4h.1',
+  text: 'M2 3h12M8 3v11M5 14h6',
+  layers: 'M1 5l7-4 7 4-7 4-7-4M1 8l7 4 7-4M1 11l7 4 7-4',
+  code: 'M5 3 1 8l4 5M11 3l4 5-4 5M9 2 7 14',
+  checks: 'M8 1l6 2v5c0 4-6 7-6 7S2 12 2 8V3l6-2M5 8l2 2 4-4',
   first: 'M4 3v10M12 3.5 6 8l6 4.5z',
   last: 'M12 3v10M4 3.5 10 8l-6 4.5z',
   play: 'M5 3l8 5-8 5z',

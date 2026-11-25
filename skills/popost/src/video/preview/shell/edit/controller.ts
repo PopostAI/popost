@@ -12,6 +12,7 @@ import { duplicate, newTextTrack, removal, targetOf, type EditOp, type Target } 
 
 export interface EditActions {
   /** Sends one operation; resolves true when it was saved. */
+  replace(source: unknown, base?: unknown): Promise<boolean>;
   send(op: EditOp, select?: Selection | null): Promise<boolean>;
   undo(): Promise<void>;
   redo(): Promise<void>;
@@ -88,6 +89,7 @@ export const createEditActions = (store: Store, actions: Actions): EditActions =
   };
   return {
     send,
+    replace: async (source, base) => settle(await post('/api/source', { source, base })),
     undo: async () => { settle(await post('/api/undo')); },
     redo: async () => { settle(await post('/api/redo')); },
     remove: () => withTarget(async (_s, t0) => { await send(removal(t0), null); }),

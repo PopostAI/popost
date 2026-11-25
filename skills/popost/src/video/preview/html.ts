@@ -5,14 +5,15 @@
 import type { Problem } from '../types';
 import { SHELL_BUNDLE } from './shell-bundle';
 import { SHELL_CSS } from './shell/style';
+import { STUDIO_CSS } from './shell/studio/style';
 
 export const escapeHtml = (s: string): string =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
-export const shellHtml = (): string => {
+export const shellHtml = (edit = false): string => {
   const js = SHELL_BUNDLE.replace(/<\/script/gi, '<\\/script');
-  return '<!doctype html>\n<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">' +
-    '<meta name="color-scheme" content="light dark"><title>Video preview</title><style>' + SHELL_CSS + '</style></head>' +
+  return '<!doctype html>\n<html lang="en" data-mode="' + (edit ? 'edit' : 'readonly') + '"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">' +
+    '<meta name="color-scheme" content="light dark"><title>Popost Video Studio</title><style>' + SHELL_CSS + (edit ? STUDIO_CSS : '') + '</style></head>' +
     '<body><div id="app"></div><script>' + js + '</script></body></html>\n';
 };
 

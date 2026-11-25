@@ -12,6 +12,10 @@ import { openSession, type ImageFormat, type Session } from './session';
 export { checkLayout } from './layout';
 
 export interface RenderVideoOptions {
+  source?: unknown;
+  outputFps?: number;
+  bitrate?: number;
+  audioEnabled?: boolean;
   /** The project directory and the output file, as the user typed them (against rt.cwd). */
   projectDir: string;
   out: string;
@@ -105,7 +109,7 @@ async function* screenshots(sessions: Session[], from: number, to: number, image
 
 export const renderVideo = async (rt: Runtime, opts: RenderVideoOptions): Promise<RenderVideoResult> => {
   const t0 = performance.now();
-  const sessionOptions = { scale: opts.scale, ...(opts.reuse === false ? { reuse: false } : {}) };
+  const sessionOptions = { scale: opts.scale, source: opts.source, ...(opts.reuse === false ? { reuse: false } : {}) };
   // The first page also fills the project's cache (frames of video materials); the others open once it is there.
   const session = await openSession(rt, opts.projectDir, sessionOptions);
   const sessions = [session];
@@ -123,13 +127,14 @@ export const renderVideo = async (rt: Runtime, opts: RenderVideoOptions): Promis
     await rt.fs.mkdir(rt.path.dirname(out));
     const root = rt.path.resolve(rt.cwd, opts.projectDir);
     const audio = r.audio.map((a) => ({ ...a, src: rt.path.resolve(root, a.src) }));
-    const args = encodeArgs({ out: partial, fps: r.canvas.fps, from, to, image, crf: opts.crf ?? 18, audio, ...(opts.encoderThreads === undefined ? {} : { threads: opts.encoderThreads }) });
+    const args = encodeArgs({ out: partial, fps: r.canvas.fps, from, to, image, crf: opts.crf ?? 18, audio, outputFps: opts.outputFps, bitrate: opts.bitrate, audioEnabled: opts.audioEnabled, ...(opts.encoderThreads === undefined ? {} : { threads: opts.encoderThreads }) });
     const box: { error?: unknown } = {};
     // At Chrome's priority: the encoder drains the pages (runFfmpeg).
     const result = await runFfmpeg(rt, args, screenshots(sessions, from, to, image, box, opts.onProgress), undefined, { lowPriority: false });
     if (box.error) throw box.error;
     if (result.code !== 0) throw new FfmpegError('renderVideo: ffmpeg exited with ' + result.code + ': ' + result.stderr.trim().split('\n').slice(-3).join(' | '), result.stderr);
-    const want = { frames: to - from, width: session.width, height: session.height, fps: r.canvas.fps };
+    const outputFps = opts.outputFps ?? r.canvas.fps;
+    const want = { frames: Math.max(1, Math.round((to - from) / r.canvas.fps * outputFps)), width: session.width, height: session.height, fps: outputFps };
     await verifyVideo(rt, partial, want);
     await rt.fs.rename(partial, out);
     return { ...want, ms: Math.round(performance.now() - t0), pages, reused: sessions.reduce((n, s) => n + s.counts().reused, 0) };

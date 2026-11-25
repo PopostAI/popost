@@ -153,7 +153,7 @@ describe.skipIf(!chrome)('preview shell in edit mode (Chrome)', () => {
       expect(await page.locator('#lane-readout').textContent()).toBe('a: 20 → 25 frames  · video 40 → 45 (+5)');
     });
     await expect.poll(async () => (await read()).segments[0]?.frames, { timeout: 10_000 }).toBe(25);
-    await page.waitForFunction(() => document.getElementById('project')?.textContent?.includes('45f'), undefined, { timeout: 10_000 });
+    await page.waitForFunction(() => document.getElementById('time')?.textContent?.includes('1.50'), undefined, { timeout: 10_000 });
     await page.locator('#frame-no').click();
     await page.keyboard.press('Control+z');
     await expect.poll(async () => (await read()).segments[0]?.frames, { timeout: 10_000 }).toBe(20);
@@ -180,13 +180,14 @@ describe.skipIf(!chrome)('preview shell in edit mode (Chrome)', () => {
   });
 
   it.skipIf(!ffmpeg)('renders from the page and plays the render in the reference player\'s place', async () => {
-    await page.click('#edit-render');
-    await page.waitForFunction(() => document.getElementById('render-status')?.textContent?.startsWith('Rendered: '), undefined, { timeout: 60_000 });
-    expect(await page.locator('#render-status').textContent()).toMatch(/^Rendered: 45 frames in [\d.]+ s, out\.mp4/);
-    await page.click('#play-render');
-    await page.waitForFunction(() => document.querySelector<HTMLVideoElement>('#reference-video')?.getAttribute('src')?.startsWith('/project/out.mp4'), undefined, { timeout: 5000 });
-    expect(await page.locator('#reference-view .caption').textContent()).toMatch(/^Render {2}out\.mp4$/);
-    await page.click('#play-render');
+    await page.click('#studio-export-open');
+    await page.getByRole('button', { name: 'Export current draft', exact: true }).click();
+    await page.waitForSelector('.studio-export-result a[download]', { timeout: 60_000 });
+    expect(await page.locator('.studio-export-result').textContent()).toContain('180 × 320');
+    await page.locator('.studio-export-result').getByRole('button', { name: 'Play', exact: true }).click();
+    await page.waitForFunction(() => document.querySelector<HTMLVideoElement>('#reference-video')?.getAttribute('src')?.startsWith('/project/.studio/exports/'), undefined, { timeout: 5000 });
+    expect(await page.locator('#reference-view .caption').textContent()).toContain('Render');
+    await page.getByRole('button', { name: 'Compare', exact: true }).click();
     await page.waitForFunction(() => !document.getElementById('reference-view')?.isConnected, undefined, { timeout: 5000 });
   });
 

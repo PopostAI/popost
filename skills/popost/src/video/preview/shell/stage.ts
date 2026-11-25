@@ -156,7 +156,7 @@ const pageDriver = (iframe: HTMLIFrameElement, store: Store): PageDriver => {
 const videoSource = (v: View): string => {
   const r = v.edit.render;
   if (v.edit.playRender && r?.state === 'done') return r.url;
-  return v.state?.reference ? '/reference' : '';
+  return v.compare !== false && v.state?.reference ? '/reference' : '';
 };
 
 /** The parts edit mode draws on: the box of the render's picture and the page in it. */
@@ -189,7 +189,7 @@ export const mountStage = (root: HTMLElement, store: Store, actions: Actions): S
     if (v.frame !== prev.frame) driver.apply();
     if (v.frame !== prev.frame || v.overlays !== prev.overlays || v.state !== prev.state) drawOverlays(p, v, actions);
     if (v.frame !== prev.frame || v.playing !== prev.playing || v.speed !== prev.speed) syncVideo(video, v, prev, false);
-    if (v.lang !== prev.lang || v.state !== prev.state || v.pageError !== prev.pageError || v.edit !== prev.edit) {
+    if (v.compare !== prev.compare || v.lang !== prev.lang || v.state !== prev.state || v.pageError !== prev.pageError || v.edit !== prev.edit) {
       captions(p, v);
       fit(p, v);
     }

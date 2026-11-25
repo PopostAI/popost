@@ -112,7 +112,7 @@ const drawBox = (ui: Ui, v: View, moving: Box4 | undefined): void => {
   ui.layer.classList.toggle('off', !v.state?.resolved);
   ui.sel.hidden = !shown;
   ui.readout.hidden = !moving;
-  if (shown && box) placeBox(ui.sel, box);
+  if (shown && box) { placeBox(ui.sel, box); ui.sel.classList.toggle('thin', ui.sel.getBoundingClientRect().height < 18); }
   if (moving) {
     const { W, H } = canvasOf(v);
     ui.readout.textContent = readoutText(moving, W, H);

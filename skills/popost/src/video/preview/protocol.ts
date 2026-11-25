@@ -51,7 +51,7 @@ export interface EditInfo {
 export type RenderInfo =
   | { state: 'idle' }
   | { state: 'running'; frame: number; total: number; started: number }
-  | { state: 'done'; frames: number; seconds: number; file: string; url: string; finished: number }
+  | { state: 'done'; frames: number; seconds: number; file: string; url: string; finished: number; sourceHash?: string; width?: number; height?: number; fps?: number }
   | { state: 'failed'; message: string; finished: number };
 
 export interface EditState extends EditInfo { render: RenderInfo }

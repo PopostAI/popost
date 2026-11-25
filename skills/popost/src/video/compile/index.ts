@@ -29,6 +29,8 @@ export interface BuiltPage {
 export interface BuildOptions {
   /** Render scale: the page's size, and the size video frames are extracted at. Default 1. */
   scale?: number;
+  /** An immutable JSON snapshot, supplied by Studio exports. Assets still resolve against projectDir. */
+  source?: unknown;
 }
 
 /** shown: the file as the user's path names it, for the message. */
@@ -48,7 +50,7 @@ const readJson = async (rt: Runtime, file: string, shown: string): Promise<{ jso
 
 /** projectDir: as the user typed it (the problems name it so), against rt.cwd. */
 export const buildPage = async (rt: Runtime, projectDir: string, opts: BuildOptions = {}): Promise<BuiltPage> => {
-  const read = await readJson(rt, rt.path.resolve(rt.cwd, projectDir, 'video.json'), rt.path.join(projectDir, 'video.json'));
+  const read = opts.source === undefined ? await readJson(rt, rt.path.resolve(rt.cwd, projectDir, 'video.json'), rt.path.join(projectDir, 'video.json')) : { json: opts.source };
   if (read.problem) return { problems: [read.problem] };
   const parsed = parseProject(read.json);
   if (!parsed.project) return { problems: parsed.problems };

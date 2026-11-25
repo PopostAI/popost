@@ -9,6 +9,7 @@ import type { MeasureFile, PreviewState } from '../protocol';
 import type { Resolved, ResolvedAudio, ResolvedItem } from '../../types';
 import type { Actions, Store, View } from './app';
 import { h, placeAt, placeSpan } from './dom';
+import { waveform } from './studio/audio';
 import { t, type Lang } from './i18n';
 import {
   allEvents, boundaryLabel, eventLabel, motionLabel, packRows, rulerTicks, sameSelection, timelineFps, timelineFrames, toTimeline,
@@ -40,6 +41,8 @@ const segmentLane = (r: Resolved, lang: Lang, edit: boolean): HTMLElement => {
   const children = r.segments.flatMap((s) => {
     const color = s.base.kind === 'color' ? s.base.color : undefined;
     const seg = block('blk seg', s.start, s.end, F, s.id, s.id + ': frames ' + s.start + '..' + (s.end - 1), { kind: 'segment', id: s.id });
+    seg.textContent = '';
+    seg.append(h('img', { attrs: { loading: 'lazy', alt: '', src: '/api/thumbnail?frame=' + Math.floor((s.start + s.end) / 2) + '&g=' + r.frames } }), h('span', { class: 'segment-name', text: s.id }));
     if (color) seg.prepend(h('span', { class: 'swatch', style: 'background:' + color }));
     const tr = s.transition;
     if (!tr) return s.index === 0 ? [seg] : [seg, placeAt(h('div', { class: 'tick' }), s.start, F)];
@@ -66,13 +69,20 @@ const itemLane = (it: ResolvedItem, F: number, edit: boolean): HTMLElement => {
 const audioLane = (a: ResolvedAudio, F: number, lang: Lang): HTMLElement => {
   const s: Selection = { kind: 'audio', id: a.id };
   const label = a.id + DOT + a.src + (a.gain ? DOT + a.gain + ' dB' : '');
-  return lane('audio-' + a.id, t(lang, 'audio') + ': ' + a.id, [block('blk audio', a.start, a.end ?? F, F, label, label, s)], { labelSel: s });
+  const bar = block('blk audio', a.start, a.end ?? F, F, label, label, s);
+  void waveform(a.src).then(values => {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); svg.setAttribute('viewBox', '0 0 500 28'); svg.setAttribute('preserveAspectRatio', 'none');
+    const path = document.createElementNS(svg.namespaceURI, 'path');
+    path.setAttribute('d', values.map((value, i) => 'M' + i + ' ' + (14 - Math.max(1, value * 13)) + 'v' + Math.max(2, value * 26)).join(''));
+    path.setAttribute('stroke', '#69967c'); path.setAttribute('stroke-width', '0.8'); svg.append(path); bar.append(svg); bar.classList.add('wave-ready');
+  }).catch(() => undefined);
+  return lane('audio-' + a.id, t(lang, 'audio') + ': ' + a.id, [bar], { labelSel: s });
 };
 
 /** One block per token of an audio track's words; a token whose time is a guess (confidence below 0.4) is faded. */
 const wordsLane = (w: NonNullable<Resolved['words']>[number], F: number, lang: Lang): HTMLElement =>
   lane('words-' + w.track, t(lang, 'words') + ': ' + w.track, w.tokens.map((tk) =>
-    block('blk audio word' + (tk.confidence < 0.4 ? ' unsure' : ''), tk.start, tk.end, F, tk.text, tk.text + ': frames ' + tk.start + '..' + (tk.end - 1) + DOT + 'confidence ' + tk.confidence)));
+    block('blk audio word' + (tk.confidence < 0.4 ? ' unsure' : ''), tk.start, tk.end, F, tk.text, tk.text + ': frames ' + tk.start + '..' + (tk.end - 1) + DOT + 'confidence ' + tk.confidence)), { cls: 'words-lane' });
 
 const boundaryLane = (mf: MeasureFile, source: Source, F: number, fps: number, lang: Lang): HTMLElement => {
   const m = mf.measure;
@@ -111,7 +121,15 @@ const buildLanes = (s: PreviewState, lang: Lang): HTMLElement[] => {
   const r = s.resolved;
   const edit = s.edit !== undefined;
   const out = [rulerLane(F, fps, lang)];
-  if (r) out.push(segmentLane(r, lang, edit), ...r.items.map((it) => itemLane(it, F, edit)), ...r.audio.map((a) => audioLane(a, F, lang)), ...(r.words ?? []).map((w) => wordsLane(w, F, lang)));
+  if (r) {
+    const captions = new Map<string, ResolvedItem[]>();
+    for (const it of r.items) if (it.cue) captions.set(it.cue.track, [...(captions.get(it.cue.track) ?? []), it]);
+    for (const [id, items] of captions) {
+      const bars = items.flatMap(it => Array.from(itemLane(it, F, edit).querySelector('.lane-track')!.children));
+      out.push(lane('captions-' + id, id, bars as HTMLElement[], { cls: 'caption-lane' }));
+    }
+    out.push(...r.items.filter(it => !it.cue).map(it => itemLane(it, F, edit)), segmentLane(r, lang, edit), ...r.audio.map(a => audioLane(a, F, lang)), ...(r.words ?? []).map(w => wordsLane(w, F, lang)));
+  }
   for (const [mf, source] of [[s.measure, 'render'], [s.referenceMeasure, 'reference']] as const) {
     if (mf) out.push(boundaryLane(mf, source, F, fps, lang), eventLane(mf, source, F, fps, lang));
   }

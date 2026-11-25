@@ -6,6 +6,9 @@ import type { ResolvedAudio } from '../types';
 import type { ImageFormat } from './session';
 
 export interface EncodeJob {
+  outputFps?: number;
+  bitrate?: number;
+  audioEnabled?: boolean;
   out: string;
   fps: number;
   /** Rendered range: frames from .. to-1 of the video. */
@@ -80,7 +83,7 @@ export const colourFilter = (image: ImageFormat): string =>
   'scale=out_color_matrix=bt709:out_range=tv,format=yuv420p';
 
 export const encodeArgs = (job: EncodeJob): string[] => {
-  const inputs = audioInputs(job);
+  const inputs = job.audioEnabled === false ? [] : audioInputs(job);
   const duration = (job.to - job.from) / job.fps;
   const audio = inputs.length === 0 ? ['-an'] : ['-filter_complex', audioGraph(inputs, duration), '-map', '[aout]', '-c:a', 'aac', '-b:a', '192k', '-ar', String(RATE)];
   const threads = job.threads === undefined ? [] : ['-threads', String(Math.max(1, Math.floor(job.threads)))];
@@ -90,10 +93,10 @@ export const encodeArgs = (job: EncodeJob): string[] => {
     ...inputs.flatMap((x) => [...threads, '-i', x.file]),
     '-map', '0:v',
     ...audio,
-    '-vf', colourFilter(job.image),
-    '-c:v', 'libx264', '-crf', String(job.crf), '-pix_fmt', 'yuv420p',
+    '-vf', colourFilter(job.image) + (job.outputFps && job.outputFps !== job.fps ? ',fps=' + job.outputFps : ''),
+    '-c:v', 'libx264', ...(job.bitrate ? ['-b:v', job.bitrate + 'M', '-maxrate', job.bitrate + 'M', '-bufsize', job.bitrate * 2 + 'M'] : ['-crf', String(job.crf)]), '-pix_fmt', 'yuv420p',
     '-colorspace', 'bt709', '-color_primaries', 'bt709', '-color_trc', 'bt709', '-color_range', 'tv',
-    '-r', String(job.fps), '-movflags', '+faststart',
+    '-r', String(job.outputFps ?? job.fps), '-frames:v', String(Math.max(1, Math.round(duration * (job.outputFps ?? job.fps)))), '-movflags', '+faststart',
     ...threads, job.out,
   ];
 };

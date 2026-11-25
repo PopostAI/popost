@@ -9,6 +9,7 @@
  */
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { z } from 'zod';
+import { readExportSettings, type ExportAccess, type VideoExportSettings } from '../export-settings';
 import {
   AudioTrackSchema, BaseObjectSchema, CaptionTrackSchema, CueSchema, ImageTrackSchema, MotionSchema, SegmentSchema, ShapeTrackSchema,
   SpanObjectSchema, TextStyleSchema, TextTrackSchema, TransitionSchema, VideoTrackSchema,
@@ -24,6 +25,8 @@ export const MAX_BODY = 1024 * 1024;
 
 export interface EditContext {
   editor: Editor;
+  exportAccess?: () => Promise<ExportAccess>;
+  studio?: (path: string, body: Record<string, unknown>) => Promise<unknown>;
   render: RenderJob;
   /** Origins a request from the page itself carries: "http://127.0.0.1:<port>" and the other loopback names. */
   origins: ReadonlySet<string>;
@@ -52,15 +55,15 @@ export const crossOrigin = (req: IncomingMessage, origins: ReadonlySet<string>):
 };
 
 /** The body as text, or 'too-large' when it passes MAX_BODY (the rest is read and dropped, so the answer arrives). */
-const readBody = (req: IncomingMessage): Promise<string | 'too-large'> =>
+const readBody = (req: IncomingMessage, limit = MAX_BODY): Promise<string | 'too-large'> =>
   new Promise((resolve, reject) => {
     const declared = Number(req.headers['content-length'] ?? 0);
     const chunks: Buffer[] = [];
     let size = 0;
-    let over = declared > MAX_BODY;
+    let over = declared > limit;
     req.on('data', (c: Buffer) => {
       size += c.length;
-      if (size > MAX_BODY) over = true;
+      if (size > limit) over = true;
       if (!over) chunks.push(c);
     });
     req.on('end', () => resolve(over ? 'too-large' : Buffer.concat(chunks).toString('utf8')));
@@ -95,12 +98,34 @@ export const handlePost = async (ctx: EditContext, pathname: string, req: Incomi
     return refuse(res, 403, refusal, 'Open the preview by the URL it printed and edit there.');
   }
   if (pathname === '/api/edit') return editRoute(ctx, req, res);
-  const body = await readBody(req);
-  if (body === 'too-large') return refuse(res, 413, 'Refused: the body is larger than ' + MAX_BODY + ' bytes.', 'Send no body with this request.');
+  const body = await readBody(req, pathname === '/api/studio/import' ? 16 * 1024 * 1024 : MAX_BODY);
+  if (body === 'too-large') return refuse(res, 413, 'The request is too large.', 'Use a smaller file or project.');
   if (pathname === '/api/undo') return answer(ctx, res, await ctx.editor.undo());
   if (pathname === '/api/redo') return answer(ctx, res, await ctx.editor.redo());
+  let value: Record<string, unknown> = {};
+  if (body.trim()) {
+    try { const parsed: unknown = JSON.parse(body); if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error(); value = parsed as Record<string, unknown>; }
+    catch { return refuse(res, 400, 'Expected a JSON object.', 'Correct the request body.'); }
+  }
+  if (pathname === '/api/source') return answer(ctx, res, await ctx.editor.replace(value.source, value.base));
+  if (pathname.startsWith('/api/studio/') && ctx.studio) {
+    try { const result = await ctx.studio(pathname, value); return json(res, 200, { ok: true, result, state: await ctx.reloaded() }); }
+    catch (e) { return refuse(res, 422, e instanceof Error ? e.message : String(e), 'Review the selected draft and try again.'); }
+  }
   if (pathname === '/api/render') {
-    if (!ctx.render.start()) return refuse(res, 409, 'A render is already running.', 'Wait for it to end; its progress shows in the page.');
+    let snapshot: string | undefined;
+    let settings: VideoExportSettings | undefined;
+    {
+      try {
+        snapshot = await ctx.editor.snapshot();
+        const source = JSON.parse(snapshot) as { canvas: { width: number; height: number }; segments: { frames: number }[] };
+        const selected = readExportSettings(value, source.canvas, await ctx.exportAccess?.() ?? { premium: false, verified: false });
+        if (body.trim()) settings = selected;
+        const total = source.segments.reduce((n, s) => n + s.frames, 0);
+        if ((selected.to ?? total) > total || (selected.from ?? 0) >= (selected.to ?? total)) throw new Error('Export range is outside the timeline.');
+      } catch (e) { return refuse(res, 422, e instanceof Error ? e.message : String(e), 'Review the export settings or unlock the required resolution.'); }
+    }
+    if (!ctx.render.start(settings, snapshot)) return refuse(res, 409, 'A render is already running.', 'Wait for it to end; its progress shows in the page.');
     return json(res, 202, { ok: true, render: ctx.render.info() });
   }
   return refuse(res, 404, 'Not found: POST ' + pathname + '.', 'Edit mode answers POST /api/edit, /api/undo, /api/redo and /api/render.');

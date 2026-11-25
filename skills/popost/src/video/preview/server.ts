@@ -21,6 +21,10 @@ import { editSchemas, handlePost, type EditContext } from './edit/routes';
 import { createLoader, type Loader, type SourceOptions } from './project';
 import { RELOAD_EVENT, RENDER_EVENT, type PreviewState } from './protocol';
 import { watchSources } from './watch';
+import { exportAccess } from './export-settings';
+import { studioMetadata } from './studio-data';
+import { studioAction } from './studio-actions';
+import { createThumbnails } from './thumbnails';
 
 export interface PreviewOptions extends SourceOptions {
   /** 0 or absent: any free port. */
@@ -59,7 +63,7 @@ const createEventHub = (): EventHub => {
   };
 };
 
-interface Context { rt: Runtime; projectDir: string; reference?: string; loader: Loader; hub: EventHub; hosts: Set<string> | undefined; edit?: EditContext }
+interface Context { rt: Runtime; projectDir: string; reference?: string; loader: Loader; hub: EventHub; hosts: Set<string> | undefined; edit?: EditContext; thumbnails?: ReturnType<typeof createThumbnails> }
 
 const text = (res: ServerResponse, status: number, body: string, extra: Record<string, string> = {}): void => {
   res.writeHead(status, { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store', ...extra }).end(body);
@@ -84,7 +88,7 @@ const serveProjectFile = async (ctx: Context, req: IncomingMessage, res: ServerR
 const route = async (ctx: Context, req: IncomingMessage, res: ServerResponse): Promise<void> => {
   // The raw path, not a normalised URL: "/project/../x" must be refused, not quietly turned into "/x".
   const pathname = (req.url ?? '/').split('?')[0] ?? '/';
-  if (pathname === '/') return html(res, 200, shellHtml());
+  if (pathname === '/') return html(res, 200, shellHtml(Boolean(ctx.edit)));
   if (pathname === '/page') {
     const { page } = await ctx.loader.load();
     return html(res, page.status, page.html);
@@ -93,6 +97,27 @@ const route = async (ctx: Context, req: IncomingMessage, res: ServerResponse): P
     const { state } = await ctx.loader.load();
     res.writeHead(200, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }).end(JSON.stringify(withEdit(ctx, state)));
     return;
+  }
+  if (pathname === '/api/export-options' && ctx.edit) {
+    const access = await exportAccess(ctx.rt);
+    res.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'no-store' }).end(JSON.stringify(access)); return;
+  }
+  if (pathname === '/api/studio' && ctx.edit) {
+    const { state } = await ctx.loader.load();
+    const meta = await studioMetadata(ctx.rt, ctx.projectDir, withEdit(ctx, state));
+    let lastExport: unknown = null;
+    try { lastExport = JSON.parse(await ctx.rt.fs.readText(ctx.rt.path.join(ctx.projectDir, '.studio', 'last-export.json'))); } catch { /* No previous export. */ }
+    res.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'no-store' }).end(JSON.stringify({ ...meta, lastExport })); return;
+  }
+  if (pathname === '/api/source' && ctx.edit) {
+    res.writeHead(200, { 'content-type': 'application/json; charset=utf-8', 'content-disposition': 'attachment; filename="video.json"', 'cache-control': 'no-store' }).end(await ctx.edit.editor.snapshot()); return;
+  }
+  if (pathname === '/api/thumbnail' && ctx.thumbnails) {
+    const frame = Number(new URL(req.url ?? '', 'http://localhost').searchParams.get('frame'));
+    if (!Number.isSafeInteger(frame) || frame < 0) return text(res, 400, 'Choose a whole frame.');
+    const { state } = await ctx.loader.load();
+    const png = await ctx.thumbnails.get(frame, state.generation);
+    res.writeHead(200, { 'content-type': 'image/png', 'cache-control': 'private, max-age=60' }).end(png); return;
   }
   if (pathname === '/api/schema' && ctx.edit) {
     res.writeHead(200, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }).end(JSON.stringify(editSchemas()));
@@ -171,6 +196,12 @@ const allowedHosts = (host: string, port: number): Set<string> | undefined => {
 /** The edit routes' context: the session's editor, the render job, and how to reload after a write. */
 const editContext = async (ctx: Context, hosts: ReadonlySet<string>): Promise<EditContext> => ({
   editor: await createEditor(ctx.rt, ctx.projectDir),
+  exportAccess: () => exportAccess(ctx.rt),
+  studio: async (path, body) => {
+    const { state } = await ctx.loader.load();
+    if (!ctx.edit) throw new Error('Studio is read-only.');
+    return studioAction(ctx.rt, ctx.projectDir, ctx.edit.editor, withEdit(ctx, state), path, body);
+  },
   render: createRenderJob(ctx.rt, ctx.projectDir, (info) => ctx.hub.send(RENDER_EVENT, info)),
   origins: new Set([...hosts].map((h) => 'http://' + h)),
   reloaded: async () => {
@@ -213,6 +244,7 @@ export const startPreview = async (rt: Runtime, opts: PreviewOptions): Promise<P
   const address = await listen(server, opts.port ?? 0, host);
   ctx.hosts = allowedHosts(host, address.port);
   if (opts.edit && ctx.hosts) ctx.edit = await editContext(ctx, ctx.hosts);
+  ctx.thumbnails = createThumbnails(rt, projectDir);
   const watcher = watchSources(rt, {
     paths: () => loader.sources(),
     onChange: (changed) => void onSourceChange(ctx, changed).catch(() => undefined),
@@ -222,6 +254,7 @@ export const startPreview = async (rt: Runtime, opts: PreviewOptions): Promise<P
     url: 'http://' + shown + ':' + address.port + '/',
     close: async () => {
       watcher.close();
+      await ctx.thumbnails?.close();
       hub.close();
       await new Promise<void>((resolve) => {
         server.close(() => resolve());

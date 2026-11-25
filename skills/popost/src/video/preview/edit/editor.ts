@@ -25,6 +25,8 @@ export type Outcome =
   | { ok: false; status: number; problems: Problem[]; info: EditInfo };
 
 export interface Editor {
+  replace(source: unknown, base?: unknown): Promise<Outcome>;
+  snapshot(): Promise<string>;
   apply(op: EditOp): Promise<Outcome>;
   undo(): Promise<Outcome>;
   redo(): Promise<Outcome>;
@@ -141,7 +143,26 @@ export const createEditor = async (rt: Runtime, dir: string): Promise<Editor> =>
     return { ok: true, op: back ? 'undo' : 'redo', step: step.op, label: step.label, info: info() };
   };
 
+  const replace = async (source: unknown, base?: unknown): Promise<Outcome> => {
+    await sync();
+    const before = current ?? '';
+    let previous: unknown;
+    try { previous = JSON.parse(before); } catch { previous = null; }
+    if (base !== undefined && JSON.stringify(previous) !== JSON.stringify(base))
+      return refused(409, [problem('(source)', 'The draft changed in another editor. Your input was kept.', 'Reload the current JSON and reapply your changes.')]);
+    const problems = [...newUnknownFields(previous, source), ...await checkJson(rt, source, dir)];
+    if (problems.some((p) => p.level === 'error')) return refused(422, problems);
+    const text = formatJson(source, before);
+    if (text !== before) {
+      await write(text);
+      push({ before, after: text, op: 'set', label: PROJECT_FILE });
+    }
+    return { ok: true, op: 'set', step: 'set', label: PROJECT_FILE, info: info() };
+  };
+
   return {
+    replace: (source, base) => serial(() => replace(source, base)),
+    snapshot: () => serial(async () => { await sync(); return current ?? ''; }),
     apply: (op) => serial(() => apply(op)),
     undo: () => serial(() => travel(true)),
     redo: () => serial(() => travel(false)),

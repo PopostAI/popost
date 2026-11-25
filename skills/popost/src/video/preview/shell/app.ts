@@ -11,6 +11,8 @@ import { clampFrame, timelineFps, timelineFrames, type Selection } from './model
 export interface Overlays { boxes: boolean; events: boolean; safe: boolean }
 
 export interface View {
+  compare?: boolean;
+  muted?: boolean;
   state: PreviewState | null;
   frame: number;
   playing: boolean;
@@ -51,7 +53,7 @@ export type Listener = (view: View, previous: View) => void;
 export interface Store {
   get(): View;
   set(patch: Partial<View>): void;
-  subscribe(fn: Listener): void;
+  subscribe(fn: Listener): () => void;
 }
 
 export const createStore = (initial: View): Store => {
@@ -64,7 +66,7 @@ export const createStore = (initial: View): Store => {
       view = { ...view, ...patch };
       listeners.forEach((fn) => fn(view, previous));
     },
-    subscribe: (fn) => { listeners.push(fn); },
+    subscribe: (fn) => { listeners.push(fn); return () => { const i = listeners.indexOf(fn); if (i >= 0) listeners.splice(i, 1); }; },
   };
 };
 
