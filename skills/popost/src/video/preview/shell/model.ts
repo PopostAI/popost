@@ -9,6 +9,7 @@ export type Source = 'render' | 'reference';
 
 export type Selection =
   | { kind: 'segment'; id: string }
+  | { kind: 'slot'; id: string; name: string }
   | { kind: 'item'; id: string }
   | { kind: 'audio'; id: string }
   | { kind: 'boundary'; source: Source; index: number }
@@ -101,6 +102,7 @@ const measureOf = (s: PreviewState, source: Source): Measure | undefined => (sou
 /** The value a selection points at (resolved values for the project, measured values for a measurement). */
 export const selectionValue = (s: PreviewState, sel: Selection): unknown => {
   switch (sel.kind) {
+    case 'slot': return undefined;
     case 'segment': return s.resolved?.segments.find((x) => x.id === sel.id);
     case 'item': return s.resolved?.items.find((x) => x.id === sel.id);
     case 'audio': return s.resolved?.audio.find((x) => x.id === sel.id);
@@ -112,6 +114,7 @@ export const selectionValue = (s: PreviewState, sel: Selection): unknown => {
 /** A short title for a selection. */
 export const selectionTitle = (sel: Selection): string => {
   switch (sel.kind) {
+    case 'slot': return sel.name;
     case 'segment': case 'item': case 'audio': return sel.kind + ' ' + sel.id;
     case 'boundary': return sel.source + ' boundary ' + (sel.index + 1);
     case 'event': return sel.source + ' event ' + (sel.shot + 1) + '.' + (sel.index + 1);

@@ -68,7 +68,7 @@ const itemLane = (it: ResolvedItem, F: number, edit: boolean): HTMLElement => {
 
 const audioLane = (a: ResolvedAudio, F: number, lang: Lang): HTMLElement => {
   const s: Selection = { kind: 'audio', id: a.id };
-  const label = a.id + DOT + a.src + (a.gain ? DOT + a.gain + ' dB' : '');
+  const label = lang === 'zh' ? '音频' : 'Audio';
   const bar = block('blk audio', a.start, a.end ?? F, F, label, label, s);
   void waveform(a.src).then(values => {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); svg.setAttribute('viewBox', '0 0 500 28'); svg.setAttribute('preserveAspectRatio', 'none');
@@ -76,7 +76,7 @@ const audioLane = (a: ResolvedAudio, F: number, lang: Lang): HTMLElement => {
     path.setAttribute('d', values.map((value, i) => 'M' + i + ' ' + (14 - Math.max(1, value * 13)) + 'v' + Math.max(2, value * 26)).join(''));
     path.setAttribute('stroke', '#69967c'); path.setAttribute('stroke-width', '0.8'); svg.append(path); bar.append(svg); bar.classList.add('wave-ready');
   }).catch(() => undefined);
-  return lane('audio-' + a.id, t(lang, 'audio') + ': ' + a.id, [bar], { labelSel: s });
+  return lane('audio-' + a.id, t(lang, 'audio'), [bar], { labelSel: s });
 };
 
 /** One block per token of an audio track's words; a token whose time is a guess (confidence below 0.4) is faded. */
@@ -122,16 +122,33 @@ const buildLanes = (s: PreviewState, lang: Lang): HTMLElement[] => {
   const edit = s.edit !== undefined;
   const out = [rulerLane(F, fps, lang)];
   if (r) {
-    const captions = new Map<string, ResolvedItem[]>();
-    for (const it of r.items) if (it.cue) captions.set(it.cue.track, [...(captions.get(it.cue.track) ?? []), it]);
-    for (const [id, items] of captions) {
-      const bars = items.flatMap(it => Array.from(itemLane(it, F, edit).querySelector('.lane-track')!.children));
-      out.push(lane('captions-' + id, id, bars as HTMLElement[], { cls: 'caption-lane' }));
+    if (edit) {
+      const groups = [
+        { id: 'subtitles', label: lang === 'zh' ? '字幕' : 'Subtitles', items: r.items.filter(it => it.cue), cls: 'caption-lane' },
+        { id: 'text', label: lang === 'zh' ? '文字' : 'Text', items: r.items.filter(it => !it.cue && it.type === 'text'), cls: 'caption-lane' },
+        { id: 'media', label: lang === 'zh' ? '素材' : 'Media', items: r.items.filter(it => !it.cue && it.type !== 'text'), cls: 'media-lane' },
+      ];
+      for (const group of groups) {
+        const packed = packRows(group.items.map(it => ({ start: it.start, end: it.end, value: it })).sort((a,b) => a.start-b.start), Math.max(1, group.items.length));
+        const count = Math.max(0, ...packed.map(x => x.row + 1));
+        for (let row = 0; row < count; row++) {
+          const bars = packed.filter(x => x.row === row).flatMap(({value: it}) => {
+            const nodes = Array.from(itemLane(it, F, edit).querySelector('.lane-track')!.children) as HTMLElement[];
+            const bar = nodes[0];
+            if (bar) { const label = it.text ?? (lang === 'zh' ? (it.type === 'video' ? '视频' : it.type === 'image' ? '图片' : '形状') : it.type); bar.textContent = label; bar.title = label; bar.setAttribute('role','button'); bar.setAttribute('tabindex','0'); bar.setAttribute('aria-label',label); }
+            return nodes;
+          });
+          out.push(lane(group.id + '-' + row, group.label + (row ? ' ' + (row+1) : ''), bars, { cls: group.cls }));
+        }
+      }
+      const scenes = segmentLane(r, lang, edit); scenes.querySelector('.lane-label')!.textContent = lang === 'zh' ? '画面' : 'Scenes';
+      out.push(scenes, ...r.audio.map(a => audioLane(a, F, lang)));
+    } else {
+      out.push(segmentLane(r, lang, edit), ...r.items.map(it => itemLane(it, F, edit)), ...r.audio.map(a => audioLane(a, F, lang)), ...(r.words ?? []).map(w => wordsLane(w, F, lang)));
     }
-    out.push(...r.items.filter(it => !it.cue).map(it => itemLane(it, F, edit)), segmentLane(r, lang, edit), ...r.audio.map(a => audioLane(a, F, lang)), ...(r.words ?? []).map(w => wordsLane(w, F, lang)));
   }
   for (const [mf, source] of [[s.measure, 'render'], [s.referenceMeasure, 'reference']] as const) {
-    if (mf) out.push(boundaryLane(mf, source, F, fps, lang), eventLane(mf, source, F, fps, lang));
+    if (mf && !edit) out.push(boundaryLane(mf, source, F, fps, lang), eventLane(mf, source, F, fps, lang));
   }
   return out;
 };
@@ -161,10 +178,13 @@ export const mountLanes = (root: HTMLElement, store: Store, actions: Actions): v
   lanes.addEventListener('click', (e) => {
     const target = e.target as HTMLElement;
     const picked = target.closest<HTMLElement>('[data-sel]')?.dataset.sel;
-    if (picked) actions.pin(JSON.parse(picked) as Selection);
+    if (picked) { actions.pause(); actions.pin(JSON.parse(picked) as Selection); }
     const track = target.closest<HTMLElement>('.lane-track');
-    if (track) actions.seek(frameAt(track, e.clientX, framesOf(store.get())));
+    if (track && e.detail !== 0) actions.seek(frameAt(track, e.clientX, framesOf(store.get())));
+    else if(picked){ const selection=JSON.parse(picked) as Selection;const v=store.get();const r=v.state?.resolved;const span=selection.kind==='segment'?r?.segments.find(s=>s.id===selection.id):selection.kind==='item'?r?.items.find(s=>s.id===selection.id):undefined;if(span&&(v.frame<span.start||v.frame>=span.end))actions.seek(span.start); }
   });
+  lanes.addEventListener('keydown', e => { if (e.key !== 'Enter' && e.key !== ' ') return; const el = (e.target as HTMLElement).closest<HTMLElement>('[data-sel]'); if (el) { e.preventDefault(); el.click(); } });
+  root.addEventListener('wheel', e => { if (e.shiftKey && !e.deltaX) { root.scrollLeft += e.deltaY; e.preventDefault(); } }, { passive: false });
   build(store.get());
   store.subscribe((v, prev) => {
     if (v.state !== prev.state || v.lang !== prev.lang) build(v);

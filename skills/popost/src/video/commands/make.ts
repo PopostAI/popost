@@ -180,15 +180,17 @@ const preview = command(
       { flag: '--measure', help: 'the measurement of the render (default: measure.json in the project)' },
       { flag: '--reference-measure', help: 'the measurement of the reference (default: reference.measure.json in the project)' },
       { flag: '--port', kind: 'int', help: 'default 4317, or any free port when it is taken; 0 for any free port' },
+      { flag: '--cloud', kind: 'string', help: 'auto (default): sync with a configured key or offer browser authorization; off: local saves only' },
       { flag: '--edit', kind: 'flag', help: 'select, move, retime and retype in the page; each edit is checked, then written to video.json' },
     ],
   },
   making(async (args, rt) => {
     const projectDir = args.req('project-dir');
     const edit = args.flag('edit');
+    const cloud=args.string('cloud');if(cloud!==undefined&&cloud!=='auto'&&cloud!=='off')throw new Error('Choose --cloud auto or --cloud off.');
     const optional = { reference: args.string('reference'), measure: args.string('measure'), referenceMeasure: args.string('reference-measure'), port: args.number('port') };
     const given = Object.fromEntries(Object.entries(optional).filter(([, v]) => v !== undefined));
-    const server = await openPreview(rt, { projectDir, ...given, ...(edit ? { edit: true } : {}) });
+    const server = await openPreview(rt, { projectDir, ...given,cloud:cloud!=='off', ...(edit ? { edit: true } : {}) });
     printJson(rt, {
       ok: true, url: server.url, project: projectDir, mode: edit ? 'edit' : 'read-only',
       note: (edit ? 'Edits in the page are checked, then written to video.json; the first one keeps the file as it was in video.json.bak. ' : '')

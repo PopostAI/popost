@@ -5,11 +5,11 @@ import type { SceneSlot, StudioVersion, StudioComment } from '../../studio-data'
 import type { RenderInfo } from '../../protocol';
 import { segmentAt } from '../model';
 import { copy } from './copy';
-import { button, field, fileUrl, input, mutate, note, notify, object, request, rows, thumbnail, timecode, title } from './ui';
+import { button, fileUrl, input, mutate, note, notify, object, request, rows, thumbnail, timecode, title } from './ui';
 
 export interface StudioMeta { hash: string; slots: SceneSlot[]; versions: StudioVersion[]; comments: StudioComment[]; lastExport?: RenderInfo }
 export type Panel = 'shots' | 'media' | 'script' | 'elements' | 'code' | 'checks' | 'versions';
-export interface Sidebar { store: Store; actions: Actions; edit: EditActions; meta: StudioMeta; refresh(): void }
+export interface Sidebar { store: Store; actions: Actions; edit: EditActions; meta: StudioMeta; mediaView?: 'shots' | 'files'; refresh(): void }
 const current = (ctx: Sidebar) => {
  const v = ctx.store.get(); const r = v.state?.resolved;
  return r ? r.segments.find(s => v.pinned?.kind === 'segment' && s.id === v.pinned.id) ?? segmentAt(r, v.frame) : undefined;
@@ -46,6 +46,15 @@ const useMaterial = async (ctx: Sidebar, material: Record<string, unknown>, over
  await edit.send({ op: 'insert', path: ['tracks', tracks.length], value: track });
 };
 export const mediaPanel = (ctx: Sidebar): HTMLElement => {
+ const { store } = ctx;
+ const tabs = h('div', { class: 'studio-resource-tabs' });
+ const wrapper = h('div');
+ const draw = (): void => {
+  tabs.replaceChildren(...(['shots', 'files'] as const).map(v => button(copy(store, v === 'shots' ? 'shots' : 'sourceFile'), () => { ctx.mediaView = v; draw(); }, (ctx.mediaView ?? 'shots') === v ? 'selected' : '')));
+  wrapper.replaceChildren(tabs, (ctx.mediaView ?? 'shots') === 'shots' ? shotPanel(ctx) : materialPanel(ctx));
+ }; draw(); return wrapper;
+};
+const materialPanel = (ctx: Sidebar): HTMLElement => {
  const { store } = ctx; const state = store.get().state;
  const file = h('input', { attrs: { type: 'file', accept: 'image/png,image/jpeg,image/webp,video/mp4,video/webm,video/quicktime,audio/*', hidden: '' } });
  file.addEventListener('change', () => {
@@ -84,22 +93,14 @@ export const elementsPanel = (ctx: Sidebar): HTMLElement => {
  const root = h('div', { class: 'studio-side-body' }, [title(copy(store, 'elements'), seg?.id)]);
  if (!state || !seg) return root;
  root.append(button(copy(store, 'addText'), () => void edit.addText()));
- for (const item of state.resolved?.items.filter(x => x.end > seg.start && x.start < seg.end) ?? []) root.append(button(item.id + ' · ' + item.type, () => edit.select({ kind: 'item', id: item.id }), 'studio-item'));
+ for (const item of state.resolved?.items.filter(x => x.end > seg.start && x.start < seg.end) ?? []) root.append(button(item.text ?? copy(store, item.type === 'video' ? 'video' : item.type === 'image' ? 'image' : 'text'), () => edit.select({ kind: 'item', id: item.id }), 'studio-item'));
  const slots = ctx.meta.slots.filter(x => x.segment === seg.id);
  root.append(title(copy(store, 'sceneFields')));
  for (const slot of slots) {
-  const el = slot.kind === 'image' ? input(slot.value, slot.name) : h('textarea', { class: 'studio-input', attrs: { rows: '2', 'aria-label': slot.name } }); el.value = slot.value;
-  el.addEventListener('change', () => {
-   const base = object(rows(object(store.get().state?.source).segments)[seg.index]?.base);
-   void edit.send({ op: 'set', path: ['segments', seg.index, 'base', 'slots'], value: { ...object(base.slots), [slot.name]: el.value } });
-  });
-  root.append(field(slot.name, el));
-  if (slot.kind === 'image') {
-   const base = object(rows(object(state.source).segments)[seg.index]?.base);
-   const url = new URL(slot.value, location.origin + '/project/' + String(base.scene));
-   if (url.origin === location.origin && url.pathname.startsWith('/project/')) root.append(h('img', { class: 'studio-slot-image', attrs: { src: url.href, alt: slot.name } }));
-  }
+  const selected=store.get().pinned; const b=button('',()=>edit.select({kind:'slot',id:seg.id,name:slot.name}),'studio-item '+(selected?.kind==='slot'&&selected.name===slot.name?'selected':''));
+  b.append(h('span',{class:'studio-element-label',text:slot.kind==='image'?copy(store,'image'):slot.value||slot.name,title:slot.value}));root.append(b);
  }
+
  if (!slots.length && seg.base.kind === 'scene') root.append(note(copy(store, 'noSlots')));
  return root;
 };

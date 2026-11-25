@@ -1,17 +1,20 @@
 import type { Runtime } from '../../runtime';
 import { PopostClient } from '../../providers/api';
 
-export interface ExportAccess { premium: boolean; verified: boolean }
+export interface ExportAccess { premium: boolean; verified: boolean; pricingUrl?: string }
 export interface VideoExportSettings {
   name: string; resolution: 'original' | '480' | '720' | '1080' | '1440' | '2160';
   dynamicRange: 'sdr'; fps: number | null; bitrate: number | null; audio: boolean; from?: number; to?: number;
 }
 export const exportAccess = async (rt: Runtime): Promise<ExportAccess> => {
+  let pricingUrl: string | undefined;
   try {
-    const account = await new PopostClient(rt).request('GET', '/me', { timeoutSec: 5 }) as { tier?: string; plan?: { tier?: string }; user?: { tier?: string } };
+    const client = new PopostClient(rt);
+    pricingUrl = new URL('/zh/pricing',client.baseUrl).href;
+    const account = await client.request('GET', '/me', { timeoutSec: 5 }) as { tier?: string; plan?: { tier?: string }; user?: { tier?: string } };
     const tier = account.tier ?? account.plan?.tier ?? account.user?.tier;
-    return { premium: typeof tier === 'string' && ['basic', 'pro', 'max'].includes(tier), verified: typeof tier === 'string' };
-  } catch { return { premium: false, verified: false }; }
+    return { pricingUrl, premium: typeof tier === 'string' && ['basic', 'standard', 'pro', 'max'].includes(tier), verified: typeof tier === 'string' };
+  } catch { return { pricingUrl, premium: false, verified: false }; }
 };
 const obj = (v: unknown): Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v) ? v as Record<string, unknown> : {};
 export const readExportSettings = (raw: unknown, canvas: { width: number; height: number }, access: ExportAccess): VideoExportSettings => {

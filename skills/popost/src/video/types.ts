@@ -198,7 +198,7 @@ export type Base =
    * slots: new content for the places the scene marks with data-slot="name": the text of an element, or the
    * picture of an <img> (a path in the project). A scene written once is used again with other words this way.
    */
-  | { scene: string; slots?: Record<string, string> };
+  | { scene: string; slots?: Record<string, string>; offset?: number };
 
 export interface Segment {
   id: string;
@@ -350,6 +350,7 @@ export interface VideoTrack extends ItemCommon, FootageSpec { type: 'video'; mat
  * material, 'in' is the source frame the sound starts at, and footage that starts inside its span is silent unless it
  * says "audio". A bed is not a sound of the video's own: footage outside its span keeps its automatic sound.
  */
+/** For ordinary audio, in is an offset in project frames; for a bed it uses the video material's source rate. */
 export interface AudioTrack { id: string; type: 'audio'; material: string; gain?: number; during?: Span; note?: string; bed?: true; in?: number }
 
 /** One caption: shown on its span (which may run past its segment), in the track's box, style, entrance and exit. */
@@ -471,7 +472,7 @@ export type ResolvedBase =
   | ResolvedScene;
 
 /** A scene base: the HTML file, as a URL relative to the page. */
-export interface ResolvedScene { kind: 'scene'; src: string; slots?: Record<string, string> }
+export interface ResolvedScene { kind: 'scene'; src: string; slots?: Record<string, string>; offset?: number }
 
 /** The ground of a material base: one colour, and the gradient when it is one. */
 export interface ResolvedGround { color: string; gradient?: Gradient }

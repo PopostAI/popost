@@ -16,7 +16,7 @@ export const mountToolbar = (root: HTMLElement, store: Store, edit: EditActions)
     { id: 'edit-redo', icon: 'redo', title: 'redo', run: () => void edit.redo(), enabled: (v) => (v.state?.edit?.redo ?? 0) > 0 },
     { id: 'edit-add-text', icon: 'addText', title: 'addText', run: () => void edit.addText(), enabled: (v) => Boolean(v.state?.resolved) },
     { id: 'edit-duplicate', icon: 'duplicate', title: 'duplicate', run: () => void edit.duplicate(), enabled: () => edit.target() !== undefined },
-    { id: 'edit-delete', icon: 'remove', title: 'remove', run: () => void edit.remove(), enabled: () => edit.target() !== undefined },
+    { id: 'edit-delete', icon: 'remove', title: 'remove', run: () => void edit.remove(), enabled: (v) => {const target=edit.target();return Boolean(target && (target.kind !== 'segment' || (v.state?.resolved?.segments.length ?? 0)>1));} },
     { id: 'edit-render', icon: 'render', title: 'renderTool', run: () => void edit.render(), enabled: (v) => Boolean(v.state?.resolved) && v.edit.render?.state !== 'running' },
   ];
   const buttons = tools.map((tool) => {

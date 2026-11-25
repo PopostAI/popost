@@ -50,7 +50,7 @@ export const trackWords = (project: Project, tl: Timeline, table: WordsTable): T
     const start = span?.start ?? 0;
     const file = table[m.id];
     const base: TrackWords = { track: t.id, material: m.id, start, ...(t.during && span ? { end: span.end } : {}) };
-    return [isWordsFile(file) ? { ...base, tokens: placeTokens(file, project.canvas.fps, start) } : base];
+    return [isWordsFile(file) ? { ...base, tokens: placeTokens(file, project.canvas.fps, start-(t.in??0)).filter(token=>token.end>start&&token.start<(span?.end??Infinity)).map(token=>({...token,start:Math.max(start,token.start),end:Math.min(span?.end??Infinity,token.end)})) } : base];
   });
 };
 

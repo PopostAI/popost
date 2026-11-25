@@ -23,8 +23,9 @@ describe.skipIf(!chrome)('editable scene content in Studio (Chrome)', () => {
       const page = await browser.newPage({ viewport: { width: 1280, height: 720 }, locale: 'en-US' });
       await page.goto(preview.url);
       await page.waitForSelector('body[data-ready="1"]');
-      await page.locator('#lane-segments .seg').first().click();
-      const field = page.locator('textarea[data-path="segments[0].base.slots.title"]');
+      await page.locator('[data-panel="elements"]').click();
+      await page.getByRole('button',{name:'Before',exact:true}).click();
+      const field = page.locator('#slot-inspector textarea');
       await expect.poll(() => field.inputValue()).toBe('Before');
       await field.fill('After');
       await field.press('Tab');

@@ -6,6 +6,7 @@
  */
 import type { Store, View } from '../app';
 import { h, placeBox } from '../dom';
+import { visibleSlots } from '../studio/scene-selection';
 import { itemsAt } from '../model';
 import type { EditActions } from './controller';
 import { boxOf, boxPath, roundBox, targetOf, type Target } from './source';
@@ -128,13 +129,19 @@ const selected = (v: View): { t: Target; box: Box4 } | undefined => {
 export const mountStageEdit = (frameBox: HTMLElement, iframe: HTMLIFrameElement, store: Store, edit: EditActions): StageEdit => {
   const sel = h('div', { class: 'sel-box', id: 'sel-box' }, HANDLES.map((k) => h('div', { class: 'handle h-' + k, data: { h: k } })));
   const readout = h('div', { class: 'drag-readout', id: 'drag-readout' });
+  const slotOutline = h('div', { class: 'studio-slot-outline', attrs: { hidden: '' } }, [h('span',{class:'studio-slot-name'})]);
   const ui: Ui = { layer: h('div', { class: 'edit-layer', id: 'edit-layer' }, [sel, readout]), sel, readout };
+  ui.layer.append(slotOutline);
   frameBox.append(ui.layer);
   const page = pagePreview(iframe, store);
   let drag: Drag | undefined;
   let pending: { box: Box4; target: Target } | undefined;
   let timer: ReturnType<typeof setTimeout> | undefined;
-  const draw = (): void => drawBox(ui, store.get(), drag && !drag.moved ? undefined : pending?.box);
+  const draw = (): void => {
+    const v=store.get();drawBox(ui,v,drag && !drag.moved ? undefined : pending?.box);
+    const picked=v.pinned; const slot=picked?.kind==='slot'?visibleSlots(iframe,store).find(s=>s.selection.id===picked.id&&s.selection.name===picked.name):undefined;
+    slotOutline.hidden=!slot;if(slot){placeBox(slotOutline,slot.box);slotOutline.firstElementChild!.textContent=slot.value.slice(0,40);}
+  };
   const commit = (t: Target, box: Box4): void => {
     const path = boxPath(t);
     if (!path) return;
@@ -157,6 +164,11 @@ export const mountStageEdit = (frameBox: HTMLElement, iframe: HTMLIFrameElement,
     const handle = (e.target as HTMLElement).closest<HTMLElement>('.handle')?.dataset.h as Drag['mode'] | undefined;
     if (!handle && !(e.target as HTMLElement).closest('.sel-box')) {
       const id = hitAt(frameBox, store.get(), e.clientX, e.clientY);
+      if (!id) {
+        const rect=frameBox.getBoundingClientRect();const x=(e.clientX-rect.left)/rect.width,y=(e.clientY-rect.top)/rect.height;
+        const slot=visibleSlots(iframe,store).reverse().find(s=>x>=s.box[0]&&x<=s.box[0]+s.box[2]&&y>=s.box[1]&&y<=s.box[1]+s.box[3]);
+        if(slot){edit.select(slot.selection);e.preventDefault();return;}
+      }
       edit.select(id ? { kind: 'item', id } : null);
       if (!id) return;
     }
@@ -186,6 +198,7 @@ export const mountStageEdit = (frameBox: HTMLElement, iframe: HTMLIFrameElement,
     if (v.state !== prev.state) page.forget();
     if (!drag && (v.state !== prev.state || v.pinned !== prev.pinned || v.frame !== prev.frame)) draw();
   });
+  iframe.addEventListener('load',()=>{setTimeout(draw,100);});
   draw();
   return {
     nudge: (dx, dy) => {

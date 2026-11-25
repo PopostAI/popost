@@ -7,7 +7,7 @@ import { PreviewInputError, startPreview, type PreviewOptions, type PreviewServe
 
 export { PreviewInputError, startPreview, type PreviewOptions, type PreviewServer };
 
-export interface PreviewCommandArgs { projectDir: string; reference?: string; measure?: string; referenceMeasure?: string; port?: number; edit?: boolean }
+export interface PreviewCommandArgs { projectDir: string; reference?: string; measure?: string; referenceMeasure?: string; port?: number; edit?: boolean; cloud?: boolean }
 
 /** The port the command tries first when none is given; a busy port falls back to any free one. */
 export const DEFAULT_PORT = 4317;

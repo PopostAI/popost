@@ -33,6 +33,7 @@ import {
 } from './auth-flow';
 import { CloudError } from './errors';
 import { pushProject } from './push';
+import type { CloudRecord } from './state';
 import { isSynced, readCloudRecord } from './state';
 
 export type CloudMode = 'keyed' | 'anonymous' | 'off';
@@ -50,7 +51,14 @@ export interface CloudStatus {
   readonly error?: { readonly code: string; readonly message: string };
 }
 
+export interface CloudProjectAdapter {
+  info(): Promise<{ projectId: string; title: string; pages: number }>;
+  record(): Promise<CloudRecord | null>;
+  revision(): Promise<string>;
+  push(client: PopostClient, force: boolean, lang: CloudLang): Promise<void>;
+}
 export interface CloudOptions {
+  readonly project?: CloudProjectAdapter;
   /** `--cloud off` passes false. */
   readonly enabled?: boolean;
   /** Allow browser login only, even when the CLI has a key. */
@@ -153,10 +161,10 @@ export class CloudService {
     this.purgePending();
     const mode = this.mode();
     if (this.phase === 'waiting' && this.pending.size === 0) this.phase = 'idle';
-    const project = await Project.load(this.rt, this.root);
-    const record = await readCloudRecord(project);
+    const project = this.options.project ? undefined : await Project.load(this.rt, this.root);
+    const record = this.options.project ? await this.options.project.record() : await readCloudRecord(project!);
     const synced = mode !== 'off' && isSynced(record) && (mode === 'keyed' || !record.accountScope);
-    const dirty = !synced || !record.fingerprint || record.fingerprint !== (await canvasRevision(project));
+    const dirty = !synced || !record.fingerprint || record.fingerprint !== (this.options.project ? await this.options.project.revision() : await canvasRevision(project!));
     let state = this.phase;
     if (state === 'idle' || state === 'saved') state = synced && !dirty ? 'saved' : 'idle';
     return {
@@ -174,8 +182,8 @@ export class CloudService {
   async start(lang: CloudLang, port: number): Promise<{ authorizeUrl: string; expiresAt: string }> {
     this.sync();
     const client = new PopostClient(this.rt);
-    const project = await Project.load(this.rt, this.root);
-    const projectId = project.manifest.projectId;
+    const metadata = this.options.project ? await this.options.project.info() : await Project.load(this.rt, this.root).then(p => ({ projectId: p.manifest.projectId, title: String(p.manifest.brief ?? '') || 'Popost', pages: p.manifest.pages.length }));
+    const projectId = metadata.projectId;
     if (!/^[A-Za-z0-9-]{8,64}$/.test(projectId ?? ''))
       throw new CloudError('NO_PROJECT_ID', msg('the project has no stable id, so it cannot be saved to the cloud', '工程没有稳定的 id，无法保存到云端'));
     const state = newSecret(this.options.randomBytes);
@@ -187,8 +195,8 @@ export class CloudService {
       state,
       challenge: challengeOf(verifier),
       projectId,
-      title: authorizeTitle(String(project.manifest.brief ?? '') || 'Popost'),
-      pages: project.manifest.pages.length,
+      title: authorizeTitle(metadata.title),
+      pages: metadata.pages,
     });
     this.purgePending();
     while (this.pending.size >= MAX_PENDING) this.pending.delete(this.pending.keys().next().value!);
@@ -243,7 +251,8 @@ export class CloudService {
     this.phase = 'uploading';
     this.error = undefined;
     try {
-      await pushProject(this.rt, { dir: this.root, client, force, locale: this.lang, session: this.options.session });
+      if (this.options.project) await this.options.project.push(client, force, this.lang);
+      else await pushProject(this.rt, { dir: this.root, client, force, locale: this.lang, session: this.options.session });
       this.phase = 'saved';
       if (mode === 'anonymous') this.ticket = undefined; // the platform revokes it on success
     } catch (error) {

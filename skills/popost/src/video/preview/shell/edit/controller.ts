@@ -8,6 +8,8 @@ import type { EditAnswer, PreviewState, RenderInfo } from '../../protocol';
 import type { Actions, EditStatus, EditView, Store } from '../app';
 import { t } from '../i18n';
 import { clampFrame, timelineFrames, type Selection } from '../model';
+import { removeScene } from './remove';
+import { splitSource } from './split';
 import { duplicate, newTextTrack, removal, targetOf, type EditOp, type Target } from './source';
 
 export interface EditActions {
@@ -19,6 +21,8 @@ export interface EditActions {
   remove(): Promise<void>;
   duplicate(): Promise<void>;
   addText(): Promise<void>;
+  split(): Promise<void>;
+  canSplit(): boolean;
   render(): Promise<void>;
   select(sel: Selection | null): void;
   note(key: Extract<EditStatus, { kind: 'note' }>['key']): void;
@@ -89,10 +93,12 @@ export const createEditActions = (store: Store, actions: Actions): EditActions =
   };
   return {
     send,
+    canSplit: () => { const v = store.get(); return Boolean(v.state && splitSource(v.state, v.pinned, v.frame)); },
+    split: async () => { const v=store.get(); const result=v.state ? splitSource(v.state,v.pinned,v.frame) : undefined; if(result && settle(await post('/api/source',{source:result.source,base:v.state?.source}))) select(result.select); },
     replace: async (source, base) => settle(await post('/api/source', { source, base })),
     undo: async () => { settle(await post('/api/undo')); },
     redo: async () => { settle(await post('/api/redo')); },
-    remove: () => withTarget(async (_s, t0) => { await send(removal(t0), null); }),
+    remove: () => withTarget(async (s, t0) => { if(t0.kind==='segment'){const next=removeScene(s,t0.index);if(next)settle(await post('/api/source',{source:next,base:s.source}),null);return;} await send(removal(t0), null); }),
     duplicate: () => withTarget(async (s, t0) => {
       const d = duplicate(s, t0);
       if (d) await send(d.op, d.select);

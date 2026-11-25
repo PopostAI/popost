@@ -56,7 +56,7 @@ describe('a bed: the sound of a clip under the shots cut from it', () => {
     expect(bedProblems([{ footage: 'assets/film.mp4', shots: [0, 2] }, { footage: 'assets/film.mp4', shots: [2, 4] }, { footage: 'assets/film.mp4', shots: [1, 2] }, { footage: 'assets/film.mp4', shots: [2, 3], in: -1 }], 3).map((p) => p.at)).toEqual(['beds[0]', 'beds[1]', 'beds[3].in', 'beds[3].shots']);
     const wrong = project();
     wrong.tracks = [{ id: 'a', type: 'audio', material: 'film', in: 3 }];
-    expect(checkProject(wrong, { footage: FACTS }).map((p) => p.at)).toEqual(['tracks[0].in', 'tracks[0].material']);
+    expect(checkProject(wrong, { footage: FACTS }).map((p) => p.at)).toEqual(['tracks[0].material']);
   });
 });
 

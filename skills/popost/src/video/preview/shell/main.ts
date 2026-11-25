@@ -37,7 +37,7 @@ const boot = (): void => {
  const timelineWrap = h('div', { class: 'studio-timeline-wrap' }, [timelineTools, timeline]);
  const footer = h('footer', { class: 'studio-footer' }, ['Popost Video Studio', 'video.json']);
  app.append(top, main, timelineWrap, footer, h('div', { id: 'studio-message', attrs: { role: 'status' } }));
- mountWorkspace(main, store, actions, edit); mountTimelineTools(timelineTools, store);
+ mountWorkspace(main, store, actions, edit); mountTimelineTools(timelineTools, store, edit);
  resizeHandle(main, 'left'); resizeHandle(main, 'right'); resizeHandle(timelineWrap, 'timeline');
  const stageParts = mountStage(stage, store, actions);
  mountTransport(transport, store, actions); mountLanes(timeline, store, actions); mountPanel(panel, store, actions, edit); mountProjectAudio(store);
@@ -50,7 +50,7 @@ const boot = (): void => {
    store.set({ state, frame: clampFrame(previous.frame, timelineFrames(state)), connected: true });
    if (state.edit && !editing) {
     editing = true; document.body.classList.add('editing');
-    mountToolbar(document.getElementById('edit-slot')!, store, edit); mountStatus(panel, store, edit);
+    mountToolbar(document.getElementById('edit-slot')!, store, edit); const remove=document.getElementById('edit-delete');if(remove)document.getElementById('edit-split')?.after(remove); mountStatus(panel, store, edit);
     const stageEdit = mountStageEdit(stageParts.frameBox, stageParts.iframe, store, edit);
     mountLanesEdit(timeline.querySelector<HTMLElement>('#lanes') ?? timeline, store, edit); editKeys(store, edit, stageEdit.nudge); keepSelection(store);
     const kept = storedSelection(state); if (kept) edit.select(kept);

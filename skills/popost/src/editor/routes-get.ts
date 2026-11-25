@@ -69,7 +69,7 @@ const EXACT: Record<string, (ctx: Ctx) => Promise<ApiResponse> | ApiResponse> = 
     try {
       const account = await new PopostClient(ctx.rt).request('GET', '/me', { timeoutSec: 10 }) as { tier?: string; plan?: { tier?: string }; user?: { tier?: string } };
       const tier = account.tier ?? account.plan?.tier ?? account.user?.tier;
-      return jsonResponse(ctx.req, 200, { premium: typeof tier === 'string' && ['basic', 'pro', 'max'].includes(tier) });
+      return jsonResponse(ctx.req, 200, { premium: typeof tier === 'string' && ['basic', 'standard', 'pro', 'max'].includes(tier) });
     } catch { return jsonResponse(ctx.req, 200, { premium: false }); }
   },
   '/api/editor-info': async (ctx) => jsonResponse(ctx.req, 200, { ok: true, ...editorInfo(await ctx.load()) }),

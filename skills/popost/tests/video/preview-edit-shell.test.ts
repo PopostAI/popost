@@ -65,7 +65,7 @@ describe.skipIf(!chrome)('preview shell in edit mode (Chrome)', () => {
     await page.mouse.up();
   };
   const selectLane = async (id: string): Promise<void> => {
-    await page.click('#lane-item-' + id + ' .lane-label');
+    await page.locator('.blk.item[data-sel]').evaluateAll((elements, id) => { const picked=elements.find(el => JSON.parse((el as HTMLElement).dataset.sel ?? '{}').id===id) as HTMLElement|undefined; picked?.click(); },id);
     await page.waitForSelector('#edit-form');
   };
 
@@ -80,6 +80,7 @@ describe.skipIf(!chrome)('preview shell in edit mode (Chrome)', () => {
     await page.goto(preview.url);
     await page.waitForSelector('body[data-ready="1"]', { timeout: 15_000 });
     await page.waitForSelector('#edit-tools');
+    await page.getByRole('button',{name:'Fit timeline',exact:true}).click();
   });
   afterAll(async () => {
     await browser?.close();
@@ -136,8 +137,8 @@ describe.skipIf(!chrome)('preview shell in edit mode (Chrome)', () => {
   });
 
   it('drags a bar in the lanes to move the item in time', async () => {
-    const track = await box('#lane-item-bar .lane-track');
-    const bar = await box('#lane-item-bar .blk.item');
+    const track = await box('#lane-media-0 .lane-track');
+    const bar = await box('#lane-media-0 .blk.item');
     const perFrame = track.width / 40;
     await drag(bar.x + bar.width / 2, bar.y + bar.height / 2, 6 * perFrame, 0, async () => {
       expect(await page.locator('#lane-readout').textContent()).toBe('On frames 11..20');
@@ -179,19 +180,19 @@ describe.skipIf(!chrome)('preview shell in edit mode (Chrome)', () => {
     await page.waitForSelector('#edit-hint');
   });
 
-  it.skipIf(!ffmpeg)('renders from the page and plays the render in the reference player\'s place', async () => {
+  it.skipIf(!ffmpeg)('exports the draft with a compact status and no redundant result controls', async () => {
     await page.click('#studio-export-open');
     const dialog = page.getByRole('dialog');
     expect(await dialog.getByRole('tab').allTextContents()).toEqual(['Video', 'Draft']);
     await dialog.getByRole('button', { name: '480p', exact: true }).click();
     await dialog.getByRole('button', { name: 'Export', exact: true }).click();
-    await page.waitForSelector('.studio-export-result a[download]', { timeout: 60_000 });
-    expect(await page.locator('.studio-export-result').textContent()).toContain('480 ×');
-    await page.locator('.studio-export-result').getByRole('button', { name: 'Play', exact: true }).click();
-    await page.waitForFunction(() => document.querySelector<HTMLVideoElement>('#reference-video')?.getAttribute('src')?.startsWith('/project/.studio/exports/'), undefined, { timeout: 5000 });
-    expect(await page.locator('#reference-view .caption').textContent()).toContain('Render');
-    await page.getByRole('button', { name: 'Compare', exact: true }).click();
-    await page.waitForFunction(() => !document.getElementById('reference-view')?.isConnected, undefined, { timeout: 5000 });
+    await expect.poll(()=>page.locator('.studio-export-result').textContent(),{timeout:60000}).toContain('Export complete');
+    expect(await dialog.locator('a[download]').count()).toBe(0);
+    expect(await dialog.getByRole('button',{name:'Play',exact:true}).count()).toBe(0);
+    const state=await (await page.request.get(preview!.url+'api/state')).json() as {edit:{render:{state:string;url:string;width:number}}};
+    expect(state.edit.render.state).toBe('done');expect(state.edit.render.width).toBe(480);
+    const output=await page.request.get(preview!.url.replace(/\/$/,'')+state.edit.render.url);expect(output.status()).toBe(200);expect((await output.body()).byteLength).toBeGreaterThan(0);
+    await dialog.press('Escape');
   });
 
   it('fits a 1280x720 window without scrolling the page, the panel scrolling inside', async () => {

@@ -24,6 +24,7 @@ import { watchSources } from './watch';
 import { exportAccess } from './export-settings';
 import { studioMetadata } from './studio-data';
 import { studioAction } from './studio-actions';
+import { createVideoCloud } from './cloud';
 import { createThumbnails } from './thumbnails';
 
 export interface PreviewOptions extends SourceOptions {
@@ -33,6 +34,7 @@ export interface PreviewOptions extends SourceOptions {
   host?: string;
   /** Edit mode (edit/): routes that change video.json, offered on a loopback address only. */
   edit?: boolean;
+  cloud?: boolean;
 }
 
 export interface PreviewServer { url: string; close(): Promise<void> }
@@ -63,7 +65,7 @@ const createEventHub = (): EventHub => {
   };
 };
 
-interface Context { rt: Runtime; projectDir: string; reference?: string; loader: Loader; hub: EventHub; hosts: Set<string> | undefined; edit?: EditContext; thumbnails?: ReturnType<typeof createThumbnails> }
+interface Context { rt: Runtime; projectDir: string; reference?: string; loader: Loader; hub: EventHub; hosts: Set<string> | undefined; edit?: EditContext; cloud?: ReturnType<typeof createVideoCloud>; thumbnails?: ReturnType<typeof createThumbnails> }
 
 const text = (res: ServerResponse, status: number, body: string, extra: Record<string, string> = {}): void => {
   res.writeHead(status, { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store', ...extra }).end(body);
@@ -98,6 +100,9 @@ const route = async (ctx: Context, req: IncomingMessage, res: ServerResponse): P
     res.writeHead(200, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }).end(JSON.stringify(withEdit(ctx, state)));
     return;
   }
+  if (pathname === '/api/cloud/status' && ctx.cloud) { res.writeHead(200,{'content-type':'application/json','cache-control':'no-store'}).end(JSON.stringify(await ctx.cloud.status())); return; }
+  if (pathname === '/api/cloud/callback' && ctx.cloud) { const url=new URL(req.url??'', 'http://localhost'); const result=ctx.cloud.callback(url.searchParams.get('code'),url.searchParams.get('state')); res.writeHead(result.ok?303:400,{'location':'/cloud-done.html','cache-control':'no-store','referrer-policy':'no-referrer'}).end(result.ok?'':result.error);return; }
+  if (pathname === '/cloud-done.html' && ctx.cloud) return html(res,200,'<!doctype html><meta charset="utf-8"><title>Popost</title><p>已开始保存到云端，可以关闭此页。Cloud save started. You can close this tab.</p>');
   if (pathname === '/api/export-options' && ctx.edit) {
     const access = await exportAccess(ctx.rt);
     res.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'no-store' }).end(JSON.stringify(access)); return;
@@ -198,6 +203,8 @@ const editContext = async (ctx: Context, hosts: ReadonlySet<string>): Promise<Ed
   editor: await createEditor(ctx.rt, ctx.projectDir),
   exportAccess: () => exportAccess(ctx.rt),
   studio: async (path, body) => {
+    if(path==='/api/studio/cloud/start' && ctx.cloud){if(ctx.cloud.mode()!=='anonymous')throw new Error('Browser authorization is only needed when no key is configured.');return ctx.cloud.start(body.lang==='en'?'en':'zh',Number([...ctx.hosts!][0]!.split(':').pop()));}
+    if(path==='/api/studio/cloud/push' && ctx.cloud){if(ctx.cloud.mode()==='off')throw new Error('Cloud save is disabled.');return ctx.cloud.push({lang:body.lang==='en'?'en':'zh',force:body.force===true});}
     const { state } = await ctx.loader.load();
     if (!ctx.edit) throw new Error('Studio is read-only.');
     return studioAction(ctx.rt, ctx.projectDir, ctx.edit.editor, withEdit(ctx, state), path, body);
@@ -205,6 +212,7 @@ const editContext = async (ctx: Context, hosts: ReadonlySet<string>): Promise<Ed
   render: createRenderJob(ctx.rt, ctx.projectDir, (info) => ctx.hub.send(RENDER_EVENT, info)),
   origins: new Set([...hosts].map((h) => 'http://' + h)),
   reloaded: async () => {
+    ctx.cloud?.scheduleAutoPush();
     const generation = ctx.loader.bump();
     const { state } = await ctx.loader.load();
     ctx.hub.send(RELOAD_EVENT, { generation });
@@ -220,6 +228,7 @@ const onSourceChange = async (ctx: Context, changed: ReadonlySet<string>): Promi
   const projectFile = ctx.rt.path.join(ctx.projectDir, PROJECT_FILE);
   const outside = ctx.edit ? await ctx.edit.editor.sync() : true;
   if (!outside && [...changed].every((f) => f === projectFile)) return;
+  ctx.cloud?.scheduleAutoPush();
   const generation = ctx.loader.bump();
   // Read the new state now, so that the shell's request after the event finds it ready (and new sources watched).
   await ctx.loader.load().catch(() => undefined);
@@ -244,6 +253,7 @@ export const startPreview = async (rt: Runtime, opts: PreviewOptions): Promise<P
   const address = await listen(server, opts.port ?? 0, host);
   ctx.hosts = allowedHosts(host, address.port);
   if (opts.edit && ctx.hosts) ctx.edit = await editContext(ctx, ctx.hosts);
+  if(opts.edit) { ctx.cloud=createVideoCloud(rt,projectDir,async()=>withEdit(ctx,(await loader.load()).state),opts.cloud!==false);ctx.cloud.autoStart(); }
   ctx.thumbnails = createThumbnails(rt, projectDir);
   const watcher = watchSources(rt, {
     paths: () => loader.sources(),
@@ -254,6 +264,7 @@ export const startPreview = async (rt: Runtime, opts: PreviewOptions): Promise<P
     url: 'http://' + shown + ':' + address.port + '/',
     close: async () => {
       watcher.close();
+      ctx.cloud?.dispose();
       await ctx.thumbnails?.close();
       hub.close();
       await new Promise<void>((resolve) => {

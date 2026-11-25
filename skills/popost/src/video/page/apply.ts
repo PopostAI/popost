@@ -96,7 +96,7 @@ export const applyFrame = (nodes: StageNodes, r: Resolved, frame: number, pictur
     applyLayer(node, layer, g);
     const base = r.segments[k]?.base;
     // A scene runs on its segment's own time; while the transition into it shows it early, it holds its first moment.
-    if (node.scene && layer && seekScene(node.scene, (n - (r.segments[k]?.start ?? 0)) / r.canvas.fps, r.canvas.fps)) nodes.live = true;
+    if (node.scene && layer && seekScene(node.scene, (n - (r.segments[k]?.start ?? 0)) / r.canvas.fps + (r.segments[k]?.base.kind === 'scene' ? (r.segments[k]?.base as { offset?: number }).offset ?? 0 : 0), r.canvas.fps)) nodes.live = true;
     if (pictures && base?.kind === 'video') setPicture(node.img, layer ? frameUrl(r, base.play, n) : undefined, shown);
   });
   nodes.overlay.style.cssText = view.overlay

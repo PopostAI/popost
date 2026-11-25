@@ -77,7 +77,7 @@ const resolveBase = (ctx: Ctx, s: Segment, start: number): ResolvedBase => {
     return { kind: 'image', src: materialSrc(m), ...view };
   }
   if (!('scene' in s.base)) throw new Error('resolve: segment "' + s.id + '" has no base.');
-  return { kind: 'scene', src: s.base.scene.replace(/\\/g, '/'), ...(s.base.slots ? { slots: s.base.slots } : {}) };
+  return { kind: 'scene', src: s.base.scene.replace(/\\/g, '/'), ...(s.base.slots ? { slots: s.base.slots } : {}), ...(s.base.offset !== undefined ? { offset: s.base.offset } : {}) };
 };
 
 const resolveSegment = (ctx: Ctx, s: Segment, k: number): ResolvedSegment => {
@@ -91,7 +91,7 @@ const resolveAudio = (ctx: Ctx, items: readonly ResolvedItem[]): ResolvedAudio[]
     if (t.type !== 'audio') return [];
     const span = t.during ? spanFrames(ctx.tl, t.during) : wholeVideo(ctx.tl);
     if (!span) throw new Error('resolve: audio "' + t.id + '" is placed in a segment that does not exist.');
-    const from = t.bed ? { from: { frame: t.in ?? 0, fps: factsOf(ctx, t.material).fps } } : {};
+    const from = t.bed ? { from: { frame: t.in ?? 0, fps: factsOf(ctx, t.material).fps } } : t.in ? {from:{frame:t.in,fps:ctx.fps}} : {};
     return [{ id: t.id, src: materialSrc(material(ctx, t.material)), start: span.start, ...(t.during ? { end: span.end } : {}), gain: t.gain ?? 0, ...from }];
   });
   const byId = new Map(items.map((it) => [it.id, it] as const));

@@ -102,7 +102,9 @@ const follow = (lanes: HTMLElement, ui: Ui, drag: Drag, v: View, x: number): voi
   const s = v.state;
   if (!s || drag.phrase) return;
   const F = timelineFrames(s);
+  if(!drag.track.isConnected){const id=drag.track.closest('.lane')?.id;const next=id?lanes.querySelector<HTMLElement>('#'+CSS.escape(id)+' .lane-track'):null;if(!next)return;drag.track=next;}
   const pxPerFrame = drag.track.getBoundingClientRect().width / Math.max(1, F);
+  if(!Number.isFinite(pxPerFrame)||pxPerFrame<=0)return;
   const targets = snapTargets(s, v.frame, drag.mode !== 'border');
   const r = dragResult(drag.mode === 'border' ? { mode: 'end', start: drag.start, end: drag.end } : drag, (x - drag.x0) / pxPerFrame, targets, pxPerFrame);
   drag.result = r;
@@ -137,6 +139,8 @@ export const mountLanesEdit = (lanes: HTMLElement, store: Store, edit: EditActio
     if (e.button !== 0 || !s?.edit) return;
     // A field being typed in commits when it loses the focus; the press below keeps the focus, so it is taken here.
     if (document.activeElement instanceof HTMLElement && document.activeElement !== document.body) document.activeElement.blur();
+    const picked=(e.target as HTMLElement).closest<HTMLElement>('[data-sel]')?.dataset.sel;
+    if(picked)edit.select(JSON.parse(picked) as Selection);
     drag = dragOf(s, e.target as HTMLElement, e.clientX);
     if (!drag) return;
     lanes.setPointerCapture(e.pointerId);
@@ -152,7 +156,7 @@ export const mountLanesEdit = (lanes: HTMLElement, store: Store, edit: EditActio
     const d = drag;
     drag = undefined;
     [ui.ghost, ui.guide, ui.label].forEach((el) => el.remove());
-    if (!d?.moved) return;
+    if (!d?.moved) { if(d){const rect=d.track.getBoundingClientRect();const state=store.get().state;if(state)store.set({playing:false,frame:Math.max(0,Math.min(timelineFrames(state)-1,Math.floor((d.x0-rect.left)/rect.width*timelineFrames(state))))});} return; }
     swallow = true;
     // The click that follows a drag comes in this same task, if at all.
     setTimeout(() => { swallow = false; }, 0);

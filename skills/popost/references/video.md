@@ -494,7 +494,7 @@ shot twice, at most two frames a second, and its first line says how long that t
 hold much more text than captions). It keeps the transcript beside the project, so a readback after a fix that left
 the sound alone does not listen again.
 
-Open the editable Studio with the existing preview editor:
+Open the editable Studio with the existing preview editor (selection, timeline operations and cloud saving: [video-editing.md](video-editing.md)):
 
 ```bash
 popost video preview project --edit --reference reference.mp4

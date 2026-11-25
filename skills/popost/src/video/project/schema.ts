@@ -105,6 +105,7 @@ export const BaseObjectSchema = z.object({
   color: fill.optional(),
   scene: z.string().min(1).optional(),
   slots: z.record(z.string(), z.string()).optional(),
+  offset: z.number().min(0).optional(),
 });
 const FOOTAGE_KEYS = ['in', 'speed', 'audio'] as const;
 const BaseSchema = BaseObjectSchema.refine(
@@ -116,7 +117,7 @@ const BaseSchema = BaseObjectSchema.refine(
     return { material: b.material, ...(b.fit ? { fit: b.fit } : {}), ...(b.ground !== undefined ? { ground: b.ground } : {}), ...(b.camera ? { camera: b.camera } : {}), ...play };
   }
   if (b.color !== undefined) return { color: b.color };
-  return { scene: b.scene ?? '', ...(b.slots ? { slots: b.slots } : {}) };
+  return { scene: b.scene ?? '', ...(b.slots ? { slots: b.slots } : {}), ...(b.offset !== undefined ? { offset: b.offset } : {}) };
 });
 
 export const SegmentSchema = z.object({
@@ -273,7 +274,7 @@ const KEY_TABLE: KeyTable = {
   move: keys(CameraMoveSchema),
   gradient: keys(GradientSchema),
   stop: ['at', 'color'],
-  base: { material: ['material', 'fit', 'ground', 'camera', ...FOOTAGE_KEYS], color: ['color'], scene: ['scene', 'slots'] },
+  base: { material: ['material', 'fit', 'ground', 'camera', ...FOOTAGE_KEYS], color: ['color'], scene: ['scene', 'slots', 'offset'] },
   motion: keys(MotionSchema),
   span: keys(SpanObjectSchema),
   style: keys(TextStyleSchema),

@@ -5,11 +5,12 @@ import { copy, type CopyKey } from './copy';
 import { button, note, title } from './ui';
 import { checksPanel, elementsPanel, loadMetadata, mediaPanel, scriptPanel, shotPanel, versionsPanel, type Panel, type Sidebar } from './sidebar';
 import { createCodeEditor } from './code';
+import { mountCloud } from './cloud';
 import { openExport } from './export';
 
-const NAV: readonly [Panel, CopyKey, IconName][] = [['shots','shots','film'],['media','media','media'],['script','script','text'],['elements','elements','layers'],['code','code','code'],['checks','checks','checks']];
+const NAV: readonly [Panel, CopyKey, IconName][] = [['media','media','media'],['elements','elements','layers'],['script','subtitles','text'],['code','code','code']];
 export const mountWorkspace = (root: HTMLElement, store: Store, actions: Actions, edit: EditActions) => {
- let active: Panel = 'shots';
+ let active: Panel = 'media';
  const rail = h('nav', { class: 'studio-rail', attrs: { 'aria-label': 'Studio' } });
  const content = h('aside', { id: 'studio-content', class: 'studio-content' });
  const code = createCodeEditor(store, edit);
@@ -37,14 +38,14 @@ export const mountWorkspace = (root: HTMLElement, store: Store, actions: Actions
  const top = document.querySelector<HTMLElement>('.studio-topbar')!;
  const brand = h('strong', { class: 'studio-brand', text: 'popost' });
  const project = h('span', { class: 'studio-project' }); const saved = h('span', { class: 'studio-save' });
- const toolbar = h('span', { id: 'edit-slot' });
+ const toolbar = h('span', { class: 'studio-global-actions' });
  const compare = button(copy(store, 'compare'), () => { if (store.get().edit.playRender) edit.togglePlayRender(); store.set({ compare: !store.get().compare }); });
  const layout = button(copy(store, 'layout'), () => document.body.classList.toggle('focus-preview'));
  const theme = button('◐', () => { const dark = document.documentElement.classList.toggle('dark'); localStorage.setItem('popost-studio-theme', dark ? 'dark' : 'light'); });
  const lang = button(store.get().lang === 'zh' ? 'EN' : '中文', () => { const next = store.get().lang === 'zh' ? 'en' : 'zh'; localStorage.setItem('popost-studio-language', next); actions.setLang(next); location.reload(); }); lang.id = 'lang-toggle';
  const version = button(copy(store, 'versions'), () => choose('versions'));
  const exportButton = button(copy(store, 'export'), () => openExport(store, edit), 'primary'); exportButton.id = 'studio-export-open';
- top.append(brand, project, saved, toolbar, compare, layout, version, exportButton, theme, lang);
+ toolbar.append(compare, layout, version, theme, lang); mountCloud(toolbar,store); toolbar.append(exportButton); top.append(brand, project, saved, toolbar);
  document.documentElement.classList.toggle('dark', localStorage.getItem('popost-studio-theme') === 'dark');
  document.addEventListener('studio:export', () => openExport(store, edit));
  const stageBar = document.getElementById('studio-stage-heading')!;
@@ -63,16 +64,19 @@ export const mountWorkspace = (root: HTMLElement, store: Store, actions: Actions
  store.subscribe((v, prev) => {
   if (v.state !== prev.state || v.pinned !== prev.pinned || v.compare !== prev.compare || v.connected !== prev.connected || v.edit.status !== prev.edit.status) update();
   if (v.state !== prev.state) { draw(); void refresh(); }
-  else if (v.pinned !== prev.pinned && active !== 'code') draw();
+  else if ((v.pinned !== prev.pinned || (v.frame !== prev.frame && active === 'elements')) && active !== 'code') draw();
  });
  update(); draw();
  return { refresh, choose, content, panel: () => active };
 };
-export const mountTimelineTools = (root: HTMLElement, store: Store): void => {
- const zoom = h('input', { attrs: { type: 'range', min: '100', max: '500', value: '100', 'aria-label': copy(store, 'zoom') } });
+export const mountTimelineTools = (root: HTMLElement, store: Store, edit: EditActions): void => {
+ root.parentElement?.style.setProperty('--timeline-zoom','2');
+ const zoom = h('input', { attrs: { type: 'range', min: '100', max: '500', value: '200', 'aria-label': copy(store, 'zoom') } });
  zoom.addEventListener('input', () => root.parentElement?.style.setProperty('--timeline-zoom', String(Number(zoom.value) / 100)));
- const analysis = button(copy(store, 'assist'), () => document.body.classList.toggle('show-analysis'));
- root.append(button(copy(store, 'viewAll'), () => { zoom.value = '100'; root.parentElement?.style.setProperty('--timeline-zoom','1'); }), analysis, h('span', { class: 'spacer' }), note(copy(store, 'zoom')), zoom);
+ const tools = h('span', { id: 'edit-slot' });
+ const split = button(store.get().lang === 'zh' ? '分割' : 'Split', () => void edit.split()); split.id = 'edit-split';
+ root.append(tools, split, h('span', { class: 'spacer' }), button(copy(store, 'viewAll'), () => { zoom.value = '100'; root.parentElement?.style.setProperty('--timeline-zoom','1'); }), note(copy(store, 'zoom')), zoom);
+ const update = (): void => { split.disabled = !edit.canSplit(); }; store.subscribe(update); update();
 };
 export const resizeHandle = (target: HTMLElement, axis: 'left' | 'right' | 'timeline'): HTMLElement => {
  const horizontal = axis === 'timeline'; const el = h('div', { class: 'studio-handle ' + (horizontal ? 'horizontal' : 'vertical'), attrs: { role: 'separator', tabindex: '0', 'aria-orientation': horizontal ? 'horizontal' : 'vertical' } });

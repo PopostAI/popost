@@ -181,7 +181,7 @@ export const duplicate = (s: PreviewState, t: Target): { op: EditOp; select: Sel
 
 /** The operation that deletes the target. */
 export const removal = (t: Target): EditOp =>
-  t.kind === 'cue' ? { op: 'remove', path: ['tracks', t.index, 'cues', t.cue] } : { op: 'remove', path: basePath(t) };
+  t.kind === 'cue' && Array.isArray(t.track.cues) && t.track.cues.length > 1 ? { op: 'remove', path: ['tracks', t.index, 'cues', t.cue] } : { op: 'remove', path: basePath(t) };
 
 /** Fractions rounded to 1e-5 (a fiftieth of a pixel on a 1920-pixel canvas), so the file stays readable. */
 export const roundBox = (b: readonly number[]): [number, number, number, number] => b.map((v) => Math.round(v * 1e5) / 1e5) as [number, number, number, number];

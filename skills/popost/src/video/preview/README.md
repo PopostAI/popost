@@ -1,4 +1,7 @@
-# Preview debugger
+# Video Studio and preview debugger
+
+Edit mode uses the Studio interface described in [video-editing.md](../../../references/video-editing.md).
+The read-only debugger retains measurement lanes for development.
 
 A local page that shows what the engine renders at any frame, how the timeline is laid out, and how a render compares
 with a reference video and with the measurements. Read-only by default: it never writes to the project. With
