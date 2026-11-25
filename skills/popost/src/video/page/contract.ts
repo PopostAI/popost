@@ -89,6 +89,8 @@ export interface PopostVideoPage {
   prepare(): Promise<void>;
   /** Sets the whole picture to frame n (clamped to 0..frames-1). A pure function of n. */
   applyFrame(n: number): void;
+  /** Preview transport only: update composition geometry without requesting extracted video-frame pictures. */
+  previewFrame?(n: number): void;
   /**
    * Resolves when every picture the last applyFrame call referenced (video frames) is loaded and decoded, ready to
    * paint; rejects naming a picture that could not be loaded. Await it after applyFrame and before reading the picture.

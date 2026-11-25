@@ -58,7 +58,7 @@
     "node": ">=20.19"
   },
   "scripts": {
-    "build": "node build.mjs",
+    "build": "npm run build:video && node build.mjs",
     "build:deck": "node bundles/build-deck.mjs",
     "check:deck": "node bundles/build-deck.mjs --check",
     "build:video": "node bundles/build-video.mjs",

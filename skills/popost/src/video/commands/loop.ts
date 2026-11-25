@@ -209,7 +209,7 @@ const characterOf = async (rt: Runtime, dir: string, id: string): Promise<Anchor
 const materials = command(
   'makes the clips and pictures a list asks for, from prompts; a file that exists is not made again, and what each shows goes to materials.json for plan. Two or more clips keep what they share the same through one reference picture (the anchor). Needs POPOST_GEN_CMD; --check only reads the list',
   {
-    positionals: [{ name: 'requests', help: 'a JSON list: [{ "file": "assets/desk.mp4", "prompt": "...", "seconds": 5, "aspect": "16:9", "images": [...], "videos": [...], "audios": [...], "note": "..." }]; instead of references a clip may start from a picture ("firstFrame", with "lastFrame" to end on one) or from the last frame of another clip ("continues": its file); "anchor": false keeps a clip out of the anchor' }],
+    positionals: [{ name: 'requests', help: 'a JSON list of material requests: file, prompt, seconds, aspect, references; visible people list cast role ids from cast.json ([] for no people), and visible speech declares speech {mode,speaker,text,audio?}. New single-appearance people may be defined directly; recurring roles reuse a completed image. Frames/continues cannot be combined with references.' }],
     options: [
       { flag: '--out', required: true, metavar: 'DIR', help: 'the project directory the files go into' },
       { flag: '--check', kind: 'flag', help: 'only say what is wrong with the list; nothing is made' },
@@ -223,7 +223,7 @@ const materials = command(
     const requests = (await readUserJson(rt, args.req('requests'))) as MaterialRequest[];
     const dir = userPath(rt, args.req('out'));
     if (args.flag('check')) {
-      const wrong = await checkRequests(rt, requests, dir);
+      const wrong = await checkRequests(rt, requests, dir, {selectedIdentity:!!(args.string('character')||args.string('anchor-image'))});
       // Advice on how the list is cut into calls is a warning: the list can be made as it is.
       printJson(rt, { ok: wrong.length === 0, requests: Array.isArray(requests) ? requests.length : 0, problems: [...wrong, ...groupingAdvice(requests)] });
       return wrong.length ? 2 : 0;

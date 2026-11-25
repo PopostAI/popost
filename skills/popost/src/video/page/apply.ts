@@ -85,7 +85,7 @@ const setPicture = (img: HTMLImageElement | undefined, url: string | undefined, 
 };
 
 /** Puts the whole picture in the state of frame n. Returns the video pictures it shows, for settle(). */
-export const applyFrame = (nodes: StageNodes, r: Resolved, frame: number): HTMLImageElement[] => {
+export const applyFrame = (nodes: StageNodes, r: Resolved, frame: number, pictures = true): HTMLImageElement[] => {
   const g = geometry(r);
   const n = clampFrame(r, frame);
   const view = segmentsAt(r, n);
@@ -97,7 +97,7 @@ export const applyFrame = (nodes: StageNodes, r: Resolved, frame: number): HTMLI
     const base = r.segments[k]?.base;
     // A scene runs on its segment's own time; while the transition into it shows it early, it holds its first moment.
     if (node.scene && layer && seekScene(node.scene, (n - (r.segments[k]?.start ?? 0)) / r.canvas.fps, r.canvas.fps)) nodes.live = true;
-    if (base?.kind === 'video') setPicture(node.img, layer ? frameUrl(r, base.play, n) : undefined, shown);
+    if (pictures && base?.kind === 'video') setPicture(node.img, layer ? frameUrl(r, base.play, n) : undefined, shown);
   });
   nodes.overlay.style.cssText = view.overlay
     ? nodes.overlayCss + 'display:block;background:' + view.overlay.color + ';opacity:' + n4(view.overlay.opacity) + ';'
@@ -107,7 +107,7 @@ export const applyFrame = (nodes: StageNodes, r: Resolved, frame: number): HTMLI
     if (!node) return;
     const state = itemStateAt(item, n);
     applyItem(node, item, state, g, n);
-    if (item.play) setPicture(node.img, state ? frameUrl(r, item.play, n) : undefined, shown);
+    if (pictures && item.play) setPicture(node.img, state ? frameUrl(r, item.play, n) : undefined, shown);
   });
   return shown;
 };

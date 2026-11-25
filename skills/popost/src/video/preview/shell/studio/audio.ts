@@ -18,9 +18,9 @@ export const mountProjectAudio = (store: Store): void => {
    const a = wanted[i]; if (!a) return;
    node.gain.gain.value = v.muted ? 0 : 10 ** (a.gain / 20);
    const inside = v.frame >= a.start && (a.end === undefined || v.frame < a.end);
-   const time = Math.max(0, t - a.start / r.canvas.fps + (a.from ? a.from.frame / a.from.fps : 0));
-   node.audio.playbackRate = v.speed;
-   if (Math.abs(node.audio.currentTime - time) > 0.15) node.audio.currentTime = time;
+   const time = Math.max(0, (t - a.start / r.canvas.fps) * (a.speed ?? 1) + (a.from ? a.from.frame / a.from.fps : 0));
+   node.audio.playbackRate = v.speed * (a.speed ?? 1);
+   if (inside && !node.audio.seeking && Math.abs(node.audio.currentTime - time) > 0.2) node.audio.currentTime = time;
    if (v.playing && inside && !v.muted) { if (node.audio.paused) void node.audio.play().catch(() => undefined); }
    else node.audio.pause();
   });

@@ -9,6 +9,7 @@ import type { Actions, Store, View } from './app';
 import { h, placeBox } from './dom';
 import { t } from './i18n';
 import { eventLabel, eventsAt, itemsAt, safeArea, timelineFps } from './model';
+import { nativeFootage } from './footage';
 
 interface Viewer { root: HTMLElement; caption: HTMLElement; note: HTMLElement; box: HTMLElement; overlay: HTMLElement }
 
@@ -115,11 +116,15 @@ const pageDriver = (iframe: HTMLIFrameElement, store: Store): PageDriver => {
   let generation = -1;
   let token = 0;
   let applied = 0;
+  let footage: ReturnType<typeof nativeFootage> | undefined;
   const apply = (): void => {
     if (!page) return;
-    const n = store.get().frame;
+    const v = store.get();
+    const n = v.frame;
     const mine = ++applied;
-    page.applyFrame(n);
+    if (v.playing && page.previewFrame && footage) page.previewFrame(n);
+    else page.applyFrame(n);
+    footage?.sync(n, v.playing, v.speed);
     void page.settle().then(() => null, (e: unknown) => (e instanceof Error ? e.message : String(e))).then((error) => {
       if (mine !== applied) return;
       if (error !== null && error !== store.get().pageError) store.set({ pageError: error });
@@ -138,6 +143,8 @@ const pageDriver = (iframe: HTMLIFrameElement, store: Store): PageDriver => {
     void p.prepare().then(() => null, (e: unknown) => (e instanceof Error ? e.message : String(e))).then((error) => {
       if (mine !== token) return;
       page = p;
+      const resolved = store.get().state?.resolved;
+      if (resolved && iframe.contentDocument) footage = nativeFootage(iframe.contentDocument, resolved);
       if (error !== store.get().pageError) store.set({ pageError: error });
       apply();
       document.body.dataset.ready = '1';
@@ -145,6 +152,7 @@ const pageDriver = (iframe: HTMLIFrameElement, store: Store): PageDriver => {
   });
   const load = (g: number): void => {
     generation = g;
+    footage?.dispose(); footage = undefined;
     page = undefined;
     document.body.dataset.ready = '';
     iframe.src = '/page?g=' + g;
@@ -186,7 +194,7 @@ export const mountStage = (root: HTMLElement, store: Store, actions: Actions): S
       else video.removeAttribute('src');
     }
     if (v.state && v.state.generation !== driver.loaded()) driver.load(v.state.generation);
-    if (v.frame !== prev.frame) driver.apply();
+    if (v.frame !== prev.frame || v.playing !== prev.playing || v.speed !== prev.speed) driver.apply();
     if (v.frame !== prev.frame || v.overlays !== prev.overlays || v.state !== prev.state) drawOverlays(p, v, actions);
     if (v.frame !== prev.frame || v.playing !== prev.playing || v.speed !== prev.speed) syncVideo(video, v, prev, false);
     if (v.compare !== prev.compare || v.lang !== prev.lang || v.state !== prev.state || v.pageError !== prev.pageError || v.edit !== prev.edit) {

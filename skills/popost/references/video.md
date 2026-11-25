@@ -5,6 +5,8 @@ Read this page once, then do steps 0 to 7 in order; "Done when" says what must b
 
 ## Rules for every step
 
+- For any generated people or audible dialogue, read [people and shared voices](video-performers.md). Inventory roles and recurrence first: a new single-appearance person may be defined in the video prompt; recurring roles reuse an identity image. Default to new identities unless the user supplies/selects a character or explicitly requests the reference person. Visible mouths and the final audio share one timing source; a mixed video uses one registered voice profile for its speaker and voice-over.
+
 - Run `mkdir -p work && cd work` once; every path below is relative to `work/`. If `popost` is not on PATH,
   write `node <skill>/dist/cli.js` instead of `popost`.
 - Every command prints one JSON document. `"ok": true` means it worked. Otherwise read `error`, or `problems`:

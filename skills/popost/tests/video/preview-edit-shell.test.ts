@@ -181,9 +181,12 @@ describe.skipIf(!chrome)('preview shell in edit mode (Chrome)', () => {
 
   it.skipIf(!ffmpeg)('renders from the page and plays the render in the reference player\'s place', async () => {
     await page.click('#studio-export-open');
-    await page.getByRole('button', { name: 'Export current draft', exact: true }).click();
+    const dialog = page.getByRole('dialog');
+    expect(await dialog.getByRole('tab').allTextContents()).toEqual(['Video', 'Draft']);
+    await dialog.getByRole('button', { name: '480p', exact: true }).click();
+    await dialog.getByRole('button', { name: 'Export', exact: true }).click();
     await page.waitForSelector('.studio-export-result a[download]', { timeout: 60_000 });
-    expect(await page.locator('.studio-export-result').textContent()).toContain('180 × 320');
+    expect(await page.locator('.studio-export-result').textContent()).toContain('480 ×');
     await page.locator('.studio-export-result').getByRole('button', { name: 'Play', exact: true }).click();
     await page.waitForFunction(() => document.querySelector<HTMLVideoElement>('#reference-video')?.getAttribute('src')?.startsWith('/project/.studio/exports/'), undefined, { timeout: 5000 });
     expect(await page.locator('#reference-view .caption').textContent()).toContain('Render');

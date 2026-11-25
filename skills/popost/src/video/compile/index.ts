@@ -11,6 +11,7 @@ import { resolve } from '../timeline/resolve';
 import { compilePage } from './page';
 import { extractFootage, probeFootage, type FootageStats } from './footage';
 import { loadWords } from './words';
+import { checkSpeechLocks } from '../generate/speech-lock';
 
 export { compilePage } from './page';
 export { loadWords } from './words';
@@ -58,6 +59,8 @@ export const buildPage = async (rt: Runtime, projectDir: string, opts: BuildOpti
   const problems = [...parsed.problems, ...checkProject(parsed.project, { files, footage: probed.info, words })];
   if (problems.some((p) => p.level === 'error')) return { problems, project: parsed.project };
   const plain = resolve(parsed.project, probed.info, words);
+  problems.push(...await checkSpeechLocks(rt, rt.path.resolve(rt.cwd, projectDir), plain));
+  if (problems.some(p => p.level === 'error')) return { problems, project: parsed.project };
   const shows = Object.keys(plain.footage ?? {}).length > 0;
   const { resolved, stats } = shows ? await extractFootage(rt, plain, projectDir, probed, { scale: opts.scale }) : { resolved: plain, stats: undefined };
   return { html: await compilePage(resolved, opts), resolved, project: parsed.project, problems, ...(stats ? { footage: stats } : {}) };

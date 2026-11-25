@@ -96,6 +96,7 @@ const start = (): void => {
       await pictures.settle();
     },
     applyFrame: (n: number) => pictures.set(applyFrame(nodes, r, n)),
+    previewFrame: (n: number) => pictures.set(applyFrame(nodes, r, n, false)),
     settle: () => pictures.settle(),
     layout: () => layoutOf(nodes, r, data.scale),
     scenes: (segment?: number) => sceneFacts(nodes, segment),

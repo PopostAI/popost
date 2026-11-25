@@ -2,9 +2,15 @@ import type { Runtime } from '../../runtime';
 import type { Editor } from './edit/editor';
 import type { PreviewState } from './protocol';
 import { readVersion, saveComment, saveVersion } from './studio-data';
+import { exportDraft } from '../draft/export';
+import type { Project } from '../types';
 
 const TYPES: Record<string, string> = { '.png': 'image', '.jpg': 'image', '.jpeg': 'image', '.webp': 'image', '.mp4': 'video', '.webm': 'video', '.mov': 'video', '.mp3': 'audio', '.m4a': 'audio', '.wav': 'audio', '.ogg': 'audio' };
 export const studioAction = async (rt: Runtime, dir: string, editor: Editor, state: PreviewState, path: string, body: Record<string, unknown>): Promise<unknown> => {
+  if (path === '/api/studio/draft') {
+    if (body.target !== 'jianying' && body.target !== 'capcut') throw new Error('Choose Jianying Pro or CapCut.');
+    return exportDraft(rt,dir,JSON.parse(await editor.snapshot()) as Project,body.target);
+  }
   if (path === '/api/studio/version') return saveVersion(rt, dir, JSON.parse(await editor.snapshot()), String(body.name ?? 'Version'));
   if (path === '/api/studio/restore') {
     const source = await readVersion(rt, dir, String(body.id));

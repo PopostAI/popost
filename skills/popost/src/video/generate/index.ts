@@ -23,6 +23,11 @@ import { probe, runFfmpegOk } from '../media/ffmpeg';
 import { clipAmount } from '../measure/index';
 import { error, warning } from '../project/check-common';
 import type { Problem } from '../types';
+import { sha256 } from '../../core/util';
+import { castImages, personPrompt, readCast } from './cast';
+import { finalizeSpeech, isVisibleSpeech, speechPrompt, type VisibleSpeech } from './speech';
+import { voiceProfile, type VoiceProfile } from '../voice/profile';
+import { audioSeconds } from '../voice/index';
 
 export type GenerateKind = 'video' | 'image';
 
@@ -120,6 +125,9 @@ export const commandGenerator = (rt: Runtime): Generator | undefined => {
 
 /** One material to make: where it goes in the project, and what it should show. */
 export interface MaterialRequest extends GenerateRequest {
+  /** Visible role ids from cast.json; [] explicitly declares a shot without people. */
+  cast?: string[];
+  speech?: VisibleSpeech;
   /** Path in the project, for example "assets/desk.mp4". Its extension says what it is. */
   file: string;
   /** What the material shows, for whoever chooses materials later. Default: the prompt. */
@@ -210,7 +218,7 @@ export const groupingAdvice = (requests: unknown): Problem[] => {
 };
 
 /** What is wrong with a list of requests, before anything is paid for. */
-export const checkRequests = async (rt: Runtime, requests: unknown, dir: string): Promise<Problem[]> => {
+export const checkRequests = async (rt: Runtime, requests: unknown, dir: string, policy: { selectedIdentity?: boolean } = {}): Promise<Problem[]> => {
   if (!Array.isArray(requests)) return [error('(root)', 'The requests are a JSON list: one entry per material to make.', 'Write [{ "file": "assets/desk.mp4", "prompt": "...", "seconds": 5 }].')];
   const seen = new Set<string>();
   // The reference files that exist, looked up first: the checks below stay one pass over the list.
@@ -218,10 +226,19 @@ export const checkRequests = async (rt: Runtime, requests: unknown, dir: string)
     const list = r[k];
     return Array.isArray(list) ? list : [];
   };
-  const named = requests.flatMap((r: Partial<MaterialRequest> | null) => (r && typeof r === 'object' ? [...LISTS.flatMap((k) => listed(r, k)), r.firstFrame, r.lastFrame, r.continues].filter((p): p is string => typeof p === 'string') : []));
+  const named = requests.flatMap((r: Partial<MaterialRequest> | null) => (r && typeof r === 'object' ? [...LISTS.flatMap((k) => listed(r, k)), r.firstFrame, r.lastFrame, r.continues,r.speech?.audio].filter((p): p is string => typeof p === 'string') : []));
   const clips = new Map(requests.flatMap((r: Partial<MaterialRequest> | null) => (r && typeof r === 'object' && typeof r.file === 'string' && kindOf(r.file) === 'video' ? [[r.file, r] as const] : [])));
   const found = new Set<string>();
   for (const p of named) if ((await rt.fs.stat(rt.path.resolve(dir, p))) !== null) found.add(p);
+  const durations=new Map<string,number>();
+  for(const r of requests as Partial<MaterialRequest>[])if(isVisibleSpeech(r?.speech)&&r.speech.mode==='lip-sync'&&r.speech.audio&&found.has(r.speech.audio)) {
+    try {durations.set(r.speech.audio,await audioSeconds(rt,rt.path.resolve(dir,r.speech.audio)));}catch{durations.set(r.speech.audio,NaN);}
+  }
+  const preserved=new Set<string>();
+  if(requests.some((r:Partial<MaterialRequest>|null)=>r?.cast?.length && r.videos?.length)) {
+    try { for(const role of (await readCast(rt,dir)).roles)if(role.identity==='user'||role.identity==='reference')preserved.add(role.id); }
+    catch { /* The cast preflight reports missing or invalid manifests before generation. */ }
+  }
   return requests.flatMap((r: Partial<MaterialRequest> | null, i): Problem[] => {
     const at = '[' + i + ']';
     if (!r || typeof r !== 'object') return [error(at, 'A request is an object with "file" and "prompt".', 'Write { "file": "assets/desk.mp4", "prompt": "..." }.')];
@@ -236,6 +253,12 @@ export const checkRequests = async (rt: Runtime, requests: unknown, dir: string)
       seen.add(file);
     }
     if (typeof r.prompt !== 'string' || !r.prompt.trim()) out.push(error(at + '.prompt', 'A request says what the material should show.', 'Write "prompt": "a tidy desk by a window, slow push-in".'));
+    if (r.cast !== undefined && (!Array.isArray(r.cast) || r.cast.some(id => typeof id !== 'string' || !id.trim()) || new Set(r.cast).size !== r.cast.length)) out.push(error(at + '.cast', 'Cast is a list of unique role ids.', 'Use role ids from cast.json, or [] for a shot without people.'));
+    if (!policy.selectedIdentity && typeof r.prompt === 'string' && personPrompt.test(r.prompt) && r.cast === undefined && kindOf(String(r.file)) === 'video') out.push(error(at + '.cast', 'This clip describes visible people but has no identity policy.', 'Prepare and complete cast.json, then list its role ids in "cast". Use [] only when no person is visible. New identities are the default.'));
+    if (Array.isArray(r.cast) && r.cast.length && r.videos?.length && r.cast.some(id=>!preserved.has(id))) out.push(error(at + '.videos', 'A raw reference video can copy its creator’s face even when a cast image is supplied.', 'Use measured motion and shot descriptions with the locked cast images; reference video is allowed only when all visible identities are explicitly user-selected or preserved.'));
+    if (r.speech !== undefined && (!isVisibleSpeech(r.speech) || !r.cast?.includes(r.speech.speaker))) out.push(error(at + '.speech', 'Visible speech needs native or lip-sync mode, final text and a speaker listed in this clip’s cast.', 'Set speech: {"mode":"native","speaker":"host","text":"Exact spoken words"}. Replacement voices require mode lip-sync and audio.'));
+    if (r.speech?.mode === 'lip-sync' && (!r.speech.audio || !toolCommand(rt, 'POPOST_LIPSYNC_CMD'))) out.push(error(at + '.speech', 'Replacement dialogue needs a final audio file and a real lip-sync tool.', 'Configure POPOST_LIPSYNC_CMD, or keep native speech and its original audio.'));
+    if(r.speech?.mode==='lip-sync'&&r.speech.audio){const seconds=durations.get(r.speech.audio);if(!found.has(r.speech.audio)||!Number.isFinite(seconds))out.push(error(at+'.speech.audio','The final voice is missing or unreadable.','Generate/import the final audio before requesting the visible performance.'));else if(r.seconds===undefined||r.seconds<(seconds??0))out.push(error(at+'.seconds','The performance must be at least as long as the final voice.','Set seconds to at least '+Math.ceil(seconds??0)+'; do not stretch mouth motion independently.'));}
     if (r.seconds !== undefined && !(Number.isInteger(r.seconds) && r.seconds >= 1 && r.seconds <= 30)) out.push(error(at + '.seconds', '"seconds" is a whole number from 1 to 30; it is ' + JSON.stringify(r.seconds) + '.', 'Write "seconds": 5.'));
     if (r.anchor !== undefined && typeof r.anchor !== 'boolean') out.push(error(at + '.anchor', '"anchor" is false for a clip that shares nothing with the others; it is ' + JSON.stringify(r.anchor) + '.', 'Write "anchor": false, or remove it.'));
     if (r.aspect !== undefined && !(typeof r.aspect === 'string' && ASPECT.test(r.aspect))) out.push(error(at + '.aspect', '"aspect" is a ratio such as "16:9", "9:16" or "1:1", or "adaptive"; it is ' + JSON.stringify(r.aspect) + '.', 'Write "aspect": "16:9".', ['16:9', '9:16', '1:1', 'adaptive']));
@@ -260,7 +283,7 @@ const usesFrames = (r: Partial<MaterialRequest>): boolean => r.firstFrame !== un
  * A clip that may give or take the anchor picture: any clip whose request does not say "anchor": false and that is not
  * made from frames (a model starts from a frame or follows references, not both).
  */
-const takesAnchor = (r: MaterialRequest): boolean => kindOf(r.file) === 'video' && r.anchor !== false && !usesFrames(r);
+const takesAnchor = (r: MaterialRequest): boolean => kindOf(r.file) === 'video' && !r.cast?.length && r.anchor !== false && !usesFrames(r);
 
 /**
  * Which clip the others should look like: the first one that is not a close-up (a close-up shows a hand or a
@@ -362,7 +385,35 @@ const lastFrameOf = async (rt: Runtime, dir: string, clip: string): Promise<stri
  * frames or the anchor, which do not change a price), so that the user is shown the total of the whole list at once.
  */
 export const makeMaterials = async (rt: Runtime, o: { requests: MaterialRequest[]; dir: string; generator: Generator; anchor?: boolean; picture?: AnchorPicture; onStep?: (file: string, done: number, total: number) => void }): Promise<MaterialsReport> => {
-  const problems = await checkRequests(rt, o.requests, o.dir);
+  const problems = await checkRequests(rt, o.requests, o.dir, {selectedIdentity:!!o.picture});
+  if (problems.length) return { materials: [], credits: 0, problems };
+  const locked = new Map<string, Awaited<ReturnType<typeof castImages>>>();
+  const voices = new Map<string, VoiceProfile>();
+  const uses = new Map<string, number>();
+  for (const r of o.requests) for (const id of r.cast ?? []) uses.set(id, (uses.get(id) ?? 0) + 1);
+  for (const r of o.requests) if (r.cast?.length) {
+    try {
+      const cast=await castImages(rt,o.dir,r.cast,uses);
+      const hashes=await Promise.all(cast.images.map(p=>rt.fs.readFile(rt.path.resolve(o.dir,p)).then(sha256)));
+      for(const frame of [r.firstFrame,r.lastFrame])if(frame&&!hashes.includes(sha256(await rt.fs.readFile(rt.path.resolve(o.dir,frame)))))throw new Error('A cast-conditioned first/last frame must be a completed cast image. Import the real generated scene anchor; do not start from an unregistered reference creator frame.');
+      if(r.continues){const parent=o.requests.find(p=>p.file===r.continues);if(!parent||r.cast.some(id=>!parent.cast?.includes(id)))throw new Error('A continued cast performance must name a request with the same declared cast in this list.');}
+      locked.set(r.file,cast);
+    }
+    catch (e) { problems.push(error(r.file + '.cast', String(e), 'Complete every identity image before generating any clip.')); }
+  }
+  for (const r of o.requests) if (r.speech) {
+    try {
+      const profile = await voiceProfile(rt,o.dir,r.speech.speaker);
+      if (!profile) continue;
+      if(r.speech.mode==='native' && usesFrames(r))throw new Error('Native voice references need reference mode, which cannot be combined with first/last frames. Use audio-first lip sync for a frame-conditioned clip.');
+      if (r.speech.mode === 'native' && profile.mode !== 'native-reference') throw new Error('This project locks a shared voice. Generate its final audio with video voice speak, then use speech.mode lip-sync for visible mouths. Native-reference is an explicit alternative only for models with voice conditioning.');
+      if (r.speech.mode === 'lip-sync') {
+        const receipt = JSON.parse(await rt.fs.readText(rt.path.resolve(o.dir,r.speech.audio ?? '')+'.voice.json')) as {speaker?:string;voiceReferenceHash?:string;audioSha256?:string};
+        if (receipt.speaker!==profile.id || receipt.voiceReferenceHash!==profile.sha256 || receipt.audioSha256!==sha256(await rt.fs.readFile(rt.path.resolve(o.dir,r.speech.audio ?? '')))) throw new Error('The final dialogue does not match this project’s shared voice. Generate it with video voice speak.');
+      }
+      voices.set(r.file,profile);
+    } catch(e) { problems.push(error(r.file+'.speech.voice',String(e),'Use the registered voice for every visible speaking shot and voice-over.')); }
+  }
   if (problems.length) return { materials: [], credits: 0, problems };
   const notes = await readNotes(rt, o.dir);
   const exists = async (p: string): Promise<boolean> => (await rt.fs.stat(p)) !== null;
@@ -376,7 +427,13 @@ export const makeMaterials = async (rt: Runtime, o: { requests: MaterialRequest[
   let picture: string | undefined = o.picture?.file;
   /** The clips that were asked for and are not there: failed (or waiting themselves), or priced and waiting for the user. */
   const absent = new Map<string, 'failed' | 'priced'>();
-  for (const [i, asked] of order.entries()) {
+  for (const [i, original] of order.entries()) {
+    const cast = locked.get(original.file);
+    const voice = voices.get(original.file);
+    const withCast = cast ? { ...original, ...(!usesFrames(original) ? { images: [...(original.images ?? []), ...cast.images] } : {}), prompt: original.prompt + ' ' + cast.instruction } : original;
+    const asked = voice && original.speech?.mode === 'native' ? { ...withCast, audios:[...(withCast.audios??[]),voice.reference], prompt:withCast.prompt+' @audio'+((withCast.audios?.length??0)+1)+' defines the voice identity and timbre only. Speak the exact new dialogue with that voice, never the reference recording’s words. Keep the speaker’s voice stable across all shots.' } : withCast;
+    const dependencies=[...LISTS.flatMap(k=>asked[k]??[]),asked.firstFrame,asked.lastFrame,asked.continues,asked.speech?.audio].filter((p):p is string=>typeof p==='string');
+    const signature = sha256(JSON.stringify({ request: asked, voiceHash: voice?.sha256, dependencies:await Promise.all(dependencies.map(async p=>[p,await rt.fs.readFile(rt.path.resolve(o.dir,p)).then(sha256,()=>null)])) }));
     const isAnchor = first >= 0 && i === 0;
     const takes = source !== undefined && takesAnchor(asked) && !isAnchor;
     const needs = [...(takes && anchorFile ? [anchorFile] : []), ...(asked.continues ? [asked.continues] : [])];
@@ -384,6 +441,10 @@ export const makeMaterials = async (rt: Runtime, o: { requests: MaterialRequest[
     const target = rt.path.resolve(o.dir, asked.file);
     o.onStep?.(asked.file, i, o.requests.length);
     let entry: MadeMaterial = { file: asked.file, kind, made: false };
+    if ((cast || asked.speech) && await exists(target)) {
+      const previous = await rt.fs.readText(target + '.generation.json').catch(() => '');
+      if (previous !== signature) { materials.push({ ...entry, error: 'Existing clip has different or missing cast/speech provenance. Keep it and choose a new output filename for this request.' }); continue; }
+    }
     if (!(await exists(target))) {
       const failed = needs.find((f) => absent.get(f) === 'failed');
       if (failed) {
@@ -401,14 +462,19 @@ export const makeMaterials = async (rt: Runtime, o: { requests: MaterialRequest[
         const references = Object.fromEntries(LISTS.flatMap((k) => (r[k]?.length ? [[k, (r[k] ?? []).map(at)]] : [])));
         const start = priceOnly ? undefined : asked.continues ? await lastFrameOf(rt, o.dir, asked.continues) : asked.firstFrame ? at(asked.firstFrame) : undefined;
         const frames = { ...(start ? { firstFrame: start } : {}), ...(start && asked.lastFrame ? { lastFrame: at(asked.lastFrame) } : {}) };
-        const request: GenerateRequest = { prompt: r.prompt, ...(r.seconds ? { seconds: r.seconds } : {}), ...(r.aspect ? { aspect: r.aspect } : {}), ...references, ...frames, ...(priceOnly ? { priceOnly: true as const } : {}) };
+        const request: GenerateRequest = { prompt: r.prompt + (r.speech ? speechPrompt(r.speech) : ''), ...(r.seconds ? { seconds: r.seconds } : {}), ...(r.aspect ? { aspect: r.aspect } : {}), ...references, ...frames, ...(priceOnly ? { priceOnly: true as const } : {}) };
         const made = await o.generator.make(kind, request, partial);
+        if(made.credits!==undefined)entry={...entry,credits:made.credits};
         if (!(await exists(partial))) throw new Error('The generator finished without writing the file.');
+        if (asked.speech) await finalizeSpeech(rt, partial, asked.speech, o.dir, target);
         await rt.fs.rename(partial, target);
+        if (asked.speech) for (const ext of ['.speech.wav','.speech.json']) await rt.fs.rename(partial + ext, target + ext);
+        if (cast || asked.speech) await rt.fs.writeFile(target + '.generation.json', signature);
         // A generator that does not know "priceOnly" and had the budget made the clip: it is there, without what it waited for.
         entry = { ...entry, made: true, ...(made.credits !== undefined ? { credits: made.credits } : {}), ...(priceOnly ? { unanchored: true as const, waitsFor: priced } : {}) };
       } catch (e) {
         await rt.fs.rm(partial);
+        for(const ext of ['.speech.wav','.speech.json'])await rt.fs.rm(partial+ext);
         absent.set(asked.file, e instanceof ConfirmNeeded ? 'priced' : 'failed');
         materials.push({ ...entry, error: e instanceof Error ? e.message : String(e), ...(e instanceof ConfirmNeeded ? { confirm: e.confirm } : {}), ...(priceOnly ? { waiting: true as const, waitsFor: priced } : {}) });
         continue;

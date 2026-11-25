@@ -90,11 +90,11 @@ describe('generate: making materials', () => {
   });
 });
 
-describe('generate: one person in every clip', () => {
+describe('generate: shared product continuity', () => {
   const requests = [
     { file: 'assets/gen-01.mp4', prompt: 'Close-up of a hand on the fabric of @image1', images: ['assets/product.png'] },
-    { file: 'assets/gen-02.mp4', prompt: 'A woman holds @image1 up and smiles', images: ['assets/product.png'] },
-    { file: 'assets/gen-03.mp4', prompt: 'She turns to show the fit' },
+    { file: 'assets/gen-02.mp4', prompt: 'A jacket is displayed beside @image1', images: ['assets/product.png'] },
+    { file: 'assets/gen-03.mp4', prompt: 'The jacket turns to show its fit' },
     { file: 'assets/logo.png', prompt: 'a red logo' },
   ];
 
@@ -127,12 +127,12 @@ describe('generate: one person in every clip', () => {
     expect(r.materials.map((m) => [m.file, m.anchor === true])).toEqual([['assets/gen-02.mp4', true], ['assets/gen-01.mp4', false], ['assets/gen-03.mp4', false], ['assets/logo.png', false]]);
     expect(existsSync(path.join(dir, 'assets', 'anchor.jpg'))).toBe(true);
     const sent = (file: string): GenerateRequest | undefined => asked[r.materials.findIndex((m) => m.file === file)]?.request;
-    expect(sent('assets/gen-02.mp4')).toEqual({ prompt: 'A woman holds @image1 up and smiles', images: [path.join(dir, 'assets', 'product.png')] });
+    expect(sent('assets/gen-02.mp4')).toEqual({ prompt: 'A jacket is displayed beside @image1', images: [path.join(dir, 'assets', 'product.png')] });
     expect(sent('assets/gen-01.mp4')).toEqual({ prompt: 'Close-up of a hand on the fabric of @image1 ' + anchorSentence(2, 'clip'), images: [path.join(dir, 'assets', 'product.png'), path.join(dir, 'assets', 'anchor.jpg')] });
-    expect(sent('assets/gen-03.mp4')).toEqual({ prompt: 'She turns to show the fit ' + anchorSentence(1, 'clip'), images: [path.join(dir, 'assets', 'anchor.jpg')] });
+    expect(sent('assets/gen-03.mp4')).toEqual({ prompt: 'The jacket turns to show its fit ' + anchorSentence(1, 'clip'), images: [path.join(dir, 'assets', 'anchor.jpg')] });
     expect(sent('assets/logo.png')).toEqual({ prompt: 'a red logo' });
     // The notes are the prompts as they were written, not as they were sent.
-    expect((JSON.parse(await readFile(path.join(dir, 'materials.json'), 'utf8')) as Record<string, string>)['assets/gen-03.mp4']).toBe('She turns to show the fit');
+    expect((JSON.parse(await readFile(path.join(dir, 'materials.json'), 'utf8')) as Record<string, string>)['assets/gen-03.mp4']).toBe('The jacket turns to show its fit');
     const plain: GenerateRequest[] = [];
     const off = path.join(root, 'no-anchor');
     await mkdir(path.join(off, 'assets'), { recursive: true });
@@ -167,7 +167,7 @@ describe('generate: one person in every clip', () => {
     expect(generator.asked.map((a) => a.request)).toEqual([
       { prompt: requests[0]!.prompt + ' ' + anchorSentence(2, 'character', { name: 'Mia' }), images: [path.join(dir, 'assets', 'product.png'), path.join(dir, 'assets', 'mia.png')] },
       { prompt: requests[1]!.prompt + ' ' + anchorSentence(2, 'character', { name: 'Mia' }), images: [path.join(dir, 'assets', 'product.png'), path.join(dir, 'assets', 'mia.png')] },
-      { prompt: 'She turns to show the fit' },
+      { prompt: 'The jacket turns to show its fit' },
       { prompt: 'a red logo' },
     ]);
     expect(existsSync(path.join(dir, 'assets', 'anchor.jpg'))).toBe(false);
@@ -191,9 +191,9 @@ describe('generate: one person in every clip', () => {
     // The anchor clip's price waits for the user: the other clips are asked for their price only, so the total is whole.
     const product = path.join(dir, 'assets', 'product.png');
     expect(sent).toEqual([
-      { prompt: 'A woman holds @image1 up and smiles', images: [product] },
+      { prompt: 'A jacket is displayed beside @image1', images: [product] },
       { prompt: 'Close-up of a hand on the fabric of @image1', images: [product], priceOnly: true },
-      { prompt: 'She turns to show the fit', priceOnly: true },
+      { prompt: 'The jacket turns to show its fit', priceOnly: true },
       { prompt: 'a red logo' },
     ]);
     expect(r.materials.map((m) => [m.file, m.made, m.waiting === true, m.confirm?.credits])).toEqual([['assets/gen-02.mp4', false, false, 25], ['assets/gen-01.mp4', false, true, 25], ['assets/gen-03.mp4', false, true, 25], ['assets/logo.png', true, false, undefined]]);
@@ -202,7 +202,7 @@ describe('generate: one person in every clip', () => {
     // The anchor clip fails for good: the others are not sent at all, and one problem says why.
     const failed: GenerateRequest[] = [];
     const broken = await makeMaterials(rt, { requests: requests.slice(0, 3), dir: path.join(root, 'waiting'), generator: { make: async (_k, request) => { failed.push(request); throw new Error('the content was rejected'); } } });
-    expect(failed.map((q) => q.prompt)).toEqual(['A woman holds @image1 up and smiles']);
+    expect(failed.map((q) => q.prompt)).toEqual(['A jacket is displayed beside @image1']);
     expect(broken.materials.map((m) => [m.file, m.waiting === true])).toEqual([['assets/gen-02.mp4', false], ['assets/gen-01.mp4', true], ['assets/gen-03.mp4', true]]);
     expect(broken.problems.map((p) => p.at)).toEqual(['assets/gen-02.mp4', 'assets/gen-01.mp4', 'assets/gen-03.mp4']);
     expect(broken.problems[1]?.message).toContain('It was not sent: it waits for assets/gen-02.mp4 (a frame of it goes to this clip as a reference picture');
@@ -255,8 +255,8 @@ describe('generate: frames', () => {
       },
     };
     const list = [
-      { file: 'assets/part-2.mp4', prompt: 'she walks on to the door', continues: 'assets/part-1.mp4' },
-      { file: 'assets/part-1.mp4', prompt: 'a woman walks down the hall' },
+      { file: 'assets/part-2.mp4', prompt: 'the toy rolls on to the door', continues: 'assets/part-1.mp4' },
+      { file: 'assets/part-1.mp4', prompt: 'a toy rolls down the hall' },
       { file: 'assets/open.mp4', prompt: 'the box opens', firstFrame: 'assets/start.png' },
       { file: 'assets/street.mp4', prompt: 'the street outside' },
     ];
@@ -268,8 +268,8 @@ describe('generate: frames', () => {
     expect(last).toBe(path.join(dir, 'assets', 'part-1.last.png'));
     expect(existsSync(last)).toBe(true);
     expect(asked).toEqual([
-      { prompt: 'a woman walks down the hall' },
-      { prompt: 'she walks on to the door', firstFrame: last },
+      { prompt: 'a toy rolls down the hall' },
+      { prompt: 'the toy rolls on to the door', firstFrame: last },
       { prompt: 'the box opens', firstFrame: path.join(dir, 'assets', 'start.png') },
       { prompt: 'the street outside ' + anchorSentence(1, 'clip'), images: [path.join(dir, 'assets', 'anchor.jpg')] },
     ]);
