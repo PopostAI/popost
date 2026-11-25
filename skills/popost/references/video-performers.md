@@ -4,9 +4,13 @@ Use these rules for every generated video, including product demonstrations, exp
 
 ## Choose identity by role and recurrence
 
-Inventory the visible roles and the shots where each appears before requesting media. Prefer the user's supplied character or selected library character. Preserve a reference person's identity only when the user explicitly requests it: record the actual instruction in `permission`.
+Inventory the visible roles and the generated clips where each appears before requesting media. Follow the user's explicit character requirements and supplied/selected character material first. Without those, use a new fictional person with a similar role, age range, energy and presentation style, but different facial proportions and features. Similar mood is not permission to reproduce the reference face.
 
-Otherwise use a new fictional person. A role appearing once can be defined directly in the video prompt; do not generate an identity image unnecessarily. A role recurring in several clips or shots uses one approved identity image across those appearances. Different people have separate role ids and images. Identity, wardrobe, product and scene references have distinct jobs.
+Instructions such as "keep the male presenter", "retain the avatar window", or "preserve the host's timing, position, size and crop" describe the format. They do **not** select the original person's identity, even when copied into `permission`. Do not extract that person's face as the new cast image, attach their portrait to the image generator, or ask the model to preserve their facial features. Describe the archetype in words and generate an independent face. Review the actual result against the reference before generating the clips; changing only hair, glasses or clothing is insufficient.
+
+Preserve a reference person's identity only for an explicit same-person request, such as "use this same person from my reference". In that case set `identity: "reference"`, `referenceSelection: "same-person"`, and quote the actual identity instruction in `permission`. Legacy `permission` text alone no longer authorizes this route. Do not add this selection merely to make an old manifest pass: reassess the original instruction and use `identity: "new"` for format-only requests. A supplied character picture instead uses `identity: "user"` and its actual material.
+
+A new role in one generated clip can be defined directly in its video prompt; do not generate an identity image unnecessarily, even if that clip contains several shots or is cut into several timeline segments. A role in multiple generated clips uses one reviewed identity image for every clip; do not generate a different face per clip. Different people have separate role ids and images. Identity, wardrobe, product and scene references have distinct jobs.
 
 Write `project/cast.json`:
 
@@ -16,9 +20,11 @@ Write `project/cast.json`:
 ]}
 ```
 
-`popost video cast prepare project` prints host image jobs. For recurring roles, actually use the host image generator, inspect its output and import it with `popost video cast complete project --role host --file generated.png --tool image_gen`. User/library identities require their actual selected picture. A new single-appearance role can leave `image` absent. The materials command also counts role uses across its request list.
+`popost video cast prepare project --requests materials.json` counts independent generation requests and prints the necessary host image jobs. Without a request list, `shots` is a conservative estimate of recurrence. For recurring roles, actually use the host image generator without the original person's portrait, inspect its output and import it with `popost video cast complete project --role host --file generated.png --tool image_gen`. User/library identities require their actual selected picture. A new role in one generated clip can leave `image` absent. The materials command also counts role uses across its request list.
 
 Each video material lists `"cast":["host"]`; `[]` explicitly means no visible person. Send the generated identity pictures, product assets and measured motion descriptions to the video model. Do not send the raw original creator's video as a generation reference: a model may copy its face despite a text instruction. The engine refuses this combination. Keep role ids stable; a different identity or voice uses a new output filename rather than silently reusing a previous clip.
+
+Before delivery, inspect the opening, later appearances and each new clip boundary. Check both requirements separately: the person is visibly different from the reference and is consistent with the new cast image throughout the result. Record any drift honestly; a valid manifest or image hash does not prove visual identity quality.
 
 ## Visible speech has one final audio source
 

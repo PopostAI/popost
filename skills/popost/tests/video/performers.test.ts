@@ -22,11 +22,27 @@ describe('identity policy across genres',()=>{
   await rt.fs.writeFile(rt.path.join(dir,'assets/cast/host.png'),new Uint8Array([4]));
   await expect(castImages(rt,dir,['host'])).rejects.toThrow('changed');
  });
- it('requires an explicit instruction to preserve a reference identity and handles recurring shots in a single generated file',async()=>{
+ it('requires a same-person selection rather than a legacy format instruction',async()=>{
   const dir=await project('reference',[{id:'host',description:'A presenter',identity:'reference'}]);
   await expect(readCast(rt,dir)).rejects.toThrow('explicit instruction');
+  for(const permission of ['Keep the presenter and avatar window in the same place.','Keep the male host on screen with the demonstrations.','Use the same person from my reference.']) {
+   const legacy=await project('legacy-'+permission.length,[{id:'host',description:'A presenter',identity:'reference',permission}]);
+   await expect(readCast(rt,legacy)).rejects.toThrow('Legacy permission text alone');
+  }
+  const selected=await project('selected',[{id:'host',description:'My selected presenter',identity:'reference',referenceSelection:'same-person',permission:'Use the same person from my reference.'}]);
+  expect((await readCast(rt,selected)).roles[0]?.identity).toBe('reference');
+  const supplied=await project('supplied',[{id:'host',description:'My supplied character',identity:'user'}]);
+  expect((await readCast(rt,supplied)).roles[0]?.identity).toBe('user');
+  const misplaced=await project('misplaced',[{id:'host',description:'A new presenter',identity:'new',referenceSelection:'same-person'}]);
+  await expect(readCast(rt,misplaced)).rejects.toThrow('Remove it');
+ });
+ it('counts generated clips rather than timeline cuts when deciding whether an image is necessary',async()=>{
   const multi=await project('multi',[{id:'host',description:'A fictional presenter',shots:['intro','outro']}]);
   await expect(castImages(rt,multi,['host'])).rejects.toThrow('Recurring');
+  const direct=await castImages(rt,multi,['host'],new Map([['host',1]]));
+  expect(direct.images).toEqual([]);
+  expect(direct.instruction).toContain('original facial proportions');
+  await expect(castImages(rt,multi,['host'],new Map([['host',2]]))).rejects.toThrow('Recurring');
  });
  it('blocks unclassified visible people and raw creator footage while allowing a person-free scene',async()=>{
   const dir=await project('requests',[]);

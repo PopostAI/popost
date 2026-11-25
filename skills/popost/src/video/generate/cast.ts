@@ -8,6 +8,8 @@ export interface CastRole {
   identity?: 'new' | 'user' | 'reference';
   /** Required only when the user explicitly requests the reference person's identity. */
   permission?: string;
+  /** A layout/presenter instruction alone never selects the reference person's face. */
+  referenceSelection?: 'same-person';
   image?: string;
   sha256?: string;
   provenance?: string;
@@ -36,7 +38,8 @@ export const readCast = async (rt: Runtime, dir: string): Promise<CastManifest> 
     if (!/^[a-zA-Z0-9_-]+$/.test(r.id) || ids.has(r.id) || typeof r.description !== 'string' || !r.description.trim()) throw new Error('Every cast role needs a unique id and a visual description.');
     ids.add(r.id);
     if (r.identity && !['new','user','reference'].includes(r.identity)) throw new Error('Cast identity is new (default), user, or reference.');
-    if (r.identity === 'reference' && !r.permission?.trim()) throw new Error('Keeping a reference identity requires the user’s explicit instruction in role.permission.');
+    if (r.identity === 'reference' && (r.referenceSelection !== 'same-person' || !r.permission?.trim())) throw new Error('Keeping a reference identity requires an explicit instruction to use that same person: set referenceSelection to "same-person" and quote the actual identity instruction in permission. Keeping a presenter, avatar window, placement, wardrobe style or mood is not identity selection; use identity "new" with different facial features. Legacy permission text alone is insufficient.');
+    if (r.identity !== 'reference' && r.referenceSelection !== undefined) throw new Error('referenceSelection belongs only to identity "reference". Remove it for a new or user-supplied character.');
   }
   return { version: 1, roles };
 };
@@ -46,9 +49,9 @@ export const castImages = async (rt: Runtime, dir: string, ids: string[], uses: 
   for (const id of ids) {
     const role = cast.roles.find(r => r.id === id);
     if (!role) throw new Error('No cast role named "' + id + '". Define its archetype in cast.json.');
-    const recurring = (uses.get(id) ?? 1) > 1 || (role.shots?.length ?? 0) > 1;
+    const recurring = uses.has(id) ? (uses.get(id) ?? 0) > 1 : (role.shots?.length ?? 0) > 1;
     if (!role.image && !recurring && (!role.identity || role.identity === 'new')) {
-      lines.push(id + ': create one distinct fictional person described as ' + role.description + '. No reference identity is being supplied.');
+      lines.push(id + ': create one distinct fictional person described as ' + role.description + '. Match only the requested archetype and mood, with original facial proportions and features. No reference identity is being supplied. Keep this one person consistent throughout this generated clip.');
       continue;
     }
     if (!role.image || !role.sha256 || !role.provenance) throw new Error('Recurring or user-selected cast role "' + id + '" has no completed identity image. Run video cast prepare, generate/import the real image, then video cast complete.');

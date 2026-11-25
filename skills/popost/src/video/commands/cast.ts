@@ -3,7 +3,7 @@ import { castPrompt, completeCast, readCast } from '../generate/cast';
 import { finalizeSpeech } from '../generate/speech';
 import { command, userPath, VideoCommandError, type Commands } from './shared';
 
-const prepare = command('prepare optional identity image jobs from cast.json; recurring roles reuse a locked image, single-appearance new roles may be defined directly in video prompts', {
+const prepare = command('prepare optional identity image jobs from cast.json; multiple generated clips reuse a locked image, one generated clip may define its new person directly', {
   positionals: [{ name: 'project', help: 'project directory containing cast.json' }],
   options: [{flag:'--requests',metavar:'FILE',help:'material request list; count each role’s appearances before deciding which images are needed'}],
 }, async (args, rt) => {
@@ -12,7 +12,7 @@ const prepare = command('prepare optional identity image jobs from cast.json; re
     const file=args.string('requests');
     const requests=file ? JSON.parse(await rt.fs.readText(userPath(rt,file))) as {cast?:string[]}[] : [];
     if(!Array.isArray(requests))throw new Error('Requests must be a JSON list.');
-    const required=(id:string,shots?:string[]):boolean=>(shots?.length??0)>1 || requests.filter(r=>r.cast?.includes(id)).length>1;
+    const required=(id:string,shots?:string[]):boolean=>file ? requests.filter(r=>r.cast?.includes(id)).length>1 : (shots?.length??0)>1;
     printJson(rt, { ok: true, channel: 'host', direct:cast.roles.filter(role=>!required(role.id,role.shots)&&(!role.identity||role.identity==='new')&&!role.image).map(role=>({id:role.id,description:role.description,method:'Define this new single-appearance person directly in the video prompt.'})),
       jobs: cast.roles.filter(role=>required(role.id,role.shots)&&(!role.identity||role.identity==='new')&&!role.image).map(role => ({ id: role.id, identity: role.identity ?? 'new', prompt: castPrompt(role), completed: !!role.image,
       references: role.identity === 'new' ? [] : role.image ? [role.image] : [], next: 'Generate with the host image tool, inspect the real output, then video cast complete.' })) });
