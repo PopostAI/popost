@@ -5,6 +5,8 @@ Read this page once, then do steps 0 to 7 in order; "Done when" says what must b
 
 ## Rules for every step
 
+- For Jianying Pro or CapCut delivery, use [direct desktop draft export](video-draft-export.md). Local Studio saves into the application's drafts folder and offers Open/Restart after success; a ZIP download is not this interaction.
+
 - For any generated people or audible dialogue, read [people and shared voices](video-performers.md). Inventory roles and recurrence first: a new single-appearance person may be defined in the video prompt; recurring roles reuse an identity image. Default to new identities unless the user supplies/selects a character or explicitly requests the reference person. Visible mouths and the final audio share one timing source; a mixed video uses one registered voice profile for its speaker and voice-over.
 
 - Run `mkdir -p work && cd work` once; every path below is relative to `work/`. If `popost` is not on PATH,

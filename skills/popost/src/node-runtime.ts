@@ -21,6 +21,10 @@ export const nodeFileSystem: FileSystem = {
   realpath: (p) => fsp.realpath(p),
   readFile: async (p) => new Uint8Array(await fsp.readFile(p)),
   readText: (p) => fsp.readFile(p, 'utf8'),
+  copyFile: async (from, to) => {
+    await fsp.mkdir(path.dirname(to), { recursive: true });
+    await fsp.copyFile(from, to, fsConstants.COPYFILE_FICLONE);
+  },
   writeFile: async (p, data, options) => {
     if (!options?.private) {
       await fsp.mkdir(path.dirname(p), { recursive: true });
@@ -297,6 +301,7 @@ export const createNodeRuntime = (profile?: string): Runtime => {
     deviceAccess: grant ? deviceTokenProvider(grant, globalThis.fetch) : undefined,
     openExternal,
     homeDir,
+    platform: platform(),
     stdin: readStdin,
     readSecret: () => readTerminalSecret(process.stdin, (text) => void process.stderr.write(text)),
     skillRoot: packageRoot(),

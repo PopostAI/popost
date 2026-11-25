@@ -21,6 +21,8 @@ export interface FileSystem {
   realpath?(path: string): Promise<string>;
   readFile(path: string): Promise<Uint8Array>;
   readText(path: string): Promise<string>;
+  /** Independent file copy; desktop hosts can clone large media without loading it into memory. */
+  copyFile?(from: string, to: string): Promise<void>;
   /**
    * Writes the whole file, creating missing parent directories. `private` asks for owner-only permissions (file 0600,
    * new directories 0700) where the platform has them; hosts without permissions ignore it.
@@ -112,6 +114,8 @@ export interface EditorHost {
 }
 
 export interface Runtime {
+  /** Desktop operating system. Virtual hosts may omit this capability. */
+  readonly platform?: string;
   readonly fs: FileSystem;
   /** `node:path` of the platform for the real disk, `node:path/posix` for a virtual one. */
   readonly path: PlatformPath;

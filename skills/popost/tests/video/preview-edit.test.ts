@@ -272,7 +272,7 @@ describe('edit mode safety', () => {
 
   it('refuses every POST without --edit', async () => {
     const before = await readFile(path.join(dir, 'video.json'));
-    for (const p of ['/api/edit', '/api/undo', '/api/redo', '/api/render']) {
+    for (const p of ['/api/edit', '/api/undo', '/api/redo', '/api/render', '/api/studio/draft', '/api/studio/draft-open']) {
       const r = await call(readOnly?.url ?? '', 'POST', p, JSON.stringify(ok));
       expect(r.status, p).toBe(405);
     }
