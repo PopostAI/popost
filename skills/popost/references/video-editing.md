@@ -5,7 +5,7 @@ and load the page before delivery. `--cloud off` keeps every save local.
 
 Studio edits the existing `video.json`; it does not maintain a second timeline document. Preview selection, timeline clips,
 and the Elements list address the same source object. Media groups shots and imported source files in one tab. Subtitles
-have individual selectable clips. Elements exposes editable scene content marked with `data-slot`; rasterized text inside
+have individual selectable clips. Selecting an element or subtitle in the sidebar reveals its visible frame and links the preview outline, timeline highlight and inspector. The inspector stays collapsed until something is selected; Escape or an empty timeline click clears the selection. Elements exposes editable scene content marked with `data-slot`; rasterized text inside
 an existing video is not an editable text element.
 
 The inspector edits content, pixel position, timing in seconds, and type-specific settings. Advanced motion settings are
@@ -16,7 +16,7 @@ clock through `base.offset` (seconds). Ordinary audio uses `in` in project frame
 Cloud saving uses the same authorization service as image projects: a configured key syncs at startup and after a three
 second quiet period; without a key, Save to cloud opens the project-scoped browser authorization flow. A browser ticket
 permits one successful sync. Later anonymous edits stay local until another authorization. Conflicts never overwrite a
-newer cloud revision automatically. The editor's `.studio/cloud.json` stores the stable project id, file upload receipts
+newer cloud revision automatically. The controls mirror the image editor: waiting and uploading states, a copyable login link when popups are blocked, retained-credential retries, keyed conflict overwrite and an Open link after saving. Cloud actions first flush focused fields and pending JSON edits; an invalid local draft prevents upload. The editor's `.studio/cloud.json` stores the stable project id, file upload receipts
 and sync revision; it never stores credentials.
 
 Video sync preserves the source document, scene HTML/CSS/scripts and referenced media. Files upload directly to signed

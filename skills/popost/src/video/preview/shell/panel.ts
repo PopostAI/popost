@@ -36,7 +36,7 @@ const selectionContent = (v: View, s: PreviewState, actions: Actions): HTMLEleme
  * Edit mode: the form of the selection, or, with nothing selected, what can be selected at the playhead. undefined
  * for a selection the form does not edit (a measured boundary or event), which keeps its JSON view.
  */
-const editContent = (v: View, s: PreviewState, actions: Actions, edit: EditActions, store: Store): HTMLElement[] | undefined => {
+const editContent = (v: View, s: PreviewState, edit: EditActions, store: Store): HTMLElement[] | undefined => {
   const schema = v.edit.schema;
   if(!s.edit)return undefined;
   if(!schema)return [h('p',{class:'muted',text:v.lang==='zh'?'正在载入编辑工具…':'Loading editing tools…'})];
@@ -54,15 +54,7 @@ const editContent = (v: View, s: PreviewState, actions: Actions, edit: EditActio
     return [editForm(ctx, target)];
   }
   if (v.pinned) return undefined;
-  const seg = s.resolved ? segmentAt(s.resolved, v.frame) : undefined;
-  const chip = (text: string, pick: () => void): HTMLElement => h('button', { class: 'chip', text, attrs: { type: 'button' }, on: { click: pick } });
-  return [
-    h('p', { class: 'muted', id: 'edit-hint', text: t(v.lang, 'editHint') }),
-    h('div', { class: 'chips' }, [
-      ...(seg ? [chip((v.lang==='zh'?'画面 ':'Scene ')+(seg.index+1), () => actions.pin({ kind: 'segment', id: seg.id }))] : []),
-      ...(s.resolved ? itemsAt(s.resolved, v.frame) : []).map((it) => chip(it.text ?? (v.lang==='zh'?(it.type==='video'?'视频':it.type==='image'?'图片':'元素'):it.type), () => actions.pin({ kind: 'item', id: it.id }))),
-    ]),
-  ];
+  return [];
 };
 
 const problemItem = (p: Problem, lang: Lang): HTMLElement =>
@@ -116,7 +108,7 @@ export const mountPanel = (root: HTMLElement, store: Store, actions: Actions, ed
     // A rebuilt form keeps the field that had the focus (the next one, after a change was committed by leaving a field).
     const focused = selection.contains(document.activeElement) ? (document.activeElement as HTMLElement).dataset.path : undefined;
     const follow = v.pinned ? [h('button', { class: 'link', text: t(v.lang, 'follow'), attrs: { type: 'button' }, on: { click: () => actions.pin(null) } })] : [];
-    const content = s ? ((edit && editContent(v, s, actions, edit, store)) ?? selectionContent(v, s, actions)) : [];
+    const content = s ? ((edit && editContent(v, s, edit, store)) ?? selectionContent(v, s, actions)) : [];
     selection.replaceChildren(heading(t(v.lang, 'selection'), [h('span', { class: 'muted', text: ' (' + t(v.lang, v.pinned ? 'pinned' : 'underPlayhead') + ')' }), ...follow]), ...content);
     if (focused) selection.querySelector<HTMLElement>('[data-path="' + CSS.escape(focused) + '"]')?.focus();
     if (pinChanged) selection.querySelector('.cue.current')?.scrollIntoView({ block: 'nearest' });

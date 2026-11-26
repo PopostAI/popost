@@ -129,6 +129,7 @@ const pageDriver = (iframe: HTMLIFrameElement, store: Store): PageDriver => {
       if (mine !== applied) return;
       if (error !== null && error !== store.get().pageError) store.set({ pageError: error });
       document.body.dataset.applied = String(n);
+      iframe.dispatchEvent(new Event('frameapplied'));
     });
   };
   iframe.addEventListener('load', () => {
@@ -148,6 +149,7 @@ const pageDriver = (iframe: HTMLIFrameElement, store: Store): PageDriver => {
       if (error !== store.get().pageError) store.set({ pageError: error });
       apply();
       document.body.dataset.ready = '1';
+      document.dispatchEvent(new Event('studio:page-ready'));
     });
   });
   const load = (g: number): void => {

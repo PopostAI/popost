@@ -24,6 +24,7 @@ import { watchSources } from './watch';
 import { exportAccess } from './export-settings';
 import { studioMetadata } from './studio-data';
 import { studioAction } from './studio-actions';
+import { cloudDone } from '../../editor/routes-cloud';
 import { createVideoCloud } from './cloud';
 import { createThumbnails } from './thumbnails';
 
@@ -102,7 +103,7 @@ const route = async (ctx: Context, req: IncomingMessage, res: ServerResponse): P
   }
   if (pathname === '/api/cloud/status' && ctx.cloud) { res.writeHead(200,{'content-type':'application/json','cache-control':'no-store'}).end(JSON.stringify(await ctx.cloud.status())); return; }
   if (pathname === '/api/cloud/callback' && ctx.cloud) { const url=new URL(req.url??'', 'http://localhost'); const result=ctx.cloud.callback(url.searchParams.get('code'),url.searchParams.get('state')); res.writeHead(result.ok?303:400,{'location':'/cloud-done.html','cache-control':'no-store','referrer-policy':'no-referrer'}).end(result.ok?'':result.error);return; }
-  if (pathname === '/cloud-done.html' && ctx.cloud) return html(res,200,'<!doctype html><meta charset="utf-8"><title>Popost</title><p>已开始保存到云端，可以关闭此页。Cloud save started. You can close this tab.</p>');
+  if (pathname === '/cloud-done.html' && ctx.cloud) { const answer=cloudDone();res.writeHead(answer.status,answer.headers).end(answer.body);return; }
   if (pathname === '/api/export-options' && ctx.edit) {
     const access = await exportAccess(ctx.rt);
     res.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'no-store' }).end(JSON.stringify(access)); return;

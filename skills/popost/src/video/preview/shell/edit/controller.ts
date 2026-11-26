@@ -8,6 +8,7 @@ import type { EditAnswer, PreviewState, RenderInfo } from '../../protocol';
 import type { Actions, EditStatus, EditView, Store } from '../app';
 import { t } from '../i18n';
 import { clampFrame, timelineFrames, type Selection } from '../model';
+import { selectionFrame } from './reveal';
 import { removeScene } from './remove';
 import { splitSource } from './split';
 import { duplicate, newTextTrack, removal, targetOf, type EditOp, type Target } from './source';
@@ -25,6 +26,8 @@ export interface EditActions {
   canSplit(): boolean;
   render(): Promise<void>;
   select(sel: Selection | null): void;
+  reveal(sel: Selection, frame?: number): void;
+  flush(): Promise<boolean>;
   note(key: Extract<EditStatus, { kind: 'note' }>['key']): void;
   /** The source the selection points at, or undefined. */
   target(): Target | undefined;
@@ -68,6 +71,8 @@ const post = async (url: string, body?: unknown): Promise<EditAnswer> => {
 
 export const createEditActions = (store: Store, actions: Actions): EditActions => {
   const patch = (p: Partial<EditView>): void => store.set({ edit: { ...store.get().edit, ...p } });
+  const pending = new Set<Promise<boolean>>();
+  let lastSaved = true;
   const select = (sel: Selection | null): void => actions.pin(sel);
   /** Applies an answer: the new state and the status line, or the problems next to their fields. */
   const settle = (answer: EditAnswer, after?: Selection | null): boolean => {
@@ -85,7 +90,11 @@ export const createEditActions = (store: Store, actions: Actions): EditActions =
     const v = store.get();
     return v.state ? targetOf(v.state, v.pinned) : undefined;
   };
-  const send = async (op: EditOp, after?: Selection | null): Promise<boolean> => settle(await post('/api/edit', op), after);
+  const run = (url: string, body?: unknown, after?: Selection | null): Promise<boolean> => {
+    const task = post(url, body).then(answer => { lastSaved = settle(answer, after); return lastSaved; });
+    pending.add(task); void task.finally(() => pending.delete(task)); return task;
+  };
+  const send = (op: EditOp, after?: Selection | null): Promise<boolean> => run('/api/edit', op, after);
   const withTarget = async (fn: (s: PreviewState, t: Target) => Promise<void>): Promise<void> => {
     const s = store.get().state;
     const t0 = target();
@@ -93,12 +102,18 @@ export const createEditActions = (store: Store, actions: Actions): EditActions =
   };
   return {
     send,
+    reveal: (sel, frame) => { actions.pause(); actions.seek(frame ?? selectionFrame(store.get().state, sel, store.get().frame)); select(sel); },
+    flush: async () => {
+      if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+      while (pending.size) await Promise.all([...pending]);
+      return lastSaved;
+    },
     canSplit: () => { const v = store.get(); return Boolean(v.state && splitSource(v.state, v.pinned, v.frame)); },
-    split: async () => { const v=store.get(); const result=v.state ? splitSource(v.state,v.pinned,v.frame) : undefined; if(result && settle(await post('/api/source',{source:result.source,base:v.state?.source}))) select(result.select); },
-    replace: async (source, base) => settle(await post('/api/source', { source, base })),
-    undo: async () => { settle(await post('/api/undo')); },
-    redo: async () => { settle(await post('/api/redo')); },
-    remove: () => withTarget(async (s, t0) => { if(t0.kind==='segment'){const next=removeScene(s,t0.index);if(next)settle(await post('/api/source',{source:next,base:s.source}),null);return;} await send(removal(t0), null); }),
+    split: async () => { const v=store.get(); const result=v.state ? splitSource(v.state,v.pinned,v.frame) : undefined; if(result && await run('/api/source',{source:result.source,base:v.state?.source})) select(result.select); },
+    replace: (source, base) => run('/api/source', { source, base }),
+    undo: async () => { await run('/api/undo'); },
+    redo: async () => { await run('/api/redo'); },
+    remove: () => withTarget(async (s, t0) => { if(t0.kind==='segment'){const next=removeScene(s,t0.index);if(next)await run('/api/source',{source:next,base:s.source},null);return;} await send(removal(t0), null); }),
     duplicate: () => withTarget(async (s, t0) => {
       const d = duplicate(s, t0);
       if (d) await send(d.op, d.select);

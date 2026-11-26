@@ -13,7 +13,7 @@ export const mountWorkspace = (root: HTMLElement, store: Store, actions: Actions
  let active: Panel = 'media';
  const rail = h('nav', { class: 'studio-rail', attrs: { 'aria-label': 'Studio' } });
  const content = h('aside', { id: 'studio-content', class: 'studio-content' });
- const code = createCodeEditor(store, edit);
+ const codeEditor = createCodeEditor(store, edit); const code = codeEditor.root;
  const ctx: Sidebar = { store, actions, edit, meta: { hash: '', slots: [], versions: [], comments: [] }, refresh: () => undefined };
  const draw = (): void => {
   rail.querySelectorAll<HTMLButtonElement>('button').forEach(b => { b.classList.toggle('active', b.dataset.panel === active); b.setAttribute('aria-pressed', String(b.dataset.panel === active)); });
@@ -45,7 +45,7 @@ export const mountWorkspace = (root: HTMLElement, store: Store, actions: Actions
  const lang = button(store.get().lang === 'zh' ? 'EN' : '中文', () => { const next = store.get().lang === 'zh' ? 'en' : 'zh'; localStorage.setItem('popost-studio-language', next); actions.setLang(next); location.reload(); }); lang.id = 'lang-toggle';
  const version = button(copy(store, 'versions'), () => choose('versions'));
  const exportButton = button(copy(store, 'export'), () => openExport(store, edit), 'primary'); exportButton.id = 'studio-export-open';
- toolbar.append(compare, layout, version, theme, lang); mountCloud(toolbar,store); toolbar.append(exportButton); top.append(brand, project, saved, toolbar);
+ toolbar.append(compare, layout, version, theme, lang); mountCloud(toolbar,store, async () => { if (!await edit.flush()) return false; return await codeEditor.flush() && await edit.flush(); }); toolbar.append(exportButton); top.append(brand, project, saved, toolbar);
  document.documentElement.classList.toggle('dark', localStorage.getItem('popost-studio-theme') === 'dark');
  document.addEventListener('studio:export', () => openExport(store, edit));
  const stageBar = document.getElementById('studio-stage-heading')!;
@@ -59,13 +59,16 @@ export const mountWorkspace = (root: HTMLElement, store: Store, actions: Actions
   saved.textContent = v.connected ? v.state?.edit ? copy(store, 'saved') : copy(store, 'readOnly') : copy(store, 'offline');
   if (v.edit.status?.kind === 'refused') saved.textContent = v.edit.status.problem.message;
   compare.classList.toggle('selected', Boolean(v.compare)); exportButton.disabled = !v.state?.edit || !v.state.resolved;
+  props.hidden = !v.pinned;
   document.body.classList.toggle('inspecting', Boolean(v.pinned));
  };
  store.subscribe((v, prev) => {
   if (v.state !== prev.state || v.pinned !== prev.pinned || v.compare !== prev.compare || v.connected !== prev.connected || v.edit.status !== prev.edit.status) update();
   if (v.state !== prev.state) { draw(); void refresh(); }
-  else if ((v.pinned !== prev.pinned || (v.frame !== prev.frame && active === 'elements')) && active !== 'code') draw();
+  else if (v.frame !== prev.frame && active === 'elements' && v.state?.resolved?.segments.find(s => v.frame >= s.start && v.frame < s.end)?.id !== prev.state?.resolved?.segments.find(s => prev.frame >= s.start && prev.frame < s.end)?.id) draw();
+  if (v.pinned !== prev.pinned) content.querySelectorAll<HTMLElement>('[data-selection]').forEach(el => { const selected = el.dataset.selection === JSON.stringify(v.pinned); el.classList.toggle('selected', selected); if (el.tagName === 'BUTTON') el.setAttribute('aria-pressed', String(selected)); });
  });
+ document.addEventListener('studio:page-ready',()=>{if(active==='elements')draw();});
  update(); draw();
  return { refresh, choose, content, panel: () => active };
 };
@@ -79,7 +82,7 @@ export const mountTimelineTools = (root: HTMLElement, store: Store, edit: EditAc
  const update = (): void => { split.disabled = !edit.canSplit(); }; store.subscribe(update); update();
 };
 export const resizeHandle = (target: HTMLElement, axis: 'left' | 'right' | 'timeline'): HTMLElement => {
- const horizontal = axis === 'timeline'; const el = h('div', { class: 'studio-handle ' + (horizontal ? 'horizontal' : 'vertical'), attrs: { role: 'separator', tabindex: '0', 'aria-orientation': horizontal ? 'horizontal' : 'vertical' } });
+ const horizontal = axis === 'timeline'; const el = h('div', { class: 'studio-handle ' + (horizontal ? 'horizontal' : 'vertical') + (axis === 'right' ? ' inspector-resize' : ''), attrs: { role: 'separator', tabindex: '0', 'aria-orientation': horizontal ? 'horizontal' : 'vertical' } });
  if (!horizontal) el.style.left = axis === 'left' ? 'calc(64px + var(--left-width) - 2px)' : 'calc(100% - var(--right-width) - 2px)';
  el.addEventListener('pointerdown', e => {
   el.setPointerCapture(e.pointerId); const start = horizontal ? e.clientY : e.clientX;

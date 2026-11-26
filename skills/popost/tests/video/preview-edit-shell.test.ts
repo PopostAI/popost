@@ -174,10 +174,10 @@ describe.skipIf(!chrome)('preview shell in edit mode (Chrome)', () => {
     await page.locator('#frame-no').click();
     await page.keyboard.press('Delete');
     await expect.poll(async () => (await read()).tracks.map((t) => t.id), { timeout: 10_000 }).toEqual(['title', 'bar']);
-    await page.waitForSelector('#edit-hint');
+    await page.waitForSelector('#panel', { state: 'hidden' });
     await selectLane('bar');
     await page.keyboard.press('Escape');
-    await page.waitForSelector('#edit-hint');
+    await page.waitForSelector('#panel', { state: 'hidden' });
   });
 
   it.skipIf(!ffmpeg)('exports the draft with a compact status and no redundant result controls', async () => {

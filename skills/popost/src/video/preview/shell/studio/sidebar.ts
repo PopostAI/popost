@@ -3,7 +3,8 @@ import type { EditActions } from '../edit/controller';
 import { h } from '../dom';
 import type { SceneSlot, StudioVersion, StudioComment } from '../../studio-data';
 import type { RenderInfo } from '../../protocol';
-import { segmentAt } from '../model';
+import { sceneSlotFrames, slotFrame } from './scene-selection';
+import { sameSelection, segmentAt } from '../model';
 import { copy } from './copy';
 import { button, fileUrl, input, mutate, note, notify, object, request, rows, thumbnail, timecode, title } from './ui';
 
@@ -23,8 +24,9 @@ export const shotPanel = (ctx: Sidebar): HTMLElement => {
  const list = h('div', { class: 'studio-shot-list' });
  if (r) for (const s of r.segments) {
   const b = s.base; const label = b.kind === 'scene' ? copy(store, 'scene') : b.kind === 'video' ? copy(store, 'video') : b.kind === 'image' ? copy(store, 'image') : copy(store, 'color');
-  const card = button('', () => selectShot(ctx, s.id), 'studio-shot ' + (current(ctx)?.id === s.id ? 'selected' : ''));
+  const card = button('', () => selectShot(ctx, s.id), 'studio-shot ' + (sameSelection(store.get().pinned,{kind:'segment',id:s.id}) ? 'selected' : ''));
   card.append(thumbnail(s.start + Math.floor((s.end - s.start) / 2), state?.generation ?? 0), h('span', { class: 'studio-shot-copy' }, [h('strong', { text: String(s.index + 1).padStart(2, '0') + '  ' + s.id }), h('small', { text: label + ' · ' + ((s.end - s.start) / r.canvas.fps).toFixed(2) + 's' })]));
+  card.dataset.selection = JSON.stringify({kind:'segment',id:s.id});
   card.draggable = Boolean(state?.edit);
   card.addEventListener('dragstart', e => e.dataTransfer?.setData('application/x-popost-segment', String(s.index)));
   card.addEventListener('dragover', e => e.preventDefault());
@@ -74,7 +76,7 @@ const materialPanel = (ctx: Sidebar): HTMLElement => {
  return h('div', { class: 'studio-side-body' }, [title(copy(store, 'media')), button(copy(store, 'upload'), () => file.click(), 'primary'), file, note(copy(store, 'importHint')), note(copy(store, 'chooseMaterial')), list]);
 };
 export const scriptPanel = (ctx: Sidebar): HTMLElement => {
- const { store, edit, actions } = ctx; const state = store.get().state;
+ const { store, edit } = ctx; const state = store.get().state;
  const list = h('div', { class: 'studio-script-list' }); const lines: string[] = [];
  rows(object(state?.source).tracks).forEach((track, index) => {
   if (track.type !== 'caption') return;
@@ -82,8 +84,12 @@ export const scriptPanel = (ctx: Sidebar): HTMLElement => {
    lines.push(String(cue.text)); const item = state?.resolved?.items.find(x => x.cue?.track === track.id && x.cue?.index === i);
    const area = h('textarea', { class: 'studio-input', attrs: { 'aria-label': copy(store, 'subtitles') + ' ' + (i + 1), rows: '2' } }); area.value = String(cue.text);
    area.addEventListener('change', () => { void edit.send({ op: 'set', path: ['tracks', index, 'cues', i, 'text'], value: area.value }); notify(store, copy(store, 'pendingVoice')); });
-   const jump = button(timecode(item?.start ?? 0, state?.resolved?.canvas.fps ?? 30), () => { if (item) { actions.pause(); actions.seek(item.start); edit.select({ kind: 'item', id: item.id }); } });
-   list.append(h('article', { class: 'studio-sentence' }, [jump, area]));
+   const selection = item ? {kind:'item' as const,id:item.id} : undefined;
+   const reveal = ():void => { if(selection)edit.reveal(selection); };
+   area.addEventListener('focus',reveal);
+   const jump = button(timecode(item?.start ?? 0, state?.resolved?.canvas.fps ?? 30), reveal);
+   const card = h('article', { class: 'studio-sentence' + (selection && sameSelection(selection,store.get().pinned)?' selected':''), data: selection ? {selection:JSON.stringify(selection)} : {} }, [jump, area]);
+   card.addEventListener('click',reveal);list.append(card);
   });
  });
  return h('div', { class: 'studio-side-body' }, [title(copy(store, 'script')), note(copy(store, 'scriptHint'), 'notice'), list, note(copy(store, 'narrationUnavailable')), button(copy(store, 'copyScript'), () => { void navigator.clipboard.writeText(lines.join('\n')).then(() => notify(store, copy(store, 'sourceChanged'))); })]);
@@ -93,12 +99,16 @@ export const elementsPanel = (ctx: Sidebar): HTMLElement => {
  const root = h('div', { class: 'studio-side-body' }, [title(copy(store, 'elements'), seg?.id)]);
  if (!state || !seg) return root;
  root.append(button(copy(store, 'addText'), () => void edit.addText()));
- for (const item of state.resolved?.items.filter(x => x.end > seg.start && x.start < seg.end) ?? []) root.append(button(item.text ?? copy(store, item.type === 'video' ? 'video' : item.type === 'image' ? 'image' : 'text'), () => edit.select({ kind: 'item', id: item.id }), 'studio-item'));
- const slots = ctx.meta.slots.filter(x => x.segment === seg.id);
+ for (const item of state.resolved?.items.filter(x => x.end > seg.start && x.start < seg.end) ?? []) {
+  const selection={kind:'item' as const,id:item.id};const card=button(item.text ?? copy(store, item.type === 'video' ? 'video' : item.type === 'image' ? 'image' : 'text'), () => edit.reveal(selection), 'studio-item'+(sameSelection(selection,store.get().pinned)?' selected':''));
+  card.dataset.selection=JSON.stringify(selection);root.append(card);
+ }
+ const available=sceneSlotFrames(document.querySelector<HTMLIFrameElement>('#page'),store,seg.id);
+ const slots = ctx.meta.slots.filter(x => x.segment === seg.id && available?.has(x.name));
  root.append(title(copy(store, 'sceneFields')));
  for (const slot of slots) {
-  const selected=store.get().pinned; const b=button('',()=>edit.select({kind:'slot',id:seg.id,name:slot.name}),'studio-item '+(selected?.kind==='slot'&&selected.name===slot.name?'selected':''));
-  b.append(h('span',{class:'studio-element-label',text:slot.kind==='image'?copy(store,'image'):slot.value||slot.name,title:slot.value}));root.append(b);
+  const selected=store.get().pinned; const selection={kind:'slot' as const,id:seg.id,name:slot.name};const b=button('',()=>edit.reveal(selection,slotFrame(document.querySelector<HTMLIFrameElement>('#page'),store,selection)),'studio-item '+(selected?.kind==='slot'&&selected.name===slot.name?'selected':''));
+  b.dataset.selection=JSON.stringify(selection);b.append(h('span',{class:'studio-element-label',text:slot.kind==='image'?copy(store,'image'):slot.value||slot.name,title:slot.value}));root.append(b);
  }
 
  if (!slots.length && seg.base.kind === 'scene') root.append(note(copy(store, 'noSlots')));

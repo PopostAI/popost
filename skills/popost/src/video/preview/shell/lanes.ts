@@ -167,7 +167,7 @@ export const mountLanes = (root: HTMLElement, store: Store, actions: Actions): v
   const placeHead = (v: View): void => { placeSpan(playhead, v.frame, v.frame + 1, framesOf(v)); };
   const markSelected = (v: View): void => {
     lanes.querySelectorAll<HTMLElement>('[data-sel]').forEach((el) => {
-      el.classList.toggle('selected', v.pinned !== null && sameSelection(JSON.parse(el.dataset.sel ?? 'null') as Selection, v.pinned));
+      el.classList.toggle('selected', v.pinned !== null && sameSelection(JSON.parse(el.dataset.sel ?? 'null') as Selection, v.pinned.kind === 'slot' ? {kind:'segment',id:v.pinned.id} : v.pinned));
     });
   };
   const build = (v: View): void => {
@@ -179,6 +179,7 @@ export const mountLanes = (root: HTMLElement, store: Store, actions: Actions): v
     const target = e.target as HTMLElement;
     const picked = target.closest<HTMLElement>('[data-sel]')?.dataset.sel;
     if (picked) { actions.pause(); actions.pin(JSON.parse(picked) as Selection); }
+    else if(target.closest('.lane-track'))actions.pin(null);
     const track = target.closest<HTMLElement>('.lane-track');
     if (track && e.detail !== 0) actions.seek(frameAt(track, e.clientX, framesOf(store.get())));
     else if(picked){ const selection=JSON.parse(picked) as Selection;const v=store.get();const r=v.state?.resolved;const span=selection.kind==='segment'?r?.segments.find(s=>s.id===selection.id):selection.kind==='item'?r?.items.find(s=>s.id===selection.id):undefined;if(span&&(v.frame<span.start||v.frame>=span.end))actions.seek(span.start); }
@@ -189,6 +190,13 @@ export const mountLanes = (root: HTMLElement, store: Store, actions: Actions): v
   store.subscribe((v, prev) => {
     if (v.state !== prev.state || v.lang !== prev.lang) build(v);
     else if (v.frame !== prev.frame) placeHead(v);
-    if (v.pinned !== prev.pinned) markSelected(v);
+    if (v.pinned !== prev.pinned) {
+      markSelected(v);
+      const selected=lanes.querySelector<HTMLElement>('.blk.selected');
+      if(selected){const box=selected.getBoundingClientRect(),viewport=root.getBoundingClientRect();const label=lanes.querySelector('.lane-label')?.getBoundingClientRect().width??0;
+        if(box.left<viewport.left+label||box.right>viewport.right)root.scrollLeft+=box.left-viewport.left-label-20;
+        if(box.top<viewport.top||box.bottom>viewport.bottom)root.scrollTop+=box.top-viewport.top-32;
+      }
+    }
   });
 };

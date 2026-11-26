@@ -6,7 +6,7 @@
  */
 import type { Store, View } from '../app';
 import { h, placeBox } from '../dom';
-import { visibleSlots } from '../studio/scene-selection';
+import { slotFrame, visibleSlots } from '../studio/scene-selection';
 import { itemsAt } from '../model';
 import type { EditActions } from './controller';
 import { boxOf, boxPath, roundBox, targetOf, type Target } from './source';
@@ -137,9 +137,13 @@ export const mountStageEdit = (frameBox: HTMLElement, iframe: HTMLIFrameElement,
   let drag: Drag | undefined;
   let pending: { box: Box4; target: Target } | undefined;
   let timer: ReturnType<typeof setTimeout> | undefined;
+  let revealPending = true;
   const draw = (): void => {
     const v=store.get();drawBox(ui,v,drag && !drag.moved ? undefined : pending?.box);
     const picked=v.pinned; const slot=picked?.kind==='slot'?visibleSlots(iframe,store).find(s=>s.selection.id===picked.id&&s.selection.name===picked.name):undefined;
+    if(picked?.kind==='slot'&&revealPending&&document.body.dataset.ready==='1'){
+      revealPending=false;const frame=slotFrame(iframe,store,picked);if(frame===undefined){edit.select(null);return;}if(frame!==v.frame){edit.reveal(picked,frame);return;}
+    }
     slotOutline.hidden=!slot;if(slot){placeBox(slotOutline,slot.box);slotOutline.firstElementChild!.textContent=slot.value.slice(0,40);}
   };
   const commit = (t: Target, box: Box4): void => {
@@ -196,9 +200,11 @@ export const mountStageEdit = (frameBox: HTMLElement, iframe: HTMLIFrameElement,
 
   store.subscribe((v, prev) => {
     if (v.state !== prev.state) page.forget();
+    if(v.pinned!==prev.pinned||v.state!==prev.state)revealPending=true;
     if (!drag && (v.state !== prev.state || v.pinned !== prev.pinned || v.frame !== prev.frame)) draw();
   });
-  iframe.addEventListener('load',()=>{setTimeout(draw,100);});
+  iframe.addEventListener('frameapplied', draw);
+  new ResizeObserver(draw).observe(frameBox);
   draw();
   return {
     nudge: (dx, dy) => {

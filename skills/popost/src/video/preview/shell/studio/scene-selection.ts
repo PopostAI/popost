@@ -7,9 +7,9 @@ import type { StudioMeta } from './sidebar';
 
 export interface SlotBox { selection: Extract<Selection, {kind:'slot'}>; box: [number,number,number,number]; value: string; image: boolean }
 /** Read the same-origin scene DOM after applyFrame; hidden phases never become selectable. */
-export const visibleSlots = (iframe: HTMLIFrameElement, store: Store): SlotBox[] => {
+export const visibleSlots = (iframe: HTMLIFrameElement, store: Store, frame = store.get().frame): SlotBox[] => {
  const v=store.get(), r=v.state?.resolved; if(!r) return [];
- const segment=segmentAt(r,v.frame); if(!segment) return [];
+ const segment=segmentAt(r,frame); if(!segment) return [];
  const page=iframe.contentDocument; if(!page) return [];
  const out: SlotBox[]=[];
  for(const scene of Array.from(page.querySelectorAll<HTMLIFrameElement>('iframe'))) {
@@ -21,12 +21,31 @@ export const visibleSlots = (iframe: HTMLIFrameElement, store: Store): SlotBox[]
   for(const node of Array.from(doc.querySelectorAll<HTMLElement>('[data-slot]'))) {
    let visible=true; let opacity=1;
    for(let el: Element|null=node;el;el=el.parentElement){const style=window.getComputedStyle(el);opacity*=Number(style.opacity);if(style.display==='none'||style.visibility==='hidden')visible=false;}
-   const rect=node.getBoundingClientRect();if(!visible||opacity<.1||!rect.width||!rect.height)continue;
+   const rect=node.getBoundingClientRect();if(!visible||opacity<.1||!rect.width||!rect.height||rect.right<=0||rect.bottom<=0||rect.left>=scene.clientWidth||rect.top>=scene.clientHeight)continue;
    const name=node.dataset.slot;if(!name)continue;
    out.push({selection:{kind:'slot',id:segment.id,name},box:[(outer.left+rect.left*outer.width/(scene.clientWidth||r.canvas.width))/r.canvas.width,(outer.top+rect.top*outer.height/(scene.clientHeight||r.canvas.height))/r.canvas.height,rect.width/r.canvas.width,rect.height/r.canvas.height],value:node.tagName==='IMG'?node.getAttribute('src')??'':node.textContent??'',image:node.tagName==='IMG'});
   }
  }
  return out;
+};
+const slotCache = new WeakMap<HTMLIFrameElement,{key:string;frames:Map<string,number>}>();
+/** Ignore dormant markup: shared scene files can contain phases that never run in this shot. */
+export const sceneSlotFrames = (iframe: HTMLIFrameElement | null, store: Store, id: string): Map<string,number> | undefined => {
+ const v=store.get(), segment=v.state?.resolved?.segments.find(x=>x.id===id),page=iframe?.contentWindow?.__popostVideo;
+ if(!iframe||!segment||!page||document.body.dataset.ready!=='1')return undefined;
+ const key=String(v.state?.generation)+':'+id, cached=slotCache.get(iframe);if(cached?.key===key)return cached.frames;
+ const frames=new Map<string,number>();
+ try{
+  for(let i=0;i<=32;i++){
+   const frame=Math.min(segment.end-1,segment.start+Math.floor((segment.end-segment.start)*i/33));
+   page.applyFrame(frame);for(const slot of visibleSlots(iframe,store,frame))if(!frames.has(slot.selection.name))frames.set(slot.selection.name,frame);
+  }
+ }finally{page.applyFrame(v.frame);}
+ slotCache.set(iframe,{key,frames});return frames;
+};
+export const slotFrame = (iframe: HTMLIFrameElement | null, store: Store, selection: Extract<Selection,{kind:'slot'}>): number | undefined => {
+ if(iframe&&visibleSlots(iframe,store).some(x=>x.selection.id===selection.id&&x.selection.name===selection.name))return store.get().frame;
+ return sceneSlotFrames(iframe,store,selection.id)?.get(selection.name);
 };
 export const slotInspector = (store: Store, edit: EditActions): HTMLElement => {
  const v=store.get(),selection=v.pinned;const root=h('div',{class:'form',id:'slot-inspector'});
