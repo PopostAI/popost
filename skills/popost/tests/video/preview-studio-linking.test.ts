@@ -34,6 +34,14 @@ describe.skipIf(!chrome)('Studio linked selection and cloud controls (Chrome)',(
   expect(Number(await page.locator('#frame-no').textContent())).toBeGreaterThanOrEqual(60);
   await page.reload();await page.locator('.studio-slot-outline:visible').waitFor();
  });
+ it('refreshes available fields when a scene source reloads',async()=>{
+  await page.locator('[data-panel="elements"]').click();
+  await writeFile(path.join(rt.dir,'replacement.html'),'<!doctype html><html><head></head><body><h1 data-slot="replacement">Replacement slot</h1></body></html>');
+  const response=await page.request.post(preview.url+'api/edit',{data:{op:'set',path:['segments',0,'base','scene'],value:'replacement.html'}});expect(response.ok()).toBe(true);
+  await page.locator('#studio-content').getByRole('button',{name:'Replacement slot',exact:true}).waitFor();
+  await page.locator('#studio-content').getByRole('button',{name:'Replacement slot',exact:true}).click();await page.locator('.studio-slot-outline:visible').waitFor();
+  expect(await page.locator('#slot-inspector textarea').inputValue()).toBe('Replacement slot');
+ });
  it('selects a subtitle from its text field, keeps focus and links back from the timeline',async()=>{
   await page.locator('[data-panel="script"]').click();const later=page.getByRole('textbox',{name:'Subtitles 2',exact:true});await later.click();
   expect(await later.evaluate(el=>document.activeElement===el)).toBe(true);expect(await pinned()).toEqual({kind:'item',id:'captions#1'});await page.locator('#sel-box:visible').waitFor();

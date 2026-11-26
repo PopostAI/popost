@@ -32,7 +32,7 @@ const slotCache = new WeakMap<HTMLIFrameElement,{key:string;frames:Map<string,nu
 /** Ignore dormant markup: shared scene files can contain phases that never run in this shot. */
 export const sceneSlotFrames = (iframe: HTMLIFrameElement | null, store: Store, id: string): Map<string,number> | undefined => {
  const v=store.get(), segment=v.state?.resolved?.segments.find(x=>x.id===id),page=iframe?.contentWindow?.__popostVideo;
- if(!iframe||!segment||!page||document.body.dataset.ready!=='1')return undefined;
+ if(!iframe||!segment||!page||document.body.dataset.ready!=='1'||new URL(iframe.src).searchParams.get('g')!==String(v.state?.generation))return undefined;
  const key=String(v.state?.generation)+':'+id, cached=slotCache.get(iframe);if(cached?.key===key)return cached.frames;
  const frames=new Map<string,number>();
  try{
