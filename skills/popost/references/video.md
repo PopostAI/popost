@@ -11,12 +11,15 @@ Read this page once, then do steps 0 to 7 in order; "Done when" says what must b
 
 - Money: one budget for the whole video. What costs credits is popost.ai voice-over, transcription, generated clips
   and pictures (each call at least 1 credit). Step 0 ends with one cost overview and one total budget the user agrees
-  to. Then run every paid command (`transcript`, `describe`, `plan --voice`, `template fill --speak`, `retarget
-  --speak`, `readback`, `voice speak`, `materials`) with `--confirm --max-credits <what is left>`, and take its
-  `chargedCredits` off what is left. A command that ends with exit code 3 and `confirm` made and charged nothing: ask
-  the user again only when its credits are more than what is left or the scope changed (more or longer shots, another
-  voice); otherwise run it again within what is left. `INSUFFICIENT_CREDITS`: the balance is short; `popost account`
-  shows it and where to add credits.
+  to. Every paid call is booked under the project's task, and `popost usage --dir project --budget <agreed>` prints
+  what popost.ai counts as spent so far (refunds included, also clips paid by a run that stopped) and `budget.left`,
+  what is left. Before each paid command (`transcript`, `describe`, `plan --voice`, `template fill --speak`,
+  `retarget --speak`, `readback`, `voice speak`, `materials`), run it and pass `--confirm --max-credits <left>`. The
+  `chargedCredits` each command prints is a quick check, not the count. A command that ends with exit code 3 and
+  `confirm` made and charged nothing: ask the user again only when its credits are more than what is left or the scope
+  changed (more or longer shots, another voice); otherwise run it again within what is left. `INSUFFICIENT_CREDITS`:
+  the balance is short; `popost account` shows it and where to add credits. Tell the user once that the video's
+  charges show as one line, "Task: <the project folder's name>", with its items, on their popost.ai account page.
 - Generated video is the expensive item. Never regenerate a clip to fix its quality, make a variant, change a clip's
   request (prompt, length, references, model, resolution) or add a clip without showing the user the clip, the reason
   and the price, and getting a yes. `materials` and `generate` stop such a clip on their own, whatever the budget:
@@ -83,11 +86,12 @@ Done when: `"ok": true`, you know which tools are `null`, and the user agreed a 
 Put the reference at `reference.mp4` (`cp` a local file, or `curl -L -o reference.mp4 <url to the file>`), then:
 
 ```bash
-popost video describe reference.mp4 --out ref --confirm --max-credits <what is left>
+popost video describe reference.mp4 --out ref --project project --confirm --max-credits <left>
 ```
 
-With `transcribe` `"popost.ai"` this pays for the transcription of the overview; when the user left it out of the
-budget, write `--no-speech` instead of the two options. `describe` measures shots, cuts, transitions, camera, motion, how much the picture moves, colours (captions and speech with those tools) and draws
+With `transcribe` `"popost.ai"` this pays for the transcription of the overview (`--project project`: under the
+video's task, though the project has no files yet); when the user left it out of the budget, write `--no-speech`
+instead of `--confirm --max-credits`. `describe` measures shots, cuts, transitions, camera, motion, how much the picture moves, colours (captions and speech with those tools) and draws
 the pictures to open, consecutive frames with the time of each under it: `ref/opening.jpg` (the first 3 s, 6 frames a
 second), `ref/shots/NN-frames.jpg` (each shot from just before the change into it to its end, up to 12 frames) and
 `ref/transitions/NN.jpg` (each change that is not a plain cut, frame by frame from 0.2 s before to 0.2 s after, named
@@ -268,7 +272,7 @@ the `box` of each element from `--outline` (`<skill>/references/video-scenes.md`
    the middle and nothing covers it. Otherwise zoom closer or hide what covers it, and record again.
 
 A shot of filmed material that no file of the user's shows can be generated when `generate` is set (step 0): write
-the requests and run `popost video materials requests.json --out project --confirm --max-credits <what is left>`
+the requests and run `popost video materials requests.json --out project --confirm --max-credits <left>`
 (`video-tools.md`, "Generated clips": the request, the price, what it prints). The first such run of the project makes
 its clips the agreed clips; any other paid clip later is "unplanned" (the money rules above). Two rules about motion:
 
@@ -307,7 +311,7 @@ Write the request in your own words into `brief.txt`: the topic, the audience, t
 popost video plan template --brief brief.txt --assets project --dry --voice <voice> --fit-tempo 1.12
 ```
 
-`<voice>`: `popost:default-male`, `popost:default-female` or `popost:VOICE_ID` from the live platform catalog (`video-performers.md`), or a name a speaker of the user's own understands. With a `popost:` voice, `plan` speaks a sentence to time it, paid like all speech: add `--confirm --max-credits <what is left>` (`--dry` does not make it free; once timed, the pace is kept and not paid again). It prints `answer`
+`<voice>`: `popost:default-male`, `popost:default-female` or `popost:VOICE_ID` from the live platform catalog (`video-performers.md`), or a name a speaker of the user's own understands. With a `popost:` voice, `plan` speaks a sentence to time it, paid like all speech: add `--confirm --max-credits <left>` (`--dry` does not make it free; once timed, the pace is kept and not paid again). It prints `answer`
 (how many shots and captions, and the voice to name), `budgets` (`pace`: the voice's characters a second; per line,
 the most characters that can be said in its beat, the voice sped up at most 1.12 times), `rules`, `forms` and
 `materials`; `messages` repeats them. Write `fill.json`:
@@ -461,7 +465,7 @@ Done when: `scene check` prints `"ok": true` with no warning about a scene, and 
 ## 6. Build with the voice, and check
 
 ```bash
-popost video template fill template --fill fill.json --out project --speak --keep-length --fit-tempo 1.12 --pace <budgets.pace> --confirm --max-credits <what is left>
+popost video template fill template --fill fill.json --out project --speak --keep-length --fit-tempo 1.12 --pace <budgets.pace> --confirm --max-credits <left>
 popost video check project --layout
 popost video scene check project
 popost video template check template --fill fill.json --assets project --pace <budgets.pace> --fit-tempo 1.12
@@ -473,7 +477,7 @@ re-flows each beat to its spoken line; `--keep-length` keeps each beat at least 
 cuts keep its rhythm; `--fit-tempo 1.12` speeds a line that would run over its beat up as far as it needs, at most
 12% (hardly heard; the pitch stays), and only the rest makes the beat longer. Its `notes` say which lines were sped
 up and give the new length. When the reading says the words appear one by one, add `"captionReveal": "words"` to the fill (`template check` warns when it is missing). From now on run `template fill` only with these options, or the voice is dropped.
-Without a speaker, or for a video without a voice (step 4), leave out `--speak --keep-length --fit-tempo 1.12 --pace <budgets.pace> --confirm --max-credits <what is left>`. The last command
+Without a speaker, or for a video without a voice (step 4), leave out `--speak --keep-length --fit-tempo 1.12 --pace <budgets.pace> --confirm --max-credits <left>`. The last command
 looks at the files of the fill and at `project/video.json`: run it again after every hand edit of `video.json`; it
 warns when the captions are much smaller or larger than the reference's, with both sizes in pixels (`video check` does
 too). `scene check` also warns when a scene is far emptier than its reference shot (draw what the shot holds, as
@@ -520,7 +524,7 @@ them, `popost video look final.mp4 --shots-like ref --out review/frames` draws t
 render, at the same share of its length and under the same names: open `review/frames/transitions/NN.jpg` beside
 `ref/transitions/NN.jpg` for every effect, and `review/frames/shots/NN-frames.jpg` beside `ref/shots/NN-frames.jpg`.
 An overview (`popost video look final.mp4 --against reference.mp4 --out review`, one sheet per shot) is fine too; neither
-replaces opening the single shots of `worst`. With a text reader, `popost video readback project final.mp4 --confirm --max-credits <what is left>` says whether every
+replaces opening the single shots of `worst`. With a text reader, `popost video readback project final.mp4 --confirm --max-credits <left>` says whether every
 caption is legible (and heard, with a transcriber; popost.ai transcription of the voice is paid, `--no-speech` leaves it out), and warns for each shot whose text stays on screen smaller than
 1.8% of the height (`textSizes`: the smallest and median per shot): zoom in, take the still at `--scale 2`, or show
 fewer words. It also warns for each shot whose captions do not stand out from what is behind them

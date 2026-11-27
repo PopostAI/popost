@@ -7,7 +7,7 @@ import { voiceProfile } from '../voice/profile';
 import { completeVoice, registerVoice, speakProfile } from '../voice/profile';
 import { CONSENT, createHostedVoice } from '../voice/create';
 import { PopostApiError } from '../../providers/errors';
-import { command, userPath, VideoCommandError, type Commands } from './shared';
+import { command, PROJECT_OPTION, userPath, VideoCommandError, type Commands } from './shared';
 
 const add=command('register an uploaded voice reference shared by every spoken shot and voice-over in a project',{
  positionals:[{name:'project',help:'project directory'}],options:[
@@ -36,7 +36,7 @@ const speak=command('generate final dialogue or voice-over from the same registe
  const wallet=hosted?await walletFor(rt,args,await speechPrice(rt,[args.req('text')],profile!.providerVoice)):undefined;
  const said=await speakProfile(rt,project,args.req('speaker'),args.req('text'),userPath(rt,args.req('out')),wallet);printJson(rt,{ok:true,audio:args.req('out'),receipt:args.req('out')+'.voice.json',...(said.words?{words:args.req('out')+'.words.json'}:{}),chargedCredits:wallet?.spent??0});}
  catch(e){if(e instanceof PriceNotAgreed||e instanceof VideoCommandError)throw e;throw new VideoCommandError(String(e));}
-});
+},(args)=>args.string('project'));
 const complete=command('import real speech from the host voice service and bind it to the shared speaker profile',{
  positionals:[{name:'project',help:'project directory'}],options:[
   {flag:'--speaker',required:true,metavar:'ID',help:'registered speaker id'},
@@ -56,6 +56,7 @@ const create=command('create a personal voice on the connected popost.ai account
   {flag:'--description',help:'a note on the voice, at most 500 characters'},
   {flag:'--start',kind:'number',metavar:'SECONDS',help:'where in the recording the sample starts (default 0); at most 60 s from there are used'},
   {flag:'--consent',kind:'flag',help:'required: '+CONSENT},
+  PROJECT_OPTION,
  ]},async(args,rt)=>{
  try{
   const language=args.string('language') as 'zh'|'en'|undefined, description=args.string('description'), start=args.number('start');
@@ -63,7 +64,7 @@ const create=command('create a personal voice on the connected popost.ai account
   const id=String(made.voice.id);
   printJson(rt,{ok:true,voice:made.voice,sample:made.sample,...(made.again?{note:'This voice was already made from the same sample and name; nothing new was created.'}:{}),next:'popost video voice use <project> --speaker <speaker> --voice '+id+' (or popost:'+id+' for plan --voice and template fill --speak)'});
  }catch(e){if(e instanceof PopostApiError)throw e;throw new VideoCommandError(e instanceof Error?e.message:String(e));}
-});
+},(args)=>args.string('project'));
 const list=command('read the current published official and personal voice catalog (--scope all, mine or official); never charges',{
  options:[{flag:'--scope',help:'all, mine or official (default all)'},{flag:'--page',kind:'number',help:'page number'}],
 },async(args,rt)=>{ printJson(rt,{ok:true,...await hostedVoicePage(rt,args.string('scope')??'all',args.number('page')??1)}); });
@@ -72,5 +73,5 @@ const quote=command('quote speech for a selected platform voice without charging
 },async(args,rt)=>{const voice=await selectHostedVoice(rt,args.req('voice'));printJson(rt,{ok:true,voice:voice.id,name:voice.name,credits:await quoteHostedVoice(rt,voice.id,args.req('text'))});});
 const use=command('select a platform voice for a project speaker and download its real preview; never clones it again',{
  positionals:[{name:'project',help:'project directory'}],options:[{flag:'--speaker',required:true,help:'stable project speaker id'},{flag:'--voice',required:true,help:'platform voice id, default-male or default-female'}],
-},async(args,rt)=>{const voice=await selectHostedVoice(rt,args.req('voice'));await withTempDir(rt,'popost-selected-voice-',async dir=>{const sample=rt.path.join(dir,'sample.wav');await downloadVoiceAudio(rt,voice.sampleUrl,sample);const profile=await registerVoice(rt,userPath(rt,args.req('project')),args.req('speaker'),sample,'audio-first','popost:'+voice.id);printJson(rt,{ok:true,voice:voice.id,name:voice.name,profile});});});
+},async(args,rt)=>{const voice=await selectHostedVoice(rt,args.req('voice'));await withTempDir(rt,'popost-selected-voice-',async dir=>{const sample=rt.path.join(dir,'sample.wav');await downloadVoiceAudio(rt,voice.sampleUrl,sample);const profile=await registerVoice(rt,userPath(rt,args.req('project')),args.req('speaker'),sample,'audio-first','popost:'+voice.id);printJson(rt,{ok:true,voice:voice.id,name:voice.name,profile});});},(args)=>args.string('project'));
 export const voiceProfileCommands:Commands={list,create,use,quote,add,speak,complete};

@@ -127,4 +127,5 @@ export const materials = command(
     });
     return agree ? CONFIRM_EXIT : errorsIn(r.problems) ? 2 : 0;
   },
+  (args) => args.string('out'),
 );

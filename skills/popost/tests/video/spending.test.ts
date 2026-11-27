@@ -170,7 +170,7 @@ const withSpeech = async () => {
   stub.set('GET', '/voices', () => ok({ items: [MALE], total: 1 }));
   stub.set('POST', '/voices/quote', (req) => ok({ credits: price(req.json?.text) }));
   stub.set('POST', '/voices/speech', (req) => {
-    api.balance -= price(req.json?.text);
+    api.charge(req.headers['x-popost-task'], 'voice', price(req.json?.text));
     return ok({ audioUrl: ORIGIN + '/files/line.wav', chargedCredits: price(req.json?.text), words: null });
   });
   const reference = wav();
@@ -220,5 +220,45 @@ describe('one budget for the whole video', () => {
     expect(long.data).toMatchObject({ ok: false, confirm: { credits: 10, maxCredits: 8, balance: 448, items: [{ kind: 'speech', credits: 10 }] } });
     expect(stub.calls('POST', '/voices/speech')).toHaveLength(1);
     expect(api.balance).toBe(448);
+  });
+});
+
+describe('the budget kept by what popost.ai counts', () => {
+  it('usage gives what is left, refunds and clips paid by a run that stopped included, and every charge is under the project\'s task', async () => {
+    const { rt, stub, api, speak: say } = await withSpeech();
+    const usage = async (): Promise<Json> => {
+      const r = await cli(rt, 'usage', '--dir', PROJECT, '--budget', '80');
+      expect(r.code, JSON.stringify(r.data)).toBe(0);
+      return r.data;
+    };
+    // The budget the user agreed: 80 credits. Nothing was sent from the project yet.
+    expect(await usage()).toMatchObject({ task: null, credits: 0, budget: { agreed: 80, spent: 0, left: 80 } });
+    expect(await say('Hello there', '--confirm', '--max-credits', String((await usage()).budget.left))).toMatchObject({ code: 0, data: { chargedCredits: 2 } });
+    const id = JSON.parse(await rt.fs.readText(PROJECT + '/production/task.json')).id as string;
+    expect(await usage()).toMatchObject({ task: id, title: 'p', credits: 2, items: [{ kind: 'voice', credits: 2, count: 1 }], budget: { left: 78 } });
+    // The clips are paid for, but the generator stops waiting before they are made: it prints no chargedCredits.
+    await list(rt, TWO);
+    api.readyAfter = 3;
+    const impatient = withPrograms({ ...rt, env: { ...rt.env, POPOST_GEN_WAIT_MIN: '0.1' } });
+    const stopped = await materials(impatient, '--confirm', '--max-credits', String((await usage()).budget.left));
+    expect(stopped).toMatchObject({ code: 2, data: { made: 0, chargedCredits: 0 } });
+    // Adding up chargedCredits says 2; the platform says 52, and that is what is left of the budget from.
+    expect(await usage()).toMatchObject({ credits: 52, items: [{ kind: 'voice', credits: 2 }, { kind: 'video', credits: 50, count: 2 }], budget: { left: 28 } });
+    const picked = await materials(rt, '--confirm', '--max-credits', String((await usage()).budget.left));
+    expect(picked).toMatchObject({ code: 0, data: { made: 2, chargedCredits: 0 } });
+    expect((await usage()).budget).toMatchObject({ spent: 52, left: 28 });
+    // A clip that fails is refunded: it does not count.
+    await list(rt, [...TWO, { file: 'assets/c.mp4', prompt: 'a lamp on the desk', seconds: 5 }]);
+    api.failWith = { code: 'CONTENT_REJECTED', message: 'the prompt was flagged' };
+    const asked = await materials(rt, '--confirm', '--max-credits', '28');
+    const key = asked.data.confirm.clip.key as string;
+    expect((await materials(rt, '--confirm', '--max-credits', '28', '--approve-unplanned', key)).code).toBe(2);
+    expect(await usage()).toMatchObject({ credits: 52, budget: { left: 28 } });
+    // Every paid call carried the project's task, and the agent's session is not there without one.
+    const paid = [...stub.calls('POST', '/voices/speech'), ...stub.calls('POST', '/videos/generations')];
+    expect(paid.length).toBe(4);
+    expect(paid.every((call) => call.path.startsWith('/api/open/v1/'))).toBe(true);
+    for (const call of paid) expect([call.headers['x-popost-task'], call.headers['x-popost-task-title'], call.headers['x-popost-agent-session']]).toEqual([id, 'p', undefined]);
+    expect(api.balance).toBe(500 - 52);
   });
 });

@@ -1,6 +1,7 @@
 /** Save a supported post URL to My Inspirations, or import a local PostBundle. */
 import { msg } from '../i18n';
 import { runSubcommand } from '../providers/cli-args';
+import { aroundPath } from '../providers/task';
 import { importInspiration } from '../providers/inspiration';
 import { linkStatus, parseLink } from '../providers/link';
 import { inspirationQuote } from './pricing';
@@ -69,7 +70,8 @@ export const main: CommandMain = (argv, rt) =>
             { flag: '--config', help: msg('private config JSON (popost.baseUrl / popost.auth.envVar)', '私有配置 JSON（popost.baseUrl / popost.auth.envVar）') },
           ],
         },
-        run: (a) => importInspiration(rt, { file: a.req('file'), note: a.string('note'), clientId: a.string('client-id'), allowIncomplete: a.flag('allow-incomplete'), dryRun: a.flag('dry-run'), config: a.string('config') }),
+        // A bundle of a project: the import is made under the project's task (providers/task.ts).
+        run: async (a) => importInspiration(await aroundPath(rt, rt.path.dirname(rt.path.resolve(rt.cwd, a.req('file')))), { file: a.req('file'), note: a.string('note'), clientId: a.string('client-id'), allowIncomplete: a.flag('allow-incomplete'), dryRun: a.flag('dry-run'), config: a.string('config') }),
       },
     },
     argv,

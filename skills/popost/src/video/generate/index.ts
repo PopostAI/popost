@@ -10,10 +10,11 @@
  * command answers a request with "priceOnly": true the same way whatever budget it has: only the price is wanted.
  * `popost video generate` is such a command on popost.ai (cloud.ts); skills/popost/tools/video/ has examples of tools
  * of your own. Which model runs, at what resolution and under what spending limit is the command's business (and its
- * environment's), never the request's. For a clip, materials also sets POPOST_GEN_PROJECT, POPOST_GEN_FILE and
- * POPOST_GEN_REQUEST (the project, the clip's file, the hash of its request as written), and under --confirm
- * --max-credits N, POPOST_GEN_MAX_CREDITS to what is left of N: the built-in generator holds a clip to the agreement of
- * the project with them (approved.ts); a tool of yours may ignore them. On success the built-in generator prints
+ * environment's), never the request's. materials also sets POPOST_GEN_PROJECT (the project: the built-in generator books
+ * its charges under the project's task), for a clip POPOST_GEN_FILE and POPOST_GEN_REQUEST (the clip's file, the hash of
+ * its request as written), and under --confirm --max-credits N, POPOST_GEN_MAX_CREDITS to what is left of N: the
+ * built-in generator holds a clip to the agreement of the project with them (approved.ts); a tool of yours may ignore
+ * them. On success the built-in generator prints
  * { "credits", "chargedCredits", "key" }: what the clip cost, what this call charged (0 when it was paid before), and
  * its request key.
  *
@@ -398,8 +399,9 @@ const lastFrameOf = async (rt: Runtime, dir: string, clip: string): Promise<stri
  * the needed clip's price waits for the user it is sent for its price only (GenerateRequest.priceOnly, without the
  * frames or the anchor, which do not change a price), so that the user is shown the total of the whole list at once.
  *
- * Every clip is sent with its project, file and request hash (POPOST_GEN_PROJECT, _FILE, _REQUEST), so that the
- * built-in generator holds it to the clips the user agreed to (approved.ts). o.plan (materials --confirm): the clips of
+ * Every file is sent with its project (POPOST_GEN_PROJECT: its charges join the project's task) and every clip with its
+ * file and request hash (POPOST_GEN_FILE, _REQUEST), so that the built-in generator holds it to the clips the user agreed
+ * to (approved.ts). o.plan (materials --confirm): the clips of
  * this list become the agreed clips when the project has none yet.
  */
 export const makeMaterials = async (rt: Runtime, o: { requests: MaterialRequest[]; dir: string; generator: Generator; anchor?: boolean; picture?: AnchorPicture; plan?: boolean; onStep?: (file: string, done: number, total: number) => void }): Promise<MaterialsReport> => {
@@ -482,7 +484,8 @@ export const makeMaterials = async (rt: Runtime, o: { requests: MaterialRequest[
         const start = priceOnly ? undefined : asked.continues ? await lastFrameOf(rt, o.dir, asked.continues) : asked.firstFrame ? at(asked.firstFrame) : undefined;
         const frames = { ...(start ? { firstFrame: start } : {}), ...(start && asked.lastFrame ? { lastFrame: at(asked.lastFrame) } : {}) };
         const request: GenerateRequest = { prompt: r.prompt + (r.speech ? speechPrompt(r.speech) : ''), ...(r.seconds ? { seconds: r.seconds } : {}), ...(r.aspect ? { aspect: r.aspect } : {}), ...references, ...frames, ...(priceOnly ? { priceOnly: true as const } : {}) };
-        const agreement: Record<string, string> = kind === 'video' ? { POPOST_GEN_PROJECT: o.dir, POPOST_GEN_FILE: original.file, POPOST_GEN_REQUEST: requestHash(rt, original) } : {};
+        // The project (its task, for pictures too) and, for a clip, which agreed clip it is.
+        const agreement: Record<string, string> = { POPOST_GEN_PROJECT: o.dir, ...(kind === 'video' ? { POPOST_GEN_FILE: original.file, POPOST_GEN_REQUEST: requestHash(rt, original) } : {}) };
         const made = await o.generator.make(kind, request, partial, agreement);
         const charged = made.chargedCredits ?? made.credits;
         if(made.credits!==undefined)entry={...entry,credits:made.credits};

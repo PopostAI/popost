@@ -14,6 +14,7 @@ import { isRecord, type JsonRecord } from '../../providers/base';
 import { loadConfig, providerConfig } from '../../providers/cli-config';
 import { CliReject, exitCodeOf, ImageProviderError } from '../../providers/errors';
 import { scrub, secretValues } from '../../providers/secrets';
+import { aroundPath, inProject } from '../../providers/task';
 import type { Runtime } from '../../runtime';
 import type { Subcommand } from '../../workflow/subcommands';
 import { cloudSettings, GenerateError, listModels, makeClip } from '../generate/cloud';
@@ -91,9 +92,12 @@ const run = async (args: ParsedArgs, rt: Runtime): Promise<number> => {
     const asked = await readRequest(rt, userPath(rt, request));
     const target = userPath(rt, out);
     if (asked.priceOnly && kind !== 'video') throw new GenerateError('"priceOnly" is for a clip; a picture is priced when it is made.', 2);
-    if (kind === 'video') printJson(rt, await makeClip(rt, found.client, s, asked, target));
+    // The project the file is for (--project, the one materials names, else the one around the output file): what this
+    // call charges joins the project's line on the account page.
+    const inside = s.gate.project ? inProject(rt, s.gate.project, 'video') : await aroundPath(rt, target);
+    if (kind === 'video') printJson(rt, await makeClip(inside, (await platform(inside)).client, s, asked, target));
     else {
-      const made = await makePicture(rt, s, found.config, asked, target);
+      const made = await makePicture(inside, s, found.config, asked, target);
       printJson(rt, { ...made, chargedCredits: made.credits ?? 0 });
     }
     return 0;
@@ -122,7 +126,7 @@ const generate: Subcommand = {
       { flag: '--yes', kind: 'flag', help: 'the user agreed to the price this call was shown; a budget set in POPOST_GEN_MAX_CREDITS still holds' },
       ...CREDIT_OPTIONS,
       { flag: '--approve-unplanned', kind: 'append', metavar: 'KEY', help: 'the user said yes to this clip, which is not among the agreed clips of its project (its key is in confirm.clip of exit code 3)' },
-      { flag: '--project', metavar: 'DIR', help: 'the project whose agreed clips hold (production/approved-clips.json); by default the nearest folder above the output file that has them' },
+      { flag: '--project', metavar: 'DIR', help: 'the project the file is for: its agreed clips hold (production/approved-clips.json) and its charges join its line on the account page; by default the project around the output file' },
     ],
   },
   run,

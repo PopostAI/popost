@@ -114,7 +114,7 @@ npx vite-node skills/popost/src/cli.ts video --help  # 从源码运行 popost vi
 机器和别的工作共用时，重任务一次只跑一个，并降低优先级，例如
 `flock <锁文件> nice -n 10 npm run test:skill`。
 
-连接 popost.ai 账户（`popost auth login`）后，配音和转写默认在平台上完成，像图片一样按积分计费：付费命令先报价，没有 `--confirm --max-credits N`（这条视频唯一预算的剩余额度）就以退出码 3 停下、不扣费，完成后输出 `chargedCredits`；不在已同意清单里的生成视频片段要 `--approve-unplanned <key>`（`production/approved-clips.json`）。环境变量，全部可选：`POPOST_FFMPEG`、`POPOST_CHROME`；`POPOST_OCR_CMD`、`POPOST_ASR_CMD`、`POPOST_TTS_CMD`、`POPOST_TTS_MODEL`（本机读取器和自己的合成器，见 `tools/`；设置后，转写器和合成器优先于账户）；`POPOST_LLM_URL`、`POPOST_LLM_MODEL`、`POPOST_LLM_KEY`、`POPOST_LLM_JSON`（模型环节用的模型，见 `src/plan/model.ts`；密钥不写进任何文件、日志或测试）；`POPOST_RENDER_PAGES`；`POPOST_VIDEO_DATA`、`POPOST_VIDEO_WORK`。
+连接 popost.ai 账户（`popost auth login`）后，配音和转写默认在平台上完成，像图片一样按积分计费：付费命令先报价，没有 `--confirm --max-credits N`（这条视频唯一预算的剩余额度）就以退出码 3 停下、不扣费，完成后输出 `chargedCredits`；不在已同意清单里的生成视频片段要 `--approve-unplanned <key>`（`production/approved-clips.json`）。在工程里发出的每个 Open API 请求都带上工程的任务（`x-popost-task`、`x-popost-task-title`、`x-popost-agent-session`；`src/providers/task.ts`），`popost usage --dir P` 读出平台记在它名下的费用。环境变量，全部可选：`POPOST_FFMPEG`、`POPOST_CHROME`；`POPOST_OCR_CMD`、`POPOST_ASR_CMD`、`POPOST_TTS_CMD`、`POPOST_TTS_MODEL`（本机读取器和自己的合成器，见 `tools/`；设置后，转写器和合成器优先于账户）；`POPOST_LLM_URL`、`POPOST_LLM_MODEL`、`POPOST_LLM_KEY`、`POPOST_LLM_JSON`（模型环节用的模型，见 `src/plan/model.ts`；密钥不写进任何文件、日志或测试）；`POPOST_RENDER_PAGES`；`POPOST_VIDEO_DATA`、`POPOST_VIDEO_WORK`。
 
 ## 5. 评测循环
 

@@ -80,6 +80,16 @@ export interface ProgramOptions {
  * Desktop-only abilities: run a program installed on this machine (ffmpeg, or a tool the user named in the environment)
  * against the real disk. `popost video` needs them; hosts over a virtual disk omit them and the video commands refuse.
  */
+/**
+ * Where a command's project is. `video`: a video project, whose task file is made when the first request is sent.
+ * `found`: a directory a command was pointed at (--dir, or the project around an output): it counts only when it is an
+ * image project or already has the marks of a video project.
+ */
+export interface ProjectContext {
+  readonly dir: string;
+  readonly kind: 'video' | 'found';
+}
+
 export interface LocalPrograms {
   /**
    * Runs `argv` to its end and resolves whatever the exit code. Rejects when the program cannot be started (the error
@@ -137,6 +147,11 @@ export interface Runtime {
   readonly signal?: AbortSignal;
   readonly processes?: LocalProcesses;
   readonly programs?: LocalPrograms;
+  /**
+   * The project a command works in, set by the CLI for that command (providers/task.ts): every popost.ai Open API request
+   * then carries the project's task, so its charges are grouped on the user's account page. Hosts leave it unset.
+   */
+  readonly project?: ProjectContext;
   /**
    * Desktop-only: the user's home directory. Where the stored API key (`auth`) and the agents' skill directories
    * (`install`) live. Hosts that run the CLI in-process omit it: `auth set|clear` and `install` then refuse.

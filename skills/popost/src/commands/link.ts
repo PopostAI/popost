@@ -4,6 +4,7 @@ import type { OptionSpec } from '../args';
 import { msg } from '../i18n';
 import { linkStatus, parseLink } from '../providers/link';
 import { runSubcommand } from '../providers/cli-args';
+import { aroundPath } from '../providers/task';
 import type { CommandMain } from '../runtime';
 
 const out = (): OptionSpec => ({
@@ -61,7 +62,8 @@ export const main: CommandMain = (argv, rt) =>
             config(),
           ],
         },
-        run: (a) => parseLink(rt, { url: a.req('url'), note: a.string('note'), out: a.string('out'), timeoutSec: a.number('timeout') as number, noDownload: a.flag('no-download'), dryRun: a.flag('dry-run'), confirm: a.flag('confirm'), maxCredits: a.number('max-credits'), config: a.string('config') }),
+        // Into a project (--out inside one): the parse is charged under the project's task (providers/task.ts).
+        run: async (a) => parseLink(await aroundPath(rt, a.string('out')), { url: a.req('url'), note: a.string('note'), out: a.string('out'), timeoutSec: a.number('timeout') as number, noDownload: a.flag('no-download'), dryRun: a.flag('dry-run'), confirm: a.flag('confirm'), maxCredits: a.number('max-credits'), config: a.string('config') }),
       },
       status: {
         spec: {

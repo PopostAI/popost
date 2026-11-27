@@ -53,10 +53,18 @@ needs a paid plan). They are paid as images are, under one money rule:
   --quote`, free), the voice-over estimate (`popost video voice quote --voice <voice> --text "<script>"`, free), a
   little for pace calibration, the generated clips and pictures (`popost video generate --models` has the credits),
   the total, and the balance (`popost account`). The user agrees one budget for the whole video.
+- What is spent is what popost.ai counts. Every Open API call made for a project carries the project's task (its id,
+  kept in `production/task.json` of a video project or the `projectId` of an image project; its title; the agent's
+  session), and the account page shows the project as one line, "Task: <title>", item by item. `popost usage --dir
+  <project> --budget <agreed>` (free) prints that count, `credits` (net, refunds subtracted), the `items`, and
+  `budget.left`; with the agreed clips (`production/approved-clips.json`) also their count and price. A 404 means the
+  connected popost.ai does not report it yet: then add up `chargedCredits`.
 - Every paid command (`transcript`, `describe`, `readback`, `plan --voice`, `template fill --speak`, `retarget
-  --speak`, `voice speak`, `materials`, `generate`) then runs with `--confirm --max-credits <what is left>`; its JSON
-  has `chargedCredits`, which comes off what is left. Inside a command the ceiling is counted down call by call, and a
-  call it does not cover is refused before anything is sent.
+  --speak`, `voice speak`, `materials`, `generate`) then runs with `--confirm --max-credits <left>`, `<left>` from
+  `popost usage`. Its JSON has `chargedCredits`, a quick check: a run that stopped after paying (a timeout) prints
+  none, while usage counts it. Inside a command the ceiling is counted down call by call, and a call it does not cover
+  is refused before anything is sent. `transcript`, `describe` and `voice create` have no project of their own: give
+  them `--project <project>` so that they are booked under it too.
 - Without `--confirm` a paid command makes and charges nothing: it prices its work (quotes are free) and ends with exit
   code 3 and `{ "confirm": { "credits", "balance"?, "items": [...] }, "next" }`; a price above `--max-credits` ends the
   same way, with `maxCredits`. Ask the user again only when the price is more than what is left or the scope changed.
@@ -80,7 +88,7 @@ Transcription is popost.ai's with a connected account, unless `POPOST_ASR_CMD` n
 
 ```bash
 popost video transcript reference.mp4 --quote                                  # free: the seconds of sound and the credits
-popost video describe reference.mp4 --out ref --confirm --max-credits <left>   # transcribes within what is left
+popost video describe reference.mp4 --out ref --project project --confirm --max-credits <left>   # within what is left
 ```
 
 `--quote` prints `seconds`, `credits` and `next`. A command that needs no speech can say so with `--no-speech`
@@ -119,7 +127,7 @@ https://github.com/PopostAI/popost/tree/main/skills/popost/tools/video
 
 ## Generated clips
 
-`popost video materials requests.json --out project --confirm --max-credits <what is left>` makes the clips and
+`popost video materials requests.json --out project --confirm --max-credits <left>` makes the clips and
 pictures of a list through the generator (`POPOST_GEN_CMD`), one after another; `--check` only reads the list. A file
 that exists is never made again, so running it twice costs once, and what each file shows goes to
 `project/materials.json`. Paid generation follows the money rule ("Paying for popost.ai") and the agreed clips ("The
@@ -224,7 +232,7 @@ charged: `generate` prints one line,
 `{"confirm": {"credits": 25, "model": "<id>", "resolution": "480p", "seconds": 5, "aspectRatio": "9:16", "balance": 900}}`,
 and exits with 3; `popost video materials` puts that price on the file (`confirm`), the total of the list in
 `confirm.credits` and `items`, makes nothing that waits for it, and exits with 3. Within the agreed budget (the money
-rule above), run `materials` again with `--confirm --max-credits <what is left>`: it makes the files one by one within
+rule above), run `materials` again with `--confirm --max-credits <left>`: it makes the files one by one within
 that ceiling (it hands what is left to the generator as `POPOST_GEN_MAX_CREDITS`) and prints `chargedCredits`. A price
 above what is left asks again. Without enough credits it fails before asking (`popost account` shows the balance).
 `POPOST_GEN_MAX_CREDITS` and `--yes` (`POPOST_GEN_CMD="popost video generate --yes"`) still work as before.
@@ -321,7 +329,7 @@ under the band). Pointer, boxes and zoom are drawn into the recording, the same 
 | `doctor`: `ffmpeg was not found` | Install ffmpeg or set `POPOST_FFMPEG` to its path. |
 | `doctor`: a browser message | Install Chrome or Chromium, or set `POPOST_CHROME` to it. |
 | `describe`: `leftOut` lists on-screen text or speech | The reader or transcriber is not set up (no account connected and no tool of the user's own), or `--no-speech` was given: the template has no caption or spoken beats. Go on; look at the pictures. `toAdd` says how to add it (`popost auth login` first). |
-| A paid command ends with exit code 3 and `confirm` | Nothing was made or charged. Within what is left of the agreed budget: run it again with `--confirm --max-credits <what is left>`. Above it, or the scope changed: show the user `confirm` and ask. `"reason": "unplanned"`: "The built-in generator". |
+| A paid command ends with exit code 3 and `confirm` | Nothing was made or charged. Within what is left of the agreed budget: run it again with `--confirm --max-credits <left>`. Above it, or the scope changed: show the user `confirm` and ask. `"reason": "unplanned"`: "The built-in generator". |
 | `describe`: `while decoding frames for the sheets`, `Error initializing filters`, `Cannot allocate memory` on a longer reference | Earlier video test builds made a deeply nested FFmpeg selection expression. Update to a build with balanced frame selection, rebuild the matching CLI, and retry the same reference. This error alone does not prove missing dependencies or insufficient physical memory. |
 | `template check`: `The fill has N shots; the template has M` | One entry per shot, in order; `template show` lists them. |
 | `template check` / `fill`: a line over its limit or budget | Shorten the line; `fix` gives a shorter version. Do not raise `--pace`. |
@@ -332,7 +340,7 @@ under the band). Pointer, boxes and zoom are drawn into the recording, the same 
 | `scene check`: `is cut off ... X around it hides what lies outside it` | Make the element X larger or remove its fixed height, or shorten the text. |
 | `scene check`: `shows the same flat picture` | Its elements are invisible (opacity, colour on the ground, outside the canvas) or its motion starts after the shot. |
 | `plan --voice`: `needs a speaker` | No speaker: run `plan` without `--voice`. |
-| `materials`: `the user has not agreed to that price` | Nothing was charged. Within what is left of the agreed budget, run `materials` again with `--confirm --max-credits <what is left>`; above it, show the user `confirm` and ask first. |
+| `materials`: `the user has not agreed to that price` | Nothing was charged. Within what is left of the agreed budget, run `materials` again with `--confirm --max-credits <left>`; above it, show the user `confirm` and ask first. |
 | `materials` / `generate`: `"reason": "unplanned"` | The clip is not one of the agreed clips; nothing was charged. Show the user the clip, why it is needed and its price; only after a yes run again with `--approve-unplanned <confirm.clip.key>`. |
 | `capture`: `The page answered HTTP 429` (or 503) | Wait a minute and run it again, or record another page. |
 | `capture` notes: `the scroll does not move` | The page is shorter than the plan: scroll to a heading from `--outline` or to `"bottom"`. |

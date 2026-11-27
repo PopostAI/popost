@@ -33,7 +33,7 @@ import { commandTextReader, cuesOf, readSamples, withCaptionLook, type TextReadi
 import { rolesWithSpeech } from '../text/speech';
 import type { Boundary, Measure, ShotMeasure, Unrecovered } from '../types';
 import { unrecoveredIn } from './elements';
-import { command, userPath, VideoCommandError, type Commands } from './shared';
+import { command, PROJECT_OPTION, userPath, VideoCommandError, type Commands } from './shared';
 
 const VIDEO: PositionalSpec = { name: 'video', help: 'a video file ffmpeg can read' };
 const LANGUAGE: OptionSpec = { flag: '--language', help: 'what the speech is in, such as zh or en (default: the transcriber detects it)' };
@@ -156,7 +156,7 @@ const transcript = command(
     options: [
       outFile('transcript.json'), LANGUAGE,
       { flag: '--quote', kind: 'flag', help: 'transcribe nothing: print the seconds of sound and the credits popost.ai charges to transcribe them (free; needs a connected account)' },
-      ...CREDIT_OPTIONS,
+      ...CREDIT_OPTIONS, PROJECT_OPTION,
     ],
   },
   async (args, rt) => {
@@ -186,6 +186,7 @@ const transcript = command(
       ...(out ? { file: out } : { listing: { phrases: phrases.map((p) => ({ start: p.start, end: p.end, confidence: p.confidence, text: p.text })) } }),
     });
   },
+  (args) => args.string('project'),
 );
 
 /** Pictures an earlier describe wrote into the same directory, which this one's may not replace (a shot or a transition fewer). */
@@ -203,7 +204,7 @@ const describe = command(
     options: [
       outDir('the directory to write into'),
       { flag: '--name', default: 'reference', help: 'what REFERENCE.md calls the video (not a file name of a private data set)' },
-      LANGUAGE, NO_SPEECH, ...CREDIT_OPTIONS,
+      LANGUAGE, NO_SPEECH, ...CREDIT_OPTIONS, PROJECT_OPTION,
     ],
   },
   async (args, rt) => {
@@ -249,6 +250,7 @@ const describe = command(
       ...(leftOut.length ? { leftOut } : {}),
     });
   },
+  (args) => args.string('project'),
 );
 
 /** What describe says of its pictures: where they are, which labels do not fit them, and that they are to be opened. */

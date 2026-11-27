@@ -43,7 +43,7 @@ When parsing is needed to determine image needs, price and authorize parsing fir
 
 ## Commission budget and reuse
 
-Keep `production/fee-authorization.json` with the user's authorized account reference (non-secret), project, operations, budget and unit, planned items, actual known charges and unresolved/reserved amounts. This is the Agent's commission record, not an API credential or a server-wide hard budget. Cross-process/account-wide atomic project reservations are not supplied by this CLI. Do not claim otherwise.
+Keep `production/fee-authorization.json` with the user's authorized account reference (non-secret), project, operations, budget and unit, planned items, actual known charges and unresolved/reserved amounts. This is the Agent's commission record, not an API credential or a server-wide hard budget. For the actual charges, `popost usage --dir P` prints what popost.ai has booked under the project's task (net of refunds, item by item), the same as the project's line on the user's account page. Cross-process/account-wide atomic project reservations are not supplied by this CLI. Do not claim otherwise.
 
 Before launching a parallel batch, ensure the sum of all new quotes plus actual charges and outstanding reservations fits the commission; record that whole batch as reserved once. Exclude completed, cancelled and reused items from the new total. Do not launch a second overlapping batch or parallel processes spending the same remaining budget. Keep the request caps. If another process is spending from the same project, serialize work or stop for reconciliation. Never release an uncertain reservation because the observer timed out.
 

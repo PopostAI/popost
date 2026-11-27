@@ -183,6 +183,7 @@ const plan = command(
       next: fillCommand.replace('<fill.json>', out) + ' --speak' + (tempo ? ' --fit-tempo ' + tempo : ''),
     });
   }),
+  (args) => args.string('assets'),
 );
 
 const retargetCommand = command(
@@ -242,6 +243,7 @@ const retargetCommand = command(
       problems: r.problems, notes: [...(spoken ? spoken.notes : []), ...r.notes], chargedCredits: wallet?.spent ?? 0, next: 'popost video check ' + outDir,
     });
   },
+  (args) => args.string('out'),
 );
 
 const readbackCommand = command(
@@ -287,6 +289,7 @@ const readbackCommand = command(
     });
     return errors ? 2 : 0;
   },
+  (args) => args.string('project-dir'),
 );
 
 /** "1.5,4" -> [1.5, 4]. */

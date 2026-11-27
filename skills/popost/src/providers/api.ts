@@ -9,7 +9,9 @@
  *   fills `POPOST_API_KEY` / `POPOST_BASE_URL` from the file saved by `popost auth set` when the environment leaves
  *   them unset (`credentials.ts`), so this client only ever reads `rt.env`.
  * - Every request carries `Authorization: Bearer`, `x-popost-client: skill`, `x-popost-client-version` (the server
- *   refuses clients that are too old by these) and a User-Agent; a body adds `content-type: application/json`.
+ *   refuses clients that are too old by these) and a User-Agent; a body adds `content-type: application/json`. A request
+ *   made in a project (`rt.project`) adds the project's task (`x-popost-task`, `-title`, `x-popost-agent-session`;
+ *   task.ts), so that its charges are grouped on the account page.
  * - Answers are an envelope `{success, data, error, meta}`; `error.code` (not the HTTP status) decides.
  * - A POST that may charge (`ambiguous: true`) whose outcome is unknown (timeout, dropped connection, unparsable body,
  *   non-envelope 5xx, TIMEOUT / INTERNAL_ERROR) throws `AmbiguousSubmitError`; the caller records it and never retries.
@@ -23,6 +25,7 @@ import { VERSION } from '../version';
 import { DEFAULT_KEY_ENV, DEFAULT_KEY_PAGE, describeError, num } from './api-errors';
 import { isRecord } from './base';
 import { AmbiguousSubmitError, ImageProviderError, PopostApiError } from './errors';
+import { taskHeaders } from './task';
 import { timeoutSignal } from './time';
 
 export { DEFAULT_KEY_ENV } from './api-errors';
@@ -213,7 +216,7 @@ export class PopostClient {
     const device = !this.bearer && this.keyEnv === DEFAULT_KEY_ENV && this.rt.deviceAccess;
     const key = device ? await device(this.baseUrl) : this.key();
     const wait = Number(options.timeoutSec || this.timeoutSec);
-    const headers = this.headers(body !== undefined);
+    const headers = { ...this.headers(body !== undefined), ...(await taskHeaders(this.rt)) };
     headers.Authorization = `Bearer ${key}`;
     const signal = timeoutSignal(this.rt, wait * 1000);
     const url = this.url(path, query);

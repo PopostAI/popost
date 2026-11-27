@@ -36,6 +36,7 @@ register(['provider'], async () => (await import('./commands/provider')).main, f
 register(['inspiration'], async () => (await import('./commands/inspiration')).main, false);
 register(['pricing'], async () => (await import('./commands/pricing')).main, false);
 register(['account'], async () => (await import('./commands/account')).main, false);
+register(['usage'], async () => (await import('./commands/usage')).main, false);
 register(['link'], async () => (await import('./commands/link')).main, false);
 register(['template'], async () => (await import('./commands/template')).main, false);
 register(['cloud'], async () => (await import('./commands/cloud')).main, false);
@@ -57,7 +58,7 @@ const usage = () =>
       'review:    render, sheet, review, build, doctor, export, package, unpack',
       'editor:    present, serve, deck, cloud (push the project to your popost.ai account)',
       'sources:   ticket, validate, import, attach-bundle, link, inspiration, template',
-      'account:   account (credit balance and plan), pricing (current link tariff; no charge)',
+      'account:   account (credit balance and plan), usage (what a project has cost, from popost.ai), pricing (current link tariff); no charge',
       'video:     video (videos as editable projects; popost video --help lists its commands)',
       '',
     ].join('\n'),
@@ -73,7 +74,7 @@ const usage = () =>
       '检查:      render、sheet、review、build、doctor、export、package、unpack',
       '编辑器:    present、serve、deck、cloud（把工程推送到 popost.ai 账户）',
       '素材来源:  ticket、validate、import、attach-bundle、link、inspiration、template',
-      '账户:      account（积分余额和套餐）、pricing（当前链接解析价格；不扣费）',
+      '账户:      account（积分余额和套餐）、usage（一个工程已花的积分，来自 popost.ai）、pricing（当前链接解析价格）；都不扣费',
       '视频:      video（把视频做成可编辑的工程；popost video --help 列出它的命令）',
       '',
     ].join('\n'),
@@ -103,7 +104,10 @@ const runCommand = async (argv: readonly string[], rt: Runtime): Promise<number>
   }
   try {
     const main = await group.load();
-    return await main(group.keepName ? argv : rest, rt);
+    // A command pointed at a project (--dir) makes its popost.ai requests under the project's task (providers/task.ts).
+    const { dirArg, inProject } = await import('./providers/task');
+    const dir = dirArg(rest);
+    return await main(group.keepName ? argv : rest, dir ? inProject(rt, dir, 'found') : rt);
   } catch (error) {
     printJson(rt, { ok: false, error: errorText(error) });
     return 1;

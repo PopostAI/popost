@@ -232,6 +232,7 @@ const fill = command(
       next: 'popost video check ' + outDir + ' --layout',
     });
   }),
+  (args) => args.string('out'),
 );
 
 const test = command(
