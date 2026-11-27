@@ -220,7 +220,7 @@ export class PopostClient {
     try {
       const response = await this.rt.fetch(url, { method, headers, ...(device ? {redirect:'error' as const} : {}), body: body === undefined ? undefined : JSON.stringify(body), signal });
       const raw = await this.readBody(response, ambiguous, hint);
-      return this.parse(response.status, raw, ambiguous, hint);
+      return this.parse(response.status, raw, ambiguous, hint, this.retryAfter(response.headers.get('retry-after')));
     } catch (error) {
       if (error instanceof ImageProviderError) throw error;
       return this.failed(error, url, wait, ambiguous, hint);
@@ -268,7 +268,15 @@ export class PopostClient {
     throw new PopostApiError(msg(`The popost.ai request failed (${what}). ${hint || 'Try again later.'}`, `popost.ai 请求失败（${what}）。${hint || '请稍后重试'}`), { code: 'NETWORK' });
   }
 
-  private parse(status: number, raw: Uint8Array, ambiguous: boolean, hint: string): unknown {
+  /** Seconds a `Retry-After` header asks for (a number of seconds or an HTTP date); undefined without one. */
+  private retryAfter(header: string | null): number | undefined {
+    const text = (header ?? '').trim();
+    if (!text) return undefined;
+    const seconds = /^\d+$/.test(text) ? Number(text) : (Date.parse(text) - this.rt.now().getTime()) / 1000;
+    return Number.isFinite(seconds) ? Math.max(0, Math.ceil(seconds)) : undefined;
+  }
+
+  private parse(status: number, raw: Uint8Array, ambiguous: boolean, hint: string, retryAfter?: number): unknown {
     let envelope: unknown = null;
     try {
       envelope = raw.length ? JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(raw)) : null;
@@ -277,7 +285,7 @@ export class PopostClient {
     }
     if (isRecord(envelope) && typeof envelope.success === 'boolean') {
       if (envelope.success) return this.successData(envelope, status, ambiguous, hint);
-      return this.refusal(envelope, status, ambiguous, hint);
+      return this.refusal(envelope, status, ambiguous, hint, retryAfter);
     }
     // Not an envelope: an unparsable 2xx or a gateway 5xx means the request may have been processed.
     if (ambiguous && (status === 0 || (status >= 200 && status < 300) || status >= 500))
@@ -299,8 +307,11 @@ export class PopostClient {
     return envelope.data;
   }
 
-  private refusal(envelope: Record<string, unknown>, status: number, ambiguous: boolean, hint: string): never {
-    const err = isRecord(envelope.error) ? envelope.error : {};
+  private refusal(envelope: Record<string, unknown>, status: number, ambiguous: boolean, hint: string, retryAfter?: number): never {
+    const given = isRecord(envelope.error) ? envelope.error : {};
+    // A rate limit's wait: the details say it, else the Retry-After header does.
+    const err = retryAfter !== undefined && given.code === 'RATE_LIMITED' && !(isRecord(given.details) && given.details.retryAfterSeconds !== undefined)
+      ? { ...given, details: { ...(isRecord(given.details) ? given.details : {}), retryAfterSeconds: retryAfter } } : given;
     const code = String(err.code || 'UNKNOWN').slice(0, 64);
     const text = this.redact(describeError(code, err.message, err.details, this.keyEnv)).replace(DEFAULT_KEY_PAGE, this.keyPage());
     if (ambiguous && AMBIGUOUS_CODES.includes(code))

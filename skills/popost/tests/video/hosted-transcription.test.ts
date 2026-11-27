@@ -136,6 +136,70 @@ describe('the hosted transcriber', () => {
   });
 });
 
+/** A runtime whose clock moves only when it sleeps: polls and progress lines are counted, not waited for. */
+const clocked = (env: Record<string, string>, o: FakeOptions) => {
+  const platform = fakePlatform(o);
+  const sleeps: number[] = [];
+  let t = Date.UTC(2026, 10, 27);
+  const rt = createTestRuntime({ env: { ...ENV, ...env }, fetchHandler: platform.handler, now: () => new Date(t), sleep: async (ms) => { sleeps.push(ms); t += ms; } });
+  return { rt, platform, sleeps };
+};
+const reads = (paths: string[]) => paths.filter((p) => p.startsWith('GET /transcriptions/')).length;
+
+describe('a transcription that runs long', () => {
+  it('reads a job the run left running every 3 s until it is ready, with a line on stderr every 30 s, and counts its charge', async () => {
+    const { rt, platform, sleeps } = clocked({ POPOST_ASR_MAX_CREDITS: '3' }, { runningReads: 12 });
+    await rt.fs.writeFile('/work/long.wav', wav({ seconds: 12 }));
+    const transcriber = hostedTranscriber(rt)!;
+    expect((await transcriber.transcribe('/work/long.wav', 'zh')).words).toHaveLength(4);
+    expect(platform.paths().slice(0, 3)).toEqual(['POST /transcriptions/quote', 'POST /transcriptions', 'POST /transcriptions/t-1/run']);
+    expect(reads(platform.paths())).toBe(12);
+    expect(sleeps).toEqual(Array(12).fill(3000));
+    expect(rt.err).toEqual(['popost.ai is transcribing 12.0 s of sound (30 s so far)\n']);
+    // The 2 credits of the job it ran count against the budget: 1 is left, and 15 s (2 credits) is refused.
+    await rt.fs.writeFile('/work/more.wav', wav({ seconds: 15 }));
+    await expect(transcriber.transcribe('/work/more.wav')).rejects.toThrow('1 of the confirmed POPOST_ASR_MAX_CREDITS budget');
+  });
+
+  it('a rerun finds the job running: it waits for it without uploading, running or spending again', async () => {
+    const { rt, platform } = clocked({ POPOST_ASR_MAX_CREDITS: '1' }, { cutFirstRun: true, runningReads: 3 });
+    await rt.fs.writeFile('/work/a.wav', wav({ seconds: 4 }));
+    await expect(hostedTranscriber(rt)!.transcribe('/work/a.wav')).rejects.toMatchObject({ name: 'ToolError', message: expect.stringContaining('the same sound reuses the same transcription job') });
+    expect(platform.jobs.get('t-1')?.state).toBe('running');
+    const again = hostedTranscriber(rt)!;
+    const before = platform.sent.length;
+    expect((await again.transcribe('/work/a.wav')).words).toHaveLength(4);
+    expect(platform.paths().slice(before)).toEqual(['POST /transcriptions/quote', 'POST /transcriptions', 'GET /transcriptions/t-1', 'GET /transcriptions/t-1', 'GET /transcriptions/t-1']);
+    expect(platform.puts).toHaveLength(1);
+    // Nothing of the budget was spent on it: another sound of 1 credit still fits.
+    await rt.fs.writeFile('/work/b.wav', wav({ seconds: 5 }));
+    await expect(again.transcribe('/work/b.wav')).resolves.toBeDefined();
+  });
+
+  it('waits as long as a rate limit asks, and reports a failed job', async () => {
+    const limited = clocked({ POPOST_ASR_MAX_CREDITS: '5' }, { runningReads: 2, limitFirstRead: 7 });
+    await limited.rt.fs.writeFile('/work/a.wav', wav({ seconds: 2 }));
+    await hostedTranscriber(limited.rt)!.transcribe('/work/a.wav');
+    expect(limited.sleeps).toEqual([3000, 7000, 3000]);
+    const failing = clocked({ POPOST_ASR_MAX_CREDITS: '5' }, { runningReads: 2, jobFails: true });
+    await failing.rt.fs.writeFile('/work/a.wav', wav({ seconds: 2 }));
+    await expect(hostedTranscriber(failing.rt)!.transcribe('/work/a.wav')).rejects.toThrow('failed; run the same command again to start a new one');
+  });
+
+  it('stops waiting after 30 min, and refuses more than 30 min of sound before anything is sent', async () => {
+    const { rt, platform, sleeps } = clocked({ POPOST_ASR_MAX_CREDITS: '5' }, { runningReads: 1_000_000 });
+    await rt.fs.writeFile('/work/a.wav', wav({ seconds: 2 }));
+    await expect(hostedTranscriber(rt)!.transcribe('/work/a.wav')).rejects.toThrow('still running after 30 min');
+    expect(sleeps.reduce((a, b) => a + b, 0)).toBe(30 * 60_000);
+    expect(rt.err.length).toBeLessThanOrEqual(60);
+    expect(reads(platform.paths())).toBe(600);
+    const long = clocked({ POPOST_ASR_MAX_CREDITS: '500' }, {});
+    await long.rt.fs.writeFile('/work/long.wav', wav({ seconds: 30 * 60 + 1 }));
+    await expect(hostedTranscriber(long.rt)!.transcribe('/work/long.wav')).rejects.toThrow('at most 30 min of sound');
+    expect(long.platform.sent).toHaveLength(0);
+  });
+});
+
 const ok = await ffmpegReady();
 
 describe.skipIf(!ok)('popost video transcript through popost.ai', () => {

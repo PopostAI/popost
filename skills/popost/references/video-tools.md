@@ -54,7 +54,9 @@ POPOST_ASR_MAX_CREDITS=N popost video describe reference.mp4 --out ref
 with a voice that gives no word times): it is the most that command may spend, counted down call by call, and a call it
 does not cover is refused before anything is sent. Without it nothing is transcribed and `describe` lists the speech
 under `leftOut`. A render has its own sound: quote it (`popost video transcript final.mp4 --quote`) before a
-`readback` that should hear it. The same sound sent again reuses its finished transcription and is not charged twice.
+`readback` that should hear it. The same sound sent again reuses its transcription and is not charged twice. popost.ai
+transcribes at most 30 min of sound. A long one writes a line on stderr every 30 s while the command waits (at most
+30 min); when the command stops before it is done, run it again: it waits for the same job instead of starting a new one.
 A transcriber in `POPOST_ASR_CMD` is used instead whenever it is set. `popost video doctor` shows
 `"transcribe": "POPOST_ASR_MAX_CREDITS"` when the hosted transcriber is ready, and under `hosted` what it still needs.
 

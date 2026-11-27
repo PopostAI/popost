@@ -6,10 +6,14 @@
  *   POST /voices/speech             answer gains words: [{ text, start, end }] | null (seconds from the start of the WAV)
  *   POST /voices                    { operationKey, name, language?, description?, sizeBytes, consent: true } -> { id, uploadUrl | null }
  *   POST /voices/{id}/complete      -> the voice, as GET /voices lists it
- *   POST /transcriptions            { operationKey, sizeBytes, language? } -> { id, uploadUrl, state }
+ *   POST /transcriptions            { operationKey, sizeBytes, language? } -> { id, uploadUrl, state } (the same key again:
+ *                                   the same job, `running` or `ready` once it was run)
  *   POST /transcriptions/quote      { seconds } -> { credits } (free)
- *   POST /transcriptions/{id}/run   { maxCredits } -> { id, state: 'ready', language, seconds, chargedCredits, words }
- *   GET  /transcriptions/{id}       the same as run
+ *   POST /transcriptions/{id}/run   { maxCredits } -> { id, state: 'ready', language, seconds, chargedCredits, words },
+ *                                   or { id, state: 'running' } when it takes longer than the platform waits (~45 s)
+ *   GET  /transcriptions/{id}       the same as run, with 'running', 'ready' or 'failed'; free
+ * Refusals: INVALID_REQUEST (bad or incomplete audio), CREDIT_LIMIT_EXCEEDED (price above maxCredits), UPSTREAM_ERROR
+ * (a failed job), RATE_LIMITED (with Retry-After).
  *
  * The bytes go to the signed uploadUrl with PUT and Content-Type audio/wav, without the platform's headers.
  */
@@ -18,8 +22,8 @@ import { PopostClient } from '../providers/api';
 import { isRecord } from '../providers/base';
 import type { Runtime } from '../runtime';
 
-/** A long request (a transcription runs while it waits) gets this long. */
-const LONG_SECONDS = 600;
+/** A run waits up to about 45 s and answers `running` after that; a proxy on the way ends any answer at 100 s. */
+const LONG_SECONDS = 120;
 export const platform = (rt: Runtime, timeoutSec = 180): PopostClient => new PopostClient(rt, { timeoutSec });
 
 /** A stable operation key (a version-4 UUID shape) for what `parts` describes: the same request sent again is the same operation. */
