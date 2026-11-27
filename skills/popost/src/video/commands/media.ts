@@ -5,6 +5,7 @@ import { printJson } from '../../core/util';
 import type { Runtime } from '../../runtime';
 import { cpuBudgetOf, toolCommand } from '../host';
 import { ffmpegPath, hasFfmpeg, probe, runFfmpeg } from '../media/ffmpeg';
+import { ASR_BUDGET, hostedTranscriptionAbsence } from '../speech/hosted';
 import { command, userPath, type Commands } from './shared';
 
 /** The optional tools a user can plug in, and the environment variable that names each. */
@@ -33,7 +34,11 @@ const doctor = command(
   {},
   async (_args, rt) => {
     const [version, browser] = await Promise.all([rt.programs ? ffmpegVersion(rt) : null, canDraw(rt)]);
-    const tools = Object.fromEntries(Object.entries(TOOLS).map(([name, variable]) => [name, toolCommand(rt, variable) ? variable : null]));
+    const named = Object.fromEntries(Object.entries(TOOLS).map(([name, variable]) => [name, toolCommand(rt, variable) ? variable : null]));
+    // Without a transcriber of its own, a connected account transcribes with popost.ai within a confirmed budget.
+    const hosted = named.transcribe ? undefined : hostedTranscriptionAbsence(rt);
+    const tools = { ...named, transcribe: named.transcribe ?? (hosted ? null : ASR_BUDGET) };
+    const offers = hosted?.connected ? { hosted: { transcribe: 'popost.ai transcribes for credits: ' + hosted.why } } : {};
     const missing = [
       ...(rt.programs ? [] : ['this host cannot run local programs, so no video command works here']),
       ...(rt.programs && version === null ? ['ffmpeg was not found: install it or set POPOST_FFMPEG (asked for "' + ffmpegPath(rt) + '")'] : []),
@@ -41,8 +46,8 @@ const doctor = command(
     ];
     const budget = rt.programs ? cpuBudgetOf(rt) : undefined;
     const cpus = budget ? { budget: budget.cpus, from: budget.source } : null;
-    const reading = tools.readText !== null || tools.transcribe !== null;
-    printJson(rt, { ok: missing.length === 0, ffmpeg: version, browser: browser === true, cpus, tools, ...(reading ? { note: FIRST_RUN } : {}), ...(missing.length ? { missing } : {}) });
+    const reading = named.readText !== null || named.transcribe !== null;
+    printJson(rt, { ok: missing.length === 0, ffmpeg: version, browser: browser === true, cpus, tools, ...offers, ...(reading ? { note: FIRST_RUN } : {}), ...(missing.length ? { missing } : {}) });
     return missing.length ? 2 : 0;
   },
 );

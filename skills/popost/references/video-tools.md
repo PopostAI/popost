@@ -40,7 +40,23 @@ terminated through that owned process handle. Screenshot capture waits for the b
 
 ## Tools
 
-Connected accounts can use the live Popost voice catalog without a local TTS tool. Run `popost video voice list`, choose a voice or the configured `default-male` / `default-female`, then follow the quote and confirmed synthesis steps in [people and shared voices](video-performers.md). Hosted narration requires an explicit `POPOST_VOICE_MAX_CREDITS` budget for `plan --voice` / `template fill --speak`; listing and quoting are free. Provider credentials and clone ids stay on the server.
+Connected accounts can use the live Popost voice catalog without a local TTS tool. Run `popost video voice list`, choose a voice or the configured `default-male` / `default-female`, then follow the quote and confirmed synthesis steps in [people and shared voices](video-performers.md). Hosted narration requires an explicit `POPOST_VOICE_MAX_CREDITS` budget for `plan --voice` / `template fill --speak`; listing and quoting are free. Hosted speech comes with the time of every word, so a spoken fill needs no transcriber to time its captions. `popost video voice create` makes a personal voice from the user's own recording (with their consent; same page). Provider credentials and clone ids stay on the server.
+
+Connected accounts can also have popost.ai transcribe speech instead of a local transcriber. It costs credits, so it is used only within a budget the user agreed to:
+
+```bash
+popost video transcript reference.mp4 --quote                  # free: the seconds of sound and the credits
+POPOST_ASR_MAX_CREDITS=N popost video describe reference.mp4 --out ref
+```
+
+`--quote` prints `seconds`, `credits` and `toUse`; show the credits to the user and go on only with their agreement. Set
+`POPOST_ASR_MAX_CREDITS` only for the command that transcribes (`transcript`, `describe`, `readback`, or a spoken fill
+with a voice that gives no word times): it is the most that command may spend, counted down call by call, and a call it
+does not cover is refused before anything is sent. Without it nothing is transcribed and `describe` lists the speech
+under `leftOut`. A render has its own sound: quote it (`popost video transcript final.mp4 --quote`) before a
+`readback` that should hear it. The same sound sent again reuses its finished transcription and is not charged twice.
+A transcriber in `POPOST_ASR_CMD` is used instead whenever it is set. `popost video doctor` shows
+`"transcribe": "POPOST_ASR_MAX_CREDITS"` when the hosted transcriber is ready, and under `hosted` what it still needs.
 
 Each variable holds a command line: the program and its first arguments, split at spaces (so no spaces inside a
 path). The engine adds the arguments below, waits for the command to end, and reads the file it wrote; a non-zero
@@ -257,7 +273,7 @@ under the band). Pointer, boxes and zoom are drawn into the recording, the same 
 |---|---|
 | `doctor`: `ffmpeg was not found` | Install ffmpeg or set `POPOST_FFMPEG` to its path. |
 | `doctor`: a browser message | Install Chrome or Chromium, or set `POPOST_CHROME` to it. |
-| `describe`: `leftOut` lists on-screen text or speech | The reader or transcriber is not set up: the template has no caption or spoken beats. Go on; look at the pictures. |
+| `describe`: `leftOut` lists on-screen text or speech | The reader or transcriber is not set up: the template has no caption or spoken beats. Go on; look at the pictures. With a connected account, `because` may say that only the `POPOST_ASR_MAX_CREDITS` budget is missing: quote it (`transcript --quote`) and ask the user. |
 | `describe`: `while decoding frames for the sheets`, `Error initializing filters`, `Cannot allocate memory` on a longer reference | Earlier video test builds made a deeply nested FFmpeg selection expression. Update to a build with balanced frame selection, rebuild the matching CLI, and retry the same reference. This error alone does not prove missing dependencies or insufficient physical memory. |
 | `template check`: `The fill has N shots; the template has M` | One entry per shot, in order; `template show` lists them. |
 | `template check` / `fill`: a line over its limit or budget | Shorten the line; `fix` gives a shorter version. Do not raise `--pace`. |

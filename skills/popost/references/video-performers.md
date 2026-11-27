@@ -39,13 +39,15 @@ Render checks require the locked clip's audio, in-point, cuts and speed to agree
 
 Use one project-wide speaker profile for a visible host and the voice-over on demonstrations or screen recordings. Register a user-supplied voice with `popost video voice add project --speaker host --file voice-reference.wav`. An existing preset/clone can also be recorded with `--provider-voice ID`. `voices.json` records the actual reference file and hash.
 
-For a connected Popost account, read the live catalog with `popost video voice list`. It includes published official voices and the account's personal voices, with playable preview URLs and clone state. Names and defaults come from the platform; never embed a copied catalog or upstream clone ids in the Skill. Honour the user's chosen voice. Otherwise use `default-male` for a male speaker or `default-female` for a female speaker; without a gender requirement use `default-male`. A missing configured default is an error, not permission to substitute another voice.
+For a connected Popost account, read the live catalog with `popost video voice list`. It includes published official voices and the account's personal voices, with playable preview URLs and clone state; `--scope mine` lists only the personal ones, `--scope official` only the official ones (default `all`). Names and defaults come from the platform; never embed a copied catalog or upstream clone ids in the Skill. Honour the user's chosen voice. Otherwise use `default-male` for a male speaker or `default-female` for a female speaker; without a gender requirement use `default-male`. A missing configured default is an error, not permission to substitute another voice.
 
 ```bash
 popost video voice use project --speaker host --voice default-male
 popost video voice quote --voice default-male --text "Final words"
 popost video voice speak project --speaker host --text "Final words" --out project/assets/line.wav --confirm --max-credits N
 ```
+
+`voice speak` also writes `project/assets/line.wav.words.json` when the platform returns word times (it prints `words`): the time of each Chinese character or Latin word, in seconds from the start of the WAV. `template fill --speak` and `retarget --speak` with a `popost:` voice time the captions word by word with these times, so they need no transcriber for it.
 
 `use` downloads the real preview and binds the platform voice id to the project profile. Official voices are already cloned; personal uploads are cloned on first actual speech use and the platform reuses that mapping afterwards. Listing, selection and quoting do not clone or charge. Show the account, chosen voice, final text and quoted credits before synthesis; use existing authorization that covers this stage and budget without asking again. `--confirm --max-credits N` carries that authorization for `voice speak`. Each request enforces its ceiling; it is not a server-wide project budget. The resulting WAV and receipt are real synthesis results. Use this exact audio for voice-over and visible lip-sync shots.
 
@@ -58,3 +60,15 @@ An available host voice service can be used directly instead: give it the regist
 `--mode native-reference` is an explicit alternative when the video model supports reference-audio timbre conditioning. The materials command supplies the same registered voice sample to each native-speaking request and asks for the new script, not the sample's words. Check both the spoken words and timbre across native and voice-over sections. Reference conditioning is probabilistic; use audio-first when continuity must be strict. The mode is never an automatic fallback after missing voice synthesis or lip sync.
 
 Upload/generation providers keep their own capability checks and fees. Registering a sample does not authorize paid synthesis, clone creation or generation.
+
+## A personal voice from the user's recording
+
+When the user wants their own voice (or a speaker's who agreed), make a personal voice from a recording of that one person speaking clearly, alone and without music:
+
+```bash
+popost video voice create --file recording.m4a --name "Lena" --language en --consent
+```
+
+`--consent` is required and states that the user owns this voice or has the speaker's permission to make a voice of it. Ask the user for that statement in these words; never add `--consent` on your own, and never make a voice of a reference creator, a public figure or anyone else who has not agreed. `--file` is an audio or a video file; its sound becomes the sample: one channel, 16-bit PCM WAV at 24 kHz, 10 to 60 s (a shorter recording is refused; a longer one is cut to 60 s from `--start SECONDS`, default 0), at most 10 MB. `--language` is `zh` or `en`, `--description` an optional note (at most 500 characters), `--name` 1 to 100 characters. The command prints the voice as the catalog lists it (`voice.id`, `cloneState`) and the sample's length. Running the same command again does not make a second voice. The platform refuses with a readable `error` when the plan allows no more personal voices (`VOICE_PLAN_LIMIT`): tell the user, do not retry. The command itself does not charge; speech with the voice is quoted and confirmed like any other.
+
+The new voice appears in `popost video voice list` (and `--scope mine`) and is used exactly like an official one: `voice use project --speaker host --voice <id>`, `voice quote --voice <id>`, `voice speak`, and `popost:<id>` for `plan --voice` and `template fill --speak`.

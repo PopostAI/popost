@@ -29,7 +29,7 @@ import { pictureUrl } from '../scene/pictures';
 import { roughTokens } from '../describe/index';
 import { reflowMeasure, retarget, type RetargetPlan } from '../retarget/index';
 import { speakRetarget, VOICE_FILE, WORDS_FILE } from '../retarget/speak';
-import { commandTranscriber } from '../speech/index';
+import { commandTranscriber, transcriberAbsence } from '../speech/index';
 import type { Transcript } from '../speech/types';
 import { jsonText, loadTemplate } from '../template/save';
 import { FILES, SHOTS_FILE } from '../template/types';
@@ -332,7 +332,7 @@ const readbackCommand = command(
     const errors = errorsIn(r.problems);
     printJson(rt, {
       ok: errors === 0, file, texts: r.lines.length, legible: r.legibleShare,
-      ...(r.heardShare === undefined ? { speechChecked: false, ...(transcriber ? {} : { why: 'POPOST_ASR_CMD is not set' }) } : { speechChecked: true, heard: r.heardShare, meanLag: r.meanLag ?? 0 }),
+      ...(r.heardShare === undefined ? { speechChecked: false, ...(transcriber ? {} : { why: transcriberAbsence(rt) }) } : { speechChecked: true, heard: r.heardShare, meanLag: r.meanLag ?? 0 }),
       lines: r.lines.map((l) => ({ start: l.start, end: l.end, legible: l.legible, ...(l.heardScore === undefined ? {} : { heard: l.heardScore }), ...(l.lag === undefined ? {} : { lag: l.lag }), text: l.text })),
       textSizes: r.shots.filter((s) => s.lines).map((s) => ({ at: s.at, seconds: s.seconds, lines: s.lines, smallest: s.smallest, median: s.median })),
       captionContrast: contrastByShot(r.contrast),

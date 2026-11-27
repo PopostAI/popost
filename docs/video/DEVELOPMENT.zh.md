@@ -114,7 +114,7 @@ npx vite-node skills/popost/src/cli.ts video --help  # 从源码运行 popost vi
 机器和别的工作共用时，重任务一次只跑一个，并降低优先级，例如
 `flock <锁文件> nice -n 10 npm run test:skill`。
 
-环境变量，全部可选：`POPOST_FFMPEG`、`POPOST_CHROME`；`POPOST_OCR_CMD`、`POPOST_ASR_CMD`、`POPOST_TTS_CMD`、`POPOST_TTS_MODEL`（本机读取器和合成器，见 `tools/`）；`POPOST_LLM_URL`、`POPOST_LLM_MODEL`、`POPOST_LLM_KEY`、`POPOST_LLM_JSON`（模型环节用的模型，见 `src/plan/model.ts`；密钥不写进任何文件、日志或测试）；`POPOST_RENDER_PAGES`；`POPOST_VIDEO_DATA`、`POPOST_VIDEO_WORK`。
+环境变量，全部可选：`POPOST_FFMPEG`、`POPOST_CHROME`；`POPOST_OCR_CMD`、`POPOST_ASR_CMD`、`POPOST_TTS_CMD`、`POPOST_TTS_MODEL`（本机读取器和合成器，见 `tools/`）；`POPOST_VOICE_MAX_CREDITS`、`POPOST_ASR_MAX_CREDITS`（连接 popost.ai 账户后，平台配音和转写的积分上限）；`POPOST_LLM_URL`、`POPOST_LLM_MODEL`、`POPOST_LLM_KEY`、`POPOST_LLM_JSON`（模型环节用的模型，见 `src/plan/model.ts`；密钥不写进任何文件、日志或测试）；`POPOST_RENDER_PAGES`；`POPOST_VIDEO_DATA`、`POPOST_VIDEO_WORK`。
 
 ## 5. 评测循环
 

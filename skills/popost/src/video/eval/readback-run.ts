@@ -53,7 +53,7 @@ const hear = async (rt: Runtime, o: { video: string; cacheFile: string; transcri
     const wav = rt.path.join(dir, 'audio.wav');
     o.onStage?.('taking the sound out');
     await runFfmpegOk(rt, ['-y', '-i', o.video, '-vn', '-ac', '1', '-ar', '16000', '-c:a', 'pcm_s16le', wav]);
-    const key = sha256(sha256(await rt.fs.readFile(wav)) + '|' + (o.language ?? '') + '|' + (rt.env.POPOST_ASR_CMD ?? '') + '|' + info.fps);
+    const key = sha256(sha256(await rt.fs.readFile(wav)) + '|' + (o.language ?? '') + '|' + (rt.env.POPOST_ASR_CMD || 'popost.ai') + '|' + info.fps);
     const kept = await rt.fs.readText(o.cacheFile).then((t) => JSON.parse(t) as { format?: string; key?: string; transcript?: Transcript }, () => undefined);
     if (kept?.format === CACHE_FORMAT && kept.key === key && kept.transcript) return { transcript: kept.transcript, reused: true };
     o.onStage?.('the transcriber is listening to ' + info.duration.toFixed(1) + ' s of sound');

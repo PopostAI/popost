@@ -41,11 +41,14 @@ export const registerVoice = async (rt: Runtime, dir: string, id: string, file: 
   const voices=await readVoices(rt,dir);voices.speakers=[...voices.speakers.filter(v=>v.id!==id),profile];
   await rt.fs.writeFile(rt.path.join(dir,'voices.json'),JSON.stringify(voices,null,2));return profile;
 };
-/** One shared cloned/preset voice for visible speakers and voice-over; never substitute an unrelated system voice. */
-export const speakProfile = async (rt: Runtime, dir: string, id: string, text: string, out: string): Promise<void> => {
+/**
+ * One shared cloned/preset voice for visible speakers and voice-over; never substitute an unrelated system voice.
+ * Word times the synthesizer gave (hosted speech does) are kept beside out as <out>.words.json; returns that path.
+ */
+export const speakProfile = async (rt: Runtime, dir: string, id: string, text: string, out: string): Promise<{ words?: string }> => {
   const profile=await voiceProfile(rt,dir,id);
   if (!profile || !text.trim()) throw new Error('Register the speaker and supply the final spoken text.');
-  await withTempDir(rt,'popost-shared-voice-',async temp=>{
+  return withTempDir(rt,'popost-shared-voice-',async temp=>{
     const request=rt.path.join(temp,'request.json'), audio=rt.path.join(temp,'voice.wav');
     await rt.fs.writeFile(request,JSON.stringify({text,speaker:id,referenceAudio:rt.path.resolve(dir,profile.reference),voice:profile.providerVoice}));
     const hosted = profile.providerVoice?.startsWith('popost:');
@@ -55,6 +58,10 @@ export const speakProfile = async (rt: Runtime, dir: string, id: string, text: s
     const bytes=await rt.fs.readFile(audio);await rt.fs.writeFile(out,bytes);
     const provenance = hosted ? JSON.parse(await rt.fs.readText(audio+'.voice.json')) as Record<string,unknown> : {};
     await rt.fs.writeFile(out+'.voice.json',JSON.stringify({...provenance,version:1,speaker:id,text,seconds,voiceReferenceHash:profile.sha256,audioSha256:sha256(bytes),tool: hosted ? 'popost-hosted-voice' : 'POPOST_VOICE_CMD'},null,2));
+    const words=await rt.fs.readFile(audio+'.words.json').catch(()=>undefined);
+    if (!words) { await rt.fs.rm(out+'.words.json'); return {}; }
+    await rt.fs.writeFile(out+'.words.json',words);
+    return { words: out+'.words.json' };
   });
 };
 

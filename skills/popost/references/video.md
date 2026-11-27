@@ -35,7 +35,10 @@ popost video doctor
 - `tools`: `null` means not set up (setting one up: `video-tools.md`; only if the user asks). What each costs:
   - `readText` null: the reference's captions are not read, so the template has no caption beats. Read the words
     off the pictures (step 1) and put them into the scenes (step 5); footage shots stay without words.
-  - `transcribe` null: what the reference says is not read; only its captions make beats.
+  - `transcribe` null: what the reference says is not read; only its captions make beats. With a connected account,
+    `hosted.transcribe` says popost.ai can transcribe for credits: run `popost video transcript reference.mp4 --quote`
+    (free), tell the user the credits, and with their agreement run `describe` with `POPOST_ASR_MAX_CREDITS=<credits>`
+    (`video-tools.md`). `transcribe: "POPOST_ASR_MAX_CREDITS"` means a budget is already set.
   - `speak` null: no voice-over. Leave out `--voice`, `"voice"`, `--speak`, `--keep-length`, `--fit-tempo` and
     `--pace` below; say in the delivery that the video has no voice.
   - `generate` null: no generated clips; use captured pages, the user's files and scenes.

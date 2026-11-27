@@ -3,12 +3,15 @@
  * The transcriber is a command named by POPOST_ASR_CMD, called as: <command> <audio.wav> <out.json> [language]
  *   out.json  { "language": "zh", "words": [{ "text": "...", "start": 1.02, "end": 1.16, "confidence": 0.99 }] }
  * with times in seconds. skills/popost/tools/video/asr-faster-whisper is one such command for the development loop.
+ * Without one, a connected popost.ai account transcribes within a confirmed POPOST_ASR_MAX_CREDITS budget (hosted.ts).
  */
 import type { Runtime } from '../../runtime';
 import { toolCommand, withTempDir } from '../host';
-import { probe, runFfmpegOk } from '../media/ffmpeg';
+import { probe } from '../media/ffmpeg';
+import { speechWav } from '../media/wav';
 import type { OnStage } from '../progress';
 import { runTool, ToolError } from '../tool';
+import { hostedTranscriber, hostedTranscriptionAbsence } from './hosted';
 import type { Phrase, RawTranscript, SpokenWord, Transcriber, Transcript } from './types';
 
 export type { Phrase, RawTranscript, SpokenWord, Transcriber, Transcript } from './types';
@@ -19,11 +22,12 @@ const isRaw = (v: unknown): v is RawTranscript =>
   typeof v === 'object' && v !== null && typeof (v as RawTranscript).language === 'string' && Array.isArray((v as RawTranscript).words);
 
 /**
- * The transcriber behind POPOST_ASR_CMD, or undefined when it is not set (speech is then simply not read). The
- * transcriber runs its command through `rt`, the runtime of the command that asked for it.
+ * The transcriber behind POPOST_ASR_CMD; when it is not set, popost.ai's for a connected account with a confirmed
+ * POPOST_ASR_MAX_CREDITS budget; else undefined (speech is then simply not read). The transcriber runs its command
+ * through `rt`, the runtime of the command that asked for it.
  */
 export const commandTranscriber = (rt: Runtime): Transcriber | undefined => {
-  if (!toolCommand(rt, VARIABLE)) return undefined;
+  if (!toolCommand(rt, VARIABLE)) return hostedTranscriber(rt);
   return {
     transcribe: (file, language) =>
       withTempDir(rt, 'popost-video-asr-', async (dir) => {
@@ -34,6 +38,12 @@ export const commandTranscriber = (rt: Runtime): Transcriber | undefined => {
         return parsed;
       }),
   };
+};
+
+/** Why commandTranscriber gives none, for "leftOut" and errors: POPOST_ASR_CMD is not set, and why popost.ai's is not used. */
+export const transcriberAbsence = (rt: Runtime): string => {
+  const hosted = hostedTranscriptionAbsence(rt);
+  return VARIABLE + ' is not set' + (hosted?.connected ? ', and ' + hosted.why : '');
 };
 
 const CJK = /[\u{3040}-\u{30ff}\u{3400}-\u{9fff}\u{ac00}-\u{d7af}]/u;
@@ -69,7 +79,7 @@ export const transcribe = async (rt: Runtime, video: string, transcriber: Transc
   return withTempDir(rt, 'popost-video-audio-', async (dir) => {
     const wav = rt.path.join(dir, 'audio.wav');
     onStage?.('taking the sound out');
-    await runFfmpegOk(rt, ['-y', '-i', video, '-vn', '-ac', '1', '-ar', '16000', '-c:a', 'pcm_s16le', wav]);
+    await speechWav(rt, video, wav);
     onStage?.('the transcriber is listening to ' + info.duration.toFixed(1) + ' s of sound');
     return toFrames(await transcriber.transcribe(wav, language), info.fps);
   });

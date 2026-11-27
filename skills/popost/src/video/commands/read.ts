@@ -23,7 +23,8 @@ import { projectOf, reviewCompare, roundNext } from '../render/record';
 import { changeWindows } from '../score/project-windows';
 import { readFacts } from '../template/facts';
 import { comparisonScope } from './compare-scope';
-import { commandTranscriber, phrasesOf, transcribe } from '../speech/index';
+import { ASR_BUDGET, quoteVideoSpeech } from '../speech/hosted';
+import { commandTranscriber, phrasesOf, transcribe, transcriberAbsence } from '../speech/index';
 import { synthCase } from '../synth/generate';
 import { writeCase } from '../synth/write';
 import { commandTextReader, cuesOf, readSamples, withCaptionLook, type TextReading, type TextTrack } from '../text/index';
@@ -42,7 +43,7 @@ const PROGRESS_MS = 15_000;
 
 /** Where to get a text reader or a transcriber; skills/popost/tools/video/ has the development loop's. */
 const OCR_HINT = 'set POPOST_OCR_CMD (skills/popost/tools/video/ocr-rapidocr/ocr.py explains one way)';
-const ASR_HINT = 'set POPOST_ASR_CMD (skills/popost/tools/video/asr-faster-whisper/asr.py explains one way)';
+const ASR_HINT = 'set POPOST_ASR_CMD (skills/popost/tools/video/asr-faster-whisper/asr.py explains one way), or, with a connected popost.ai account, price the transcription with popost video transcript <video> --quote and set ' + ASR_BUDGET + ' to the credits the user agreed to';
 
 /** A file the user named, against the working directory; a missing one is an error the user can fix. */
 const inputFile = async (rt: Runtime, typed: string): Promise<string> => {
@@ -136,11 +137,26 @@ const text = command(
 );
 
 const transcript = command(
-  'what is said, word by word, in source frames; needs POPOST_ASR_CMD',
-  { positionals: [VIDEO], options: [outFile('transcript.json'), LANGUAGE] },
+  'what is said, word by word, in source frames; needs a transcriber: POPOST_ASR_CMD, or popost.ai within a confirmed ' + ASR_BUDGET + ' budget (credits; --quote prices it for free)',
+  {
+    positionals: [VIDEO],
+    options: [
+      outFile('transcript.json'), LANGUAGE,
+      { flag: '--quote', kind: 'flag', help: 'transcribe nothing: print the seconds of sound and the credits popost.ai charges to transcribe them (free; needs a connected account)' },
+    ],
+  },
   async (args, rt) => {
+    if (args.flag('quote')) {
+      const video = await inputFile(rt, args.req('video'));
+      const q = await quoteVideoSpeech(rt, video);
+      printJson(rt, {
+        ok: true, video, ...q, charged: 0,
+        ...(q.sound ? { toUse: 'with the user\'s agreement, set ' + ASR_BUDGET + '=' + q.credits + ' (or more) for the command that transcribes this sound (transcript, describe, readback); a transcriber in POPOST_ASR_CMD is used instead while it is set' } : { note: 'The video has no sound: nothing to transcribe.' }),
+      });
+      return;
+    }
     const transcriber = commandTranscriber(rt);
-    if (!transcriber) throw new VideoCommandError('Transcribing needs a transcriber: ' + ASR_HINT + '.');
+    if (!transcriber) throw new VideoCommandError('Transcribing needs a transcriber (' + transcriberAbsence(rt) + '): ' + ASR_HINT + '.');
     const video = await inputFile(rt, args.req('video'));
     const started = Date.now();
     const t = await transcribe(rt, video, transcriber, args.string('language'));
@@ -204,7 +220,7 @@ const describe = command(
     else await rt.fs.rm(rt.path.join(dir, INSET_FILE));
     const leftOut = [
       ...(reader ? [] : [{ part: 'on-screen text', because: 'POPOST_OCR_CMD is not set', toAdd: OCR_HINT }]),
-      ...(transcriber ? [] : [{ part: 'speech', because: 'POPOST_ASR_CMD is not set', toAdd: ASR_HINT }]),
+      ...(transcriber ? [] : [{ part: 'speech', because: transcriberAbsence(rt), toAdd: ASR_HINT }]),
     ];
     printJson(rt, {
       ok: true, dir,

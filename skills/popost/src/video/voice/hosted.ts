@@ -2,6 +2,7 @@ import type { Runtime } from '../../runtime';
 import { sha256 } from '../../core/util';
 import { PopostClient, checkUrl, readCapped } from '../../providers/api';
 import { isRecord } from '../../providers/base';
+import { operationKeyOf, speechAnswerOf } from '../hosted-api';
 import type { Speaker } from './index';
 
 export interface HostedVoice {
@@ -39,21 +40,23 @@ export const downloadVoiceAudio = async (rt: Runtime, url: string, out: string):
   if (tag(0, 4) !== 'RIFF' || tag(8, 12) !== 'WAVE' || bytes.length <= 44) throw new Error('The speech service did not return a WAV recording.');
   await rt.fs.writeFile(out, bytes);
 };
-export const hostedOperationKey = (voiceId: string, text: string, speed: number, out: string): string => {
-  const hex = sha256(JSON.stringify({ voiceId, text, speed, out })).slice(0, 32).split('');
-  hex[12] = '4'; hex[16] = '8';
-  const id = hex.join('');
-  return [id.slice(0,8), id.slice(8,12), id.slice(12,16), id.slice(16,20), id.slice(20)].join('-');
-};
+export const hostedOperationKey = (voiceId: string, text: string, speed: number, out: string): string => operationKeyOf({ voiceId, text, speed, out });
+/**
+ * Speaks text into the WAV at out and returns the credits charged. The platform's word times go beside it, as
+ * <out>.words.json { "words": [{ "text", "start", "end" }] } in seconds from the start of the WAV (speakLines reads
+ * them); an answer without them removes an older file there, so a clip never keeps the words of another.
+ */
 export const hostedSpeech = async (rt: Runtime, voice: HostedVoice, text: string, out: string, maxCredits: number, speed = 1, operationPath = out) => {
   const credits = await quoteHostedVoice(rt, voice.id, text);
   if (!Number.isSafeInteger(maxCredits) || maxCredits < credits) throw new Error('Speech exceeds the confirmed credit budget. Run voice quote and set an explicit budget.');
   const operationKey = hostedOperationKey(voice.id, text, speed, operationPath);
-  const result = await client(rt).request('POST', '/voices/speech', {
+  const result = speechAnswerOf(await client(rt).request('POST', '/voices/speech', {
     body: { voiceId: voice.id, text, operationKey, maxCredits: credits, speed }, ambiguous: true,
-  });
-  if (!isRecord(result) || typeof result.audioUrl !== 'string' || typeof result.chargedCredits !== 'number') throw new Error('Invalid speech response.');
+  }));
   await downloadVoiceAudio(rt, result.audioUrl, out);
+  const words = result.words.map(({ text: t, start, end }) => ({ text: t, start, end }));
+  if (words.length) await rt.fs.writeFile(out + '.words.json', JSON.stringify({ words }, null, 1) + '\n');
+  else await rt.fs.rm(out + '.words.json');
   await rt.fs.writeFile(out + '.voice.json', JSON.stringify({ version: 1, voiceId: voice.id, text, operationKey, audioSha256: sha256(await rt.fs.readFile(out)), tool: 'popost-hosted-voice' }, null, 2));
   return result.chargedCredits;
 };

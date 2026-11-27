@@ -334,7 +334,15 @@ export class PopostClient {
     return { uploadId: ticket.uploadId, fileUrl, sha256: sha, bytes: raw.length, mimeType, fileName };
   }
 
-  private async putBytes(url: string, method: string, headers: Record<string, string>, raw: Uint8Array, fileName: string): Promise<void> {
+  /**
+   * PUTs bytes to an address the platform signed for one upload (the `uploadUrl` of a new voice or a transcription),
+   * with only `Content-Type`: no Authorization and no platform headers. `retry` says what the user can do after a failure.
+   */
+  async putSigned(url: string, raw: Uint8Array, contentType: string, fileName: string, retry: string): Promise<void> {
+    await this.putBytes(checkUrl(url, 'uploadUrl'), 'PUT', { 'Content-Type': contentType }, raw, fileName, retry);
+  }
+
+  private async putBytes(url: string, method: string, headers: Record<string, string>, raw: Uint8Array, fileName: string, retry = msg('try the import again', '请重试导入')): Promise<void> {
     const signal = timeoutSignal(this.rt, Math.max(this.timeoutSec, 120) * 1000);
     let response: Response;
     try {
@@ -342,12 +350,12 @@ export class PopostClient {
       response = await this.rt.fetch(url, { method, headers, body: raw as Uint8Array<ArrayBuffer>, signal });
     } catch (error) {
       const reason = networkReason(error, url);
-      throw new PopostApiError(msg(`Uploading ${fileName} failed (${reason}); try the import again`, `上传 ${fileName} 失败（${reason}），请重试导入`), { code: 'UPLOAD_FAILED' });
+      throw new PopostApiError(msg(`Uploading ${fileName} failed (${reason}); ${retry}`, `上传 ${fileName} 失败（${reason}），${retry}`), { code: 'UPLOAD_FAILED' });
     }
     await response.body?.cancel().catch(() => undefined);
     if (!response.ok)
       throw new PopostApiError(
-        msg(`The storage service refused the upload of ${fileName} (HTTP ${response.status}); try the import again`, `上传 ${fileName} 被存储服务拒绝（HTTP ${response.status}），请重试导入`),
+        msg(`The storage service refused the upload of ${fileName} (HTTP ${response.status}); ${retry}`, `上传 ${fileName} 被存储服务拒绝（HTTP ${response.status}），${retry}`),
         { code: 'UPLOAD_FAILED', status: response.status },
       );
   }
