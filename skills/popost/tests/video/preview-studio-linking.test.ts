@@ -41,6 +41,7 @@ describe.skipIf(!chrome)('Studio linked selection and cloud controls (Chrome)',(
   const source=async()=> (await (await page.request.get(preview.url+'api/state')).json()).source;
   await expect.poll(async()=> (await source()).segments[0].base.slots.title,{timeout:10000}).toBe('Edited scene title');
   await expect.poll(()=>page.locator('#slot-inspector textarea').inputValue(),{timeout:10000}).toBe('Edited scene title');
+  await expect.poll(()=>page.locator('#timeline-selection').textContent(),{timeout:10000}).toBe('Edited scene title');
   expect(await pinned()).toEqual({kind:'slot',id:'scene',name:'title'});
   await page.locator('#edit-undo').click();
   await expect.poll(()=>page.locator('#slot-inspector textarea').inputValue(),{timeout:10000}).toBe('Late title');

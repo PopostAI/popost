@@ -51,5 +51,5 @@ export const mountStudioTimeline = (root: HTMLElement, store: Store, edit: EditA
     selection.textContent = picked ? picked.kind === 'slot' ? field?.kind==='image'?(zh?'图片':'Image'):field?.value??copy(store,'selected') : item?.text ?? (target?.kind === 'segment' ? (zh?'镜头 ':'Shot ')+(target.index+1) : picked.kind === 'audio' ? copy(store,'audioTrack') : copy(store,'selected')) : (zh ? '点选镜头或画面内容进行编辑' : 'Select a shot or canvas element to edit');
     selection.title = selection.textContent;
   };
-  store.subscribe((v,prev)=>{if(v.state!==prev.state||v.pinned!==prev.pinned||v.timeline!==prev.timeline||v.frame!==prev.frame||v.edit.saving!==prev.edit.saving)draw();}); draw();
+  store.subscribe((v,prev)=>{if(v.state!==prev.state||v.pinned!==prev.pinned||v.timeline!==prev.timeline||v.slots!==prev.slots||v.frame!==prev.frame||v.edit.saving!==prev.edit.saving)draw();}); draw();
 };
