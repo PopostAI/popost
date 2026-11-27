@@ -46,8 +46,8 @@ export const main: CommandMain = (argv, rt) =>
       parse: {
         spec: {
           description: msg(
-            'Have popost.ai parse a social post link (X, Instagram, TikTok, Douyin, Xiaohongshu), wait for the result, download the pictures and write a PostBundle (postbundle.v1). Get the live price with link quote first, then submit with --confirm --max-credits N, the ceiling the user authorized; the actual net charge is task.chargedCredits; a link already saved is reused without a new charge. The parsed post is also saved to My Inspirations.',
-            '让 popost.ai 解析一条社媒帖子链接（X、Instagram、TikTok、抖音、小红书），等待结果，把图片下载到本地并写出 PostBundle（postbundle.v1）。先 link quote 查询动态价格，再带 --confirm --max-credits N 按已授权上限提交；实际净扣见 task.chargedCredits；已保存过的链接直接复用、不再扣。解析结果同时存入「我的灵感」。',
+            'Have popost.ai parse a social post link (X, Instagram, TikTok, Douyin, Xiaohongshu, YouTube; a YouTube video gives its cover, title, description and tags, not the video file), wait for the result, download the pictures and write a PostBundle (postbundle.v1). Get the live price with link quote first, then submit with --confirm --max-credits N, the ceiling the user authorized; the actual net charge is task.chargedCredits; a link already saved is reused without a new charge. The parsed post is also saved to My Inspirations.',
+            '让 popost.ai 解析一条社媒帖子链接（X、Instagram、TikTok、抖音、小红书、YouTube；YouTube 视频给出封面、标题、简介和标签，不含视频文件），等待结果，把图片下载到本地并写出 PostBundle（postbundle.v1）。先 link quote 查询动态价格，再带 --confirm --max-credits N 按已授权上限提交；实际净扣见 task.chargedCredits；已保存过的链接直接复用、不再扣。解析结果同时存入「我的灵感」。',
           ),
           positionals: [{ name: 'url', help: msg('the post link (http/https)', '帖子链接（http/https）') }],
           options: [

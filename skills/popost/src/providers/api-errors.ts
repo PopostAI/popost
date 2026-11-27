@@ -46,8 +46,8 @@ const message = (code: string | undefined, d: Record<string, unknown>, keyEnv: s
       return msg('popost.ai cannot find the requested resource (check the baseUrl, the model or the object id)', 'popost.ai 找不到请求的资源（检查 baseUrl、模型或对象 id）');
     case 'LINK_UNSUPPORTED':
       return msg(
-        'popost.ai does not support this link: only post links from X, Instagram, TikTok, Douyin and Xiaohongshu are supported (no task was created, no credits were charged)',
-        'popost.ai 不支持这个链接：只支持 X、Instagram、TikTok、抖音、小红书的帖子链接（未建任务，未扣积分）',
+        'popost.ai does not support this link: only post links from X, Instagram, TikTok, Douyin, Xiaohongshu and YouTube are supported (no task was created, no credits were charged)',
+        'popost.ai 不支持这个链接：只支持 X、Instagram、TikTok、抖音、小红书、YouTube 的帖子链接（未建任务，未扣积分）',
       );
     case 'LINK_IMPORT_NOT_FOUND':
       return msg('popost.ai cannot find this parsing task (the id is wrong, or the task belongs to another account)', 'popost.ai 找不到这个解析任务（id 有误，或不是当前账户的任务）');

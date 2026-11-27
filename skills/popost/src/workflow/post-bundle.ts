@@ -1,5 +1,5 @@
 /**
- * Unified PostBundle for the five platforms, `postbundle.v1` (port of `post_bundle.py`). Pure local, no network:
+ * Unified PostBundle for the source platforms (the five creation platforms plus YouTube), `postbundle.v1` (port of `post_bundle.py`). Pure local, no network:
  * - a pending ticket only records the source URL and platform; nothing is fetched or parsed, and a bundle stays at
  *   `parseStatus=pending` until a real parser fills it in. It is never faked into `ready`;
  * - `validateBundle` checks the structure of a bundle the user supplies;
@@ -13,7 +13,7 @@ import { fromCwd } from './io';
 import { ValueError } from './errors';
 
 export const SCHEMA = 'postbundle.v1';
-export const PLATFORMS = ['tiktok', 'xiaohongshu', 'instagram', 'douyin', 'x'] as const;
+export const PLATFORMS = ['tiktok', 'xiaohongshu', 'instagram', 'douyin', 'x', 'youtube'] as const;
 export const PARSE_STATUSES = ['pending', 'ready', 'auth_failed', 'missing_resources', 'error'] as const;
 export const RESOURCE_KINDS = ['image', 'video', 'music'] as const;
 
@@ -44,6 +44,7 @@ export const PLATFORM_HOSTS: Readonly<Record<Platform, readonly string[]>> = {
   xiaohongshu: ['xiaohongshu.com', 'xhslink.com'],
   instagram: ['instagram.com'],
   x: ['x.com', 'twitter.com'],
+  youtube: ['youtube.com', 'youtu.be', 'youtube-nocookie.com'],
 };
 
 const hostOf = (url: string): string | null => {

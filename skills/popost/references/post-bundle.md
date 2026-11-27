@@ -36,7 +36,7 @@ inspiration import --file bundle.json [--note "为什么收藏"] [--dry-run] [--
 
 ## 解析帖子链接（link parse）
 
-`popost link parse <URL>` 让 popost.ai 把五个平台之一的帖子链接解析成图片和文字，等到结果，把图片下载到本地，并写出 PostBundle。需要先连接账户（运行 `popost auth login`；开发者也可使用环境变量 `POPOST_API_KEY` 或 `popost auth set` 保存的 Key；凭据与地址同官方通道，见 [providers.md](providers.md)）；没有 Key 时仍走上面的 `ticket` 和本地参考。Before submission run `link quote` for the current tariff and show the stage ceiling. Obtain fee authorization, then pass `--confirm --max-credits N`. The server rechecks the actual deduction against N; saved/active results may cost less. `task.chargedCredits` is the current net actual charge, not an advance quote. If the pricing service is unavailable, do not guess a price or parse to find it; use local reference images.
+`popost link parse <URL>` 让 popost.ai 把 X、Instagram、TikTok、抖音、小红书、YouTube 之一的帖子链接解析成图片和文字（YouTube 视频只有封面一张图，加标题、简介和标签，不含视频文件），等到结果，把图片下载到本地，并写出 PostBundle。需要先连接账户（运行 `popost auth login`；开发者也可使用环境变量 `POPOST_API_KEY` 或 `popost auth set` 保存的 Key；凭据与地址同官方通道，见 [providers.md](providers.md)）；没有 Key 时仍走上面的 `ticket` 和本地参考。Before submission run `link quote` for the current tariff and show the stage ceiling. Obtain fee authorization, then pass `--confirm --max-credits N`. The server rechecks the actual deduction against N; saved/active results may cost less. `task.chargedCredits` is the current net actual charge, not an advance quote. If the pricing service is unavailable, do not guess a price or parse to find it; use local reference images.
 
 ```text
 link quote [--config PRIVATE_CONFIG]

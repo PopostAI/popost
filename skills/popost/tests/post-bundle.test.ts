@@ -35,7 +35,7 @@ describe('pending ticket', () => {
     expect((ticket.errors as string[])[0]).toContain('parse service pending');
     expect(ticket.missing).toEqual(['title', 'body', 'resources']);
     expect(ticket.createdAt).toBe('2026-11-05T00:00:00+00:00');
-    expect(() => bundles.makePendingTicket(rt, 'https://x.com', 'wechat')).toThrow("platform must be one of tiktok/xiaohongshu/instagram/douyin/x, got 'wechat'");
+    expect(() => bundles.makePendingTicket(rt, 'https://x.com', 'wechat')).toThrow("platform must be one of tiktok/xiaohongshu/instagram/douyin/x/youtube, got 'wechat'");
     expect(() => bundles.makePendingTicket(rt, '  ', 'x')).toThrow('sourceURL must not be empty');
   });
 
@@ -57,6 +57,9 @@ describe('pending ticket', () => {
       ['https://www.iesdouyin.com/share/note/1', 'douyin'],
       ['https://www.instagram.com/p/x/', 'instagram'],
       ['https://twitter.com/a/status/1', 'x'],
+      ['https://www.youtube.com/watch?v=AbCdEfGhIj0', 'youtube'],
+      ['https://youtu.be/AbCdEfGhIj0', 'youtube'],
+      ['https://m.youtube.com/shorts/AbCdEfGhIj0', 'youtube'],
     ];
     for (const [url, platform] of links) expect(bundles.makePendingTicket(rt, url, platform).platform).toBe(platform);
     expect(() => bundles.makePendingTicket(rt, 'https://www.tiktok.com/@a/video/1', 'douyin')).toThrow(
@@ -105,7 +108,7 @@ describe('validate', () => {
       missing: [1],
     });
     expect(bundles.validateBundle(bad)[1]).toEqual([
-      "platform must be one of tiktok/xiaohongshu/instagram/douyin/x, got 'wechat'",
+      "platform must be one of tiktok/xiaohongshu/instagram/douyin/x/youtube, got 'wechat'",
       'sourceURL must be a non-empty string',
       'parseStatus must be one of pending/ready/auth_failed/missing_resources/error',
       'title must be a string',

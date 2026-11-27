@@ -1,6 +1,6 @@
 /**
  * `popost link parse|status`: asks the popost.ai platform to parse a social post link (X, Instagram, TikTok, Douyin,
- * Xiaohongshu) into pictures and text, waits for the result, downloads the pictures and writes a PostBundle.
+ * Xiaohongshu, YouTube) into pictures and text, waits for the result, downloads the pictures and writes a PostBundle.
  *
  * - `parse`: `POST /links/parse` creates the task (this is the call that can charge credits; the amount is the
  *   platform's and is only ever shown as `task.chargedCredits` from its answer). Its outcome may be unknown (timeout,

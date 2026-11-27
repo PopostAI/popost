@@ -226,6 +226,21 @@ describe('link parse', () => {
     await noKey(t);
   });
 
+  it('parses a YouTube video into a one-picture bundle the rest of the Skill accepts', async () => {
+    const youtube = 'https://www.youtube.com/watch?v=AbCdEfGhIj0';
+    const post = postOf(['pic1.png'], { platform: 'youtube', sourceUrl: youtube, title: 'Morning routine', tags: ['morning'] });
+    const t = await linkScene({ post });
+    const { code, data } = await t.run('parse', youtube);
+    expect(code, JSON.stringify(data)).toBe(0);
+    expect(data).toMatchObject({ ok: true, post: { platform: 'youtube', sourceUrl: youtube, imageCount: 1 } });
+    const bundle = JSON.parse(await t.rt.fs.readText(`${OUT}/postbundle.json`));
+    expect(validateBundle(bundle)).toEqual([true, []]);
+    expect(bundle).toMatchObject({ platform: 'youtube', sourceURL: youtube, title: 'Morning routine', parseStatus: 'ready', pageOrder: [1] });
+    const plan = await cli(t.rt, 'inspiration', 'import', '--file', `${OUT}/postbundle.json`, '--dry-run');
+    expect(plan.code, JSON.stringify(plan.data)).toBe(0);
+    expect(plan.data.request.body).toMatchObject({ platform: 'youtube', sourceUrl: youtube });
+  });
+
   it('sends the note, and falls back to the link the user gave when the post names no source', async () => {
     const t = await linkScene({ post: postOf(['pic1.png'], { sourceUrl: undefined, note: undefined }) });
     const { code, data } = await t.run('parse', ` ${LINK} `, '--note', ' 参考配色 ', '--out', 'saved/post');

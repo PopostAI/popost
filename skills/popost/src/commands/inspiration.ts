@@ -22,8 +22,8 @@ export const main: CommandMain = (argv, rt) =>
       add: {
         spec: {
           description: msg(
-            "Save a TikTok, Douyin, X, Xiaohongshu or Instagram post URL to the current account's My Inspirations. Check inspiration quote first, then submit with an authorized credit ceiling. Reused links do not charge again.",
-            '把 TikTok、抖音、X、小红书或 Instagram 的帖子链接存入当前账号的「我的灵感」。先用 inspiration quote 查询价格，再带用户授权的积分上限提交。已保存过的链接不会再次扣费。',
+            "Save a TikTok, Douyin, X, Xiaohongshu, Instagram or YouTube post URL to the current account's My Inspirations. Check inspiration quote first, then submit with an authorized credit ceiling. Reused links do not charge again.",
+            '把 TikTok、抖音、X、小红书、Instagram 或 YouTube 的帖子链接存入当前账号的「我的灵感」。先用 inspiration quote 查询价格，再带用户授权的积分上限提交。已保存过的链接不会再次扣费。',
           ),
           positionals: [{ name: 'url', help: msg('Public post URL (http/https)', '公开帖子链接（http/https）') }],
           options: [

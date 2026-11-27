@@ -79,7 +79,7 @@ const validPublishedAt = (value: unknown): string | null => {
 /** The post of a succeeded task. `fallbackUrl` (the link the user gave) stands in for a missing `sourceUrl`. */
 export const planPost = (post: JsonRecord, fallbackUrl: string | undefined, note: string | undefined): PostPlan => {
   if (!(PLATFORMS as readonly unknown[]).includes(post.platform))
-    throw badResponse(msg('the platform of the parsed result is not one of X, Instagram, TikTok, Douyin, Xiaohongshu', '解析结果的 platform 不是 X、Instagram、TikTok、抖音、小红书之一'));
+    throw badResponse(msg('the platform of the parsed result is not one of X, Instagram, TikTok, Douyin, Xiaohongshu, YouTube', '解析结果的 platform 不是 X、Instagram、TikTok、抖音、小红书、YouTube 之一'));
   const sourceUrl = [text(post.sourceUrl), fallbackUrl ?? ''].find((u) => /^https?:\/\//.test(u));
   if (!sourceUrl) throw badResponse(msg('the parsed result has no sourceUrl', '解析结果缺少 sourceUrl'));
   const serverNote = text(post.note) || (note ?? '').trim();
