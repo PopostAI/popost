@@ -23,7 +23,8 @@ export const openExport = (store: Store, edit: EditActions): void => {
  const body=h('fieldset',{class:'studio-export-fields'});
  const tabs=h('div',{class:'studio-segments export-tabs',attrs:{role:'tablist'}});
  const dialog=h('aside',{id:'studio-export',class:'studio-export',attrs:{role:'dialog','aria-modal':'true','aria-label':text('导出设置','Export settings')}});
- const close=():void=>{if(drafting)return;unsubscribe();scrim.remove();dialog.remove();document.getElementById('studio-export-open')?.focus();};
+ const close=():void=>{if(drafting)return;document.removeEventListener('keydown',keys,true);unsubscribe();scrim.remove();dialog.remove();document.getElementById('studio-export-open')?.focus();};
+ const keys=(e:KeyboardEvent):void=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();close();}};
  const scrim=h('div',{class:'studio-scrim',on:{click:close}});
  const choose=(values:[string,string][],value:string,change:(value:string)=>void):HTMLElement=>h('div',{class:'studio-segments'},values.map(([id,label])=>{
   const b=button(label,()=>change(id),id===value?'selected':'');b.setAttribute('aria-pressed',String(id===value));return b;
@@ -86,5 +87,5 @@ export const openExport = (store: Store, edit: EditActions): void => {
  void request<{premium:boolean;pricingUrl?:string}>('/api/export-options').then(a=>{premium=a.premium;pricingUrl=a.pricingUrl??pricingUrl;drawBody();draw();}).catch(()=>undefined);
  void request<{result:{applications:(DraftApplication & {error?:string})[]}}>('/api/studio/draft-targets',{}).then(a=>{applications=a.result.applications;drawBody();draw();}).catch(error=>{applications=[];result.replaceChildren(note(String(error),'bad'));drawBody();draw();});
  const unsubscribe=store.subscribe((v,prev)=>{if(dialog.isConnected&&v.edit.render!==prev.edit.render)draw();});
- dialog.addEventListener('keydown',e=>{if(e.key==='Escape')close();});submit.focus();
+ document.addEventListener('keydown',keys,true);submit.focus();
 };

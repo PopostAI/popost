@@ -4,6 +4,7 @@
  * always by whole pixels of the canvas, with the numbers shown while dragging. One operation is sent when the pointer
  * is released, so undo takes back the whole drag. While dragging, the item in the page is moved too, as a preview.
  */
+import { mountInlineEdit } from './inline';
 import type { Store, View } from '../app';
 import { h, placeBox } from '../dom';
 import { slotFrame, visibleSlots } from '../studio/scene-selection';
@@ -133,8 +134,10 @@ export const mountStageEdit = (frameBox: HTMLElement, iframe: HTMLIFrameElement,
   const ui: Ui = { layer: h('div', { class: 'edit-layer', id: 'edit-layer' }, [sel, readout]), sel, readout };
   ui.layer.append(slotOutline);
   frameBox.append(ui.layer);
+  mountInlineEdit(frameBox,iframe,store,edit);
   const page = pagePreview(iframe, store);
   let drag: Drag | undefined;
+  let tap: {time:number;x:number;y:number} | undefined;
   let pending: { box: Box4; target: Target } | undefined;
   let timer: ReturnType<typeof setTimeout> | undefined;
   let revealPending = true;
@@ -144,7 +147,7 @@ export const mountStageEdit = (frameBox: HTMLElement, iframe: HTMLIFrameElement,
     if(picked?.kind==='slot'&&revealPending&&document.body.dataset.ready==='1'){
       revealPending=false;const frame=slotFrame(iframe,store,picked);if(frame===undefined){edit.select(null);return;}if(frame!==v.frame){edit.reveal(picked,frame);return;}
     }
-    slotOutline.hidden=!slot;if(slot){placeBox(slotOutline,slot.box);slotOutline.firstElementChild!.textContent=slot.value.slice(0,40);}
+    slotOutline.hidden=!slot;if(slot){placeBox(slotOutline,slot.box);slotOutline.firstElementChild!.textContent=slot.image?(v.lang==='zh'?'图片':'Image'):slot.value.slice(0,40);}
   };
   const commit = (t: Target, box: Box4): void => {
     const path = boxPath(t);
@@ -162,7 +165,12 @@ export const mountStageEdit = (frameBox: HTMLElement, iframe: HTMLIFrameElement,
   };
 
   ui.layer.addEventListener('pointerdown', (e) => {
-    if (e.button !== 0 || !store.get().state?.resolved) return;
+    if (e.button !== 0 || !store.get().state?.resolved || store.get().edit.saving || (e.target as HTMLElement).closest('#stage-text-editor')) return;
+    const picked=store.get().pinned;
+    const text=picked?.kind==='slot'?visibleSlots(iframe,store).some(s=>s.selection.id===picked.id&&s.selection.name===picked.name&&!s.image):picked?.kind==='item'&&store.get().state?.resolved?.items.some(it=>it.id===picked.id&&it.type==='text');
+    if(text && tap && performance.now()-tap.time<450 && Math.hypot(e.clientX-tap.x,e.clientY-tap.y)<6 && !(e.target as HTMLElement).closest('.handle')){
+      tap=undefined;frameBox.dispatchEvent(new Event('studio:inline-edit'));e.preventDefault();return;
+    }
     // A field being typed in commits when it loses the focus; preventDefault below would keep the focus where it is.
     if (document.activeElement instanceof HTMLElement && document.activeElement !== document.body) document.activeElement.blur();
     const handle = (e.target as HTMLElement).closest<HTMLElement>('.handle')?.dataset.h as Drag['mode'] | undefined;
@@ -171,7 +179,7 @@ export const mountStageEdit = (frameBox: HTMLElement, iframe: HTMLIFrameElement,
       if (!id) {
         const rect=frameBox.getBoundingClientRect();const x=(e.clientX-rect.left)/rect.width,y=(e.clientY-rect.top)/rect.height;
         const slot=visibleSlots(iframe,store).reverse().find(s=>x>=s.box[0]&&x<=s.box[0]+s.box[2]&&y>=s.box[1]&&y<=s.box[1]+s.box[3]);
-        if(slot){edit.select(slot.selection);e.preventDefault();return;}
+        if(slot){edit.select(slot.selection);tap={time:performance.now(),x:e.clientX,y:e.clientY};e.preventDefault();return;}
       }
       edit.select(id ? { kind: 'item', id } : null);
       if (!id) return;
@@ -189,10 +197,12 @@ export const mountStageEdit = (frameBox: HTMLElement, iframe: HTMLIFrameElement,
     const { W, H } = canvasOf(store.get());
     show(drag.target, draggedBox(drag, (e.clientX - drag.x0) / rect.width, (e.clientY - drag.y0) / rect.height, W, H, e.shiftKey));
   });
-  const end = (): void => {
+  const end = (event: PointerEvent): void => {
+    if(event.type==='pointercancel'){drag=undefined;pending=undefined;tap=undefined;page.restore();draw();return;}
     const d = drag;
     drag = undefined;
-    if (d?.moved && pending) commit(d.target, pending.box);
+    if(d && !d.moved) tap={time:performance.now(),x:d.x0,y:d.y0};
+    if (d?.moved && pending) { tap=undefined;commit(d.target, pending.box); }
     draw();
   };
   ui.layer.addEventListener('pointerup', end);

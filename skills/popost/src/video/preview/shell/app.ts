@@ -12,6 +12,8 @@ export interface Overlays { boxes: boolean; events: boolean; safe: boolean }
 
 export interface View {
   compare?: boolean;
+  timeline?: { layers: boolean; snapping: boolean };
+  slots?: import('../studio-data').SceneSlot[];
   muted?: boolean;
   state: PreviewState | null;
   frame: number;
@@ -36,6 +38,7 @@ export type EditStatus =
   | { kind: 'note'; key: 'phraseSpan' | 'offline' };
 
 export interface EditView {
+  saving?: boolean;
   /** The schemas of GET /api/schema; null until loaded, and always in the read-only preview. */
   schema: Schemas | null;
   status: EditStatus | null;

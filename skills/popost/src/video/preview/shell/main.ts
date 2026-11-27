@@ -23,7 +23,7 @@ const boot = (): void => {
  document.body.classList.add('studio');
  const savedLayout = localStorage.getItem('popost-studio-layout');
  if (savedLayout && /^[-a-z0-9:;. %px]+$/i.test(savedLayout)) document.documentElement.style.cssText = savedLayout;
- const store = createStore({ state: null, frame: 0, playing: false, speed: 1, lang, pinned: null, compare: false, muted: false,
+ const store = createStore({ state: null, frame: 0, playing: false, speed: 1, lang, pinned: null, compare: false, muted: false, timeline: { layers: false, snapping: true },
   overlays: { boxes: false, events: false, safe: false }, connected: true, pageError: null, edit: NO_EDIT });
  const actions = createActions(store); const edit = createEditActions(store, actions);
  const app = document.getElementById('app') ?? document.body;
@@ -50,7 +50,7 @@ const boot = (): void => {
    store.set({ state, frame: clampFrame(previous.frame, timelineFrames(state)), connected: true });
    if (state.edit && !editing) {
     editing = true; document.body.classList.add('editing');
-    mountToolbar(document.getElementById('edit-slot')!, store, edit); const remove=document.getElementById('edit-delete');if(remove)document.getElementById('edit-split')?.after(remove); mountStatus(panel, store, edit);
+    mountToolbar(document.getElementById('edit-slot')!, store, edit); mountStatus(panel, store, edit);
     const stageEdit = mountStageEdit(stageParts.frameBox, stageParts.iframe, store, edit);
     mountLanesEdit(timeline.querySelector<HTMLElement>('#lanes') ?? timeline, store, edit); editKeys(store, edit, stageEdit.nudge); keepSelection(store);
     const kept = storedSelection(state); if (kept) edit.select(kept);

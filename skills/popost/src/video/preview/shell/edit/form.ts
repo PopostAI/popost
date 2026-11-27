@@ -36,7 +36,7 @@ const styleSection = (ctx: FormCtx, base: Path, style: unknown, resolved: Resolv
   const schema = prop(ctx.schema.text, 'style');
   const names = choices(schema);
   const own = isObj(style) ? style : undefined;
-  const edge=Math.min(ctx.state.resolved?.canvas.width??1,ctx.state.resolved?.canvas.height??1);
+  const edge=ctx.state.resolved?.canvas.height??1;
   const size:Field={kind:'number',label:ctx.lang==='zh'?'字号（px）':'Font size (px)',path:[...at,'size'],value:Math.round(Number(own?.size??resolved?.size??.05)*edge),step:1,range:{min:1,max:edge,integer:true},commit:v=>put('size')(v===undefined?undefined:Number(v)/edge)};
   const put = (key: string) => (v: unknown): void => {
     const next = Object.fromEntries(Object.entries({ ...styleObject(style), [key]: v }).filter(([, x]) => x !== undefined));
@@ -48,10 +48,11 @@ const styleSection = (ctx: FormCtx, base: Path, style: unknown, resolved: Resolv
   } as Field);
   const named: Field = {
     kind: 'select', label: 'fNamed', path: at, value: typeof style === 'string' ? style : own ? CUSTOM : undefined, options: [...names, CUSTOM],
-    labels: { [CUSTOM]: t(ctx.lang, 'fCustom') },
+    labels: { [CUSTOM]: t(ctx.lang, 'fCustom'), ...(ctx.lang === 'zh' ? {headline:'标题',subtitle:'副标题',label:'标签',caption:'字幕'} : {}) },
     commit: (v) => ctx.set(at, v === CUSTOM ? styleObject(style) : v),
   };
-  return section(t(ctx.lang, 'fStyle'), [[named, size], [field('color', 'color', { label: 'fColour' }), field('weight', 'number', { step: 100 }), field('align', 'select')]], ctx);
+  const font = field('font','select',{value:own?.font ?? resolved?.font,options:[...new Set([String(own?.font ?? resolved?.font ?? 'sans-serif'),...materialsOf(ctx.state,['font']),'sans-serif','serif','monospace'])],label:ctx.lang==='zh'?'字体':'Font',wide:true});
+  return section(t(ctx.lang, 'fStyle'), [[font],[named, size], [field('color', 'color', { label: 'fColour' }), field('weight', 'number', { step: 100 }), field('align', 'select', { labels: ctx.lang === 'zh' ? {left:'左对齐',center:'居中',right:'右对齐'} : {} })]], ctx);
 };
 
 const DIRECTED_MOTION = new Set(['slide', 'wipe']);
@@ -81,7 +82,7 @@ const boxSection = (ctx: FormCtx, base: Path, item: ResolvedItem | undefined): H
   const c = ctx.state.resolved?.canvas;
   const px = item && c ? [item.box[0] * c.width, item.box[1] * c.height, item.box[2] * c.width, item.box[3] * c.height].map((v) => Math.round(v)).join(', ') + ' px' : '';
   const coords = (['fX', 'fY', 'fW', 'fH'] as const).map((label, i) => { const path:Path=[...base,'box',i];const edge=i%2===0?c?.width??1:c?.height??1;return num(ctx,path,label,undefined,{step:1,value:Math.round(Number(valueAt(ctx.state.source,path)??0)*edge),commit:v=>ctx.commit(path,Number(v)/edge)}); });
-  return section(t(ctx.lang, 'fBox'), [coords], ctx, px ? [h('div', { class: 'hint', text: px })] : []);
+  return section(ctx.lang === 'zh' ? '位置与尺寸（px）' : 'Position and size (px)', [coords], ctx, px ? [h('div', { class: 'hint', text: px })] : []);
 };
 
 const lookSection = (ctx: FormCtx, base: Path, schema: JsonSchema | undefined): HTMLElement =>
@@ -104,8 +105,11 @@ const contentSection = (ctx: FormCtx, base: Path, track: Obj, item: ResolvedItem
   return section(t(ctx.lang, type === 'video' ? 'fFootage' : 'fPicture'), [[material, fit], [radius, mask, ...play]], ctx);
 };
 
-const textSection = (ctx: FormCtx, base: Path): HTMLElement =>
-  section(t(ctx.lang, 'fText'), [[{ kind: 'textarea', label: 'fText', path: [...base, 'text'], value: valueAt(ctx.state.source, [...base, 'text']) }]], ctx);
+const textSection = (ctx: FormCtx, base: Path): HTMLElement => {
+  const result = section(t(ctx.lang, 'fText'), [[{ kind: 'textarea', label: ctx.lang === 'zh' ? '内容' : 'Content', path: [...base, 'text'], value: valueAt(ctx.state.source, [...base, 'text']) }]], ctx);
+  result.querySelector('legend')?.remove();
+  return result;
+};
 
 const audioSection = (ctx: FormCtx, base: Path, track: Obj): HTMLElement => {
   const during = isObj(track.during) ? track.during : undefined;
@@ -130,15 +134,15 @@ const trackForm = (ctx: FormCtx, target: Extract<Target, { kind: 'track' | 'cue'
   const id = String(track.id);
   if (type === 'caption') {
     const first = resolvedItem(ctx.state, id + '#' + (target.kind === 'cue' ? target.cue : 0));
-    return [cuesSection(ctx, target),boxSection(ctx, base, first), styleSection(ctx, base, track.style, first?.style), motionSection(ctx, base, 'enter', track.enter, first?.enter), motionSection(ctx, base, 'exit', track.exit, first?.exit)];
+    return [cuesSection(ctx, target),styleSection(ctx, base, track.style, first?.style), boxSection(ctx, base, first), motionSection(ctx, base, 'enter', track.enter, first?.enter), motionSection(ctx, base, 'exit', track.exit, first?.exit)];
   }
   const item = resolvedItem(ctx.state, id);
   const schema = ctx.schema[type === 'text' ? 'text' : type === 'image' ? 'image' : type === 'video' ? 'video' : 'shape'];
   return [
     ...(type === 'text' ? [textSection(ctx, base)] : []),
-    boxSection(ctx, base, item),
-    whenSection(ctx, [...base, 'during'], track.during, item),
     ...(type === 'text' ? [styleSection(ctx, base, track.style, item?.style)] : [contentSection(ctx, base, track, item)].filter((x): x is HTMLElement => x !== null)),
+    whenSection(ctx, [...base, 'during'], track.during, item),
+    boxSection(ctx, base, item),
     motionSection(ctx, base, 'enter', track.enter, item?.enter),
     motionSection(ctx, base, 'exit', track.exit, item?.exit),
     lookSection(ctx, base, schema),
@@ -150,6 +154,6 @@ export const editForm = (ctx: FormCtx, target: Target): HTMLElement => {
   const title = target.kind === 'segment' ? t(ctx.lang, 'fSegment') + ' ' + String(target.segment.id) : String(target.track.type) + ' ' + String(target.track.id) + (target.kind === 'cue' ? ' #' + target.cue : '');
   const parts = target.kind === 'segment' ? segmentSections(ctx, target) : trackForm(ctx, target);
   const friendly=target.kind==='segment'?(ctx.lang==='zh'?'画面 '+(target.index+1):'Scene '+(target.index+1)):target.kind==='cue'?(ctx.lang==='zh'?'字幕 '+(target.cue+1):'Subtitle '+(target.cue+1)):(ctx.lang==='zh'?({text:'文字',image:'图片',video:'视频',audio:'音频',shape:'形状'}[String(target.track.type)]??'元素'):String(target.track.type));
-  const essential=target.kind==='cue'?3:target.kind==='segment'?1:target.track.type==='text'?4:3;
-  return h('div', { class: 'form', id: 'edit-form' }, [h('div', { class: 'sel-title', text: friendly, title }), ...parts.slice(0,essential), ...(parts.length>essential?[h('details',{},[h('summary',{text:ctx.lang==='zh'?'更多设置':'More settings'}),...parts.slice(essential)])]:[])]);
+  const essential=target.kind==='cue'?2:target.kind==='segment'?1:target.track.type==='text'?2:1;
+  return h('div', { class: 'form', id: 'edit-form' }, [h('div', { class: 'sel-title', text: friendly, title }), ...parts.slice(0,essential), ...(parts.length>essential?[h('details',{},[h('summary',{text:ctx.lang==='zh'?'位置、时间与动效':'Position, timing and motion'}),...parts.slice(essential)])]:[])]);
 };

@@ -180,7 +180,8 @@ export const loadAll = async (rt: Runtime, o: SourceOptions, generation: number)
   };
   const fixed = [PROJECT_FILE, NOTES_FILE, ...RENDER_MEASURE_NAMES, ...REFERENCE_MEASURE_NAMES].map((n) => rt.path.join(dir, n));
   const given = [o.measure, o.referenceMeasure].flatMap((f) => (f ? [rt.path.resolve(rt.cwd, f)] : []));
-  const sources = [...fixed, ...given, ...materialFiles(raw.value).map((f) => rt.path.resolve(dir, f))];
+  const sceneFiles = isRecord(raw.value) && Array.isArray(raw.value.segments) ? raw.value.segments.flatMap(s=>isRecord(s)&&isRecord(s.base)&&typeof s.base.scene==='string'?[rt.path.resolve(dir,s.base.scene)]:[]) : [];
+  const sources = [...fixed, ...given, ...sceneFiles, ...materialFiles(raw.value).map((f) => rt.path.resolve(dir, f))];
   return { state, page: await pageOf(resolved, built.problems, dir), sources };
 };
 

@@ -8,6 +8,7 @@ import type { Runtime } from '../../../runtime';
 import type { Problem } from '../../types';
 import type { EditInfo, StepKind } from '../protocol';
 import { checkJson, newUnknownFields } from './check';
+import { retimeSource } from './retime';
 import { applyOp, opLabel, type EditOp } from './ops';
 
 export const PROJECT_FILE = 'video.json';
@@ -72,11 +73,12 @@ export const editText = async (rt: Runtime, text: string, op: EditOp, dir: strin
   }
   const applied = applyOp(json, op);
   if ('problem' in applied) return { status: 400, problems: [applied.problem] };
-  const unknown = newUnknownFields(json, applied.json);
+  const adapted = retimeSource(json, applied.json);
+  const unknown = newUnknownFields(json, adapted);
   if (unknown.length) return { status: 400, problems: unknown };
-  const problems = await checkJson(rt, applied.json, dir);
+  const problems = await checkJson(rt, adapted, dir);
   if (problems.some((p) => p.level === 'error')) return { status: 422, problems };
-  return { text: formatJson(applied.json, text), label: opLabel(json, applied.json, op) };
+  return { text: formatJson(adapted, text), label: opLabel(json, adapted, op) };
 };
 
 /** dir: the project directory, absolute. */
@@ -150,6 +152,7 @@ export const createEditor = async (rt: Runtime, dir: string): Promise<Editor> =>
     try { previous = JSON.parse(before); } catch { previous = null; }
     if (base !== undefined && JSON.stringify(previous) !== JSON.stringify(base))
       return refused(409, [problem('(source)', 'The draft changed in another editor. Your input was kept.', 'Reload the current JSON and reapply your changes.')]);
+    source = retimeSource(previous, source);
     const problems = [...newUnknownFields(previous, source), ...await checkJson(rt, source, dir)];
     if (problems.some((p) => p.level === 'error')) return refused(422, problems);
     const text = formatJson(source, before);

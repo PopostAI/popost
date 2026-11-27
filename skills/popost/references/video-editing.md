@@ -8,10 +8,24 @@ and the Elements list address the same source object. Media groups shots and imp
 have individual selectable clips. Selecting an element or subtitle in the sidebar reveals its visible frame and links the preview outline, timeline highlight and inspector. The inspector stays collapsed until something is selected; Escape or an empty timeline click clears the selection. Elements exposes editable scene content marked with `data-slot`; rasterized text inside
 an existing video is not an editable text element.
 
-The inspector edits content, pixel position, timing in seconds, and type-specific settings. Advanced motion settings are
-collapsed. Valid edits save locally and participate in undo/redo. Split and delete sit above the timeline; horizontal
-scrolling, Shift+wheel, zoom, and Fit timeline control the visible interval. Splitting a scene preserves its animation
-clock through `base.offset` (seconds). Ordinary audio uses `in` in project frames; video-backed audio beds use source frames.
+The timeline starts with a fitted shot overview. Layers reveals the visual and caption lanes; selecting an element also
+reveals these lanes. Shots are shown above their layers. Drag a shot to reorder it, or use Earlier / Later; drag an
+item or audio clip to move it and its handles to trim it. Snap can be toggled. Shot duplication includes its owned
+visuals and caption cues. Layer ordering controls change the source stacking ranks. Each completed operation is one
+undo step; a cancelled pointer drag does not save.
+
+The same source identity selects the preview outline, timeline clip, left sidebar and right inspector. Selecting a
+caption opens Subtitles; selecting a visual or exposed scene field opens Elements; selecting a shot opens Media / Shots.
+The inspector puts content and typography first, with pixel geometry, seconds and motion in its advanced section.
+Double-click native text or an exposed text field to edit it on the canvas; click away or use Cmd/Ctrl+Enter to save,
+and Escape to cancel. Native images can be selected, resized and replaced through their material field. Exposed scene
+image fields use the scene slot replacement controls. Text editing fits an overflowing native title into its existing
+box by saving a smaller font size with the text, so preview, inspector and export agree and Undo restores both.
+
+Shortening a shot keeps its scene-local spans within its new length and fits entrance/exit motion to the available
+span. Incoming transitions and ordered caption cues are adjusted when shots change length or order. Explicit
+cross-shot spans retain their intent. Splitting a scene preserves its animation clock through `base.offset` (seconds).
+Ordinary audio uses `in` in project frames; video-backed audio beds use source frames.
 
 Cloud saving uses the same authorization service as image projects: a configured key syncs at startup and after a three
 second quiet period; without a key, Save to cloud opens the project-scoped browser authorization flow. A browser ticket

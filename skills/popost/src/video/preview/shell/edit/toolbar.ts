@@ -21,6 +21,7 @@ export const mountToolbar = (root: HTMLElement, store: Store, edit: EditActions)
   ];
   const buttons = tools.map((tool) => {
     const el = h('button', { id: tool.id, class: 'tbtn', attrs: { type: 'button' } }, [icon(tool.icon)]);
+    if (['edit-add-text','edit-duplicate','edit-delete'].includes(tool.id)) el.append(h('span',{class:'tool-label'}));
     el.addEventListener('click', () => {
       tool.run();
       el.blur();
@@ -32,12 +33,13 @@ export const mountToolbar = (root: HTMLElement, store: Store, edit: EditActions)
   const draw = (v: View): void => {
     for (const b of buttons) {
       b.el.title = t(v.lang, b.tool.title);
+      const label = b.el.querySelector('.tool-label'); if(label) label.textContent = b.tool.id === 'edit-add-text' ? (v.lang==='zh'?'文字':'Text') : b.tool.id === 'edit-duplicate' ? (v.lang==='zh'?'复制':'Duplicate') : (v.lang==='zh'?'删除':'Delete');
       b.el.setAttribute('aria-label', t(v.lang, b.tool.title));
-      b.el.disabled = !b.tool.enabled(v);
+      b.el.disabled = Boolean(v.edit.saving) || !b.tool.enabled(v);
     }
   };
   draw(store.get());
-  store.subscribe((v, prev) => { if (v.state !== prev.state || v.lang !== prev.lang || v.pinned !== prev.pinned || v.edit.render !== prev.edit.render) draw(v); });
+  store.subscribe((v, prev) => { if (v.state !== prev.state || v.lang !== prev.lang || v.pinned !== prev.pinned || v.edit.render !== prev.edit.render || v.edit.saving !== prev.edit.saving) draw(v); });
 };
 
 const STEP_WORD: Readonly<Record<string, Key>> = { set: 'saved', insert: 'added', remove: 'removed', move: 'moved', outside: 'outside' };
@@ -85,7 +87,9 @@ const typing = (target: EventTarget | null): boolean =>
 /** Edit keys, before the transport's (capture phase): a handled key is not seen by the transport. */
 export const editKeys = (store: Store, edit: EditActions, nudge: (dx: number, dy: number) => boolean): void => {
   document.addEventListener('keydown', (e) => {
+    if(document.querySelector('[role="dialog"]'))return;
     if (typing(e.target)) {
+      if ((e.target as HTMLElement).id === 'stage-text-editor') return;
       if (e.key === 'Escape') (e.target as HTMLElement).blur();
       return;
     }
@@ -98,8 +102,10 @@ export const editKeys = (store: Store, edit: EditActions, nudge: (dx: number, dy
     };
     if (mod && key === 'z') return run(() => void (e.shiftKey ? edit.redo() : edit.undo()));
     if (mod && key === 'y') return run(() => void edit.redo());
+    if (mod && key === 'd') return run(() => void edit.duplicate());
     if (mod || e.altKey) return;
-    if (e.key === 'Delete') return run(() => void edit.remove());
+    if (key === 's') return run(() => void edit.split());
+    if (e.key === 'Delete' || e.key === 'Backspace') return run(() => void edit.remove());
     if (e.key === 'Escape') return run(() => edit.select(null));
     const arrows: Readonly<Record<string, [number, number]>> = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
     const d = arrows[e.key];

@@ -13,7 +13,9 @@ export type Panel = 'shots' | 'media' | 'script' | 'elements' | 'code' | 'checks
 export interface Sidebar { store: Store; actions: Actions; edit: EditActions; meta: StudioMeta; mediaView?: 'shots' | 'files'; refresh(): void }
 const current = (ctx: Sidebar) => {
  const v = ctx.store.get(); const r = v.state?.resolved;
- return r ? r.segments.find(s => v.pinned?.kind === 'segment' && s.id === v.pinned.id) ?? segmentAt(r, v.frame) : undefined;
+ const picked = v.pinned;
+ const item = picked?.kind === 'item' ? r?.items.find(it => it.id === picked.id) : undefined;
+ return r ? r.segments.find(s => (picked?.kind === 'segment' || picked?.kind === 'slot') && s.id === picked.id) ?? (item ? segmentAt(r,item.start) : undefined) ?? segmentAt(r,v.frame) : undefined;
 };
 const selectShot = (ctx: Sidebar, id: string): void => {
  const s = ctx.store.get().state?.resolved?.segments.find(x => x.id === id);
@@ -45,7 +47,7 @@ const useMaterial = async (ctx: Sidebar, material: Record<string, unknown>, over
  const type = ['audio', 'voice', 'speech'].includes(String(kind)) ? 'audio' : kind;
  if (!['image', 'video', 'audio'].includes(String(type))) return;
  const track = { id: 'overlay-' + Date.now(), type, material: id, ...(type === 'audio' ? { gain: 0 } : { box: [0.1, 0.1, 0.8, 0.6], fit: 'contain' }), during: { segment: seg.id, from: 0, to: seg.end - seg.start } };
- await edit.send({ op: 'insert', path: ['tracks', tracks.length], value: track });
+ await edit.send({ op: 'insert', path: ['tracks', tracks.length], value: track },{kind:type==='audio'?'audio':'item',id:track.id});
 };
 export const mediaPanel = (ctx: Sidebar): HTMLElement => {
  const { store } = ctx;
@@ -100,7 +102,12 @@ export const elementsPanel = (ctx: Sidebar): HTMLElement => {
  if (!state || !seg) return root;
  root.append(button(copy(store, 'addText'), () => void edit.addText()));
  for (const item of state.resolved?.items.filter(x => x.end > seg.start && x.start < seg.end) ?? []) {
-  const selection={kind:'item' as const,id:item.id};const card=button(item.text ?? copy(store, item.type === 'video' ? 'video' : item.type === 'image' ? 'image' : 'text'), () => edit.reveal(selection), 'studio-item'+(sameSelection(selection,store.get().pinned)?' selected':''));
+  const selection={kind:'item' as const,id:item.id};const card=button(item.text ?? copy(store, item.type === 'video' ? 'video' : item.type === 'image' ? 'image' : item.type === 'shape' ? 'color' : 'text'), () => edit.reveal(selection), 'studio-item'+(sameSelection(selection,store.get().pinned)?' selected':''));
+  card.dataset.selection=JSON.stringify(selection);root.append(card);
+ }
+ for(const audio of state.resolved?.audio ?? []) {
+  const selection={kind:'audio' as const,id:audio.id};
+  const card=button(copy(store,'audioTrack')+' · '+audio.id,()=>edit.reveal(selection),'studio-item'+(sameSelection(selection,store.get().pinned)?' selected':''));
   card.dataset.selection=JSON.stringify(selection);root.append(card);
  }
  const available=sceneSlotFrames(document.querySelector<HTMLIFrameElement>('#page'),store,seg.id);

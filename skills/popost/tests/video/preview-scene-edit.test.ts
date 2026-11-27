@@ -45,3 +45,20 @@ describe.skipIf(!chrome)('editable scene content in Studio (Chrome)', () => {
     }
   });
 });
+
+
+describe('scene source recovery',()=>{
+  it('reloads corrected scene HTML without requiring a video.json change',async()=>{
+    await writeFile(path.join(rt.dir,'scene.html'),'<!doctype html><html><head></head></html>');
+    await writeFile(path.join(rt.dir,'video.json'),JSON.stringify({version:1,canvas:{width:320,height:200,fps:30},materials:[],segments:[{id:'scene',frames:30,base:{scene:'scene.html'}}],tracks:[]}));
+    const preview=await startPreview(rt,{projectDir:rt.dir,edit:true});
+    try {
+      const state=async()=>await (await fetch(preview.url+'api/state')).json() as {generation:number;problems:{level:string}[]};
+      expect((await state()).problems.some(p=>p.level==='error')).toBe(true);
+      await new Promise(resolve=>setTimeout(resolve,600));
+      await writeFile(path.join(rt.dir,'scene.html'),'<!doctype html><html><head></head><body><h1 data-slot="title">Recovered</h1></body></html>');
+      await expect.poll(async()=>(await state()).problems,{timeout:10000}).toEqual([]);
+      expect((await state()).generation).toBeGreaterThan(0);
+    } finally {await preview.close();}
+  });
+});

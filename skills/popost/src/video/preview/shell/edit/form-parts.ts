@@ -18,7 +18,9 @@ const framesHint = (ctx: FormCtx, start: number, end: number): HTMLElement =>
 export const whenSection = (ctx: FormCtx, at: Path, span: unknown, item: Pick<ResolvedItem, 'start' | 'end'> | undefined, title = t(ctx.lang, 'fWhen')): HTMLElement => {
   const own = isObj(span) ? span : {};
   const fps=ctx.state.resolved?.canvas.fps??30;
-  const n = (key: string, label: string): Field => ({ kind: 'number', label:t(ctx.lang,label as Parameters<typeof t>[1])+(ctx.lang==='zh'?'（秒）':' (s)'), path: [...at, key], value:typeof own[key]==='number'?Number(own[key])/fps:undefined,step:.01,commit:v=>ctx.commit([...at,key],v===undefined?undefined:Math.round(Number(v)*fps)) });
+  const segmentFrames = ctx.state.resolved?.segments.find(s => s.id === own.segment);
+  const fallback = (key: string): unknown => key === 'from' ? 0 : key === 'to' && segmentFrames ? segmentFrames.end - segmentFrames.start : undefined;
+  const n = (key: string, label: string): Field => ({ kind: 'number', label:t(ctx.lang,label as Parameters<typeof t>[1])+(ctx.lang==='zh'?'（秒）':' (s)'), path: [...at, key], value:typeof (own[key] ?? fallback(key))==='number'?Number(own[key] ?? fallback(key))/fps:undefined,step:.01,commit:v=>ctx.commit([...at,key],v===undefined?undefined:Math.round(Number(v)*fps)) });
   const hint = item ? [framesHint(ctx, item.start, item.end)] : [];
   if (own.phrase !== undefined)
     return section(title, [[{ kind: 'text', label: 'fPhrase', path: [...at, 'phrase'], value: own.phrase, wide: true }], [n('occurrence', 'fOccurrence'), n('lead', 'fLead'), n('hold', 'fHold')]], ctx, hint);
@@ -102,7 +104,7 @@ export const segmentSections = (ctx: FormCtx, target: Extract<Target, { kind: 's
   const resolved = ctx.state.resolved?.segments[target.index];
   const fps=ctx.state.resolved?.canvas.fps??30;
   const frames: Field = { kind: 'number', label:ctx.lang==='zh'?'时长（秒）':'Duration (s)', path: [...base, 'frames'], value:Number(valueAt(ctx.state.source,[...base,'frames']))/fps,step:.01,range:{min:1/fps,integer:false},commit:v=>ctx.commit([...base,'frames'],Math.max(1,Math.round(Number(v)*fps))) };
-  const length = section(t(ctx.lang, 'fLength'), [[frames]], ctx, resolved ? [framesHint(ctx, resolved.start, resolved.end)] : []);
+  const length = section(ctx.lang === 'zh' ? '镜头时长' : 'Shot duration', [[frames]], ctx, resolved ? [framesHint(ctx, resolved.start, resolved.end)] : []);
   const seg = target.segment;
   return [
     length,

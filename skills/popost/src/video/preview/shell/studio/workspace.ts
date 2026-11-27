@@ -2,10 +2,13 @@ import type { Store, Actions } from '../app';
 import type { EditActions } from '../edit/controller';
 import { h, icon, type IconName } from '../dom';
 import { copy, type CopyKey } from './copy';
-import { button, note, title } from './ui';
+import { button, title } from './ui';
 import { checksPanel, elementsPanel, loadMetadata, mediaPanel, scriptPanel, shotPanel, versionsPanel, type Panel, type Sidebar } from './sidebar';
 import { createCodeEditor } from './code';
 import { mountCloud } from './cloud';
+import { targetOf } from '../edit/source';
+import { sceneSlotFrames } from './scene-selection';
+import { mountStudioTimeline } from './timeline';
 import { openExport } from './export';
 
 const NAV: readonly [Panel, CopyKey, IconName][] = [['media','media','media'],['elements','elements','layers'],['script','subtitles','text'],['code','code','code']];
@@ -16,6 +19,10 @@ export const mountWorkspace = (root: HTMLElement, store: Store, actions: Actions
  const codeEditor = createCodeEditor(store, edit); const code = codeEditor.root;
  const ctx: Sidebar = { store, actions, edit, meta: { hash: '', slots: [], versions: [], comments: [] }, refresh: () => undefined };
  const draw = (): void => {
+  const frame=document.querySelector<HTMLIFrameElement>('#page');
+  const valid=new Map((store.get().state?.resolved?.segments??[]).map(s=>[s.id,sceneSlotFrames(frame,store,s.id)]));
+  const slots=ctx.meta.slots.filter(s=>valid.get(s.segment)?.has(s.name));
+  if(JSON.stringify(slots)!==JSON.stringify(store.get().slots))store.set({slots});
   rail.querySelectorAll<HTMLButtonElement>('button').forEach(b => { b.classList.toggle('active', b.dataset.panel === active); b.setAttribute('aria-pressed', String(b.dataset.panel === active)); });
   document.body.classList.toggle('panel-code', active === 'code');
   if (active === 'code') { if (!content.contains(code)) content.replaceChildren(code); return; }
@@ -29,6 +36,7 @@ export const mountWorkspace = (root: HTMLElement, store: Store, actions: Actions
  const refresh = async (): Promise<void> => {
   const generation = store.get().state?.generation;
   try { const meta = await loadMetadata(); if (generation !== store.get().state?.generation) return; ctx.meta = meta;
+
     if (meta.lastExport && store.get().edit.render?.state !== 'running' && (!store.get().edit.render || store.get().edit.render?.state === 'idle')) edit.setRender(meta.lastExport);
     draw();
   } catch { /* Read-only previews have no editing metadata. */ }
@@ -55,32 +63,32 @@ export const mountWorkspace = (root: HTMLElement, store: Store, actions: Actions
  const props = document.querySelector<HTMLElement>('.panel')!;
  props.prepend(title(copy(store, 'properties')));
  const update = (): void => {
-  const v = store.get(); project.textContent = v.state?.project.name ?? 'Popost Video Studio';
+  const v = store.get(); document.body.setAttribute('aria-busy',String(Boolean(v.edit.saving))); project.textContent = v.state?.project.name ?? 'Popost Video Studio';
   saved.textContent = v.connected ? v.state?.edit ? copy(store, 'saved') : copy(store, 'readOnly') : copy(store, 'offline');
-  if (v.edit.status?.kind === 'refused') saved.textContent = v.edit.status.problem.message;
+  if (v.edit.saving) saved.textContent=copy(store,'saving');
+  if (v.edit.status?.kind === 'refused') saved.textContent = copy(store, 'error');
   compare.classList.toggle('selected', Boolean(v.compare)); exportButton.disabled = !v.state?.edit || !v.state.resolved;
   props.hidden = !v.pinned;
   document.body.classList.toggle('inspecting', Boolean(v.pinned));
  };
  store.subscribe((v, prev) => {
-  if (v.state !== prev.state || v.pinned !== prev.pinned || v.compare !== prev.compare || v.connected !== prev.connected || v.edit.status !== prev.edit.status) update();
+  if (v.state !== prev.state || v.pinned !== prev.pinned || v.compare !== prev.compare || v.connected !== prev.connected || v.edit.status !== prev.edit.status || v.edit.saving !== prev.edit.saving) update();
   if (v.state !== prev.state) { draw(); void refresh(); }
   else if (v.frame !== prev.frame && active === 'elements' && v.state?.resolved?.segments.find(s => v.frame >= s.start && v.frame < s.end)?.id !== prev.state?.resolved?.segments.find(s => prev.frame >= s.start && prev.frame < s.end)?.id) draw();
-  if (v.pinned !== prev.pinned) content.querySelectorAll<HTMLElement>('[data-selection]').forEach(el => { const selected = el.dataset.selection === JSON.stringify(v.pinned); el.classList.toggle('selected', selected); if (el.tagName === 'BUTTON') el.setAttribute('aria-pressed', String(selected)); });
+  if (v.pinned !== prev.pinned && v.pinned) {
+    const target = v.state ? targetOf(v.state,v.pinned) : undefined;
+    const next: Panel = v.pinned.kind === 'segment' ? 'media' : target?.kind === 'cue' ? 'script' : 'elements';
+    if (next === 'media') ctx.mediaView = 'shots';
+    const focused = content.contains(document.activeElement);
+    if (active !== next || !focused) { active = next; draw(); }
+  }
+  if (v.pinned !== prev.pinned) content.querySelectorAll<HTMLElement>('[data-selection]').forEach(el => { const selected = el.dataset.selection === JSON.stringify(v.pinned); el.classList.toggle('selected', selected); if (el.tagName === 'BUTTON') el.setAttribute('aria-pressed', String(selected)); if (selected) el.scrollIntoView({block:'nearest'}); });
  });
- document.addEventListener('studio:page-ready',()=>{if(active==='elements')draw();});
+ document.addEventListener('studio:page-ready',draw);
  update(); draw();
  return { refresh, choose, content, panel: () => active };
 };
-export const mountTimelineTools = (root: HTMLElement, store: Store, edit: EditActions): void => {
- root.parentElement?.style.setProperty('--timeline-zoom','2');
- const zoom = h('input', { attrs: { type: 'range', min: '100', max: '500', value: '200', 'aria-label': copy(store, 'zoom') } });
- zoom.addEventListener('input', () => root.parentElement?.style.setProperty('--timeline-zoom', String(Number(zoom.value) / 100)));
- const tools = h('span', { id: 'edit-slot' });
- const split = button(store.get().lang === 'zh' ? '分割' : 'Split', () => void edit.split()); split.id = 'edit-split';
- root.append(tools, split, h('span', { class: 'spacer' }), button(copy(store, 'viewAll'), () => { zoom.value = '100'; root.parentElement?.style.setProperty('--timeline-zoom','1'); }), note(copy(store, 'zoom')), zoom);
- const update = (): void => { split.disabled = !edit.canSplit(); }; store.subscribe(update); update();
-};
+export const mountTimelineTools = mountStudioTimeline;
 export const resizeHandle = (target: HTMLElement, axis: 'left' | 'right' | 'timeline'): HTMLElement => {
  const horizontal = axis === 'timeline'; const el = h('div', { class: 'studio-handle ' + (horizontal ? 'horizontal' : 'vertical') + (axis === 'right' ? ' inspector-resize' : ''), attrs: { role: 'separator', tabindex: '0', 'aria-orientation': horizontal ? 'horizontal' : 'vertical' } });
  if (!horizontal) el.style.left = axis === 'left' ? 'calc(64px + var(--left-width) - 2px)' : 'calc(100% - var(--right-width) - 2px)';

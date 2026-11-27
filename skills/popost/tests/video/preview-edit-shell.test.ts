@@ -65,7 +65,8 @@ describe.skipIf(!chrome)('preview shell in edit mode (Chrome)', () => {
     await page.mouse.up();
   };
   const selectLane = async (id: string): Promise<void> => {
-    await page.locator('.blk.item[data-sel]').evaluateAll((elements, id) => { const picked=elements.find(el => JSON.parse((el as HTMLElement).dataset.sel ?? '{}').id===id) as HTMLElement|undefined; picked?.click(); },id);
+    if(await page.locator('#timeline-layers').getAttribute('aria-pressed')==='false')await page.locator('#timeline-layers').click();
+    await page.locator('.blk.item[data-sel='+JSON.stringify(JSON.stringify({kind:'item',id}))+']').first().click();
     await page.waitForSelector('#edit-form');
   };
 
@@ -106,6 +107,7 @@ describe.skipIf(!chrome)('preview shell in edit mode (Chrome)', () => {
 
   it('shows the problem next to the field and in the status line when an edit is refused', async () => {
     const before = await readFile(path.join(dir, 'video.json'));
+    await page.getByText('Position, timing and motion',{exact:true}).click();
     const w = page.locator('#edit-form input[data-path="tracks[0].box[2]"]');
     await w.fill('0');
     await w.press('Tab');
@@ -121,7 +123,7 @@ describe.skipIf(!chrome)('preview shell in edit mode (Chrome)', () => {
     const at = (fx: number, fy: number): [number, number] => [frame.x + frame.width * fx, frame.y + frame.height * fy];
     const [x, y] = at(0.5, 0.725);
     await page.mouse.click(x, y);
-    await page.waitForSelector('#edit-form input[data-path="tracks[1].box[0]"]');
+    await page.locator('#edit-form input[data-path="tracks[1].box[0]"]').waitFor({state:'attached'});
     await drag(x, y, 27, -36, async () => {
       expect(await page.locator('#drag-readout').textContent()).toMatch(/^x \d+ {2}y \d+ {2}144×16 px/);
     });
@@ -195,6 +197,7 @@ describe.skipIf(!chrome)('preview shell in edit mode (Chrome)', () => {
     expect(state.edit.render.state).toBe('done');expect(state.edit.render.width).toBe(480);
     const output=await page.request.get(preview!.url.replace(/\/$/,'')+state.edit.render.url);expect(output.status()).toBe(200);expect((await output.body()).byteLength).toBeGreaterThan(0);
     await dialog.press('Escape');
+    await dialog.waitFor({state:'hidden'});
   });
 
   it('fits a 1280x720 window without scrolling the page, the panel scrolling inside', async () => {

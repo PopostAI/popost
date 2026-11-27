@@ -1,6 +1,6 @@
 {
   "name": "popost",
-  "version": "4.6.1",
+  "version": "4.6.2",
   "description": "popost Skill and CLI: create, reproduce and edit social media image posts as editable HTML projects, for coding agents such as Codex and Claude Code.",
   "license": "SEE LICENSE IN LICENSE",
   "author": "CLIPCAT AI LTD",

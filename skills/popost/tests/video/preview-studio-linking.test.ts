@@ -30,9 +30,20 @@ describe.skipIf(!chrome)('Studio linked selection and cloud controls (Chrome)',(
   await page.locator('#sel-box:visible').waitFor();expect(await pinned()).toEqual({kind:'item',id:'late'});expect(await page.locator('#edit-form textarea').first().inputValue()).toBe('Late overlay');
   await page.keyboard.press('Escape');expect(await page.locator('#panel').isVisible()).toBe(false);
   await jump(0);expect(await page.getByRole('button',{name:'Dormant phase',exact:true}).count()).toBe(0);await page.getByRole('button',{name:'Late title',exact:true}).click();
-  await page.locator('.studio-slot-outline:visible').waitFor();expect(await pinned()).toEqual({kind:'segment',id:'scene'});expect(await page.locator('#slot-inspector textarea').inputValue()).toBe('Late title');
+  await page.locator('.studio-slot-outline:visible').waitFor();expect(await pinned()).toEqual({kind:'slot',id:'scene',name:'title'});expect(await page.locator('#slot-inspector textarea').inputValue()).toBe('Late title');
   expect(Number(await page.locator('#frame-no').textContent())).toBeGreaterThanOrEqual(60);
   await page.reload();await page.locator('.studio-slot-outline:visible').waitFor();
+ });
+ it('edits an exposed HTML title on the canvas, saves its slot and undoes the content',async()=>{
+  const box=await page.locator('.studio-slot-outline').boundingBox();expect(box).not.toBeNull();
+  await page.mouse.dblclick(box!.x+box!.width/2,box!.y+box!.height/2);
+  const inline=page.locator('#stage-text-editor');await inline.waitFor();await inline.fill('Edited scene title');await inline.press('Tab');
+  const source=async()=> (await (await page.request.get(preview.url+'api/state')).json()).source;
+  await expect.poll(async()=> (await source()).segments[0].base.slots.title,{timeout:10000}).toBe('Edited scene title');
+  await expect.poll(()=>page.locator('#slot-inspector textarea').inputValue(),{timeout:10000}).toBe('Edited scene title');
+  expect(await pinned()).toEqual({kind:'slot',id:'scene',name:'title'});
+  await page.locator('#edit-undo').click();
+  await expect.poll(()=>page.locator('#slot-inspector textarea').inputValue(),{timeout:10000}).toBe('Late title');
  });
  it('refreshes available fields when a scene source reloads',async()=>{
   await page.locator('[data-panel="elements"]').click();

@@ -22,6 +22,7 @@ interface Drag {
   start: number;
   end: number;
   target?: Target;
+  span?: Obj;
   border?: number;
   /** Placed on spoken words: not dragged (lead and hold are set in the panel). */
   phrase?: boolean;
@@ -77,15 +78,16 @@ const dragOf = (s: PreviewState, target: HTMLElement, x0: number): Drag | undefi
   }
   const picked = target.closest<HTMLElement>('[data-sel]')?.dataset.sel;
   const sel = picked ? (JSON.parse(picked) as Selection) : undefined;
-  if (sel?.kind !== 'item') return undefined;
+  if (sel?.kind !== 'item' && sel?.kind !== 'audio') return undefined;
   const t0 = targetOf(s, sel);
   const path = t0 ? spanPath(t0) : undefined;
-  const span = t0 && path ? spanOf(t0) : undefined;
+  const audio=sel.kind==='audio'?r.audio.find(a=>a.id===sel.id):undefined;
+  const span = (t0 && path ? spanOf(t0) : undefined) ?? (audio ? {segment:r.segments[0]?.id,from:audio.start,to:audio.end??r.frames} : undefined);
   if (!t0 || !span) return undefined;
   const raw = rawSpan(r, span);
   if (!raw) return { mode: 'move', x0, track, start: 0, end: 0, target: t0, phrase: true, moved: false };
   const grip = target.closest<HTMLElement>('.grip')?.dataset.grip;
-  return { mode: grip === 'start' || grip === 'end' ? grip : 'move', x0, track, start: raw.start, end: raw.end, target: t0, moved: false };
+  return { mode: grip === 'start' || grip === 'end' ? grip : 'move', x0, track, start: raw.start, end: raw.end, target: t0, span, moved: false };
 };
 
 /** The span object of a target in video.json (a cue's own for a cue). */
@@ -105,8 +107,12 @@ const follow = (lanes: HTMLElement, ui: Ui, drag: Drag, v: View, x: number): voi
   if(!drag.track.isConnected){const id=drag.track.closest('.lane')?.id;const next=id?lanes.querySelector<HTMLElement>('#'+CSS.escape(id)+' .lane-track'):null;if(!next)return;drag.track=next;}
   const pxPerFrame = drag.track.getBoundingClientRect().width / Math.max(1, F);
   if(!Number.isFinite(pxPerFrame)||pxPerFrame<=0)return;
-  const targets = snapTargets(s, v.frame, drag.mode !== 'border');
+  const targets = v.timeline?.snapping === false ? [] : snapTargets(s, v.frame, drag.mode !== 'border');
   const r = dragResult(drag.mode === 'border' ? { mode: 'end', start: drag.start, end: drag.end } : drag, (x - drag.x0) / pxPerFrame, targets, pxPerFrame);
+  if(drag.mode!=='border'){
+    if(drag.mode==='move'){const length=Math.min(F,drag.end-drag.start);r.start=Math.max(0,Math.min(F-length,r.start));r.end=r.start+length;}
+    else {r.start=Math.max(0,r.start);r.end=Math.min(F,r.end);}
+  }
   drag.result = r;
   if (drag.mode !== 'border') drag.track.append(placeSpan(ui.ghost, r.start, r.end, F));
   const layer = lanes.querySelector<HTMLElement>('.playhead-layer');
@@ -123,8 +129,8 @@ const dragOp = (d: Drag, s: PreviewState): EditOp | undefined => {
   const r = s.resolved;
   if (!r || !d.result) return undefined;
   if (d.mode === 'border') return d.border !== undefined && d.result.end !== d.end ? { op: 'set', path: ['segments', d.border, 'frames'], value: d.result.end - d.start } : undefined;
-  const path = d.target ? spanPath(d.target) : undefined;
-  const span = d.target ? spanOf(d.target) : undefined;
+  const path = d.target ? spanPath(d.target) ?? (d.target.kind==='track' && d.target.track.type==='audio' ? ['tracks',d.target.index,'during'] : undefined) : undefined;
+  const span = d.span ?? (d.target ? spanOf(d.target) : undefined);
   if (!path || !span || (d.result.start === d.start && d.result.end === d.end)) return undefined;
   return { op: 'set', path, value: spanFor(r, span, d.result.start, d.result.end) };
 };
@@ -133,14 +139,21 @@ export const mountLanesEdit = (lanes: HTMLElement, store: Store, edit: EditActio
   const ui: Ui = { ghost: h('div', { class: 'drag-ghost', id: 'drag-ghost' }), guide: h('div', { class: 'snap-guide', id: 'snap-guide' }), label: h('div', { class: 'lane-readout', id: 'lane-readout' }) };
   let drag: Drag | undefined;
   let swallow = false;
+  let ordering: {index:number; to:number; x:number; moved:boolean; track:HTMLElement} | undefined;
 
   lanes.addEventListener('pointerdown', (e) => {
     const s = store.get().state;
-    if (e.button !== 0 || !s?.edit) return;
+    if (e.button !== 0 || !s?.edit || store.get().edit.saving) return;
     // A field being typed in commits when it loses the focus; the press below keeps the focus, so it is taken here.
     if (document.activeElement instanceof HTMLElement && document.activeElement !== document.body) document.activeElement.blur();
     const picked=(e.target as HTMLElement).closest<HTMLElement>('[data-sel]')?.dataset.sel;
     if(picked)edit.select(JSON.parse(picked) as Selection);
+    const selection=picked ? JSON.parse(picked) as Selection : undefined;
+    if(selection?.kind==='segment' && !(e.target as HTMLElement).closest('.seg-grip')) {
+      const index=s.resolved?.segments.findIndex(s=>s.id===selection.id)??-1;
+      const track=(e.target as HTMLElement).closest<HTMLElement>('.lane-track');
+      if(index>=0&&track){ordering={index,to:index,x:e.clientX,moved:false,track};lanes.setPointerCapture(e.pointerId);e.preventDefault();return;}
+    }
     drag = dragOf(s, e.target as HTMLElement, e.clientX);
     if (!drag) return;
     lanes.setPointerCapture(e.pointerId);
@@ -148,22 +161,34 @@ export const mountLanesEdit = (lanes: HTMLElement, store: Store, edit: EditActio
     e.preventDefault();
   });
   lanes.addEventListener('pointermove', (e) => {
+    if(ordering){
+      if(!ordering.moved&&Math.abs(e.clientX-ordering.x)<4)return;
+      ordering.moved=true;const r=store.get().state?.resolved;if(!r)return;
+      const rect=ordering.track.getBoundingClientRect();const frame=(e.clientX-rect.left)/rect.width*r.frames;
+      ordering.to=Math.max(0,r.segments.findIndex(s=>frame<s.end));if(frame>=r.frames)ordering.to=r.segments.length-1;
+      const at=r.segments[ordering.to]?.start??0;const layer=lanes.querySelector<HTMLElement>('.playhead-layer');
+      ui.label.textContent=(store.get().lang==='zh'?'移动镜头 ':'Move shot ')+(ordering.index+1)+' → '+(ordering.to+1);
+      layer?.append(placeAt(ui.guide,at,r.frames),placeAt(ui.label,Math.min(at,r.frames*.6),r.frames));return;
+    }
     if (!drag || (!drag.moved && Math.abs(e.clientX - drag.x0) < 3)) return;
     drag.moved = true;
     follow(lanes, ui, drag, store.get(), e.clientX);
   });
-  const end = (): void => {
+  const end = (event: PointerEvent): void => {
+    if(ordering){const order=ordering;ordering=undefined;[ui.ghost,ui.guide,ui.label].forEach(el=>el.remove());
+      if(order.moved){swallow=true;setTimeout(()=>{swallow=false;},0);if(event.type!=='pointercancel'&&order.index!==order.to)void edit.send({op:'move',path:['segments',order.index],to:order.to});}return;
+    }
     const d = drag;
     drag = undefined;
     [ui.ghost, ui.guide, ui.label].forEach((el) => el.remove());
-    if (!d?.moved) { if(d){const rect=d.track.getBoundingClientRect();const state=store.get().state;if(state)store.set({playing:false,frame:Math.max(0,Math.min(timelineFrames(state)-1,Math.floor((d.x0-rect.left)/rect.width*timelineFrames(state))))});} return; }
+    if (!d?.moved) return;
     swallow = true;
     // The click that follows a drag comes in this same task, if at all.
     setTimeout(() => { swallow = false; }, 0);
     const s = store.get().state;
     if (d.phrase) return edit.note('phraseSpan');
     const op = s ? dragOp(d, s) : undefined;
-    if (op) void edit.send(op);
+    if (op && event.type !== 'pointercancel') void edit.send(op);
   };
   lanes.addEventListener('pointerup', end);
   lanes.addEventListener('pointercancel', end);
