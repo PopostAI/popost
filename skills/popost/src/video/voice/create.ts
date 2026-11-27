@@ -6,6 +6,7 @@
  * statement that they own the voice or have the speaker's permission: there is no voice without it.
  */
 import { sha256 } from '../../core/util';
+import { PopostApiError } from '../../providers/errors';
 import type { Runtime } from '../../runtime';
 import { withTempDir } from '../host';
 import { finishVoice, operationKeyOf, startVoice, uploadWav } from '../hosted-api';
@@ -85,6 +86,10 @@ export const createHostedVoice = async (rt: Runtime, o: NewVoiceOptions): Promis
   const started = await startVoice(rt, { operationKey, name, ...(o.language ? { language: o.language } : {}), ...(description ? { description } : {}), sizeBytes: sample.bytes.length });
   const made = started.uploadUrl === null ? await ownVoice(rt, started.id) : undefined;
   if (started.uploadUrl !== null) await uploadWav(rt, started.uploadUrl, sample.bytes, 'the voice sample');
-  const voice = made ?? (await finishVoice(rt, started.id));
+  const voice = made ?? (await finishVoice(rt, started.id).catch((e: unknown) => {
+    // The platform checked the sample and refused it: another recording makes another sample (and another key).
+    if (!(e instanceof PopostApiError) || e.code !== 'INVALID_REQUEST') throw e;
+    throw new PopostApiError('popost.ai could not use this recording as a voice sample (' + e.message + '). Give another recording: 10 to 60 s of one person speaking clearly, alone and without music.', { code: e.code, ...(e.status ? { status: e.status } : {}), details: e.details });
+  }));
   return { voice, sample: { seconds: sample.seconds, start: sample.start, trimmed: sample.trimmed, bytes: sample.bytes.length }, again: started.uploadUrl === null };
 };

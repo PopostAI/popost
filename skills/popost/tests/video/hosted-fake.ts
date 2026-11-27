@@ -45,10 +45,14 @@ export interface FakeOptions {
   runBroken?: boolean;
   /** A run takes long: it answers `running`, and the job is ready (or failed) after this many reads. */
   runningReads?: number;
-  /** The first run starts the job, then its answer is cut off (a proxy ends it): the outcome is unknown. */
-  cutFirstRun?: boolean;
-  /** A job that runs long ends `failed` instead of `ready`. */
-  jobFails?: boolean;
+  /** Runs (1 for the first) that start their job, then their answer is cut off (a proxy ends it): the outcome is unknown. */
+  cutRuns?: number[];
+  /** Runs (1 for the first) whose job ends `failed` instead of `ready`. */
+  failRuns?: number[];
+  /** Every new job has failed by the time it is made. */
+  failAtCreate?: boolean;
+  /** POST /voices/{id}/complete refuses the uploaded sample. */
+  refuseSample?: boolean;
   /** The first read is rate limited, with a Retry-After of this many seconds. */
   limitFirstRead?: number;
   /** POST /voices refuses with this code. */
@@ -59,7 +63,7 @@ export const fakePlatform = (o: FakeOptions = {}) => {
   const sent: Sent[] = [], puts: Put[] = [];
   const voices = [MALE];
   const made = new Map<string, { id: string; done: boolean }>();
-  type Job = { id: string; key: string; language?: string; uploaded?: Uint8Array; state: 'created' | 'running' | 'ready' | 'failed'; reads: number; charged: number };
+  type Job = { id: string; key: string; language?: string; uploaded?: Uint8Array; state: 'created' | 'running' | 'ready' | 'failed'; reads: number; charged: number; fails?: boolean };
   const jobs = new Map<string, Job>();
   let runs = 0, reads = 0;
   const price = o.price ?? ((s: number) => Math.ceil(s / 10));
@@ -69,7 +73,7 @@ export const fakePlatform = (o: FakeOptions = {}) => {
   /** A running job moves on with every read; it is charged when it is ready. */
   const advance = (j: Job): void => {
     if (j.state !== 'running' || --j.reads > 0) return;
-    Object.assign(j, o.jobFails ? { state: 'failed' } : { state: 'ready', charged: price(secondsOf(j)) });
+    Object.assign(j, j.fails ? { state: 'failed' } : { state: 'ready', charged: price(secondsOf(j)) });
   };
   const result = (j: Job) => j.state !== 'ready' ? { id: j.id, state: j.state } : ({
     id: j.id, state: j.state, language: j.language ?? 'zh', seconds: secondsOf(j), chargedCredits: j.charged,
@@ -111,7 +115,8 @@ export const fakePlatform = (o: FakeOptions = {}) => {
     const complete = /^\/voices\/([^/]+)\/complete$/.exec(path);
     if (complete) {
       const entry = [...made.values()].find((m) => m.id === complete[1]);
-      if (!entry || !puts.some((p) => p.url.endsWith('/voices/' + entry.id))) return refuse('VOICE_SAMPLE_MISSING', 'Upload the sample first.');
+      if (!entry || !puts.some((p) => p.url.endsWith('/voices/' + entry.id)) || o.refuseSample)
+        return Response.json({ success: false, data: null, error: { code: 'INVALID_REQUEST', message: 'The sample is not usable.', details: { issues: [{ path: 'audio' }] } } }, { status: 400 });
       entry.done = true;
       const item = voice(entry.id, { name: 'Made ' + entry.id });
       if (!voices.some((v) => v.id === item.id)) voices.push(item);
@@ -123,7 +128,8 @@ export const fakePlatform = (o: FakeOptions = {}) => {
       const known = [...jobs.values()].find((j) => j.key === key);
       if (known) return ok({ id: known.id, uploadUrl: known.state === 'created' ? UPLOADS + '/transcriptions/' + known.id : null, state: known.state });
       const id = 't-' + (jobs.size + 1);
-      jobs.set(id, { id, key, ...(typeof body?.language === 'string' ? { language: body.language } : {}), state: 'created', reads: 0, charged: 0 });
+      jobs.set(id, { id, key, ...(typeof body?.language === 'string' ? { language: body.language } : {}), state: o.failAtCreate ? 'failed' : 'created', reads: 0, charged: 0 });
+      if (o.failAtCreate) return ok({ id, uploadUrl: null, state: 'failed' });
       return ok({ id, uploadUrl: UPLOADS + '/transcriptions/' + id, state: 'created' });
     }
     const run = /^\/transcriptions\/([^/]+)\/run$/.exec(path);
@@ -136,9 +142,11 @@ export const fakePlatform = (o: FakeOptions = {}) => {
       if (credits > Number(body?.maxCredits))
         return Response.json({ success: false, data: null, error: { code: 'CREDIT_LIMIT_EXCEEDED', message: 'The price is above maxCredits.', details: { required: credits, maxCredits: Number(body?.maxCredits) } } }, { status: 402 });
       runs += 1;
-      if (o.runningReads || (o.cutFirstRun && runs === 1)) Object.assign(job, { state: 'running', reads: o.runningReads ?? 2 });
-      else Object.assign(job, { state: 'ready', charged: credits });
-      if (o.cutFirstRun && runs === 1) return new Response('<html>origin timed out</html>', { status: 524 });
+      const cut = o.cutRuns?.includes(runs) ?? false;
+      job.fails = o.failRuns?.includes(runs) ?? false;
+      if (o.runningReads || cut) Object.assign(job, { state: 'running', reads: o.runningReads ?? 2 });
+      else Object.assign(job, job.fails ? { state: 'failed' } : { state: 'ready', charged: credits });
+      if (cut) return new Response('<html>origin timed out</html>', { status: 524 });
       return ok(result(job));
     }
     const read = /^\/transcriptions\/([^/]+)$/.exec(path);

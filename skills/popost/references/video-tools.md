@@ -57,6 +57,7 @@ under `leftOut`. A render has its own sound: quote it (`popost video transcript 
 `readback` that should hear it. The same sound sent again reuses its transcription and is not charged twice. popost.ai
 transcribes at most 30 min of sound. A long one writes a line on stderr every 30 s while the command waits (at most
 30 min); when the command stops before it is done, run it again: it waits for the same job instead of starting a new one.
+After a transcription that failed, running the command again starts one new job.
 A transcriber in `POPOST_ASR_CMD` is used instead whenever it is set. `popost video doctor` shows
 `"transcribe": "POPOST_ASR_MAX_CREDITS"` when the hosted transcriber is ready, and under `hosted` what it still needs.
 

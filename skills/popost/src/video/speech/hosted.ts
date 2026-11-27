@@ -9,13 +9,17 @@
  * comes from the sound and the language, so a retry reuses the job: a running one is waited for and a finished one read
  * back, neither charged again), the WAV is uploaded and the job is run. A run that takes long answers `running`: the
  * job is then read every 3 s, for at most 30 min, with a line on stderr every 30 s. Reading a job is free.
+ *
+ * The platform keeps a failed job under its key, so a key that failed is followed by the next one, made from the sound,
+ * the language and the failed job's id: a retry after a failure starts one new job, and a retry after that finds it by
+ * the same walk. Nothing is kept on this machine.
  */
 import { sha256 } from '../../core/util';
 import { sleep } from '../../providers/time';
 import { AmbiguousSubmitError, PopostApiError } from '../../providers/errors';
 import type { Runtime } from '../../runtime';
 import { withTempDir } from '../host';
-import { operationKeyOf, platform, quoteTranscription, readTranscription, runTranscription, startTranscription, uploadWav, type Transcription, type WordTime } from '../hosted-api';
+import { operationKeyOf, platform, quoteTranscription, readTranscription, runTranscription, startTranscription, uploadWav, type Transcription, type TranscriptionJob, type WordTime } from '../hosted-api';
 import { probe } from '../media/ffmpeg';
 import { isMono16, plainWav, readWav, speechWav } from '../media/wav';
 import { ToolError } from '../tool';
@@ -131,12 +135,29 @@ const untilDone = async (rt: Runtime, job: Transcription, seconds: number): Prom
  * The job of this sound, finished: a job made before is waited for or read back (not charged again); a new one is
  * uploaded and run within `remaining`. charged: the credits of a job run by this call.
  */
+/** Failed jobs a call steps past (each a free create, nothing uploaded) before it gives up on the sound. */
+export const FAILED_LINKS = 5;
+export const FAILED = 'The popost.ai transcription failed; run the same command again to start a new one.';
+
+/**
+ * The job of this sound and language that has not failed: the first key's, else the job of the key after each failed
+ * one, at most FAILED_LINKS steps along.
+ */
+const currentJob = async (rt: Runtime, bytes: Uint8Array, language: string | undefined): Promise<TranscriptionJob> => {
+  const sound = sha256(bytes), lang = language ?? '';
+  const start = (operationKey: string) => startTranscription(rt, { operationKey, sizeBytes: bytes.length, ...(language ? { language } : {}) });
+  let job = await start(operationKeyOf({ transcription: sound, language: lang }));
+  for (let link = 0; job.state === 'failed' && link < FAILED_LINKS; link += 1) job = await start(operationKeyOf({ transcription: sound, language: lang, after: job.id }));
+  if (job.state === 'failed')
+    throw new ToolError('popost.ai failed to transcribe this sound ' + (FAILED_LINKS + 1) + ' times and does not try it again. Use a transcriber of your own (POPOST_ASR_CMD) for it.');
+  return job;
+};
+
 const sendAndRun = async (rt: Runtime, bytes: Uint8Array, language: string | undefined, remaining: number, seconds: number): Promise<{ result: Transcription; charged: number }> => {
-  const operationKey = operationKeyOf({ transcription: sha256(bytes), language: language ?? '' });
-  const job = await startTranscription(rt, { operationKey, sizeBytes: bytes.length, ...(language ? { language } : {}) });
+  const job = await currentJob(rt, bytes, language);
   const earlier = { id: job.id, state: job.state, language: '', seconds, chargedCredits: 0, words: [] };
   if (job.state === 'ready') return { result: await readTranscription(rt, job.id), charged: 0 };
-  if (job.state === 'running' || job.state === 'failed') return { result: await untilDone(rt, earlier, seconds), charged: 0 };
+  if (job.state === 'running') return { result: await untilDone(rt, earlier, seconds), charged: 0 };
   if (job.uploadUrl) await uploadWav(rt, job.uploadUrl, bytes, 'the sound to transcribe');
   const hint = 'Run the same command again: the same sound reuses the same transcription job.';
   try {
@@ -163,7 +184,7 @@ export const hostedTranscriber = (rt: Runtime): Transcriber | undefined => {
     if (credits > remaining)
       throw new ToolError('Transcribing ' + seconds.toFixed(1) + ' s of sound costs ' + credits + ' credits; ' + remaining + ' of the confirmed ' + ASR_BUDGET + ' budget are left. Price it with ' + QUOTE_HINT + ' and, with the user\'s agreement, set a budget that covers it.');
     const { result, charged } = await sendAndRun(rt, bytes, language, remaining, seconds);
-    if (result.state === 'failed') throw new ToolError('The popost.ai transcription failed; run the same command again to start a new one.');
+    if (result.state === 'failed') throw new ToolError(FAILED);
     if (result.state !== 'ready') throw new ToolError('The popost.ai transcription is ' + (result.state || 'not ready') + '; run the same command again.');
     remaining = Math.max(0, remaining - charged);
     return rawTranscriptOf(result.language || language || '', result.words);

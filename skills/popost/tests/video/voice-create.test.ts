@@ -93,5 +93,10 @@ describe.skipIf(!ok)('voice create from a recording', () => {
     expect((await create(limited.rt, 'talk.m4a')).code).toBe(2);
     expect(String(limited.rt.json().error)).toContain('VOICE_PLAN_LIMIT');
     expect(limited.platform.puts).toHaveLength(0);
+    const refused = withPlatform({ refuseSample: true });
+    expect((await create(refused.rt, 'talk.m4a')).code).toBe(2);
+    expect(String(refused.rt.json().error)).toContain('could not use this recording as a voice sample');
+    expect(String(refused.rt.json().error)).toContain('Give another recording');
+    expect(String(refused.rt.json().error)).toContain('INVALID_REQUEST');
   });
 });

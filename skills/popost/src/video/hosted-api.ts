@@ -7,7 +7,8 @@
  *   POST /voices                    { operationKey, name, language?, description?, sizeBytes, consent: true } -> { id, uploadUrl | null }
  *   POST /voices/{id}/complete      -> the voice, as GET /voices lists it
  *   POST /transcriptions            { operationKey, sizeBytes, language? } -> { id, uploadUrl, state } (the same key again:
- *                                   the same job, `running` or `ready` once it was run)
+ *                                   the same job, `running`, `ready` or `failed` once it was run; a failed job keeps
+ *                                   its key, so speech/hosted.ts moves on to a key made from the failed job's id)
  *   POST /transcriptions/quote      { seconds } -> { credits } (free)
  *   POST /transcriptions/{id}/run   { maxCredits } -> { id, state: 'ready', language, seconds, chargedCredits, words },
  *                                   or { id, state: 'running' } when it takes longer than the platform waits (~45 s)

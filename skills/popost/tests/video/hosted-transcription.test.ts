@@ -162,7 +162,7 @@ describe('a transcription that runs long', () => {
   });
 
   it('a rerun finds the job running: it waits for it without uploading, running or spending again', async () => {
-    const { rt, platform } = clocked({ POPOST_ASR_MAX_CREDITS: '1' }, { cutFirstRun: true, runningReads: 3 });
+    const { rt, platform } = clocked({ POPOST_ASR_MAX_CREDITS: '1' }, { cutRuns: [1], runningReads: 3 });
     await rt.fs.writeFile('/work/a.wav', wav({ seconds: 4 }));
     await expect(hostedTranscriber(rt)!.transcribe('/work/a.wav')).rejects.toMatchObject({ name: 'ToolError', message: expect.stringContaining('the same sound reuses the same transcription job') });
     expect(platform.jobs.get('t-1')?.state).toBe('running');
@@ -181,9 +181,41 @@ describe('a transcription that runs long', () => {
     await limited.rt.fs.writeFile('/work/a.wav', wav({ seconds: 2 }));
     await hostedTranscriber(limited.rt)!.transcribe('/work/a.wav');
     expect(limited.sleeps).toEqual([3000, 7000, 3000]);
-    const failing = clocked({ POPOST_ASR_MAX_CREDITS: '5' }, { runningReads: 2, jobFails: true });
+    const failing = clocked({ POPOST_ASR_MAX_CREDITS: '5' }, { runningReads: 2, failRuns: [1] });
     await failing.rt.fs.writeFile('/work/a.wav', wav({ seconds: 2 }));
     await expect(hostedTranscriber(failing.rt)!.transcribe('/work/a.wav')).rejects.toThrow('failed; run the same command again to start a new one');
+  });
+
+  it('a rerun after a failed job starts one new job, and a rerun after that finds the new job', async () => {
+    const { rt, platform } = clocked({ POPOST_ASR_MAX_CREDITS: '5' }, { runningReads: 2, failRuns: [1], cutRuns: [2] });
+    await rt.fs.writeFile('/work/a.wav', wav({ seconds: 4 }));
+    await expect(hostedTranscriber(rt)!.transcribe('/work/a.wav')).rejects.toThrow('failed; run the same command again to start a new one');
+    expect(platform.jobs.get('t-1')?.state).toBe('failed');
+    const creates = () => platform.sent.filter((x) => x.path === '/transcriptions').map((x) => String(x.body?.operationKey));
+    // First rerun: the key of the sound answers failed; the next key, made from the failed job, makes t-2, which is cut off.
+    await expect(hostedTranscriber(rt)!.transcribe('/work/a.wav')).rejects.toThrow('the same sound reuses the same transcription job');
+    expect(platform.jobs.size).toBe(2);
+    expect(platform.jobs.get('t-2')?.state).toBe('running');
+    const [first, again, next] = creates();
+    expect(again).toBe(first);
+    expect(next).not.toBe(first);
+    // Second rerun: the same walk finds t-2 and waits for it, with no upload, run or new job.
+    const before = platform.sent.length;
+    expect((await hostedTranscriber(rt)!.transcribe('/work/a.wav')).words).toHaveLength(4);
+    expect(platform.paths().slice(before)).toEqual(['POST /transcriptions/quote', 'POST /transcriptions', 'POST /transcriptions', 'GET /transcriptions/t-2', 'GET /transcriptions/t-2']);
+    expect(creates().slice(3)).toEqual([first, next]);
+    expect(platform.jobs.size).toBe(2);
+    expect(platform.puts).toHaveLength(2);
+    expect(platform.paths().filter((x) => x.endsWith('/run'))).toHaveLength(2);
+  });
+
+  it('steps past at most 5 failed jobs, then gives up on the sound without uploading', async () => {
+    const { rt, platform } = clocked({ POPOST_ASR_MAX_CREDITS: '5' }, { failAtCreate: true });
+    await rt.fs.writeFile('/work/a.wav', wav({ seconds: 4 }));
+    await expect(hostedTranscriber(rt)!.transcribe('/work/a.wav')).rejects.toThrow('failed to transcribe this sound 6 times');
+    expect(platform.paths()).toEqual(['POST /transcriptions/quote', ...Array(6).fill('POST /transcriptions')]);
+    expect(new Set(platform.sent.slice(1).map((x) => x.body?.operationKey)).size).toBe(6);
+    expect(platform.puts).toHaveLength(0);
   });
 
   it('stops waiting after 30 min, and refuses more than 30 min of sound before anything is sent', async () => {
