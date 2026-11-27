@@ -42,7 +42,7 @@ import { evalCommands } from './eval';
 import { FIT_TEMPO, fitTempoOf, looping } from './loop-shared';
 import { briefOf } from './make';
 import { materials } from './materials';
-import { command, userPath, VideoCommandError, type Commands } from './shared';
+import { briefTitle, captionTitle, command, userPath, VideoCommandError, type Commands } from './shared';
 import { templateCommands } from './template';
 
 const TEMPLATE: PositionalSpec = { name: 'template-dir', help: 'a directory written by template save' };
@@ -184,6 +184,7 @@ const plan = command(
     });
   }),
   (args) => args.string('assets'),
+  briefTitle('brief'),
 );
 
 const retargetCommand = command(
@@ -244,6 +245,7 @@ const retargetCommand = command(
     });
   },
   (args) => args.string('out'),
+  captionTitle('plan'),
 );
 
 const readbackCommand = command(

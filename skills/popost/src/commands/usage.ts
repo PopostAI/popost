@@ -1,5 +1,7 @@
 /**
- * `popost usage --dir P [--budget N]`: what a project has cost on popost.ai so far, as the platform counts it (free).
+ * `popost usage --dir P [--budget N] [--title TEXT]`: what a project has cost on popost.ai so far, as the platform
+ * counts it (free). --title names the project's task (production/task.json) before it reads the usage: later requests
+ * carry the new title, and the account page shows it.
  * Every request made in a project carries the project's task (providers/task.ts), and `GET /usage/tasks/{id}` answers
  * the net credits of the task, refunds subtracted, item by item; the user's account page shows the same as one line,
  * "Task: <title>". With --budget N, the budget the user agreed (for a video: the one budget of the video), it adds what
@@ -14,7 +16,7 @@ import { isRecord, type JsonRecord } from '../providers/base';
 import { loadConfig, providerConfig } from '../providers/cli-config';
 import { CliReject, ImageProviderError, LOCAL_ERROR_CODES, PopostApiError } from '../providers/errors';
 import { scrub, secretValues } from '../providers/secrets';
-import { inProject, projectTask, VIDEO_MARKS } from '../providers/task';
+import { inProject, nameTask, projectTask, TaskError, VIDEO_MARKS } from '../providers/task';
 import type { CommandMain, Runtime } from '../runtime';
 import { readClipRecord } from '../video/generate/approved';
 
@@ -27,6 +29,14 @@ const spec = (): CommandSpec => ({
   options: [
     { flag: '--dir', required: true, help: msg('the project: an image project, or a video project (the folder of video.json)', '工程目录：图文工程，或视频工程（video.json 所在目录）') },
     { flag: '--budget', kind: 'int', metavar: 'N', help: msg('the budget the user agreed, in credits: adds what is left', '用户同意的预算（积分）：同时输出剩余') },
+    {
+      flag: '--title',
+      metavar: 'TEXT',
+      help: msg(
+        'name the project\'s line on the account page, in the user\'s language (a few words: the product and the platform, say); kept in production/task.json, sent with every later request. A folder that is not an image project becomes a video project',
+        '给账户页上这个工程的一行起名，用用户的语言（几个字，比如产品和平台）；保存在 production/task.json，之后每个请求都带上它。不是图文工程的目录按视频工程处理',
+      ),
+    },
     { flag: '--config', help: msg('private config JSON (popost.baseUrl / popost.auth.envVar)', '私有配置 JSON（popost.baseUrl / popost.auth.envVar）') },
   ],
 });
@@ -66,7 +76,7 @@ const NOT_REPORTED = msg(
   '当前连接的 popost.ai 还不提供任务用量（没有 /usage/tasks）。未扣费。在此之前，请把每个付费命令输出的 chargedCredits 相加。',
 );
 
-const showUsage = async (rt: Runtime, call: { dir: string; budget?: number; config?: string }): Promise<number> => {
+const showUsage = async (rt: Runtime, call: { dir: string; budget?: number; title?: string; config?: string }): Promise<number> => {
   let secrets: string[] = [];
   const show = (value: JsonRecord, code: number): number => {
     printJson(rt, scrub(value, secrets), true);
@@ -74,6 +84,14 @@ const showUsage = async (rt: Runtime, call: { dir: string; budget?: number; conf
   };
   if (call.budget !== undefined && call.budget < 0) return show({ ok: false, code: 'BAD_ARGUMENT', error: msg('--budget is a number of credits, 0 or more', '--budget 是积分数，不小于 0') }, 2);
   const dir = rt.path.resolve(rt.cwd, call.dir);
+  if (call.title !== undefined) {
+    try {
+      await nameTask(rt, dir, call.title);
+    } catch (error) {
+      if (!(error instanceof TaskError)) throw error;
+      return show({ ok: false, code: 'BAD_TITLE', error: error.message }, 2);
+    }
+  }
   const task = (await isDir(rt, dir)) ? await projectTask(rt, { dir, kind: 'found' }, false) : undefined;
   if (!task) return show({ ok: false, code: 'NOT_A_PROJECT', error: NOT_A_PROJECT(call.dir) }, 2);
   const title = task.title ?? null;
@@ -91,7 +109,8 @@ const showUsage = async (rt: Runtime, call: { dir: string; budget?: number; conf
     const body = isRecord(data) ? data : {};
     const credits = count(body.credits);
     if (credits === undefined) throw new PopostApiError(msg('popost.ai answered the usage of the task without its credits', 'popost.ai 返回的任务用量里没有积分'), { code: 'BAD_RESPONSE' });
-    const named = typeof body.title === 'string' && body.title ? body.title : title;
+    // The title just given is the one the platform now has; otherwise the platform's, else the project's own.
+    const named = call.title === undefined && typeof body.title === 'string' && body.title ? body.title : title;
     return show({ ok: true, task: task.id, title: named, credits, items: itemsOf(body.items), ...(await budgetOf(rt, dir, call.budget, credits)) }, 0);
   } catch (error) {
     if (error instanceof PopostApiError && error.status === 404) return show({ ok: false, code: 'USAGE_NOT_AVAILABLE', task: task.id, title, error: NOT_REPORTED }, 1);
@@ -106,4 +125,6 @@ const showUsage = async (rt: Runtime, call: { dir: string; budget?: number; conf
 };
 
 export const main: CommandMain = (argv, rt) =>
-  withArgs(argv, spec(), rt, (args) => showUsage(rt, { dir: args.req('dir'), ...(args.number('budget') !== undefined ? { budget: args.number('budget') } : {}), config: args.string('config') }));
+  withArgs(argv, spec(), rt, (args) =>
+    showUsage(rt, { dir: args.req('dir'), ...(args.number('budget') !== undefined ? { budget: args.number('budget') } : {}), ...(args.string('title') !== undefined ? { title: args.string('title') } : {}), config: args.string('config') }),
+  );

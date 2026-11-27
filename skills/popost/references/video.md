@@ -19,7 +19,7 @@ Read this page once, then do steps 0 to 7 in order; "Done when" says what must b
   `confirm` made and charged nothing: ask the user again only when its credits are more than what is left or the scope
   changed (more or longer shots, another voice); otherwise run it again within what is left. `INSUFFICIENT_CREDITS`:
   the balance is short; `popost account` shows it and where to add credits. Tell the user once that the video's
-  charges show as one line, "Task: <the project folder's name>", with its items, on their popost.ai account page.
+  charges show as one line, "Task: <the title step 0 gave it>", with its items, on their popost.ai account page.
 - Generated video is the expensive item. Never regenerate a clip to fix its quality, make a variant, change a clip's
   request (prompt, length, references, model, resolution) or add a clip without showing the user the clip, the reason
   and the price, and getting a yes. `materials` and `generate` stop such a clip on their own, whatever the budget:
@@ -68,12 +68,15 @@ popost video doctor
 Then, before step 1, the cost overview (leave out what this video does not use):
 
 ```bash
+popost usage --dir project --title "<a few words naming this video for the user: the product and the platform>"
 popost account                                         # the balance
 popost video transcript reference.mp4 --quote          # transcription of the reference: its exact price, free
 popost video voice quote --voice default-male --text "<a script as long as the reference's speech>"
 ```
 
-Add up: the transcription (exact), the voice-over (the quote of a script of about the reference's length; it is an
+The first line names the video's line on the account page, in the user's language (for example "Coffee grinder
+for TikTok"); run it once, before the first paid command (it is free and creates `project/`). Add up: the
+transcription (exact), the voice-over (the quote of a script of about the reference's length; it is an
 estimate until the lines are written), a little for pace calibration (`plan --voice` speaks one sentence), and for
 generated clips and pictures their price per second or per picture (`popost video generate --models`) times what you
 plan. Show the user the items, the total and the balance, and agree one budget for the whole video (the money rule

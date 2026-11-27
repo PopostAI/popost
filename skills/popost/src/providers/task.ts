@@ -9,12 +9,17 @@
  *
  * A value that does not fit is left out, never sent: a request never fails for its task. The id of an image project is
  * its manifest's `projectId` when it fits. Any other project keeps its id in `production/task.json`, made with a random
- * id the first time a request is sent in it; an id once there is never changed. The title is an image project's title
- * or name, else its brief (the title cloud save gives it), else the folder's name; a video project's `title` in
- * production/task.json, else the folder's name.
+ * id the first time a request is sent in it; an id once there is never changed.
+ *
+ * The title: the `title` in production/task.json first (`popost usage --dir P --title …` sets it, nameTask), then for an
+ * image project its title, name or brief (the title cloud save gives it), and else the folder's name. A video project
+ * keeps the title of its first request in the file: what that command was about (ProjectContext.title: the
+ * reference's file name, the first words of a brief or fill) or else the folder's name. It is read again for every
+ * request, so a new title goes with the next one.
  */
 import { MANIFEST_NAME } from '../core/project';
 import { readJson, writeJson } from '../core/util';
+import { msg } from '../i18n';
 import type { ProjectContext, Runtime } from '../runtime';
 import { isRecord, type JsonRecord } from './base';
 
@@ -81,17 +86,47 @@ export const projectTask = async (rt: Runtime, ctx: ProjectContext, create: bool
   const file = at(rt, dir, TASK_FILE);
   const stored = await recordAt(rt, file);
   const manifest = kind === 'image' ? ((await recordAt(rt, rt.path.join(dir, MANIFEST_NAME))) ?? {}) : {};
-  const titles = kind === 'image' ? [manifest.title, manifest.name, manifest.brief] : [stored?.title];
+  const titles = kind === 'image' ? [stored?.title, manifest.title, manifest.name, manifest.brief] : [stored?.title, ctx.title];
   const title = [...titles, rt.path.basename(dir)].map(cleanTitle).find((t) => t !== undefined);
   const base = { dir, kind, ...(title ? { title } : {}) };
   const id = kind === 'image' && fits(manifest.projectId) ? manifest.projectId : stored && fits(stored.id) ? stored.id : undefined;
-  // An id in the task file that does not fit is not replaced: an id once there is never changed.
-  if (id || !create || stored?.id !== undefined) return { ...base, ...(id ? { id } : {}) };
-  const made = rt.randomUUID().replace(/-/g, '');
+  // An id in the task file that does not fit, or a file that cannot be read, is not replaced: an id is never changed.
+  if (id || !create || stored?.id !== undefined || (!stored && (await exists(rt, file)))) return { ...base, ...(id ? { id } : {}) };
+  const made = newId(rt);
+  // A video project keeps the title of its first request (what that command was about, else the folder's name), so
+  // its line on the account page stays the same until one is given.
+  const named = kind === 'video' && stored?.title === undefined && title !== undefined ? { title } : {};
   await rt.fs.mkdir(rt.path.dirname(file));
-  await writeJson(rt, file, { ...stored, id: made });
+  await writeJson(rt, file, { ...stored, id: made, ...named });
   return { ...base, id: made };
 };
+
+const newId = (rt: Runtime): string => rt.randomUUID().replace(/-/g, '');
+
+/**
+ * Names the task of the project at `dir` (`popost usage --title`): the title goes into production/task.json, ahead of
+ * every other, with an id when the project has none yet. A folder that is not an image project is a video project.
+ * Sends nothing.
+ */
+export const nameTask = async (rt: Runtime, dir: string, raw: string): Promise<ProjectTask> => {
+  const title = cleanTitle(raw);
+  if (!title) throw new TaskError(msg('--title needs a few words: it is empty without its control characters', '--title 需要几个字：去掉控制字符后为空'));
+  const root = rt.path.resolve(rt.cwd, dir);
+  const image = await exists(rt, rt.path.join(root, MANIFEST_NAME));
+  const file = at(rt, root, TASK_FILE);
+  const stored = await recordAt(rt, file);
+  if (!stored && (await exists(rt, file))) throw new TaskError(msg(`${file} cannot be read; it is left as it is`, `${file} 无法读取，保持原样`));
+  const manifest = image ? ((await recordAt(rt, rt.path.join(root, MANIFEST_NAME))) ?? {}) : {};
+  const needsId = !(image && fits(manifest.projectId)) && stored?.id === undefined;
+  await rt.fs.mkdir(rt.path.dirname(file));
+  await writeJson(rt, file, { ...stored, ...(needsId ? { id: newId(rt) } : {}), title });
+  return (await projectTask(rt, { dir: root, kind: image ? 'found' : 'video' }, false)) as ProjectTask;
+};
+
+/** A title that cannot be set. */
+export class TaskError extends Error {
+  override name = 'TaskError';
+}
 
 /** Tasks found per file system and project, so that requests side by side make one id. Only a task with an id is kept. */
 const known = new WeakMap<object, Map<string, Promise<ProjectTask | undefined>>>();
@@ -113,7 +148,10 @@ export const taskHeaders = async (rt: Runtime): Promise<Record<string, string>> 
   if (!rt.project) return {};
   const task = await taskOf(rt, rt.project);
   if (!task?.id) return {};
-  const title = task.title === undefined ? undefined : encodeTitle(task.title);
+  // The id is found once; the title is read again, so that a title given since goes with this request.
+  const now = await projectTask(rt, rt.project, false).catch(() => undefined);
+  const named = now?.title ?? task.title;
+  const title = named === undefined ? undefined : encodeTitle(named);
   const session = rt.env.CODEX_THREAD_ID?.trim();
   return {
     'x-popost-task': task.id,
@@ -122,8 +160,11 @@ export const taskHeaders = async (rt: Runtime): Promise<Record<string, string>> 
   };
 };
 
-/** `rt` working in the project at `dir`. */
-export const inProject = (rt: Runtime, dir: string, kind: ProjectContext['kind'] = 'video'): Runtime => ({ ...rt, project: { dir: rt.path.resolve(rt.cwd, dir), kind } });
+/** `rt` working in the project at `dir`; title: what the command is about, for a video project without a title. */
+export const inProject = (rt: Runtime, dir: string, kind: ProjectContext['kind'] = 'video', title?: string): Runtime => ({
+  ...rt,
+  project: { dir: rt.path.resolve(rt.cwd, dir), kind, ...(title ? { title } : {}) },
+});
 
 /** The project at or above `path`: the nearest folder that is an image project or has the marks of a video project. */
 export const enclosingProject = async (rt: Runtime, path: string): Promise<string | undefined> => {

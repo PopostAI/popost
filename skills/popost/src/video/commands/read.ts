@@ -33,7 +33,7 @@ import { commandTextReader, cuesOf, readSamples, withCaptionLook, type TextReadi
 import { rolesWithSpeech } from '../text/speech';
 import type { Boundary, Measure, ShotMeasure, Unrecovered } from '../types';
 import { unrecoveredIn } from './elements';
-import { command, PROJECT_OPTION, userPath, VideoCommandError, type Commands } from './shared';
+import { command, PROJECT_OPTION, userPath, VideoCommandError, videoTitle, type Commands } from './shared';
 
 const VIDEO: PositionalSpec = { name: 'video', help: 'a video file ffmpeg can read' };
 const LANGUAGE: OptionSpec = { flag: '--language', help: 'what the speech is in, such as zh or en (default: the transcriber detects it)' };
@@ -187,6 +187,7 @@ const transcript = command(
     });
   },
   (args) => args.string('project'),
+  videoTitle,
 );
 
 /** Pictures an earlier describe wrote into the same directory, which this one's may not replace (a shot or a transition fewer). */
@@ -251,6 +252,7 @@ const describe = command(
     });
   },
   (args) => args.string('project'),
+  videoTitle,
 );
 
 /** What describe says of its pictures: where they are, which labels do not fit them, and that they are to be opened. */

@@ -4,11 +4,13 @@
  * in-memory platform of the image tests. No network, no real key.
  */
 import { describe, expect, it } from 'vitest';
+import { parseArgs } from '../src/args';
 import { Project } from '../src/core/project';
 import { PopostClient } from '../src/providers/api';
 import { cleanTitle, dirArg, inProject, projectTask, TASK_FILE } from '../src/providers/task';
-import type { TestRuntime } from '../src/testing/memory';
-import { cli, ok, newScene, type Recorded } from './image-helpers';
+import type { FetchHandler, TestRuntime } from '../src/testing/memory';
+import { briefTitle, captionTitle, firstWords, videoTitle } from '../src/video/commands/shared';
+import { cli, ok, newScene, type PopostStub, type Recorded } from './image-helpers';
 
 const TASK = /^[A-Za-z0-9_-]{8,64}$/;
 const taskOf = (r: Recorded | undefined) => ({ task: r?.headers['x-popost-task'], title: r?.headers['x-popost-task-title'], session: r?.headers['x-popost-agent-session'] });
@@ -20,11 +22,22 @@ const me = async (rt: TestRuntime, stub: { requests: Recorded[] }, dir?: string)
   return stub.requests.at(-1);
 };
 
+/** The platform answers the usage of any task: nothing spent yet. */
+const anyTask =
+  (stub: PopostStub): FetchHandler =>
+  (request) => {
+    const id = new URL(request.url).pathname.match(/\/usage\/tasks\/([^/]+)$/)?.[1];
+    if (id) stub.set('GET', '/usage/tasks/' + id, () => ok({ id, credits: 0, items: [] }));
+    return stub.fetch(request);
+  };
+
 const sceneWithMe = async (env: Record<string, string> = {}) => {
-  const s = await newScene({ env });
+  const s = await newScene({ env, fetchHandler: anyTask });
   s.stub.set('GET', '/me', () => ok({ user: { name: 'u' }, credits: { balance: 100 } }));
   return s;
 };
+
+const stored = async (rt: TestRuntime, dir: string) => JSON.parse(await rt.fs.readText(dir + '/' + TASK_FILE));
 
 describe('the task headers', () => {
   it('a video project gets an id the first time a request is sent in it, the same every run, and its folder name as the title', async () => {
@@ -105,6 +118,44 @@ describe('the task headers', () => {
     expect(JSON.parse(await rt.fs.readText('/work/v/' + TASK_FILE))).toEqual({ id: 'bad id' });
   });
 
+  it('a video project keeps the title of its first request, what that command was about, else its folder name', async () => {
+    const { rt, stub } = await sceneWithMe();
+    await rt.fs.mkdir('/work/v');
+    const hinted = (dir: string, title?: string) => new PopostClient(inProject(rt, dir, 'video', title)).request('GET', '/me');
+    await hinted('/work/v', 'Desk lamp unboxing');
+    const first = await stored(rt, '/work/v');
+    expect(first).toEqual({ id: expect.stringMatching(TASK), title: 'Desk lamp unboxing' });
+    // A later command about something else does not rename the line.
+    await hinted('/work/v', 'Another brief');
+    expect(decoded(stub.requests.at(-1))).toBe('Desk lamp unboxing');
+    expect(await stored(rt, '/work/v')).toEqual(first);
+    // Without anything to go by: the folder's name, kept as well.
+    await rt.fs.mkdir('/work/w');
+    await hinted('/work/w');
+    await hinted('/work/w', 'Later brief');
+    expect(decoded(stub.requests.at(-1))).toBe('w');
+    expect((await stored(rt, '/work/w')).title).toBe('w');
+  });
+
+  it('takes what a video command is about from the reference file (not "reference"), a brief or a fill', async () => {
+    const { rt } = await newScene({
+      files: {
+        '/work/brief.md': '\n  Spring launch of the   Aero desk lamp, for TikTok shoppers who work late at night and need light\nsecond line',
+        '/work/fill.json': JSON.stringify({ shots: [], captions: ['', 'The *brightest* lamp', 'more'] }),
+      },
+    });
+    const args = (...argv: string[]) =>
+      parseArgs(argv, { prog: 't', positionals: [{ name: 'video', required: false }], options: [{ flag: '--brief' }, { flag: '--fill' }] });
+    expect(await videoTitle(args('clips/Aero lamp launch.mp4'), rt)).toBe('Aero lamp launch');
+    expect(await videoTitle(args('reference.mp4'), rt)).toBeUndefined();
+    expect(await videoTitle(args('ref/Reference.MOV'), rt)).toBeUndefined();
+    expect(await briefTitle('brief')(args('--brief', 'brief.md'), rt)).toBe('Spring launch of the Aero desk lamp, for TikTok shoppers who');
+    expect(await briefTitle('brief')(args('--brief', 'A lamp for night owls'), rt)).toBe('A lamp for night owls');
+    expect(await captionTitle('fill')(args('--fill', 'fill.json'), rt)).toBe('The brightest lamp');
+    expect(firstWords('春季新品发布'.repeat(20))).toHaveLength(60);
+    expect(firstWords(' \n ')).toBeUndefined();
+  });
+
   it('reads --dir from a command line', () => {
     expect(dirArg(['quote', '--dir', 'P'])).toBe('P');
     expect(dirArg(['--dir=Q', 'quote'])).toBe('Q');
@@ -155,6 +206,43 @@ describe('popost usage --dir', () => {
     const no = await cli(rt, 'usage', '--dir', '/work/empty');
     expect([no.code, no.data.code]).toEqual([2, 'NOT_A_PROJECT']);
     expect((await cli(rt, 'usage', '--dir', '/work/missing')).data.code).toBe('NOT_A_PROJECT');
+  });
+
+  it('--title names a video project: it makes the id, a later --title changes only the title, and the next request sends it', async () => {
+    const { rt, stub } = await sceneWithMe();
+    const first = await cli(rt, 'usage', '--dir', 'promo', '--title', 'Coffee grinder for TikTok');
+    expect(first.code, JSON.stringify(first.data)).toBe(0);
+    const made = await stored(rt, '/work/promo');
+    expect(made).toEqual({ id: expect.stringMatching(TASK), title: 'Coffee grinder for TikTok' });
+    expect(first.data).toMatchObject({ ok: true, task: made.id, title: 'Coffee grinder for TikTok', credits: 0, items: [] });
+    expect(decoded(stub.calls('GET', '/usage/tasks/' + made.id).at(-1))).toBe('Coffee grinder for TikTok');
+    expect(decoded(await me(rt, stub, '/work/promo'))).toBe('Coffee grinder for TikTok');
+    const again = await cli(rt, 'usage', '--dir', 'promo', '--title', '咖啡磨豆机 · 抖音', '--budget', '40');
+    expect(again.data).toMatchObject({ ok: true, task: made.id, title: '咖啡磨豆机 · 抖音', budget: { agreed: 40, left: 40 } });
+    expect(await stored(rt, '/work/promo')).toEqual({ id: made.id, title: '咖啡磨豆机 · 抖音' });
+    // The next request of this process, whose project was seen before, carries the new title.
+    const next = await me(rt, stub, '/work/promo');
+    expect({ ...taskOf(next), title: decoded(next) }).toEqual({ task: made.id, title: '咖啡磨豆机 · 抖音', session: undefined });
+    // Free: only the usage itself and /me were asked.
+    expect(new Set(stub.requests.map((r) => r.method + ' ' + r.path.replace(made.id, '<id>')))).toEqual(new Set(['GET /api/open/v1/usage/tasks/<id>', 'GET /api/open/v1/me']));
+    const empty = await cli(rt, 'usage', '--dir', 'promo', '--title', '\n\t');
+    expect([empty.code, empty.data.code]).toEqual([2, 'BAD_TITLE']);
+  });
+
+  it('an explicit --title beats the fallback of a video project and the brief of an image project', async () => {
+    const { rt, stub } = await sceneWithMe();
+    await rt.fs.mkdir('/work/v');
+    await new PopostClient(inProject(rt, '/work/v', 'video', 'Aero lamp launch')).request('GET', '/me');
+    const { id } = await stored(rt, '/work/v');
+    await cli(rt, 'usage', '--dir', 'v', '--title', 'Aero lamp for TikTok');
+    await new PopostClient(inProject(rt, '/work/v', 'video', 'Aero lamp launch')).request('GET', '/me');
+    expect({ ...taskOf(stub.requests.at(-1)), title: decoded(stub.requests.at(-1)) }).toEqual({ task: id, title: 'Aero lamp for TikTok', session: undefined });
+    // An image project: the override goes into its task file, its id stays its projectId.
+    const project = await Project.create(rt, 'poster', 'Autumn sale', 'original');
+    const r = await cli(rt, 'usage', '--dir', 'poster', '--title', 'Cafe poster for Instagram');
+    expect(r.data).toMatchObject({ ok: true, task: project.manifest.projectId, title: 'Cafe poster for Instagram' });
+    expect(await stored(rt, '/work/poster')).toEqual({ title: 'Cafe poster for Instagram' });
+    expect(decoded(await me(rt, stub, '/work/poster'))).toBe('Cafe poster for Instagram');
   });
 
   it('is listed by popost --help', async () => {

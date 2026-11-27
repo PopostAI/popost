@@ -161,7 +161,7 @@ credits like images: a paid command prices its work and stops with exit code 3 u
 (the rest of the video's one budget), and prints `chargedCredits`; generated clips outside the agreed list need
 `--approve-unplanned <key>` (`production/approved-clips.json`). Every Open API request made in a project carries the
 project's task (`x-popost-task`, `x-popost-task-title`, `x-popost-agent-session`; `src/providers/task.ts`), and
-`popost usage --dir P` reads what the platform booked under it. Environment variables, all optional: `POPOST_FFMPEG`,
+`popost usage --dir P` reads what the platform booked under it (`--title TEXT` names the task first). Environment variables, all optional: `POPOST_FFMPEG`,
 `POPOST_CHROME`; `POPOST_OCR_CMD`, `POPOST_ASR_CMD`, `POPOST_TTS_CMD`, `POPOST_TTS_MODEL` (the local readers and a speaker
 of your own, see `tools/`; when set, the transcriber and the speaker go before the account's); `POPOST_LLM_URL`,
 `POPOST_LLM_MODEL`, `POPOST_LLM_KEY`, `POPOST_LLM_JSON` (the model of the plan step, see `src/plan/model.ts`; a key

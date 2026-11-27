@@ -33,7 +33,7 @@ import { configuredModel } from './make';
 import { readingIn, unrecoveredIn } from './elements';
 import { ELEMENTS_FILE } from '../elements/types';
 import { FIT_TEMPO, fitTempoOf, looping } from './loop-shared';
-import { command, userPath, VideoCommandError, type Commands } from './shared';
+import { captionTitle, command, userPath, VideoCommandError, type Commands } from './shared';
 const TEMPLATE: PositionalSpec = { name: 'template-dir', help: 'a directory written by template save' };
 const FILL: OptionSpec = { flag: '--fill', required: true, metavar: 'FILE', help: 'the fill: {"shots": [...], "captions": [...]}, matched by position' };
 const ASSETS: OptionSpec = { flag: '--assets', metavar: 'DIR', help: 'where the fill\'s files are (its paths are relative to it)' };
@@ -233,6 +233,7 @@ const fill = command(
     });
   }),
   (args) => args.string('out'),
+  captionTitle('fill'),
 );
 
 const test = command(

@@ -88,6 +88,8 @@ export interface ProgramOptions {
 export interface ProjectContext {
   readonly dir: string;
   readonly kind: 'video' | 'found';
+  /** A title for the task of a video project that has none yet: what the command is about (its video, brief or fill). */
+  readonly title?: string;
 }
 
 export interface LocalPrograms {

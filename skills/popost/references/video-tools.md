@@ -55,7 +55,10 @@ needs a paid plan). They are paid as images are, under one money rule:
   the total, and the balance (`popost account`). The user agrees one budget for the whole video.
 - What is spent is what popost.ai counts. Every Open API call made for a project carries the project's task (its id,
   kept in `production/task.json` of a video project or the `projectId` of an image project; its title; the agent's
-  session), and the account page shows the project as one line, "Task: <title>", item by item. `popost usage --dir
+  session), and the account page shows the project as one line, "Task: <title>", item by item. The title is the one
+  `popost usage --dir <project> --title "<a few words>"` gave (step 0); without it, the first request in the project
+  keeps one: the reference's file name (not `reference`), the first words of the brief or fill, else the folder's
+  name. `popost usage --dir
   <project> --budget <agreed>` (free) prints that count, `credits` (net, refunds subtracted), the `items`, and
   `budget.left`; with the agreed clips (`production/approved-clips.json`) also their count and price. A 404 means the
   connected popost.ai does not report it yet: then add up `chargedCredits`.
