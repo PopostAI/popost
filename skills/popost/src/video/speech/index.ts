@@ -1,9 +1,10 @@
 /**
  * Speech of a video: extract the sound, have a transcriber recognise it, keep the words in source frames.
- * The transcriber is a command named by POPOST_ASR_CMD, called as: <command> <audio.wav> <out.json> [language]
+ * With a connected popost.ai account the transcriber is popost.ai's (hosted.ts), paid in credits that the command
+ * prices first and spends only with --confirm --max-credits N. A transcriber of the user's own goes first when it is
+ * set: a command named by POPOST_ASR_CMD, called as: <command> <audio.wav> <out.json> [language]
  *   out.json  { "language": "zh", "words": [{ "text": "...", "start": 1.02, "end": 1.16, "confidence": 0.99 }] }
  * with times in seconds. skills/popost/tools/video/asr-faster-whisper is one such command for the development loop.
- * Without one, a connected popost.ai account transcribes within a confirmed POPOST_ASR_MAX_CREDITS budget (hosted.ts).
  */
 import type { Runtime } from '../../runtime';
 import { toolCommand, withTempDir } from '../host';
@@ -11,7 +12,8 @@ import { probe } from '../media/ffmpeg';
 import { speechWav } from '../media/wav';
 import type { OnStage } from '../progress';
 import { runTool, ToolError } from '../tool';
-import { hostedTranscriber, hostedTranscriptionAbsence } from './hosted';
+import type { Wallet } from '../wallet';
+import { hasHostedTranscription, hostedTranscriber } from './hosted';
 import type { Phrase, RawTranscript, SpokenWord, Transcriber, Transcript } from './types';
 
 export type { Phrase, RawTranscript, SpokenWord, Transcriber, Transcript } from './types';
@@ -21,13 +23,17 @@ const VARIABLE = 'POPOST_ASR_CMD';
 const isRaw = (v: unknown): v is RawTranscript =>
   typeof v === 'object' && v !== null && typeof (v as RawTranscript).language === 'string' && Array.isArray((v as RawTranscript).words);
 
+/** Which transcriber a command gets: the user's own (POPOST_ASR_CMD), else popost.ai's with an account, else none. */
+export const transcriberKind = (rt: Runtime): 'own' | 'hosted' | undefined =>
+  toolCommand(rt, VARIABLE) ? 'own' : hasHostedTranscription(rt) ? 'hosted' : undefined;
+
 /**
- * The transcriber behind POPOST_ASR_CMD; when it is not set, popost.ai's for a connected account with a confirmed
- * POPOST_ASR_MAX_CREDITS budget; else undefined (speech is then simply not read). The transcriber runs its command
+ * The transcriber behind POPOST_ASR_CMD when the user set it; else popost.ai's for a connected account, paying within
+ * `wallet` (nothing without one); else undefined (speech is then simply not read). The transcriber runs its command
  * through `rt`, the runtime of the command that asked for it.
  */
-export const commandTranscriber = (rt: Runtime): Transcriber | undefined => {
-  if (!toolCommand(rt, VARIABLE)) return hostedTranscriber(rt);
+export const commandTranscriber = (rt: Runtime, wallet?: Wallet): Transcriber | undefined => {
+  if (!toolCommand(rt, VARIABLE)) return hostedTranscriber(rt, wallet);
   return {
     transcribe: (file, language) =>
       withTempDir(rt, 'popost-video-asr-', async (dir) => {
@@ -40,11 +46,12 @@ export const commandTranscriber = (rt: Runtime): Transcriber | undefined => {
   };
 };
 
-/** Why commandTranscriber gives none, for "leftOut" and errors: POPOST_ASR_CMD is not set, and why popost.ai's is not used. */
-export const transcriberAbsence = (rt: Runtime): string => {
-  const hosted = hostedTranscriptionAbsence(rt);
-  return VARIABLE + ' is not set' + (hosted?.connected ? ', and ' + hosted.why : '');
-};
+/** Why there is no transcriber, for "leftOut" and errors. */
+export const NO_TRANSCRIBER = 'no popost.ai account is connected and ' + VARIABLE + ' is not set';
+/** How to get one: the hosted route first. */
+export const TRANSCRIBER_HINT =
+  'connect a popost.ai account with popost auth login (recommended: transcription then needs no local tool; it is priced first and charged only with --confirm --max-credits N), or set ' +
+  VARIABLE + ' to a transcriber of your own (skills/popost/tools/video/asr-faster-whisper explains one way)';
 
 const CJK = /[\u{3040}-\u{30ff}\u{3400}-\u{9fff}\u{ac00}-\u{d7af}]/u;
 

@@ -4,19 +4,14 @@
  * readback (a render read back against its project), look (pictures to open), and the groups template and eval. Each
  * prints one JSON document; problems a caller can fix come back with exit code 2.
  */
-import type { PositionalSpec } from '../../args';
+import type { ParsedArgs, PositionalSpec } from '../../args';
 import { isFile, printJson } from '../../core/util';
 import type { Runtime } from '../../runtime';
-import { readUserJson, readUserText } from '../../workflow/io';
+import { readUserText } from '../../workflow/io';
 import { buildPage } from '../compile/index';
 import { readback } from '../eval/readback';
 import { runReadback } from '../eval/readback-run';
 import { contrastByShot } from '../eval/contrast';
-import { errorText } from '../../core/error-text';
-import { scrub } from '../../providers/secrets';
-import { characterAnchor } from '../generate/character';
-import { checkRequests, commandGenerator, groupingAdvice, makeMaterials, NOTES, type AnchorPicture, type MaterialRequest } from '../generate/index';
-import { platform } from './generate';
 import { lookAt, secondMoments, shotMoments, type LookMoment } from '../look/index';
 import { sheetsLike } from '../look/like';
 import { probe } from '../media/ffmpeg';
@@ -28,25 +23,30 @@ import { planMessages, planRules } from '../plan/prompt';
 import { pictureUrl } from '../scene/pictures';
 import { roughTokens } from '../describe/index';
 import { reflowMeasure, retarget, type RetargetPlan } from '../retarget/index';
-import { speakRetarget, VOICE_FILE, WORDS_FILE } from '../retarget/speak';
-import { commandTranscriber, transcriberAbsence } from '../speech/index';
+import { speakRetarget, spokenPrice, VOICE_FILE, WORDS_FILE } from '../retarget/speak';
+import { transcriptionPrice } from '../speech/hosted';
+import { commandTranscriber, NO_TRANSCRIBER, transcriberKind } from '../speech/index';
+import { keptFor } from '../eval/readback-run';
 import type { Transcript } from '../speech/types';
 import { jsonText, loadTemplate } from '../template/save';
 import { FILES, SHOTS_FILE } from '../template/types';
 import { commandTextReader } from '../text/index';
 import type { TextTrack } from '../text/types';
 import type { Measure, Problem } from '../types';
-import { commandSpeaker } from '../voice/index';
-import { BUDGET_SLACK, measureVoicePace, scriptOfLanguage } from '../voice/pace';
+import { commandSpeaker, speaksHosted } from '../voice/index';
+import { BUDGET_SLACK, measureVoicePace, pacePrice, scriptOfLanguage } from '../voice/pace';
+import type { Wallet } from '../wallet';
+import { CREDIT_OPTIONS, walletFor } from './credits';
 import { workDir } from '../work';
 import { evalCommands } from './eval';
 import { FIT_TEMPO, fitTempoOf, looping } from './loop-shared';
 import { briefOf } from './make';
+import { materials } from './materials';
 import { command, userPath, VideoCommandError, type Commands } from './shared';
 import { templateCommands } from './template';
 
 const TEMPLATE: PositionalSpec = { name: 'template-dir', help: 'a directory written by template save' };
-const TTS_HINT = 'set POPOST_TTS_CMD to a tool of yours (skills/popost/tools/video/ has examples)';
+const TTS_HINT = 'connect a popost.ai account with popost auth login (recommended: popost: voices need no local tool; they are priced first and charged only with --confirm --max-credits N), or set POPOST_TTS_CMD to a speaker of your own (skills/popost/tools/video/ has examples)';
 const OCR_HINT = 'set POPOST_OCR_CMD (skills/popost/tools/video/ocr-rapidocr/ocr.py explains one way)';
 
 const errorsIn = (problems: readonly Problem[]): number => problems.filter((p) => p.level === 'error').length;
@@ -80,14 +80,19 @@ const shotNotesOf = async (rt: Runtime, dir: string, given: string | undefined):
   return text?.split('\n').map((l) => l.trim()).filter(Boolean);
 };
 
-/** --voice without --pace: the voice is timed once, and the pace kept in the work directory. */
-const voicePace = async (rt: Runtime, o: { voice?: string; speed?: number; pace?: number; language?: string; brief: string }): Promise<{ pace?: number; paceFile?: string }> => {
+/**
+ * --voice without --pace: the voice is timed once, and the pace kept in the work directory. Timing a popost.ai voice
+ * speaks a few sample lines: priced first, paid only with --confirm --max-credits N.
+ */
+const voicePace = async (rt: Runtime, args: ParsedArgs, o: { voice?: string; speed?: number; pace?: number; language?: string; brief: string }): Promise<{ pace?: number; paceFile?: string; wallet?: Wallet }> => {
   if (o.pace !== undefined || !o.voice) return o.pace === undefined ? {} : { pace: o.pace };
-  const speaker = commandSpeaker(rt);
-  if (!speaker) throw new VideoCommandError('--voice times the voice by speaking a sentence, which needs a speaker: ' + TTS_HINT + ', or give --pace <characters a second>.');
   const paceFile = rt.path.join(workDir(rt), 'voice-pace.json');
-  const pace = await measureVoicePace(rt, { speaker, voice: o.voice, ...(o.speed ? { speed: o.speed } : {}), script: scriptOfLanguage(o.language, o.brief), cacheFile: paceFile });
-  return { pace, paceFile };
+  const timing = { voice: o.voice, ...(o.speed ? { speed: o.speed } : {}), script: scriptOfLanguage(o.language, o.brief), cacheFile: paceFile };
+  const wallet = speaksHosted(rt, o.voice) ? await walletFor(rt, args, await pacePrice(rt, timing)) : undefined;
+  const speaker = commandSpeaker(rt, wallet);
+  if (!speaker) throw new VideoCommandError('--voice times the voice by speaking a sentence, which needs a speaker: ' + TTS_HINT + ', or give --pace <characters a second>.');
+  const pace = await measureVoicePace(rt, { speaker, ...timing });
+  return { pace, paceFile, ...(wallet ? { wallet } : {}) };
 };
 
 const plan = command(
@@ -105,9 +110,10 @@ const plan = command(
       { flag: '--max-seconds', kind: 'number', default: 5, help: 'the longest clip the generator makes' },
       { flag: '--product', help: 'pictures in --assets sent with every generated clip as @image1, @image2 …, separated by commas' },
       { flag: '--shots', metavar: 'FILE', help: 'one line per shot saying what the source showed (default: shots.txt beside the template)' },
-      { flag: '--voice', help: 'the voice that will speak the lines: timed once (POPOST_TTS_CMD), every line gets the most characters it can say in its beat, and the fill names it' },
+      { flag: '--voice', help: 'the voice that will speak the lines, such as popost:default-female: timed once (a popost.ai voice is priced first: without --confirm the price is printed with exit code 3), every line gets the most characters it can say in its beat, and the fill names it' },
       { flag: '--speed', kind: 'number', help: 'the speed of that voice (1 is normal)' },
       { flag: '--pace', kind: 'number', help: 'characters a second of the voice, instead of timing it' },
+      ...CREDIT_OPTIONS,
       { ...FIT_TEMPO, help: 'the most a line may be sped up to fit its beat (template fill --fit-tempo, 1.12 is hardly heard): every budget grows by it' },
     ],
   },
@@ -127,7 +133,7 @@ const plan = command(
     const voice = args.string('voice');
     const speed = args.number('speed');
     const pace = args.number('pace');
-    const timed = await voicePace(rt, { brief, ...(voice ? { voice } : {}), ...(speed ? { speed } : {}), ...(pace === undefined ? {} : { pace }), ...(language ? { language } : {}) });
+    const timed = await voicePace(rt, args, { brief, ...(voice ? { voice } : {}), ...(speed ? { speed } : {}), ...(pace === undefined ? {} : { pace }), ...(language ? { language } : {}) });
     const tempo = fitTempoOf(args);
     const budgets = paceBudgets(pkg, timed.pace, tempo);
     const prompt = { card, slots: pkg.slots, brief, materials, ...(language ? { language } : {}), ...(generate ? { generate: { product: product !== undefined } } : {}), ...(shotNotes ? { shotNotes } : {}), ...(budgets ? { budgets: budgets.max } : {}) };
@@ -144,7 +150,7 @@ const plan = command(
         ...(budgets ? { budgets: { pace: budgets.pace, ...(budgets.tempo ? { tempo: budgets.tempo } : {}), slack: BUDGET_SLACK, lines: budgets.max.map((max, i) => ({ at: 'captions[' + i + ']', seconds: lines[i]?.seconds, max })) } } : {}),
         rules: planRules(own), forms: shotForms(generate !== undefined), materials,
         ...(shotNotes ? { shotNotes: shotNotes.map((note, k) => ({ at: 'shots[' + k + ']', note })) } : {}),
-        ...(generate ? { generate } : {}), ...(timed.paceFile ? { paceFile: timed.paceFile } : {}),
+        ...(generate ? { generate } : {}), ...(timed.paceFile ? { paceFile: timed.paceFile } : {}), chargedCredits: timed.wallet?.spent ?? 0,
         messages, tokens: messages.reduce((n, m) => n + roughTokens(m.content), 0),
         next: 'write the fill, then check and build it: ' + fillCommand + (budgets ? ' --pace ' + budgets.pace : '') + (voice ? ' --speak' : '') + (tempo ? ' --fit-tempo ' + tempo : ''),
       });
@@ -172,84 +178,15 @@ const plan = command(
     const requestsFile = stem + '.requests.json';
     if (r.requests?.length) await rt.fs.writeFile(requestsFile, jsonText(r.requests));
     printJson(rt, {
-      ok: true, model: r.model, fill: out, attemptsFile, first: r.first, attempts, ...(timed.pace ? { pace: timed.pace } : {}), ...(timed.paceFile ? { paceFile: timed.paceFile } : {}),
+      ok: true, model: r.model, fill: out, attemptsFile, first: r.first, attempts, ...(timed.pace ? { pace: timed.pace } : {}), ...(timed.paceFile ? { paceFile: timed.paceFile } : {}), chargedCredits: timed.wallet?.spent ?? 0,
       ...(r.requests?.length ? { requests: { file: requestsFile, clips: r.requests.length, seconds: r.requests.reduce((n, q) => n + (q.seconds ?? 0), 0), next: 'make them first: popost video materials ' + requestsFile + ' --out ' + (assetsDir ?? '<project-dir>') } } : {}),
       next: fillCommand.replace('<fill.json>', out) + ' --speak' + (tempo ? ' --fit-tempo ' + tempo : ''),
     });
   }),
 );
 
-const PICTURE_EXT = ['.png', '.jpg', '.jpeg', '.webp'];
-
-/** --anchor-image: the caller's picture as a path in the project; a file from elsewhere is copied to assets/anchor-image.<ext>. */
-const givenAnchor = async (rt: Runtime, dir: string, given: string): Promise<AnchorPicture> => {
-  const from = userPath(rt, given);
-  const ext = rt.path.extname(from).toLowerCase();
-  if (!PICTURE_EXT.includes(ext) || !(await isFile(rt, from))) throw new VideoCommandError('--anchor-image is a PNG, JPEG or WebP picture that exists; "' + given + '" is not. Give the path of the picture every clip should keep to.');
-  const inside = rt.path.relative(dir, from);
-  if (inside && !inside.startsWith('..') && !rt.path.isAbsolute(inside)) return { file: inside.split(rt.path.sep).join('/') };
-  const file = 'assets/anchor-image' + ext;
-  await rt.fs.mkdir(rt.path.join(dir, 'assets'));
-  await rt.fs.writeFile(rt.path.join(dir, file), await rt.fs.readFile(from));
-  return { file };
-};
-
-/** --character: a character of the user's popost.ai library, its picture downloaded into the project. A key never reaches the message. */
-const characterOf = async (rt: Runtime, dir: string, id: string): Promise<AnchorPicture> => {
-  let secrets: string[] = [];
-  try {
-    const found = await platform(rt);
-    secrets = found.secrets;
-    return await characterAnchor(rt, found.client, id, dir);
-  } catch (error) {
-    throw new VideoCommandError('The character ' + id + ' could not be used: ' + scrub(errorText(error), secrets).replace(/\s*\n\s*/g, ' ').trim());
-  }
-};
-
-const materials = command(
-  'makes the clips and pictures a list asks for, from prompts; a file that exists is not made again, and what each shows goes to materials.json for plan. Two or more clips keep what they share the same through one reference picture (the anchor). Needs POPOST_GEN_CMD; --check only reads the list',
-  {
-    positionals: [{ name: 'requests', help: 'a JSON list of material requests: file, prompt, seconds, aspect, references; visible people list cast role ids from cast.json ([] for no people), and visible speech declares speech {mode,speaker,text,audio?}. New single-appearance people may be defined directly; recurring roles reuse a completed image. Frames/continues cannot be combined with references.' }],
-    options: [
-      { flag: '--out', required: true, metavar: 'DIR', help: 'the project directory the files go into' },
-      { flag: '--check', kind: 'flag', help: 'only say what is wrong with the list; nothing is made' },
-      { flag: '--anchor', kind: 'flag', help: 'the default for two or more clips: one of them is made first and a frame of it goes to the others as a reference picture, so that they keep the same person, product and place; given, it is done for a single clip too. A request with "anchor": false stays out' },
-      { flag: '--no-anchor', kind: 'flag', help: 'no shared reference picture: every clip is made from its own request alone' },
-      { flag: '--anchor-image', metavar: 'FILE', help: 'a picture of yours as the anchor of every clip (the person, the product); no clip is made first' },
-      { flag: '--character', metavar: 'ID', help: 'a character of your popost.ai character library as the anchor: its picture is downloaded into the project and every clip keeps that person' },
-    ],
-  },
-  async (args, rt) => {
-    const requests = (await readUserJson(rt, args.req('requests'))) as MaterialRequest[];
-    const dir = userPath(rt, args.req('out'));
-    if (args.flag('check')) {
-      const wrong = await checkRequests(rt, requests, dir, {selectedIdentity:!!(args.string('character')||args.string('anchor-image'))});
-      // Advice on how the list is cut into calls is a warning: the list can be made as it is.
-      printJson(rt, { ok: wrong.length === 0, requests: Array.isArray(requests) ? requests.length : 0, problems: [...wrong, ...groupingAdvice(requests)] });
-      return wrong.length ? 2 : 0;
-    }
-    const [image, character, off] = [args.string('anchor-image'), args.string('character'), args.flag('no-anchor')];
-    if ([image !== undefined, character !== undefined, off].filter(Boolean).length > 1) throw new VideoCommandError('Give one of --anchor-image, --character and --no-anchor: a video has one anchor picture, or none.');
-    const generator = commandGenerator(rt);
-    if (!generator) throw new VideoCommandError('No generator is configured: set POPOST_GEN_CMD to a tool of yours (skills/popost/tools/video/ has examples), or to "popost video generate" (popost.ai, paid in credits), or use --check.');
-    const picture = image !== undefined ? await givenAnchor(rt, dir, image) : character !== undefined ? await characterOf(rt, dir, character) : undefined;
-    const r = await makeMaterials(rt, {
-      requests, dir, generator, ...(off ? { anchor: false } : args.flag('anchor') ? { anchor: true } : {}), ...(picture ? { picture } : {}),
-      // A clip takes minutes: a person watching sees which one, on stderr; stdout keeps the one JSON document.
-      onStep: (file, done, total) => rt.stderr(file + ' (' + (done + 1) + '/' + total + ')\n'),
-    });
-    printJson(rt, {
-      ok: errorsIn(r.problems) === 0, dir, notes: rt.path.join(dir, NOTES),
-      made: r.materials.filter((m) => m.made).length, kept: r.materials.filter((m) => !m.made && !m.error && !m.waiting).length, failed: r.materials.filter((m) => m.error).length,
-      ...(r.materials.some((m) => m.waiting) ? { waiting: r.materials.filter((m) => m.waiting).length } : {}),
-      credits: r.credits, ...(r.anchor ? { anchor: r.anchor } : {}), ...(r.toConfirm ? { toConfirm: r.toConfirm } : {}), materials: r.materials, problems: [...r.problems, ...groupingAdvice(requests)],
-    });
-    return errorsIn(r.problems) ? 2 : 0;
-  },
-);
-
 const retargetCommand = command(
-  'a new project on the structure of a described reference. The plan has no times: "shots" (what fills each shot) and "captions" (a line per beat), by position. --speak has the lines spoken (POPOST_TTS_CMD), re-flows the timing to them and writes the words of the voice',
+  'a new project on the structure of a described reference. The plan has no times: "shots" (what fills each shot) and "captions" (a line per beat), by position. --speak has the lines spoken (a popost.ai voice is priced first: without --confirm the price is printed with exit code 3), re-flows the timing to them and writes the words of the voice',
   {
     positionals: [{ name: 'reference-dir', help: 'what popost video describe wrote' }],
     options: [
@@ -258,7 +195,8 @@ const retargetCommand = command(
       { flag: '--speak', kind: 'flag', help: 'speak the captions and re-flow the timing to them' },
       { flag: '--keep-length', kind: 'flag', help: 'with --speak: a beat keeps its reference length when its line is shorter' },
       FIT_TEMPO,
-      { flag: '--language', help: 'what the voice speaks, such as zh, for the transcriber that times its words (POPOST_ASR_CMD)' },
+      { flag: '--language', help: 'what the voice speaks, such as zh, for the transcriber that times its words when the voice gives no word times' },
+      ...CREDIT_OPTIONS,
     ],
   },
   async (args, rt) => {
@@ -279,10 +217,12 @@ const retargetCommand = command(
       printJson(rt, { ok: false, error: 'The plan has ' + errorsIn(first.problems) + ' error(s); nothing was written.', problems: first.problems, notes: first.notes });
       return 2;
     }
+    // The lines a popost.ai voice speaks are priced before anything is written: without --confirm the price is all there is.
+    const wallet = args.flag('speak') ? await walletFor(rt, args, await spokenPrice(rt, given)) : undefined;
     await rt.fs.mkdir(outDir);
-    const speaker = args.flag('speak') ? commandSpeaker(rt) : undefined;
+    const speaker = args.flag('speak') ? commandSpeaker(rt, wallet) : undefined;
     if (args.flag('speak') && !speaker) throw new VideoCommandError('--speak needs a speaker: ' + TTS_HINT + '.');
-    const transcriber = commandTranscriber(rt);
+    const transcriber = commandTranscriber(rt, wallet);
     const language = args.string('language');
     const spoken = speaker ? await speakRetarget(rt, { input: { ...reference, plan: given }, outDir, speaker, ...(transcriber ? { transcriber } : {}), ...(language ? { language } : {}), ...(args.flag('keep-length') ? { hold: true } : {}), ...(fitTempo ? { fitTempo } : {}) }) : undefined;
     const r = spoken ? spoken.result : first;
@@ -299,7 +239,7 @@ const retargetCommand = command(
       written: ['video.json', ...(spoken ? ['reference.measure.json', VOICE_FILE, WORDS_FILE, 'assets/voice/'] : [])],
       segments: r.project.segments.length, tracks: r.project.tracks.length,
       ...(spoken ? { spoken: { lines: spoken.lines.filter((l) => l.file).length, seconds: Number((spoken.lines.reduce((n, l) => n + l.frames, 0) / fps).toFixed(1)) } } : {}),
-      problems: r.problems, notes: [...(spoken ? spoken.notes : []), ...r.notes], next: 'popost video check ' + outDir,
+      problems: r.problems, notes: [...(spoken ? spoken.notes : []), ...r.notes], chargedCredits: wallet?.spent ?? 0, next: 'popost video check ' + outDir,
     });
   },
 );
@@ -308,7 +248,11 @@ const readbackCommand = command(
   'reads a render with the text reader (POPOST_OCR_CMD) and the transcriber (POPOST_ASR_CMD, optional) and checks it against its project: is every caption legible, is every spoken line heard, do they line up, is the text of every shot large enough to read on a phone, does every caption stand out from what is behind it. Writes readback.json into the project',
   {
     positionals: [{ name: 'project-dir', help: 'the directory that holds video.json' }, { name: 'render', help: 'the video rendered from it' }],
-    options: [{ flag: '--language', help: 'what the speech is in, such as zh (default: the transcriber detects it)' }],
+    options: [
+      { flag: '--language', help: 'what the speech is in, such as zh (default: the transcriber detects it)' },
+      { flag: '--no-speech', kind: 'flag', help: 'do not hear the voice (nothing is charged for it)' },
+      ...CREDIT_OPTIONS,
+    ],
   },
   async (args, rt) => {
     const dir = userPath(rt, args.req('project-dir'));
@@ -321,22 +265,25 @@ const readbackCommand = command(
     const reader = commandTextReader(rt);
     if (!reader) throw new VideoCommandError('readback needs a text reader: ' + OCR_HINT + '.');
     if (!(await isFile(rt, video))) throw new VideoCommandError('There is no file at ' + video + '. Check the path; a relative one is read from ' + rt.cwd + '.');
-    const transcriber = commandTranscriber(rt);
     const language = args.string('language');
+    const voiced = page.resolved.audio.some((x) => x.id === 'sound');
+    // popost.ai hears only a project with a voice, priced first (a kept transcript of the same sound is free).
+    const kind = args.flag('no-speech') ? undefined : transcriberKind(rt);
+    const wallet = kind === 'hosted' && voiced ? await walletFor(rt, args, await transcriptionPrice(rt, video, 'the voice of the render', keptFor(rt, dir, language))) : undefined;
+    const transcriber = kind === 'own' || wallet ? commandTranscriber(rt, wallet) : undefined;
     const { text, transcript, contrast, took } = await runReadback(rt, { dir, video, resolved: page.resolved, reader, ...(transcriber ? { transcriber } : {}), ...(language ? { language } : {}), write: (line) => rt.stderr(line + '\n') });
     const planned = await optionalJson<RetargetPlan>(rt, rt.path.join(dir, 'plan.json'));
-    const voiced = page.resolved.audio.some((x) => x.id === 'sound');
     const r = readback(page.resolved, text, { contrast, ...(transcript && voiced ? { transcript, spokenTrack: 'captions', ...(planned?.say ? { say: planned.say } : {}) } : {}) });
     const file = rt.path.join(dir, 'readback.json');
     await rt.fs.writeFile(file, JSON.stringify(r, null, 2) + '\n');
     const errors = errorsIn(r.problems);
     printJson(rt, {
       ok: errors === 0, file, texts: r.lines.length, legible: r.legibleShare,
-      ...(r.heardShare === undefined ? { speechChecked: false, ...(transcriber ? {} : { why: transcriberAbsence(rt) }) } : { speechChecked: true, heard: r.heardShare, meanLag: r.meanLag ?? 0 }),
+      ...(r.heardShare === undefined ? { speechChecked: false, ...(transcriber ? {} : { why: args.flag('no-speech') ? '--no-speech was given' : kind === 'hosted' ? 'the project has no voice' : NO_TRANSCRIBER }) } : { speechChecked: true, heard: r.heardShare, meanLag: r.meanLag ?? 0 }),
       lines: r.lines.map((l) => ({ start: l.start, end: l.end, legible: l.legible, ...(l.heardScore === undefined ? {} : { heard: l.heardScore }), ...(l.lag === undefined ? {} : { lag: l.lag }), text: l.text })),
       textSizes: r.shots.filter((s) => s.lines).map((s) => ({ at: s.at, seconds: s.seconds, lines: s.lines, smallest: s.smallest, median: s.median })),
       captionContrast: contrastByShot(r.contrast),
-      errors, problems: r.problems, took,
+      errors, problems: r.problems, took, chargedCredits: wallet?.spent ?? 0,
     });
     return errors ? 2 : 0;
   },

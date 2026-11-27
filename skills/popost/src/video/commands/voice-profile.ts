@@ -1,5 +1,7 @@
 import { printJson } from '../../core/util';
-import { downloadVoiceAudio, hostedVoicePage, quoteHostedVoice, selectHostedVoice } from '../voice/hosted';
+import { downloadVoiceAudio, hostedVoicePage, quoteHostedVoice, selectHostedVoice, speechPrice } from '../voice/hosted';
+import { PriceNotAgreed } from '../wallet';
+import { CREDIT_OPTIONS, walletFor } from './credits';
 import { withTempDir } from '../host';
 import { voiceProfile } from '../voice/profile';
 import { completeVoice, registerVoice, speakProfile } from '../voice/profile';
@@ -25,16 +27,15 @@ const speak=command('generate final dialogue or voice-over from the same registe
   {flag:'--speaker',required:true,metavar:'ID',help:'registered speaker id'},
   {flag:'--text',required:true,metavar:'TEXT',help:'final spoken words'},
   {flag:'--out',required:true,metavar:'WAV',help:'final audio output'},
-  {flag:'--confirm',kind:'flag',help:'confirm the quoted hosted speech charge'},
-  {flag:'--max-credits',kind:'number',help:'confirmed hosted speech credit ceiling'},
+  ...CREDIT_OPTIONS,
  ]},async(args,rt)=>{
  try{
  const project=userPath(rt,args.req('project'));const profile=await voiceProfile(rt,project,args.req('speaker'));
  const hosted=profile?.providerVoice?.startsWith('popost:');
- if(hosted && (!args.flag('confirm') || args.number('max-credits')===undefined)) throw new Error('Run voice quote, then pass --confirm --max-credits N.');
- const runtime=hosted?{...rt,env:{...rt.env,POPOST_VOICE_MAX_CREDITS:String(args.number('max-credits'))}}:rt;
- const said=await speakProfile(runtime,project,args.req('speaker'),args.req('text'),userPath(rt,args.req('out')));printJson(rt,{ok:true,audio:args.req('out'),receipt:args.req('out')+'.voice.json',...(said.words?{words:args.req('out')+'.words.json'}:{})});}
- catch(e){throw new VideoCommandError(String(e));}
+ // A popost.ai voice is priced first: without --confirm the price is printed with exit code 3 and nothing is charged.
+ const wallet=hosted?await walletFor(rt,args,await speechPrice(rt,[args.req('text')],profile!.providerVoice)):undefined;
+ const said=await speakProfile(rt,project,args.req('speaker'),args.req('text'),userPath(rt,args.req('out')),wallet);printJson(rt,{ok:true,audio:args.req('out'),receipt:args.req('out')+'.voice.json',...(said.words?{words:args.req('out')+'.words.json'}:{}),chargedCredits:wallet?.spent??0});}
+ catch(e){if(e instanceof PriceNotAgreed||e instanceof VideoCommandError)throw e;throw new VideoCommandError(String(e));}
 });
 const complete=command('import real speech from the host voice service and bind it to the shared speaker profile',{
  positionals:[{name:'project',help:'project directory'}],options:[

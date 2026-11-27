@@ -10,7 +10,12 @@
  * command answers a request with "priceOnly": true the same way whatever budget it has: only the price is wanted.
  * `popost video generate` is such a command on popost.ai (cloud.ts); skills/popost/tools/video/ has examples of tools
  * of your own. Which model runs, at what resolution and under what spending limit is the command's business (and its
- * environment's), never the request's.
+ * environment's), never the request's. For a clip, materials also sets POPOST_GEN_PROJECT, POPOST_GEN_FILE and
+ * POPOST_GEN_REQUEST (the project, the clip's file, the hash of its request as written), and under --confirm
+ * --max-credits N, POPOST_GEN_MAX_CREDITS to what is left of N: the built-in generator holds a clip to the agreement of
+ * the project with them (approved.ts); a tool of yours may ignore them. On success the built-in generator prints
+ * { "credits", "chargedCredits", "key" }: what the clip cost, what this call charged (0 when it was paid before), and
+ * its request key.
  *
  * makeMaterials turns a list of requests into files of a project and writes what each one shows into materials.json,
  * where the plan step reads it. A file that exists is never made again: asking twice costs once.
@@ -24,6 +29,7 @@ import { clipAmount } from '../measure/index';
 import { error, warning } from '../project/check-common';
 import type { Problem } from '../types';
 import { sha256 } from '../../core/util';
+import { requestHash, startPlan, type UnplannedClip } from './approved';
 import { castImages, personPrompt, readCast } from './cast';
 import { finalizeSpeech, isVisibleSpeech, speechPrompt, type VisibleSpeech } from './speech';
 import { voiceProfile, type VoiceProfile } from '../voice/profile';
@@ -63,6 +69,9 @@ export interface PriceToConfirm {
   seconds?: number;
   aspectRatio?: string;
   balance?: number | null;
+  /** "unplanned": a paid clip that is not one of the clips the user agreed to; clip says which. */
+  reason?: 'unplanned';
+  clip?: UnplannedClip;
 }
 
 /** Nothing was made or charged: the user has to agree to the price first. */
@@ -79,14 +88,17 @@ export class ConfirmNeeded extends Error {
 /** The exit code of a generator that asks for the user's agreement to a price. */
 export const CONFIRM_EXIT = 3;
 
+/** What a generator says it made: what the file cost and, when it says so, what this call charged and the request key. */
+export interface Made { credits?: number; chargedCredits?: number; key?: string }
+
 export interface Generator {
-  /** Makes one file at out. Resolves with what it cost, when the command says. */
-  make(kind: GenerateKind, request: GenerateRequest, out: string): Promise<{ credits?: number }>;
+  /** Makes one file at out, with `env` added to its environment. Resolves with what it cost, when the command says. */
+  make(kind: GenerateKind, request: GenerateRequest, out: string, env?: Readonly<Record<string, string>>): Promise<Made>;
 }
 
 /** Runs the generator's words with the arguments of its contract; standard error is kept, as before, to its last 4000 characters. */
-const run = async (rt: Runtime, words: string[], args: string[]): Promise<{ code: number; stdout: string; stderr: string }> => {
-  const r = await programsOf(rt).run([...words, ...args], { env: toolEnv(rt), lowPriority: true }).catch((e: unknown) => {
+const run = async (rt: Runtime, words: string[], args: string[], env: Readonly<Record<string, string>> = {}): Promise<{ code: number; stdout: string; stderr: string }> => {
+  const r = await programsOf(rt).run([...words, ...args], { env: { ...toolEnv(rt), ...env }, lowPriority: true }).catch((e: unknown) => {
     throw new Error('The generator could not be started (' + (e instanceof Error ? e.message : String(e)) + '). Check POPOST_GEN_CMD.');
   });
   return { code: r.code, stdout: new TextDecoder().decode(r.stdout).slice(-8000), stderr: r.stderr.slice(-4000) };
@@ -109,16 +121,18 @@ export const commandGenerator = (rt: Runtime): Generator | undefined => {
   const words = toolCommand(rt, 'POPOST_GEN_CMD');
   if (!words) return undefined;
   return {
-    make: (kind, request, out) =>
+    make: (kind, request, out, env) =>
       withTempDir(rt, 'popost-video-gen-', async (dir) => {
         const file = rt.path.join(dir, 'request.json');
         await rt.fs.writeFile(file, JSON.stringify(request));
-        const r = await run(rt, words, [kind, file, out]);
+        const r = await run(rt, words, [kind, file, out], env);
         const said = lastObject(r.stdout);
         const why = r.stderr.trim().split('\n').slice(-2).join(' | ');
         if (r.code === CONFIRM_EXIT && isPrice(said.confirm)) throw new ConfirmNeeded(said.confirm, why || 'It costs ' + said.confirm.credits + ' credits and needs the user\'s agreement first; nothing was charged.');
         if (r.code !== 0) throw new Error(why || 'The generator exited with ' + r.code + '.');
-        return typeof said.credits === 'number' ? { credits: said.credits } : {};
+        const count = (v: unknown): number | undefined => (typeof v === 'number' ? v : undefined);
+        const [credits, chargedCredits] = [count(said.credits), count(said.chargedCredits)];
+        return { ...(credits !== undefined ? { credits } : {}), ...(chargedCredits !== undefined ? { chargedCredits } : {}), ...(typeof said.key === 'string' ? { key: said.key } : {}) };
       }),
   };
 };
@@ -139,13 +153,13 @@ export interface MaterialRequest extends GenerateRequest {
 }
 
 /** motionAmount: how much a clip's picture moves (measure/amount.ts), to hold against the reference shot it is for. */
-export interface MadeMaterial { file: string; kind: GenerateKind; made: boolean; credits?: number; seconds?: number; motionAmount?: number; error?: string; anchor?: true; waiting?: true; waitsFor?: string; unanchored?: true; confirm?: PriceToConfirm }
+export interface MadeMaterial { file: string; kind: GenerateKind; made: boolean; credits?: number; chargedCredits?: number; seconds?: number; motionAmount?: number; error?: string; anchor?: true; waiting?: true; waitsFor?: string; unanchored?: true; confirm?: PriceToConfirm }
 /**
  * toConfirm: the prices the user has to agree to before the files that wait for them are made. anchor: the picture the
  * clips got as a reference, and where it came from. A material with waiting was not made because the anchor clip is
  * not there yet: priced only (confirm) when the anchor clip's price waits for the user, not sent at all when it failed.
  */
-export interface MaterialsReport { materials: MadeMaterial[]; credits: number; problems: Problem[]; anchor?: { picture: string; from: AnchorSource }; toConfirm?: { credits: number; materials: number } }
+export interface MaterialsReport { materials: MadeMaterial[]; credits: number; chargedCredits: number; problems: Problem[]; anchor?: { picture: string; from: AnchorSource }; toConfirm?: { credits: number; materials: number } }
 
 const VIDEOS = ['.mp4', '.mov', '.webm'];
 const PICTURES = ['.png', '.jpg', '.jpeg', '.webp'];
@@ -383,10 +397,14 @@ const lastFrameOf = async (rt: Runtime, dir: string, clip: string): Promise<stri
  * not made: without it, it would be paid for and not match. When the needed clip failed it is not sent at all; when
  * the needed clip's price waits for the user it is sent for its price only (GenerateRequest.priceOnly, without the
  * frames or the anchor, which do not change a price), so that the user is shown the total of the whole list at once.
+ *
+ * Every clip is sent with its project, file and request hash (POPOST_GEN_PROJECT, _FILE, _REQUEST), so that the
+ * built-in generator holds it to the clips the user agreed to (approved.ts). o.plan (materials --confirm): the clips of
+ * this list become the agreed clips when the project has none yet.
  */
-export const makeMaterials = async (rt: Runtime, o: { requests: MaterialRequest[]; dir: string; generator: Generator; anchor?: boolean; picture?: AnchorPicture; onStep?: (file: string, done: number, total: number) => void }): Promise<MaterialsReport> => {
+export const makeMaterials = async (rt: Runtime, o: { requests: MaterialRequest[]; dir: string; generator: Generator; anchor?: boolean; picture?: AnchorPicture; plan?: boolean; onStep?: (file: string, done: number, total: number) => void }): Promise<MaterialsReport> => {
   const problems = await checkRequests(rt, o.requests, o.dir, {selectedIdentity:!!o.picture});
-  if (problems.length) return { materials: [], credits: 0, problems };
+  if (problems.length) return { materials: [], credits: 0, chargedCredits: 0, problems };
   const locked = new Map<string, Awaited<ReturnType<typeof castImages>>>();
   const voices = new Map<string, VoiceProfile>();
   const uses = new Map<string, number>();
@@ -414,7 +432,8 @@ export const makeMaterials = async (rt: Runtime, o: { requests: MaterialRequest[
       voices.set(r.file,profile);
     } catch(e) { problems.push(error(r.file+'.speech.voice',String(e),'Use the registered voice for every visible speaking shot and voice-over.')); }
   }
-  if (problems.length) return { materials: [], credits: 0, problems };
+  if (problems.length) return { materials: [], credits: 0, chargedCredits: 0, problems };
+  if (o.plan) await startPlan(rt, o.dir, o.requests.filter((r) => kindOf(r.file) === 'video').map((r) => ({ file: r.file, request: requestHash(rt, r) })));
   const notes = await readNotes(rt, o.dir);
   const exists = async (p: string): Promise<boolean> => (await rt.fs.stat(p)) !== null;
   const materials: MadeMaterial[] = [];
@@ -463,15 +482,18 @@ export const makeMaterials = async (rt: Runtime, o: { requests: MaterialRequest[
         const start = priceOnly ? undefined : asked.continues ? await lastFrameOf(rt, o.dir, asked.continues) : asked.firstFrame ? at(asked.firstFrame) : undefined;
         const frames = { ...(start ? { firstFrame: start } : {}), ...(start && asked.lastFrame ? { lastFrame: at(asked.lastFrame) } : {}) };
         const request: GenerateRequest = { prompt: r.prompt + (r.speech ? speechPrompt(r.speech) : ''), ...(r.seconds ? { seconds: r.seconds } : {}), ...(r.aspect ? { aspect: r.aspect } : {}), ...references, ...frames, ...(priceOnly ? { priceOnly: true as const } : {}) };
-        const made = await o.generator.make(kind, request, partial);
+        const agreement: Record<string, string> = kind === 'video' ? { POPOST_GEN_PROJECT: o.dir, POPOST_GEN_FILE: original.file, POPOST_GEN_REQUEST: requestHash(rt, original) } : {};
+        const made = await o.generator.make(kind, request, partial, agreement);
+        const charged = made.chargedCredits ?? made.credits;
         if(made.credits!==undefined)entry={...entry,credits:made.credits};
+        if (charged !== undefined) entry = { ...entry, chargedCredits: charged };
         if (!(await exists(partial))) throw new Error('The generator finished without writing the file.');
         if (asked.speech) await finalizeSpeech(rt, partial, asked.speech, o.dir, target);
         await rt.fs.rename(partial, target);
         if (asked.speech) for (const ext of ['.speech.wav','.speech.json']) await rt.fs.rename(partial + ext, target + ext);
         if (cast || asked.speech) await rt.fs.writeFile(target + '.generation.json', signature);
         // A generator that does not know "priceOnly" and had the budget made the clip: it is there, without what it waited for.
-        entry = { ...entry, made: true, ...(made.credits !== undefined ? { credits: made.credits } : {}), ...(priceOnly ? { unanchored: true as const, waitsFor: priced } : {}) };
+        entry = { ...entry, made: true, ...(priceOnly ? { unanchored: true as const, waitsFor: priced } : {}) };
       } catch (e) {
         await rt.fs.rm(partial);
         for(const ext of ['.speech.wav','.speech.json'])await rt.fs.rm(partial+ext);
@@ -502,7 +524,9 @@ export const makeMaterials = async (rt: Runtime, o: { requests: MaterialRequest[
   const why = (m: MadeMaterial): string => (m.waitsFor === anchorFile && !o.requests.some((r) => r.file === m.file && r.continues === m.waitsFor) ? 'a frame of it goes to this clip as a reference picture, so that the clips show the same person, product and place' : 'this clip starts from its last frame');
   const failed = materials.filter((m) => m.error).map((m) =>
     m.confirm
-      ? error(m.file, 'It was not made: it costs ' + m.confirm.credits + ' credits, and the user has not agreed to that price. Nothing was charged.', 'Show the user the price (toConfirm has the total). Only after they agree, run again with POPOST_GEN_MAX_CREDITS set to the highest price they approved for one file, or with --yes added to POPOST_GEN_CMD.')
+      ? m.confirm.reason === 'unplanned'
+        ? error(m.file, 'It was not made: it is not one of the clips the user agreed to (a new clip, a regeneration or variant, or a changed request), and it costs ' + m.confirm.credits + ' credits. Nothing was charged.', 'Show the user the clip, why it is needed and its price. Only after a yes, run again with --approve-unplanned ' + (m.confirm.clip?.key ?? '<key>') + '.')
+        : error(m.file, 'It was not made: it costs ' + m.confirm.credits + ' credits, and the user has not agreed to that price. Nothing was charged.', 'Show the user the price (confirm has the total). Only after they agree, or when it fits what is left of the agreed budget, run again with --confirm --max-credits N.')
       : error(m.file, 'It could not be made: ' + m.error, 'Read the message; a request that was refused cost nothing. Run the command again to make only what is missing.' + (source && m.file !== anchorFile && takesAnchor(o.requests.find((r) => r.file === m.file) as MaterialRequest) ? ' It was sent with the anchor picture as a reference picture: a generator that takes none needs --no-anchor.' : '')),
   );
   const held = materials.filter((m) => m.waiting && !m.confirm).map((m) =>
@@ -511,5 +535,5 @@ export const makeMaterials = async (rt: Runtime, o: { requests: MaterialRequest[
   const loose = materials.filter((m) => m.unanchored).map((m) => warning(m.file, 'It was made without ' + (o.requests.some((r) => r.file === m.file && r.continues) ? 'the frame it should start from' : 'the anchor picture') + ': the generator was asked for its price only ("priceOnly": true in the request) while ' + m.waitsFor + ' waited for the user\'s agreement, and made the clip.', 'Look at it beside the other clips; when it does not match them, delete the file and run the command again once ' + m.waitsFor + ' exists.'));
   const asked = materials.filter((m) => m.confirm);
   const toConfirm = asked.length ? { toConfirm: { credits: asked.reduce((n, m) => n + (m.confirm?.credits ?? 0), 0), materials: asked.length } } : {};
-  return { materials, credits: materials.reduce((n, m) => n + (m.credits ?? 0), 0), problems: [...failed, ...held, ...loose], ...(source && picture ? { anchor: { picture, from: source } } : {}), ...toConfirm };
+  return { materials, credits: materials.reduce((n, m) => n + (m.credits ?? 0), 0), chargedCredits: materials.reduce((n, m) => n + (m.chargedCredits ?? 0), 0), problems: [...failed, ...held, ...loose], ...(source && picture ? { anchor: { picture, from: source } } : {}), ...toConfirm };
 };

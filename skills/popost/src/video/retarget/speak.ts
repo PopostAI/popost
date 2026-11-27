@@ -11,9 +11,11 @@ import { withTempDir } from '../host';
 import { runFfmpegOk } from '../media/ffmpeg';
 import { toFrames } from '../speech/index';
 import type { Transcriber, Transcript } from '../speech/types';
-import { mixLines, speakLines, type Speaker, type VoiceLine } from '../voice/index';
+import { speechPrice } from '../voice/hosted';
+import { mixLines, speakLines, speaksHosted, type Speaker, type VoiceLine } from '../voice/index';
+import type { PriceItem } from '../wallet';
 import { projectFps } from './fps';
-import { retarget, spokenForm, type RetargetInput, type RetargetOutput } from './index';
+import { retarget, spokenForm, type RetargetInput, type RetargetOutput, type RetargetPlan } from './index';
 import { overrunNotes } from './pace';
 import { unmark } from './marks';
 import { fitTempo } from './tempo';
@@ -59,6 +61,13 @@ export interface SpeakOptions {
   fitTempo?: number;
 }
 
+/** The lines a plan has spoken, as the voice says them: without their marks (marks.ts; retarget draws them), in their spoken form. */
+export const spokenLinesOf = (plan: RetargetPlan): string[] => (plan.captions ?? []).map((l) => spokenForm(unmark(l).text, plan.say));
+
+/** What speaking a plan costs with popost.ai (free quotes): nothing when a speaker of the user's own speaks its voice. */
+export const spokenPrice = (rt: Runtime, plan: RetargetPlan): Promise<PriceItem[]> =>
+  speaksHosted(rt, plan.voice) ? speechPrice(rt, spokenLinesOf(plan), plan.voice) : Promise.resolve([]);
+
 export const speakRetarget = async (rt: Runtime, o: SpeakOptions): Promise<SpokenRetarget> => {
   const { measure, plan } = o.input;
   const notes: string[] = [];
@@ -66,7 +75,7 @@ export const speakRetarget = async (rt: Runtime, o: SpeakOptions): Promise<Spoke
   // What is said and timed is the line without its marks (marks.ts); retarget draws the marks.
   const captions = (plan.captions ?? []).map((l) => unmark(l).text);
   const said = await speakLines(rt, {
-    lines: captions.map((l) => spokenForm(l, plan.say)), dir: rt.path.join(o.outDir, 'assets', 'voice'), speaker: o.speaker, fps,
+    lines: spokenLinesOf(plan), dir: rt.path.join(o.outDir, 'assets', 'voice'), speaker: o.speaker, fps,
     ...(plan.voice ? { voice: plan.voice } : {}), ...(plan.speed ? { speed: plan.speed } : {}),
   });
   const flow = (ls: VoiceLine[]): RetargetOutput => retarget({ ...o.input, plan: { ...plan, sound: VOICE_FILE }, spoken: { frames: ls.map((l) => l.frames), ...(o.hold ? { hold: true } : {}) }, wordsFile: WORDS_FILE });

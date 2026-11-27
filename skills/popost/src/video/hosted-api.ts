@@ -13,6 +13,7 @@
  *   POST /transcriptions/{id}/run   { maxCredits } -> { id, state: 'ready', language, seconds, chargedCredits, words },
  *                                   or { id, state: 'running' } when it takes longer than the platform waits (~45 s)
  *   GET  /transcriptions/{id}       the same as run, with 'running', 'ready' or 'failed'; free
+ *   GET  /me                        { credits: { balance } }: the balance a price is held against; free
  * Refusals: INVALID_REQUEST (bad or incomplete audio), CREDIT_LIMIT_EXCEEDED (price above maxCredits), UPSTREAM_ERROR
  * (a failed job), RATE_LIMITED (with Retry-After).
  *
@@ -48,6 +49,26 @@ export const wordTimesOf = (value: unknown): WordTime[] =>
     const confidence = typeof w.confidence === 'number' && w.confidence >= 0 && w.confidence <= 1 ? { confidence: w.confidence } : {};
     return [{ text: w.text, start: w.start, end: w.end, ...confidence }];
   });
+
+/** The account's credit balance (GET /me, free), or undefined when it cannot be read. */
+export const accountBalance = async (rt: Runtime): Promise<number | undefined> => {
+  try {
+    const data = await platform(rt, 30).request('GET', '/me');
+    const balance = isRecord(data) && isRecord(data.credits) ? data.credits.balance : undefined;
+    return typeof balance === 'number' && Number.isFinite(balance) ? balance : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
+/** A popost.ai account is connected (an API key, or the login of popost auth login). */
+export const connected = (rt: Runtime): boolean => {
+  try {
+    return platform(rt).hasKey();
+  } catch {
+    return false; // a POPOST_BASE_URL that is not an address: no account to use
+  }
+};
 
 // ---------- speech ----------
 

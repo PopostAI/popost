@@ -5,9 +5,12 @@
  * POPOST_BASE_URL), paid in credits. This file makes clips; cloud-image.ts makes pictures.
  *
  * A clip: the reference files are uploaded (POST /videos/uploads, then their bytes to the address it gives; the first
- * and last frame of a request the same way, sent as `frames` instead of `references`), the request is priced (POST /videos/quote) and goes on only when the price is agreed: within POPOST_GEN_MAX_CREDITS, a
- * budget for one call the user approved in advance, or with --yes once the user has seen it. Otherwise nothing is
- * charged and ConfirmNeeded carries the price. Then POST /videos/generations with the quote and an idempotency key
+ * and last frame of a request the same way, sent as `frames` instead of `references`), the request is priced (POST
+ * /videos/quote) and goes on only when the price is agreed: within --confirm --max-credits N (or POPOST_GEN_MAX_CREDITS,
+ * which materials sets to what is left of its own --max-credits), or with --yes once the user has seen it. Otherwise
+ * nothing is charged and ConfirmNeeded carries the price. In a project with an agreement (approved.ts) a clip that is
+ * not one of the agreed clips is "unplanned": ConfirmNeeded with reason "unplanned", whatever the budget, until the
+ * user approved it on its own (--approve-unplanned <key>). Then POST /videos/generations with the quote and an idempotency key
  * derived from the request, GET /videos/generations?id= every 10 s until the task ends, and the clip is downloaded
  * from the signed link of the task. Model and resolution come from the environment (POPOST_VIDEO_MODEL,
  * POPOST_VIDEO_RESOLUTION), never from the request; unset, the platform chooses.
@@ -27,6 +30,7 @@ import { AmbiguousSubmitError, PopostApiError } from '../../providers/errors';
 import { defaultTaskDir } from '../../providers/paths';
 import { sleep, timeoutSignal } from '../../providers/time';
 import type { Runtime } from '../../runtime';
+import { clipStanding, projectOf, recordClip, shortWhat, type ClipGate, type UnplannedClip } from './approved';
 import { ConfirmNeeded, type GenerateKind, type GenerateRequest, type PriceToConfirm } from './index';
 
 /** A failure of the generator, with the exit code it ends with (1: refused or failed; 2: the request or the setup needs fixing). */
@@ -44,12 +48,22 @@ export interface CloudSettings {
   readonly videoModel?: string;
   readonly resolution?: string;
   readonly imageModel?: string;
-  /** POPOST_GEN_MAX_CREDITS: the most one call may cost without asking. */
+  /** --confirm --max-credits N, else POPOST_GEN_MAX_CREDITS: the most this call may cost without asking. */
   readonly maxCredits?: number;
   /** POPOST_GEN_WAIT_MIN: how long a clip is waited for. */
   readonly waitMinutes: number;
   /** --yes: the user has agreed to the price. */
   readonly yes: boolean;
+  /** Where the agreement of the clip is looked for (approved.ts); project undefined: the folders above the output file. */
+  readonly gate: Omit<ClipGate, 'project'> & { readonly project?: string };
+}
+
+/** What the command line adds to the environment: --confirm --max-credits N, --yes, --approve-unplanned, --project. */
+export interface CloudFlags {
+  readonly yes: boolean;
+  readonly maxCredits?: number;
+  readonly approve?: readonly string[];
+  readonly project?: string;
 }
 
 const MINUTE_MS = 60_000;
@@ -73,29 +87,46 @@ const numberSetting = (rt: Runtime, name: string, example: string): number | und
   return value;
 };
 
-/** The settings of the environment; the request has no say in them. */
-export const cloudSettings = (rt: Runtime, yes: boolean): CloudSettings => ({
-  videoModel: setting(rt, 'POPOST_VIDEO_MODEL'),
-  resolution: setting(rt, 'POPOST_VIDEO_RESOLUTION'),
-  imageModel: setting(rt, 'POPOST_IMAGE_MODEL'),
-  maxCredits: numberSetting(rt, 'POPOST_GEN_MAX_CREDITS', '60'),
-  waitMinutes: numberSetting(rt, 'POPOST_GEN_WAIT_MIN', '30') || DEFAULT_WAIT_MIN,
-  yes,
-});
+/** The keys of a list written as "a,b c". */
+const keysOf = (raw: string | undefined): string[] => (raw ?? '').split(/[\s,]+/).filter(Boolean);
 
 /**
- * Goes on only with the user's agreement to the price: within POPOST_GEN_MAX_CREDITS when it is set (--yes never passes
- * a budget), else with --yes. A balance that cannot pay is said first: there is nothing to agree to then.
+ * The settings of the environment and the command line; the request has no say in them. materials passes its part
+ * through the environment: POPOST_GEN_MAX_CREDITS (what is left of its budget), POPOST_GEN_PROJECT, POPOST_GEN_FILE
+ * and POPOST_GEN_REQUEST (the clip in the project and the hash of its request as written), POPOST_GEN_APPROVE.
  */
-export const agreeToPrice = (s: CloudSettings, price: PriceToConfirm): void => {
+export const cloudSettings = (rt: Runtime, flags: CloudFlags): CloudSettings => {
+  const project = flags.project ?? setting(rt, 'POPOST_GEN_PROJECT');
+  const [file, planned] = [setting(rt, 'POPOST_GEN_FILE'), setting(rt, 'POPOST_GEN_REQUEST')];
+  return {
+    videoModel: setting(rt, 'POPOST_VIDEO_MODEL'),
+    resolution: setting(rt, 'POPOST_VIDEO_RESOLUTION'),
+    imageModel: setting(rt, 'POPOST_IMAGE_MODEL'),
+    maxCredits: flags.maxCredits ?? numberSetting(rt, 'POPOST_GEN_MAX_CREDITS', '60'),
+    waitMinutes: numberSetting(rt, 'POPOST_GEN_WAIT_MIN', '30') || DEFAULT_WAIT_MIN,
+    yes: flags.yes,
+    gate: { ...(project ? { project } : {}), ...(file ? { file } : {}), ...(planned ? { planned } : {}), approve: [...(flags.approve ?? []), ...keysOf(setting(rt, 'POPOST_GEN_APPROVE'))] },
+  };
+};
+
+const UNPLANNED_NEXT =
+  'This clip is not one of the clips the user agreed to (a new clip, a regeneration or variant, or a changed request), so nothing was charged, whatever the budget. Show the user the clip, why it is needed and its price; only after a yes, run again with --approve-unplanned <its key>.';
+
+/**
+ * Goes on only with the user's agreement to the price: within the budget of the call when one is set (--max-credits,
+ * POPOST_GEN_MAX_CREDITS; --yes never passes it), else with --yes. A balance that cannot pay is said first: there is
+ * nothing to agree to then. An unplanned clip is asked about next, whatever the budget.
+ */
+export const agreeToPrice = (s: CloudSettings, price: PriceToConfirm, unplanned?: UnplannedClip): void => {
   if (typeof price.balance === 'number' && price.balance < price.credits)
     throw new GenerateError('Not enough credits: this needs ' + price.credits + ' credits and the balance is ' + price.balance + '. Nothing was charged; popost account shows the balance and where to buy more. [INSUFFICIENT_CREDITS]');
+  if (unplanned) throw new ConfirmNeeded({ ...price, reason: 'unplanned', clip: unplanned }, UNPLANNED_NEXT);
   if (s.maxCredits !== undefined ? price.credits <= s.maxCredits : s.yes) return;
   throw new ConfirmNeeded(
     price,
     s.maxCredits !== undefined
-      ? 'This costs ' + price.credits + ' credits, more than POPOST_GEN_MAX_CREDITS (' + s.maxCredits + '), so nothing was charged. Show the user the price; only if they agree, raise POPOST_GEN_MAX_CREDITS and run again.'
-      : 'This costs ' + price.credits + ' credits and nothing was charged: show the user the price, and run again with --yes (or with POPOST_GEN_MAX_CREDITS) only after they agree.',
+      ? 'This costs ' + price.credits + ' credits, more than the budget of this call (' + s.maxCredits + ' credits), so nothing was charged. Show the user the price; only if they agree, run again with --confirm --max-credits N (N: what is left of the agreed budget).'
+      : 'This costs ' + price.credits + ' credits and nothing was charged: show the user the price, and run again with --confirm --max-credits N only after they agree.',
   );
 };
 
@@ -323,6 +354,10 @@ interface Job {
   readonly seconds: number;
   readonly refs: readonly Reference[];
   readonly file: string;
+  /** Set when the clip is not one the user agreed to: it is asked about, whatever the budget. */
+  readonly unplanned?: UnplannedClip;
+  /** Called once the task is made, with the price it was made at. */
+  readonly onPaid: (credits: number) => Promise<void>;
 }
 
 const submit = async (rt: Runtime, client: PopostClient, s: CloudSettings, job: Job, start: Sent): Promise<Task> => {
@@ -334,10 +369,11 @@ const submit = async (rt: Runtime, client: PopostClient, s: CloudSettings, job: 
     const quote = sent.quote as Quote;
     // Only the price was asked for (GenerateRequest.priceOnly): it is answered as a price to agree to, whatever the budget.
     if (job.request.priceOnly) throw new ConfirmNeeded(quote.price, 'This costs ' + quote.price.credits + ' credits. Only its price was asked for: nothing was made or charged.');
-    agreeToPrice(s, quote.price);
+    agreeToPrice(s, quote.price, job.unplanned);
     try {
       const task = await createTask(rt, client, { ...body, prompt: job.request.prompt, quoteId: quote.quoteId, idempotencyKey: keyOf(sent) });
       await save(rt, job.file, { ...sent, taskId: task.id });
+      await job.onPaid(typeof task.credits === 'number' ? task.credits : quote.price.credits);
       return task;
     } catch (error) {
       // A quote that ran out while the user decided: priced again (and agreed again) once.
@@ -410,8 +446,20 @@ const fetchClip = async (rt: Runtime, client: PopostClient, done: Task, out: str
   }
 };
 
-/** Makes the clip a request asks for at out, on popost.ai; resolves with the credits it was charged. */
-export const makeClip = async (rt: Runtime, client: PopostClient, s: CloudSettings, request: GenerateRequest, out: string): Promise<{ credits?: number }> => {
+/** The agreement the clip is held to, when its project has one: the project of the settings, else the one above out. */
+const gateOf = async (rt: Runtime, s: CloudSettings, out: string): Promise<ClipGate | undefined> => {
+  const project = s.gate.project ?? (await projectOf(rt, out));
+  if (!project) return undefined;
+  const inside = rt.path.relative(project, out);
+  const file = s.gate.file ?? (inside.startsWith('..') ? undefined : inside.split(rt.path.sep).join('/'));
+  return { ...s.gate, project, ...(file ? { file } : {}) };
+};
+
+/** What a made clip says: what it cost, what this call charged (0 when it was paid before) and its request key. */
+export interface MadeClip { credits?: number; chargedCredits: number; key: string }
+
+/** Makes the clip a request asks for at out, on popost.ai; resolves with the credits it cost and was charged now. */
+export const makeClip = async (rt: Runtime, client: PopostClient, s: CloudSettings, request: GenerateRequest, out: string): Promise<MadeClip> => {
   const seconds = request.seconds ?? DEFAULT_SECONDS;
   const refs = await readReferences(rt, request);
   const byContent = Object.fromEntries(LISTS.map(([kind, list]) => [list, refs.filter((r) => r.kind === kind && !r.frame).map((r) => r.sha256)]));
@@ -426,11 +474,23 @@ export const makeClip = async (rt: Runtime, client: PopostClient, s: CloudSettin
     sent = { key, attempt: sent.attempt + 1, uploads: sent.uploads };
     task = undefined;
   }
-  task ??= await submit(rt, client, s, { request, seconds, refs, file }, sent);
+  let charged = 0;
+  if (!task) {
+    // A new task is paid for: within a project's agreement only when the clip is one of the agreed clips.
+    const gate = request.priceOnly ? undefined : await gateOf(rt, s, out);
+    const standing = gate ? await clipStanding(rt, gate, key) : undefined;
+    const what = shortWhat(request.prompt);
+    const unplanned = standing === 'unplanned' ? { key, ...(gate?.file ? { file: gate.file } : {}), what, seconds, ...(request.aspect ? { aspect: request.aspect } : {}) } : undefined;
+    const onPaid = async (credits: number): Promise<void> => {
+      charged = credits;
+      if (gate && (standing === 'plan' || standing === 'user')) await recordClip(rt, gate, { key, ...(gate.file ? { file: gate.file } : {}), what, seconds, credits, by: standing });
+    };
+    task = await submit(rt, client, s, { request, seconds, refs, file, onPaid, ...(unplanned ? { unplanned } : {}) }, sent);
+  }
   const done = await waitFor(rt, client, task, s.waitMinutes);
   if (done.status !== 'succeeded') throw ended(done);
   await fetchClip(rt, client, done, out);
-  return typeof done.credits === 'number' ? { credits: done.credits } : {};
+  return { ...(typeof done.credits === 'number' ? { credits: done.credits } : {}), chargedCredits: charged, key };
 };
 
 /** GET /videos/models: the models a clip can be made with, and the one used when POPOST_VIDEO_MODEL is unset. */

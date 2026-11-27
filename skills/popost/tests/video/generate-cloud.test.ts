@@ -4,106 +4,8 @@
  */
 import { describe, expect, it } from 'vitest';
 import type { TestRuntime } from '../../src/testing/memory';
-import { cli, err, KEY, newScene, ok, ORIGIN, tinyPng, type Json, type PopostStub, type Recorded } from '../image-helpers';
-
-const CLIP = new Uint8Array([0, 0, 0, 24, ...Buffer.from('ftypisom'), 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
-const MOVE = new Uint8Array([0, 0, 0, 20, ...Buffer.from('ftypqt  '), 9, 9, 9, 9, 9, 9, 9, 9]);
-const PRODUCT = tinyPng([200, 10, 10]);
-const START = Date.parse('2026-11-24T10:00:00Z');
-const MODEL = { id: 'video-a', label: 'Video A', resolutions: ['480p', '720p'], seconds: { min: 4, max: 15 }, aspectRatios: ['16:9', '9:16'], maxReferenceImages: 4, credits: { '480p': 5, '720p': 10 } };
-
-type Reply = ReturnType<typeof ok>;
-
-/** Keys sorted, so two bodies compare by what they say. */
-const canonical = (value: Json): string =>
-  JSON.stringify(value, (_key, v: Json) => (v && typeof v === 'object' && !Array.isArray(v) ? Object.fromEntries(Object.entries(v).sort(([a], [b]) => a.localeCompare(b))) : v));
-
-/** The video endpoints as agreed. A task is done at its readyAfter-th poll; a quote binds the body of the generation. */
-class VideoApi {
-  disabled = false;
-  balance = 500;
-  readyAfter = 2;
-  failWith: { code: string; message: string } | null = null;
-  /** The next answer of POST /videos/generations is lost after the task was made (a gateway error instead). */
-  loseAnswer = false;
-  readonly quotes = new Map<string, Json>();
-  readonly tasks = new Map<string, Json>();
-  private readonly byKey = new Map<string, string>();
-  private readonly polls = new Map<string, number>();
-
-  constructor(private readonly stub: PopostStub) {
-    stub.files.set('clip.mp4', CLIP);
-    const route = (method: string, path: string, handle: (req: Recorded) => Reply) =>
-      stub.set(method, path, (req) => (this.disabled ? err(403, 'VIDEO_GENERATION_DISABLED', 'Video generation is turned off for this account') : handle(req)));
-    route('GET', '/videos/models', () => ok({ models: [MODEL], default: 'video-a' }));
-    route('POST', '/videos/uploads', (req) => this.upload(req.json ?? {}));
-    route('POST', '/videos/quote', (req) => this.quote(req.json ?? {}));
-    route('POST', '/videos/generations', (req) => this.create(req.json ?? {}));
-    route('GET', '/videos/generations', (req) => this.poll(req.query.id ?? ''));
-  }
-
-  private upload(body: Json): Reply {
-    const id = 'vu_' + this.stub.calls('POST', '/videos/uploads').length;
-    return ok({ uploadId: id, uploadUrl: ORIGIN + '/storage/' + id, method: 'PUT', headers: { 'Content-Type': body.mimeType, 'x-stub-signature': 'sig-' + id }, expiresAt: '2026-12-01T10:00:00Z' });
-  }
-
-  private price = (body: Json): number => body.seconds * ((body.resolution ?? '480p') === '720p' ? 10 : 5);
-
-  private quote(body: Json): Reply {
-    const quoteId = 'q_' + (this.quotes.size + 1);
-    this.quotes.set(quoteId, body);
-    const { model = 'video-a', resolution = '480p', seconds, aspectRatio = '16:9' } = body;
-    return ok({ quoteId, quoteExpiresAt: '2026-11-24T11:00:00Z', model, resolution, seconds, aspectRatio, credits: this.price(body), balance: this.balance });
-  }
-
-  private create(body: Json): Reply {
-    const { prompt: _prompt, quoteId, idempotencyKey, ...rest } = body;
-    const quoted = this.quotes.get(quoteId);
-    if (!quoted) return err(400, 'QUOTE_EXPIRED', 'no such quote');
-    if (canonical(quoted) !== canonical(rest)) return err(409, 'QUOTE_MISMATCH', 'the body differs from the quote');
-    const known = this.byKey.get(idempotencyKey);
-    const task = known ? this.tasks.get(known) : this.charge(quoted, idempotencyKey);
-    if (!task) return err(402, 'INSUFFICIENT_CREDITS', 'not enough credits', { required: this.price(quoted), balance: this.balance });
-    if (this.loseAnswer) {
-      this.loseAnswer = false;
-      return [502, 'bad gateway'];
-    }
-    return ok({ ...task });
-  }
-
-  private charge(quoted: Json, key: string): Json | undefined {
-    const credits = this.price(quoted);
-    if (this.balance < credits) return undefined;
-    this.balance -= credits;
-    const task = { id: 'vt_' + (this.tasks.size + 1), status: 'queued', model: quoted.model ?? 'video-a', resolution: quoted.resolution ?? '480p', seconds: quoted.seconds, aspectRatio: quoted.aspectRatio ?? '16:9', credits, createdAt: '2026-11-24T10:00:00Z' };
-    this.tasks.set(task.id, task);
-    this.byKey.set(key, task.id);
-    return task;
-  }
-
-  private poll(id: string): Reply {
-    const task = this.tasks.get(id);
-    if (!task) return err(404, 'NOT_FOUND', 'no such task');
-    const n = (this.polls.get(id) ?? 0) + 1;
-    this.polls.set(id, n);
-    if (task.status === 'queued' || task.status === 'running') {
-      if (n < this.readyAfter) task.status = 'running';
-      else if (this.failWith) Object.assign(task, { status: 'failed', error: this.failWith });
-      else Object.assign(task, { status: 'succeeded', completedAt: '2026-11-24T10:01:00Z', expiresAt: '2026-12-01T10:01:00Z', video: { url: ORIGIN + '/files/clip.mp4', urlExpiresAt: '2026-11-24T11:01:00Z', bytes: CLIP.length } });
-    }
-    return ok({ ...task });
-  }
-}
-
-/** A platform stub with the video endpoints, two reference files, and a clock that moves only when the generator waits. */
-const scene = async (env: Record<string, string | undefined> = {}) => {
-  const base = await newScene({ env, files: { '/work/product.png': PRODUCT, '/work/move.mov': MOVE } });
-  const api = new VideoApi(base.stub);
-  const waited: number[] = [];
-  let now = START;
-  const rt: TestRuntime = { ...base.rt, now: () => new Date(now), sleep: async (ms: number) => void (waited.push(ms), (now += ms)) };
-  return { rt, stub: base.stub, api, waited };
-};
+import { cli, err, KEY, tinyPng, type Json } from '../image-helpers';
+import { CLIP, MOVE, PRODUCT, scene } from './video-api-fake';
 
 const request = async (rt: TestRuntime, body: Json, file = '/work/req.json'): Promise<string> => {
   await rt.fs.writeFile(file, JSON.stringify(body));
@@ -128,7 +30,7 @@ describe('popost video generate video', () => {
     const r = await generate(rt, 'video', req, '/work/out.mp4');
     expect(r.stderr).toBe('');
     expect(r.code).toBe(0);
-    expect(r.stdout).toBe('{"credits":50}\n');
+    expect(r.data).toEqual({ credits: 50, chargedCredits: 50, key: expect.stringMatching(/^video-[0-9a-f]{64}$/) });
     expect(await rt.fs.readFile('/work/out.mp4')).toEqual(CLIP);
     expect(stub.calls('POST', '/videos/uploads').map((c) => c.json)).toEqual([
       { kind: 'image', mimeType: 'image/png', bytes: PRODUCT.length, sha256: expect.stringMatching(/^[0-9a-f]{64}$/) },
@@ -166,7 +68,7 @@ describe('popost video generate video', () => {
     await rt.fs.writeFile('/work/end.png', tinyPng([10, 200, 10]));
     const req = await request(rt, { prompt: 'the lid opens', seconds: 5, firstFrame: '/work/product.png', lastFrame: '/work/end.png' });
     const r = await generate(rt, 'video', req, '/work/out.mp4');
-    expect([r.code, r.stdout]).toEqual([0, '{"credits":25}\n']);
+    expect([r.code, r.data]).toEqual([0, { credits: 25, chargedCredits: 25, key: expect.any(String) }]);
     expect(stub.calls('POST', '/videos/uploads').map((c) => c.json?.kind)).toEqual(['image', 'image']);
     const quoted = { seconds: 5, frames: { first: 'vu_1', last: 'vu_2' } };
     expect(stub.calls('POST', '/videos/quote').map((c) => c.json)).toEqual([quoted]);
@@ -227,7 +129,8 @@ describe('popost video generate video', () => {
     expect(await rt.fs.stat('/work/out.mp4')).toBeNull();
     const again = await generate(rt, 'video', req, '/work/out.mp4');
     expect(again.code).toBe(0);
-    expect(again.stdout).toBe('{"credits":25}\n');
+    // It was paid by the first run: this one charges nothing.
+    expect(again.data).toMatchObject({ credits: 25, chargedCredits: 0 });
     expect([stub.calls('POST', '/videos/uploads'), stub.calls('POST', '/videos/quote'), stub.calls('POST', '/videos/generations')].map((c) => c.length)).toEqual([1, 1, 1]);
     expect(api.balance).toBe(475);
   });
@@ -255,7 +158,7 @@ describe('popost video generate video', () => {
     expect(await rt.fs.stat('/work/out.mp4')).toBeNull();
     const agreed = await generate(rt, 'video', '--yes', req, '/work/out.mp4');
     expect(agreed.code).toBe(0);
-    expect(agreed.stdout).toBe('{"credits":25}\n');
+    expect(agreed.data).toMatchObject({ credits: 25, chargedCredits: 25 });
     expect([stub.calls('POST', '/videos/uploads').length, stub.calls('POST', '/videos/quote').length]).toEqual([1, 1]);
     expect(stub.calls('POST', '/videos/generations')[0]?.json?.quoteId).toBe('q_1');
   });
@@ -265,7 +168,7 @@ describe('popost video generate video', () => {
     const r = await generate(rt, 'video', '--yes', await request(rt, { prompt: 'a desk', seconds: 5 }), '/work/out.mp4');
     expect(r.code).toBe(3);
     expect(r.data.confirm.credits).toBe(25);
-    expect(oneLine(r.stderr)).toContain('more than POPOST_GEN_MAX_CREDITS (20)');
+    expect(oneLine(r.stderr)).toContain('more than the budget of this call (20 credits)');
     expect(stub.calls('POST', '/videos/generations')).toHaveLength(0);
   });
 
@@ -333,7 +236,7 @@ describe('popost video generate image', () => {
     const r = await generate(rt, 'image', await request(rt, { prompt: 'a red logo', aspect: '1:1', model: 'stub-model-a' }), '/work/logo.png');
     expect(r.stderr).toBe('');
     expect(r.code).toBe(0);
-    expect(r.stdout).toBe('{"credits":20}\n');
+    expect(r.data).toEqual({ credits: 20, chargedCredits: 20 });
     expect(stub.calls('POST', '/images/quote')[0]?.json).toMatchObject({ model: 'stub-model-b', n: 1, aspectRatio: '1:1' });
     expect(stub.calls('POST', '/images/generations')[0]?.json).toMatchObject({ model: 'stub-model-b', prompt: 'a red logo', maxCredits: 20, idempotencyKey: expect.stringMatching(/^image-[0-9a-f]{64}$/) });
     expect(await rt.fs.readFile('/work/logo.png')).toEqual(stub.inlinePng);

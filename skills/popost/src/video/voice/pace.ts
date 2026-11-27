@@ -9,7 +9,9 @@
 import type { Runtime } from '../../runtime';
 import { withTempDir } from '../host';
 import { spokenChars } from '../retarget/pace';
-import { speakLines, type Speaker } from './index';
+import type { PriceItem } from '../wallet';
+import { speechPrice } from './hosted';
+import { speakLines, speaksHosted, type Speaker } from './index';
 
 export type Script = 'cjk' | 'latin';
 
@@ -34,9 +36,16 @@ export interface PaceOptions {
   cacheFile?: string;
 }
 
-const keyOf = (o: PaceOptions): string => [o.voice ?? '', o.speed ?? 1, o.script, (o.sample ?? PACE_SAMPLE[o.script]).join('/')].join('|');
+const keyOf = (o: Omit<PaceOptions, 'speaker'>): string => [o.voice ?? '', o.speed ?? 1, o.script, (o.sample ?? PACE_SAMPLE[o.script]).join('/')].join('|');
 const readCache = (rt: Runtime, file: string | undefined): Promise<Record<string, number>> =>
   file ? rt.fs.readText(file).then((t) => JSON.parse(t) as Record<string, number>, () => ({})) : Promise.resolve({});
+
+/** What timing the voice costs: nothing when its pace is in the cache or a speaker of the user's own speaks it; else popost.ai's speech of the sample lines (free quotes). */
+export const pacePrice = async (rt: Runtime, o: Omit<PaceOptions, 'speaker'>): Promise<PriceItem[]> => {
+  const known = (await readCache(rt, o.cacheFile))[keyOf(o)];
+  if ((typeof known === 'number' && known > 0) || !speaksHosted(rt, o.voice)) return [];
+  return (await speechPrice(rt, o.sample ?? PACE_SAMPLE[o.script], o.voice)).map((i) => ({ ...i, what: 'timing the voice: ' + i.what }));
+};
 
 /** Characters a second of this voice at this speed (one decimal). Speaks the sample lines once unless the pace is in the cache. */
 export const measureVoicePace = async (rt: Runtime, o: PaceOptions): Promise<number> => {

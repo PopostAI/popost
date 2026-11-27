@@ -3,7 +3,10 @@ import { sha256 } from '../../core/util';
 import { PopostClient, checkUrl, readCapped } from '../../providers/api';
 import { isRecord } from '../../providers/base';
 import { operationKeyOf, speechAnswerOf } from '../hosted-api';
+import type { PriceItem, Wallet } from '../wallet';
 import type { Speaker } from './index';
+
+const clip = (text: string): string => (text.length > 40 ? text.slice(0, 39) + '…' : text);
 
 export interface HostedVoice {
   id: string; name: string; description: string; language: string; official: boolean;
@@ -46,9 +49,9 @@ export const hostedOperationKey = (voiceId: string, text: string, speed: number,
  * <out>.words.json { "words": [{ "text", "start", "end" }] } in seconds from the start of the WAV (speakLines reads
  * them); an answer without them removes an older file there, so a clip never keeps the words of another.
  */
-export const hostedSpeech = async (rt: Runtime, voice: HostedVoice, text: string, out: string, maxCredits: number, speed = 1, operationPath = out) => {
+export const hostedSpeech = async (rt: Runtime, voice: HostedVoice, text: string, out: string, wallet: Wallet, speed = 1, operationPath = out) => {
   const credits = await quoteHostedVoice(rt, voice.id, text);
-  if (!Number.isSafeInteger(maxCredits) || maxCredits < credits) throw new Error('Speech exceeds the confirmed credit budget. Run voice quote and set an explicit budget.');
+  wallet.check(credits, 'Speaking "' + clip(text) + '" with popost.ai');
   const operationKey = hostedOperationKey(voice.id, text, speed, operationPath);
   const result = speechAnswerOf(await client(rt).request('POST', '/voices/speech', {
     body: { voiceId: voice.id, text, operationKey, maxCredits: credits, speed }, ambiguous: true,
@@ -58,13 +61,21 @@ export const hostedSpeech = async (rt: Runtime, voice: HostedVoice, text: string
   if (words.length) await rt.fs.writeFile(out + '.words.json', JSON.stringify({ words }, null, 1) + '\n');
   else await rt.fs.rm(out + '.words.json');
   await rt.fs.writeFile(out + '.voice.json', JSON.stringify({ version: 1, voiceId: voice.id, text, operationKey, audioSha256: sha256(await rt.fs.readFile(out)), tool: 'popost-hosted-voice' }, null, 2));
+  wallet.pay(result.chargedCredits);
   return result.chargedCredits;
 };
-export const hostedSpeaker = (rt: Runtime): Speaker => {
-  let remaining = Number(rt.env.POPOST_VOICE_MAX_CREDITS ?? NaN);
-  return { speak: async (text, out, options = {}) => {
-    if (!Number.isSafeInteger(remaining) || remaining < 0) throw new Error('Hosted speech requires a confirmed POPOST_VOICE_MAX_CREDITS budget. Run voice quote first.');
-    const voice = await selectHostedVoice(rt, options.voice);
-    remaining -= await hostedSpeech(rt, voice, text, out, remaining, options.speed ?? 1);
-  } };
+/** popost.ai's speaker: every line is quoted and paid within `wallet` (wallet.ts). */
+export const hostedSpeaker = (rt: Runtime, wallet: Wallet): Speaker => ({
+  speak: async (text, out, options = {}) => {
+    await hostedSpeech(rt, await selectHostedVoice(rt, options.voice), text, out, wallet, options.speed ?? 1);
+  },
+});
+/** What speaking `lines` in `voice` costs (free quotes), one item a line that has words. */
+export const speechPrice = async (rt: Runtime, lines: readonly string[], voice?: string): Promise<PriceItem[]> => {
+  const spoken = lines.map((l) => l.trim()).filter(Boolean);
+  if (!spoken.length) return [];
+  const chosen = await selectHostedVoice(rt, voice);
+  const items: PriceItem[] = [];
+  for (const text of spoken) items.push({ kind: 'speech', what: '"' + clip(text) + '" in the voice ' + chosen.name, credits: await quoteHostedVoice(rt, chosen.id, text) });
+  return items;
 };

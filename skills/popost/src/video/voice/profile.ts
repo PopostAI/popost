@@ -5,6 +5,7 @@ import { audioSeconds } from './index';
 import { runTool } from '../tool';
 import { runFfmpegOk } from '../media/ffmpeg';
 import { hostedSpeech, selectHostedVoice } from './hosted';
+import { NOTHING, type Wallet } from '../wallet';
 
 export interface VoiceProfile { id: string; reference: string; sha256: string; mode: 'audio-first' | 'native-reference'; providerVoice?: string }
 interface Voices { version: 1; speakers: VoiceProfile[] }
@@ -45,14 +46,14 @@ export const registerVoice = async (rt: Runtime, dir: string, id: string, file: 
  * One shared cloned/preset voice for visible speakers and voice-over; never substitute an unrelated system voice.
  * Word times the synthesizer gave (hosted speech does) are kept beside out as <out>.words.json; returns that path.
  */
-export const speakProfile = async (rt: Runtime, dir: string, id: string, text: string, out: string): Promise<{ words?: string }> => {
+export const speakProfile = async (rt: Runtime, dir: string, id: string, text: string, out: string, wallet: Wallet = NOTHING()): Promise<{ words?: string }> => {
   const profile=await voiceProfile(rt,dir,id);
   if (!profile || !text.trim()) throw new Error('Register the speaker and supply the final spoken text.');
   return withTempDir(rt,'popost-shared-voice-',async temp=>{
     const request=rt.path.join(temp,'request.json'), audio=rt.path.join(temp,'voice.wav');
     await rt.fs.writeFile(request,JSON.stringify({text,speaker:id,referenceAudio:rt.path.resolve(dir,profile.reference),voice:profile.providerVoice}));
     const hosted = profile.providerVoice?.startsWith('popost:');
-    if (hosted) await hostedSpeech(rt, await selectHostedVoice(rt, profile.providerVoice!), text, audio, Number(rt.env.POPOST_VOICE_MAX_CREDITS ?? NaN), 1, out);
+    if (hosted) await hostedSpeech(rt, await selectHostedVoice(rt, profile.providerVoice!), text, audio, wallet, 1, out);
     else await runTool(rt,'POPOST_VOICE_CMD','The shared-voice synthesizer',[request,audio]);
     const seconds=await audioSeconds(rt,audio);
     const bytes=await rt.fs.readFile(audio);await rt.fs.writeFile(out,bytes);

@@ -4,7 +4,7 @@
  * command line wrote. A long listing (every shot, every cue) goes to the file a command writes: stdout then carries
  * the counts and the path, and carries the listing itself only when no output file was asked for.
  */
-import type { OptionSpec, PositionalSpec } from '../../args';
+import type { OptionSpec, ParsedArgs, PositionalSpec } from '../../args';
 import { isFile, printJson, readJson } from '../../core/util';
 import type { Runtime } from '../../runtime';
 import { fitsPoorly, joinedShots, transitionFile } from '../describe/frames';
@@ -23,8 +23,10 @@ import { projectOf, reviewCompare, roundNext } from '../render/record';
 import { changeWindows } from '../score/project-windows';
 import { readFacts } from '../template/facts';
 import { comparisonScope } from './compare-scope';
-import { ASR_BUDGET, quoteVideoSpeech } from '../speech/hosted';
-import { commandTranscriber, phrasesOf, transcribe, transcriberAbsence } from '../speech/index';
+import { quoteVideoSpeech, transcriptionPrice } from '../speech/hosted';
+import { commandTranscriber, NO_TRANSCRIBER, phrasesOf, transcribe, TRANSCRIBER_HINT, transcriberKind } from '../speech/index';
+import type { Wallet } from '../wallet';
+import { CREDIT_OPTIONS, walletFor } from './credits';
 import { synthCase } from '../synth/generate';
 import { writeCase } from '../synth/write';
 import { commandTextReader, cuesOf, readSamples, withCaptionLook, type TextReading, type TextTrack } from '../text/index';
@@ -43,7 +45,18 @@ const PROGRESS_MS = 15_000;
 
 /** Where to get a text reader or a transcriber; skills/popost/tools/video/ has the development loop's. */
 const OCR_HINT = 'set POPOST_OCR_CMD (skills/popost/tools/video/ocr-rapidocr/ocr.py explains one way)';
-const ASR_HINT = 'set POPOST_ASR_CMD (skills/popost/tools/video/asr-faster-whisper/asr.py explains one way), or, with a connected popost.ai account, price the transcription with popost video transcript <video> --quote and set ' + ASR_BUDGET + ' to the credits the user agreed to';
+const ASR_HINT = TRANSCRIBER_HINT;
+const NO_SPEECH: OptionSpec = { flag: '--no-speech', kind: 'flag', help: 'do not transcribe what is said (nothing is charged for it)' };
+
+/**
+ * The transcriber of a command that hears `video`, and its wallet: popost.ai's is priced first and paid only with
+ * --confirm --max-credits N (exit code 3 with the price without them); the user's own costs nothing here.
+ */
+const hearing = async (rt: Runtime, args: ParsedArgs, video: string, what: string) => {
+  if (transcriberKind(rt) !== 'hosted') return { transcriber: commandTranscriber(rt), wallet: undefined as Wallet | undefined };
+  const wallet = await walletFor(rt, args, await transcriptionPrice(rt, video, what));
+  return { transcriber: commandTranscriber(rt, wallet), wallet };
+};
 
 /** A file the user named, against the working directory; a missing one is an error the user can fix. */
 const inputFile = async (rt: Runtime, typed: string): Promise<string> => {
@@ -137,12 +150,13 @@ const text = command(
 );
 
 const transcript = command(
-  'what is said, word by word, in source frames; needs a transcriber: POPOST_ASR_CMD, or popost.ai within a confirmed ' + ASR_BUDGET + ' budget (credits; --quote prices it for free)',
+  'what is said, word by word, in source frames. With a popost.ai account it is transcribed there, paid in credits: without --confirm it prints the price (exit code 3) and charges nothing; --quote only prices it. A transcriber of your own in POPOST_ASR_CMD goes first',
   {
     positionals: [VIDEO],
     options: [
       outFile('transcript.json'), LANGUAGE,
       { flag: '--quote', kind: 'flag', help: 'transcribe nothing: print the seconds of sound and the credits popost.ai charges to transcribe them (free; needs a connected account)' },
+      ...CREDIT_OPTIONS,
     ],
   },
   async (args, rt) => {
@@ -150,25 +164,25 @@ const transcript = command(
       const video = await inputFile(rt, args.req('video'));
       const q = await quoteVideoSpeech(rt, video);
       printJson(rt, {
-        ok: true, video, ...q, charged: 0,
-        ...(q.sound ? { toUse: 'with the user\'s agreement, set ' + ASR_BUDGET + '=' + q.credits + ' (or more) for the command that transcribes this sound (transcript, describe, readback); a transcriber in POPOST_ASR_CMD is used instead while it is set' } : { note: 'The video has no sound: nothing to transcribe.' }),
+        ok: true, video, ...q, chargedCredits: 0,
+        ...(q.sound ? { next: 'show the user the credits; with their agreement transcribe with --confirm --max-credits ' + q.credits + ' (or more)' + (transcriberKind(rt) === 'own' ? '. POPOST_ASR_CMD is set, so your own transcriber is used instead, at no charge here' : '') } : { note: 'The video has no sound: nothing to transcribe.' }),
       });
       return;
     }
-    const transcriber = commandTranscriber(rt);
-    if (!transcriber) throw new VideoCommandError('Transcribing needs a transcriber (' + transcriberAbsence(rt) + '): ' + ASR_HINT + '.');
     const video = await inputFile(rt, args.req('video'));
+    const { transcriber, wallet } = await hearing(rt, args, video, 'the sound of ' + rt.path.basename(video));
+    if (!transcriber) throw new VideoCommandError('Transcribing needs a transcriber (' + NO_TRANSCRIBER + '): ' + ASR_HINT + '.');
     const started = Date.now();
     const t = await transcribe(rt, video, transcriber, args.string('language'));
     if (!t) {
-      printJson(rt, { ok: true, video, sound: false, words: 0, note: 'The video has no sound.' });
+      printJson(rt, { ok: true, video, sound: false, words: 0, chargedCredits: 0, note: 'The video has no sound.' });
       return;
     }
     const out = optionalOut(rt, args.string('out'));
     if (out) await writeJsonFile(rt, out, t);
     const phrases = phrasesOf(t);
     printJson(rt, {
-      ok: true, video, sound: true, words: t.words.length, language: t.language, seconds: secondsSince(started), phrases: phrases.length,
+      ok: true, video, sound: true, words: t.words.length, language: t.language, seconds: secondsSince(started), phrases: phrases.length, chargedCredits: wallet?.spent ?? 0,
       ...(out ? { file: out } : { listing: { phrases: phrases.map((p) => ({ start: p.start, end: p.end, confidence: p.confidence, text: p.text })) } }),
     });
   },
@@ -189,14 +203,16 @@ const describe = command(
     options: [
       outDir('the directory to write into'),
       { flag: '--name', default: 'reference', help: 'what REFERENCE.md calls the video (not a file name of a private data set)' },
-      LANGUAGE,
+      LANGUAGE, NO_SPEECH, ...CREDIT_OPTIONS,
     ],
   },
   async (args, rt) => {
     const video = await inputFile(rt, args.req('video'));
     const dir = userPath(rt, args.req('out'));
     const reader = commandTextReader(rt);
-    const transcriber = commandTranscriber(rt);
+    const skipped = args.flag('no-speech');
+    // With popost.ai the speech is priced before anything else is done: without --confirm the price is all there is.
+    const { transcriber, wallet } = skipped ? { transcriber: undefined, wallet: undefined } : await hearing(rt, args, video, 'the speech of the reference');
     const language = args.string('language');
     await removeOldPictures(rt, dir);
     // Minutes with a reader and a transcriber: a line on stderr every 15 s says which part is where.
@@ -220,14 +236,14 @@ const describe = command(
     else await rt.fs.rm(rt.path.join(dir, INSET_FILE));
     const leftOut = [
       ...(reader ? [] : [{ part: 'on-screen text', because: 'POPOST_OCR_CMD is not set', toAdd: OCR_HINT }]),
-      ...(transcriber ? [] : [{ part: 'speech', because: transcriberAbsence(rt), toAdd: ASR_HINT }]),
+      ...(transcriber ? [] : [skipped ? { part: 'speech', because: '--no-speech was given' } : { part: 'speech', because: NO_TRANSCRIBER, toAdd: ASR_HINT }]),
     ];
     printJson(rt, {
       ok: true, dir,
       files: ['REFERENCE.md', 'timeline.md', 'measure.json', TRACKS_FILE, UNRECOVERED_FILE, ...(cues ? ['text.json'] : []), ...(spoken ? ['transcript.json'] : []), ...(inset ? [INSET_FILE] : [])],
       shotFiles: m.shots.length, paths: m.tracks?.length ?? 0, notRecovered: d.unrecovered.length,
       tokens: { 'REFERENCE.md': d.tokens['REFERENCE.md'], 'timeline.md': d.tokens['timeline.md'] },
-      sound: m.source.hasAudio, text: cues !== undefined, speech: spoken !== undefined,
+      sound: m.source.hasAudio, text: cues !== undefined, speech: spoken !== undefined, chargedCredits: wallet?.spent ?? 0,
       ...(inset ? { inset: { ...inset, note: insetText(inset, m.shots.length) } } : {}),
       pictures: picturesEntry(rt, dir, m, got.pictures ?? []),
       ...(leftOut.length ? { leftOut } : {}),

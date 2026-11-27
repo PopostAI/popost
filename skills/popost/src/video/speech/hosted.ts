@@ -1,11 +1,11 @@
 /**
- * Transcription by popost.ai, for a connected account without a transcriber of its own (POPOST_ASR_CMD keeps priority).
- * It costs credits, so it is used only within a budget the user confirmed: POPOST_ASR_MAX_CREDITS, the most one command
- * may spend on transcription, counted down call by call; without it there is no hosted transcriber. Pricing is free:
- * `popost video transcript <video> --quote`.
+ * Transcription by popost.ai: the transcriber of a connected account, unless the user named one of their own
+ * (POPOST_ASR_CMD), as a custom image channel wins over the official one. It costs credits, paid as images are: the
+ * command prices the sound first (free) and goes on only with --confirm --max-credits N; every call checks its quote
+ * against what is left of N (wallet.ts). `popost video transcript <video> --quote` prices a video alone.
  *
  * A call takes the 16 kHz WAV the engine made (at most 30 min and 64 MiB, as the platform takes it), prices its
- * length, and refuses when the rest of the budget does not cover it; then the platform makes a job (its operation key
+ * length, and refuses when the rest of the ceiling does not cover it; then the platform makes a job (its operation key
  * comes from the sound and the language, so a retry reuses the job: a running one is waited for and a finished one read
  * back, neither charged again), the WAV is uploaded and the job is run. A run that takes long answers `running`: the
  * job is then read every 3 s, for at most 30 min, with a line on stderr every 30 s. Reading a job is free.
@@ -19,39 +19,15 @@ import { sleep } from '../../providers/time';
 import { AmbiguousSubmitError, PopostApiError } from '../../providers/errors';
 import type { Runtime } from '../../runtime';
 import { withTempDir } from '../host';
-import { operationKeyOf, platform, quoteTranscription, readTranscription, runTranscription, startTranscription, uploadWav, type Transcription, type TranscriptionJob, type WordTime } from '../hosted-api';
+import { connected, operationKeyOf, quoteTranscription, readTranscription, runTranscription, startTranscription, uploadWav, type Transcription, type TranscriptionJob, type WordTime } from '../hosted-api';
 import { probe } from '../media/ffmpeg';
 import { isMono16, plainWav, readWav, speechWav } from '../media/wav';
 import { ToolError } from '../tool';
+import { NOTHING, type PriceItem, type Wallet } from '../wallet';
 import type { RawTranscript, Transcriber } from './types';
 
-export const ASR_BUDGET = 'POPOST_ASR_MAX_CREDITS';
-const QUOTE_HINT = 'popost video transcript <video> --quote';
-
-/** The confirmed budget: a whole number of credits, or undefined when it is unset; NaN when it is set to something else. */
-const budgetOf = (rt: Runtime): number | undefined => {
-  const raw = rt.env[ASR_BUDGET]?.trim();
-  if (!raw) return undefined;
-  const n = Number(raw);
-  return Number.isSafeInteger(n) && n >= 0 ? n : NaN;
-};
-
-const connected = (rt: Runtime): boolean => {
-  try {
-    return platform(rt).hasKey();
-  } catch {
-    return false; // a POPOST_BASE_URL that is not an address: no account to use
-  }
-};
-
-/** Why there is no hosted transcriber (connected: an account is, but the budget is missing or wrong), or undefined when there is one. */
-export const hostedTranscriptionAbsence = (rt: Runtime): { connected: boolean; why: string } | undefined => {
-  if (!connected(rt)) return { connected: false, why: 'no popost.ai account is connected' };
-  const budget = budgetOf(rt);
-  if (budget === undefined) return { connected: true, why: 'no ' + ASR_BUDGET + ' budget is set for popost.ai transcription (' + QUOTE_HINT + ' prices it)' };
-  if (Number.isNaN(budget)) return { connected: true, why: ASR_BUDGET + ' is not a whole number of credits' };
-  return undefined;
-};
+/** A connected account transcribes with popost.ai. */
+export const hasHostedTranscription = (rt: Runtime): boolean => connected(rt);
 
 const CJK_START = /^[\u{3040}-\u{30ff}\u{3400}-\u{9fff}\u{ac00}-\u{d7af}]/u;
 const PUNCTUATION_ONLY = /^[\p{P}\p{S}]+$/u;
@@ -169,10 +145,9 @@ const sendAndRun = async (rt: Runtime, bytes: Uint8Array, language: string | und
   }
 };
 
-/** The popost.ai transcriber, or undefined unless an account is connected and POPOST_ASR_MAX_CREDITS is a valid budget. */
-export const hostedTranscriber = (rt: Runtime): Transcriber | undefined => {
-  if (hostedTranscriptionAbsence(rt) !== undefined) return undefined;
-  let remaining = budgetOf(rt) ?? 0;
+/** The popost.ai transcriber of a connected account (undefined without one); it pays within `wallet`. */
+export const hostedTranscriber = (rt: Runtime, wallet: Wallet = NOTHING()): Transcriber | undefined => {
+  if (!connected(rt)) return undefined;
   const transcribe = async (file: string, language?: string): Promise<RawTranscript> => {
     const wav = readWav(await rt.fs.readFile(file));
     if (!isMono16(wav) || wav.sampleRate !== 16000) throw new ToolError('popost.ai transcribes 16 kHz, one-channel, 16-bit PCM WAV; ' + file + ' is not one.');
@@ -180,13 +155,11 @@ export const hostedTranscriber = (rt: Runtime): Transcriber | undefined => {
     if (wav.seconds > MAX_SECONDS || bytes.length > MAX_BYTES)
       throw new ToolError('popost.ai transcribes at most 30 min of sound; this is ' + (wav.seconds / 60).toFixed(1) + ' min. Use a transcriber of your own (POPOST_ASR_CMD) for it.');
     const seconds = pricedSeconds(wav.seconds);
-    const credits = await quoteTranscription(rt, seconds);
-    if (credits > remaining)
-      throw new ToolError('Transcribing ' + seconds.toFixed(1) + ' s of sound costs ' + credits + ' credits; ' + remaining + ' of the confirmed ' + ASR_BUDGET + ' budget are left. Price it with ' + QUOTE_HINT + ' and, with the user\'s agreement, set a budget that covers it.');
-    const { result, charged } = await sendAndRun(rt, bytes, language, remaining, seconds);
+    wallet.check(await quoteTranscription(rt, seconds), 'Transcribing ' + seconds.toFixed(1) + ' s of sound with popost.ai');
+    const { result, charged } = await sendAndRun(rt, bytes, language, wallet.left, seconds);
     if (result.state === 'failed') throw new ToolError(FAILED);
     if (result.state !== 'ready') throw new ToolError('The popost.ai transcription is ' + (result.state || 'not ready') + '; run the same command again.');
-    remaining = Math.max(0, remaining - charged);
+    wallet.pay(charged);
     return rawTranscriptOf(result.language || language || '', result.words);
   };
   return {
@@ -198,14 +171,23 @@ export const hostedTranscriber = (rt: Runtime): Transcriber | undefined => {
   };
 };
 
-/** What transcribing a video's sound with popost.ai would cost: its length as the engine sends it, priced for free. */
-export const quoteVideoSpeech = async (rt: Runtime, video: string): Promise<{ sound: boolean; seconds: number; credits: number }> => {
+/** The sound of a video as the transcribers hear it, priced for popost.ai (free); sound false: there is none. */
+export const quoteVideoSpeech = async (rt: Runtime, video: string, kept?: (wav: Uint8Array, fps: number) => Promise<boolean>): Promise<{ sound: boolean; seconds: number; credits: number; kept?: true }> => {
   const info = await probe(rt, video);
   if (!info.hasAudio) return { sound: false, seconds: 0, credits: 0 };
   return withTempDir(rt, 'popost-video-audio-', async (dir) => {
     const file = rt.path.join(dir, 'audio.wav');
     await speechWav(rt, video, file);
-    const seconds = pricedSeconds(readWav(await rt.fs.readFile(file)).seconds);
+    const bytes = await rt.fs.readFile(file);
+    const seconds = pricedSeconds(readWav(bytes).seconds);
+    // A transcript kept from an earlier run of the same sound costs nothing.
+    if (kept && (await kept(bytes, info.fps))) return { sound: true, seconds, credits: 0, kept: true as const };
     return { sound: true, seconds, credits: await quoteTranscription(rt, seconds) };
   });
+};
+
+/** What transcribing a video's sound with popost.ai costs, as a line of a command's price; none without sound or when kept. */
+export const transcriptionPrice = async (rt: Runtime, video: string, what: string, kept?: (wav: Uint8Array, fps: number) => Promise<boolean>): Promise<PriceItem[]> => {
+  const q = await quoteVideoSpeech(rt, video, kept);
+  return q.sound && q.credits > 0 ? [{ kind: 'transcription', what, credits: q.credits, seconds: q.seconds }] : [];
 };

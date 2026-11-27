@@ -9,6 +9,7 @@ import { createTestRuntime, runCli } from '../../src/testing/memory';
 import { runFfmpegOk } from '../../src/video/media/ffmpeg';
 import { hostedSpeaker, hostedSpeech } from '../../src/video/voice/hosted';
 import { speakLines } from '../../src/video/voice/index';
+import { Wallet } from '../../src/video/wallet';
 import { ENV, fakePlatform, MALE } from './hosted-fake';
 import { ffmpegReady } from './read-clips';
 
@@ -18,11 +19,11 @@ describe('hosted speech word times', () => {
   it('writes the words beside the clip, and removes an older file when an answer has none', async () => {
     const platform = fakePlatform({ speechWords: [...WORDS, { text: 'no time' }] });
     const rt = createTestRuntime({ env: ENV, fetchHandler: platform.handler });
-    await hostedSpeech(rt, MALE, '你好', '/work/line.wav', 1);
+    await hostedSpeech(rt, MALE, '你好', '/work/line.wav', new Wallet(5));
     expect(JSON.parse(await rt.fs.readText('/work/line.wav.words.json'))).toEqual({ words: WORDS });
     const silent = fakePlatform({ speechWords: null });
     const again = { ...rt, fetch: (async (input: RequestInfo | URL, init?: RequestInit) => silent.handler(new Request(input, init))) as typeof fetch };
-    await hostedSpeech(again, MALE, '你好', '/work/line.wav', 1);
+    await hostedSpeech(again, MALE, '你好', '/work/line.wav', new Wallet(5));
     expect(await rt.fs.stat('/work/line.wav.words.json')).toBeNull();
     expect(await rt.fs.stat('/work/line.wav.voice.json')).not.toBeNull();
   });
@@ -41,13 +42,13 @@ describe.skipIf(!ok)('hosted word times through the engine', () => {
     speech = await maker.fs.readFile(file);
     await maker.cleanup();
     const platform = fakePlatform({ speechWords: WORDS, audio: speech });
-    rt = await createDiskRuntime({ fetchHandler: platform.handler, env: { ...ENV, POPOST_VOICE_MAX_CREDITS: '10' } });
+    rt = await createDiskRuntime({ fetchHandler: platform.handler, env: ENV });
   }, 60_000);
   afterAll(() => rt.cleanup());
 
   it('speakLines takes the speaker\'s own times, the first word at 0, and leaves no words file behind', async () => {
     const dir = rt.path.join(rt.dir, 'voice');
-    const lines = await speakLines(rt, { lines: ['你好', ''], dir, speaker: hostedSpeaker(rt), fps: 30, voice: 'popost:default-male' });
+    const lines = await speakLines(rt, { lines: ['你好', ''], dir, speaker: hostedSpeaker(rt, new Wallet(10)), fps: 30, voice: 'popost:default-male' });
     expect(lines[0]?.words?.map((w) => w.text)).toEqual(['你', '好']);
     expect(lines[0]?.words?.[0]?.start).toBe(0);
     expect(lines[0]?.words?.[1]?.start).toBeCloseTo(0.3, 5);

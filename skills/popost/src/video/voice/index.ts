@@ -1,7 +1,9 @@
 /**
  * A voice for new lines: each line is spoken into its own clip, the clips' lengths give the timing, and the clips are
- * laid on one track at the frames the timing says. Speaking needs a model, which does not live in this package: a
- * Speaker is the interface, and POPOST_TTS_CMD names a command that implements it, called as
+ * laid on one track at the frames the timing says. With a connected popost.ai account the lines are spoken there in a
+ * platform voice (hosted.ts: `popost:default-male`, `popost:default-female`, `popost:<id>`), paid in credits that the
+ * command prices first and spends only with --confirm --max-credits N. A speaker of the user's own goes first for any
+ * other voice name: POPOST_TTS_CMD names a command, called as
  *   <command> <text.txt> <out.wav> [voice] [speed]
  * skills/popost/tools/video/tts-sherpa-kokoro is one such command for the development loop.
  */
@@ -9,6 +11,7 @@ import type { Runtime } from '../../runtime';
 import { toolCommand, withTempDir } from '../host';
 import { runFfmpeg, runFfmpegOk } from '../media/ffmpeg';
 import { runTool } from '../tool';
+import { NOTHING, type Wallet } from '../wallet';
 import { hasHostedVoice, hostedSpeaker } from './hosted';
 
 export interface Speaker {
@@ -18,11 +21,18 @@ export interface Speaker {
 
 const VARIABLE = 'POPOST_TTS_CMD';
 
-/** The speaker behind POPOST_TTS_CMD, or undefined when it is not set. It runs its command through `rt`. */
-export const commandSpeaker = (rt: Runtime): Speaker | undefined => {
+/** Whether lines in `voice` are spoken by popost.ai: a `popost:` voice, or any voice without a speaker of the user's own. */
+export const speaksHosted = (rt: Runtime, voice?: string): boolean =>
+  hasHostedVoice(rt) && (!toolCommand(rt, VARIABLE) || Boolean(voice?.startsWith('popost:')));
+
+/**
+ * The speaker of a command: popost.ai's for a `popost:` voice (or for every voice when POPOST_TTS_CMD is not set), paid
+ * within `wallet` (nothing without one); the one behind POPOST_TTS_CMD for other voices; undefined with neither.
+ */
+export const commandSpeaker = (rt: Runtime, wallet: Wallet = NOTHING()): Speaker | undefined => {
   const custom = toolCommand(rt, VARIABLE);
   if (!custom && !hasHostedVoice(rt)) return undefined;
-  const hosted = hostedSpeaker(rt);
+  const hosted = hostedSpeaker(rt, wallet);
   return {
     speak: (text, out, opts = {}) => !custom || opts.voice?.startsWith('popost:') ? hosted.speak(text, out, opts) :
       withTempDir(rt, 'popost-video-tts-', async (dir) => {

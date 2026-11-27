@@ -73,6 +73,8 @@ Before paid work show the account, work items, known prices and unknowns. Use `l
 
 Post parsing uses the Popost hosted service and its account credits. Image generation recommends the official channel unless the user has chosen a custom service or host tool. Select only a supported model suitable for the task, using private configuration or the platform default rather than hard-coded model names. Missing credits: show the required amount and balance when known, obtain actual purchase options from `popost account`, and retain the local-reference / custom / host routes. Do not equate an imported result with verified remote capability. See [providers.md](references/providers.md).
 
+Video voice-over and transcription use popost.ai by default with a connected account (own `POPOST_TTS_CMD` / `POPOST_ASR_CMD` remain an option): quote first and confirm like images, one agreed budget per video (`--confirm --max-credits <left>` on every paid command); never regenerate or add a generated clip without the user's yes to that clip, its reason and price (`--approve-unplanned`). See [video.md](references/video.md).
+
 For a user-selected image service, use `popost settings --dir P --channel custom`; for the Agent’s available image tool use `--channel host`, actually invoke that tool and import its real output. Confirm service identity, operation and price units; an arbitrary Key or an image-returning endpoint does not establish every capability. Follow [providers.md](references/providers.md).
 
 场景 skill 定义内容组织、版式、字体、配色和素材机制。读取后形成当前工程的设计约束；用户明确指定的场景不能静默替换。参考与场景可各司其职，确有冲突才询问。详见 [scene-templates.md](references/scene-templates.md)。

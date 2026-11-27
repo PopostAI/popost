@@ -13,7 +13,8 @@ import { budgetProblems, paceBudgets } from '../plan/ask';
 import { repairMessage } from '../plan/prompt';
 import { seeShots } from '../plan/see';
 import type { RetargetPlan } from '../retarget/index';
-import { VOICE_FILE, WORDS_FILE } from '../retarget/speak';
+import { spokenPrice, VOICE_FILE, WORDS_FILE } from '../retarget/speak';
+import { CREDIT_OPTIONS, walletFor } from './credits';
 import type { Transcript } from '../speech/types';
 import { checkFill } from '../template/check';
 import { captionSizeProblems } from '../template/project';
@@ -201,10 +202,11 @@ const fill = command(
       FILL,
       { flag: '--out', required: true, metavar: 'DIR', help: 'the project directory' },
       ASSETS,
-      { flag: '--speak', kind: 'flag', help: 'speak the captions (POPOST_TTS_CMD) and re-flow every beat to its spoken line' },
+      { flag: '--speak', kind: 'flag', help: 'speak the captions in the fill\'s voice and re-flow every beat to its spoken line; a popost.ai voice is priced first (without --confirm the price is printed with exit code 3)' },
       { flag: '--keep-length', kind: 'flag', help: 'with --speak: a beat keeps its reference length when its line is shorter' },
       FIT_TEMPO,
       PACE,
+      ...CREDIT_OPTIONS,
     ],
   },
   looping(async (args, rt) => {
@@ -218,13 +220,15 @@ const fill = command(
     if (fitTempo && !speak) throw new VideoCommandError('--fit-tempo changes the tempo of the spoken lines: give --speak too.');
     const before = await fillProblems(rt, pkg, plan, assetsDir ?? outDir, args.number('pace'), fitTempo);
     if (errorsIn(before).length) return refused(rt, 'The fill has ' + errorsIn(before).length + ' error(s); nothing was written. Correct them and run it again.', before);
-    const r = await fillPackage(rt, pkg, { fill: plan, outDir, speak, ...(args.flag('keep-length') ? { hold: true } : {}), ...(fitTempo ? { fitTempo } : {}), ...(assetsDir ? { assetsDir } : {}) });
+    // The lines a popost.ai voice speaks are priced before anything is written: without --confirm the price is all there is.
+    const wallet = speak ? await walletFor(rt, args, await spokenPrice(rt, plan)) : undefined;
+    const r = await fillPackage(rt, pkg, { fill: plan, outDir, speak, ...(args.flag('keep-length') ? { hold: true } : {}), ...(fitTempo ? { fitTempo } : {}), ...(assetsDir ? { assetsDir } : {}), ...(wallet ? { wallet } : {}) });
     if (!r.project) return refused(rt, 'The fill has ' + errorsIn(r.problems).length + ' error(s); nothing was written. Correct them and run it again.', r.problems);
     const written = ['video.json', STRUCTURE_FILE, FACTS_FILE, ...(r.spoken ? [VOICE_FILE, WORDS_FILE, 'assets/voice/'] : [])];
     printJson(rt, {
       ok: true, dir: outDir, project: rt.path.join(outDir, 'video.json'), written,
       segments: r.project.segments.length, tracks: r.project.tracks.length, frames: r.project.segments.reduce((n, s) => n + (s.frames ?? 0), 0),
-      ...(r.spoken ? { spoken: r.spoken } : {}), problems: r.problems, notes: r.notes,
+      ...(r.spoken ? { spoken: r.spoken } : {}), problems: r.problems, notes: r.notes, chargedCredits: wallet?.spent ?? 0,
       next: 'popost video check ' + outDir + ' --layout',
     });
   }),

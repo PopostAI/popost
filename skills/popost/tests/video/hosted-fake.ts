@@ -1,7 +1,7 @@
 /**
  * An in-memory popost.ai Open API for the hosted voice and transcription tests: the voice catalog, speech with word
- * times, new voices and transcription jobs, with the signed upload addresses they hand out. It records every request.
- * Nothing leaves the process.
+ * times, new voices and transcription jobs, with the signed upload addresses they hand out, and the account's balance
+ * (GET /me), which every charge takes from. It records every request. Nothing leaves the process.
  */
 import { expect } from 'vitest';
 
@@ -57,6 +57,10 @@ export interface FakeOptions {
   limitFirstRead?: number;
   /** POST /voices refuses with this code. */
   voiceRefusal?: string;
+  /** The account's balance at the start (GET /me); unset, GET /me is not answered and the balance is unknown. */
+  balance?: number;
+  /** Credits one line of speech costs. Default 1. */
+  speechPrice?: number;
 }
 
 export const fakePlatform = (o: FakeOptions = {}) => {
@@ -66,14 +70,22 @@ export const fakePlatform = (o: FakeOptions = {}) => {
   type Job = { id: string; key: string; language?: string; uploaded?: Uint8Array; state: 'created' | 'running' | 'ready' | 'failed'; reads: number; charged: number; fails?: boolean };
   const jobs = new Map<string, Job>();
   let runs = 0, reads = 0;
+  const account = { balance: o.balance ?? 0, charged: 0 };
+  const charge = (credits: number): void => void ((account.balance -= credits), (account.charged += credits));
   const price = o.price ?? ((s: number) => Math.ceil(s / 10));
+  const speechPrice = o.speechPrice ?? 1;
+  const spoken = new Set<string>();
   const ok = (data: unknown) => Response.json({ success: true, data, error: null });
   const refuse = (code: string, message: string, status = 400) => Response.json({ success: false, data: null, error: { code, message } }, { status });
   const secondsOf = (j: Job): number => ((j.uploaded?.length ?? 44) - 44) / 32000;
   /** A running job moves on with every read; it is charged when it is ready. */
   const advance = (j: Job): void => {
     if (j.state !== 'running' || --j.reads > 0) return;
-    Object.assign(j, j.fails ? { state: 'failed' } : { state: 'ready', charged: price(secondsOf(j)) });
+    if (j.fails) j.state = 'failed';
+    else {
+      Object.assign(j, { state: 'ready', charged: price(secondsOf(j)) });
+      charge(j.charged);
+    }
   };
   const result = (j: Job) => j.state !== 'ready' ? { id: j.id, state: j.state } : ({
     id: j.id, state: j.state, language: j.language ?? 'zh', seconds: secondsOf(j), chargedCredits: j.charged,
@@ -94,6 +106,8 @@ export const fakePlatform = (o: FakeOptions = {}) => {
       return new Response((o.audio ?? wav({ rate: 24000 })) as Uint8Array<ArrayBuffer>, { headers: { 'content-type': 'audio/wav' } });
     }
     const path = url.pathname.replace(new URL(BASE).pathname, '');
+    // The balance is read apart from the work: it is not in `sent`. Unset, the account answers without one.
+    if (path === '/me' && request.method === 'GET') return o.balance === undefined ? refuse('NOT_FOUND', 'No balance here.', 404) : ok({ credits: { balance: account.balance } });
     const body = request.method === 'GET' ? null : ((await request.text().then((t) => (t ? JSON.parse(t) : null))) as Record<string, unknown> | null);
     sent.push({ method: request.method, path, body, authorization: request.headers.get('authorization') });
     if (path === '/voices' && request.method === 'GET') {
@@ -101,8 +115,15 @@ export const fakePlatform = (o: FakeOptions = {}) => {
       const items = voices.filter((v) => scope === 'all' || (scope === 'official') === v.official);
       return ok({ items, total: items.length });
     }
-    if (path === '/voices/quote') return ok({ credits: 1 });
-    if (path === '/voices/speech') return ok({ audioUrl: AUDIO + '/speech.wav', chargedCredits: 1, words: o.speechWords });
+    if (path === '/voices/quote') return ok({ credits: speechPrice });
+    if (path === '/voices/speech') {
+      if (speechPrice > Number(body?.maxCredits))
+        return Response.json({ success: false, data: null, error: { code: 'CREDIT_LIMIT_EXCEEDED', message: 'The price is above maxCredits.' } }, { status: 402 });
+      // One operation key is charged once.
+      const key = String(body?.operationKey);
+      if (!spoken.has(key)) void (spoken.add(key), charge(speechPrice));
+      return ok({ audioUrl: AUDIO + '/speech.wav', chargedCredits: speechPrice, words: o.speechWords });
+    }
     if (path === '/voices' && request.method === 'POST') {
       if (o.voiceRefusal) return refuse(o.voiceRefusal, 'Your plan allows no more personal voices.');
       const key = String(body?.operationKey);
@@ -145,7 +166,11 @@ export const fakePlatform = (o: FakeOptions = {}) => {
       const cut = o.cutRuns?.includes(runs) ?? false;
       job.fails = o.failRuns?.includes(runs) ?? false;
       if (o.runningReads || cut) Object.assign(job, { state: 'running', reads: o.runningReads ?? 2 });
-      else Object.assign(job, job.fails ? { state: 'failed' } : { state: 'ready', charged: credits });
+      else if (job.fails) job.state = 'failed';
+      else {
+        Object.assign(job, { state: 'ready', charged: credits });
+        charge(credits);
+      }
       if (cut) return new Response('<html>origin timed out</html>', { status: 524 });
       return ok(result(job));
     }
@@ -161,5 +186,5 @@ export const fakePlatform = (o: FakeOptions = {}) => {
     }
     throw new Error('Unexpected test request ' + request.method + ' ' + path);
   };
-  return { handler, sent, puts, voices, jobs, made, paths: () => sent.map((s) => s.method + ' ' + s.path) };
+  return { handler, sent, puts, voices, jobs, made, account, paths: () => sent.map((s) => s.method + ' ' + s.path) };
 };

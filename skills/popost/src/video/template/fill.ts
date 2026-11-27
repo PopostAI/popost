@@ -12,6 +12,7 @@ import type { Problem, Project } from '../types';
 import { error } from '../project/check-common';
 import { hasErrors } from '../project/check';
 import { commandSpeaker, type Speaker } from '../voice/index';
+import type { Wallet } from '../wallet';
 import { checkFill, slotPictures } from './check';
 import { writeFacts } from './facts';
 import { jsonText, loadTemplate } from './save';
@@ -43,6 +44,8 @@ export interface FillOptions {
   fitTempo?: number;
   /** Where the fill's files are (paths relative to it); they are copied into the project. Default: the project itself. */
   assetsDir?: string;
+  /** What popost.ai speech and transcription may spend (wallet.ts); nothing without one. */
+  wallet?: Wallet;
 }
 
 export interface FillResult {
@@ -76,8 +79,8 @@ const merge = (a: Problem[], b: Problem[]): Problem[] => {
 const preflight = async (rt: Runtime, pkg: TemplatePackage, o: Omit<FillOptions, 'templateDir'>): Promise<{ problems: Problem[]; speaker?: Speaker }> => {
   const problems = await checkFill(rt, pkg, o.fill, { dir: o.assetsDir ?? o.outDir });
   if (!o.speak || hasErrors(problems)) return { problems };
-  const speaker = o.speaker ?? commandSpeaker(rt);
-  if (!speaker) return { problems: [...problems, error('speak', 'Speaking the captions needs a speaker, and none is configured.', 'Set POPOST_TTS_CMD to a tool of yours (skills/popost/tools/video/ has examples), or fill without --speak.')] };
+  const speaker = o.speaker ?? commandSpeaker(rt, o.wallet);
+  if (!speaker) return { problems: [...problems, error('speak', 'Speaking the captions needs a speaker, and none is configured.', 'Connect a popost.ai account with popost auth login (popost: voices need no local tool), or set POPOST_TTS_CMD to a speaker of your own, or fill without --speak.')] };
   if (!(o.fill.captions ?? []).some((l) => l.trim())) return { problems: [...problems, error('captions', 'There is nothing to speak: the fill has no caption line with words.', 'Write the caption lines, or fill without --speak.')] };
   return { problems, speaker };
 };
@@ -103,7 +106,7 @@ export const fillPackage = async (rt: Runtime, pkg: TemplatePackage, o: Omit<Fil
   const inputs = retargetInputs(pkg.template);
   const pace = pkg.slots.voice.pace;
   const input = { measure: inputs.measure, ...(inputs.text ? { text: inputs.text } : {}), ...(inputs.beats ? { beats: inputs.beats } : {}), ...(pace ? { pace } : {}), plan: o.fill };
-  const transcriber = commandTranscriber(rt);
+  const transcriber = commandTranscriber(rt, o.wallet);
   const spoken = pre.speaker ? await speakRetarget(rt, { input, outDir: o.outDir, speaker: pre.speaker, ...(transcriber ? { transcriber } : {}), ...(o.hold ? { hold: true } : {}), ...(o.fitTempo ? { fitTempo: o.fitTempo } : {}) }) : undefined;
   const r = spoken ? spoken.result : retarget(input);
   if (!r.project) return { problems: merge(pre.problems, r.problems), notes: r.notes };

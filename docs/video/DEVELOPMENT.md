@@ -156,9 +156,12 @@ npx vite-node skills/popost/src/cli.ts video --help  # popost video, run from th
 On a machine shared with other work, run heavy commands one at a time and at low priority, for example
 `flock <a lock file> nice -n 10 npm run test:skill`.
 
-Environment variables, all optional: `POPOST_FFMPEG`, `POPOST_CHROME`; `POPOST_OCR_CMD`, `POPOST_ASR_CMD`,
-`POPOST_TTS_CMD`, `POPOST_TTS_MODEL` (the local readers and the speaker, see `tools/`); `POPOST_VOICE_MAX_CREDITS`,
-`POPOST_ASR_MAX_CREDITS` (credit budgets for popost.ai speech and transcription with a connected account); `POPOST_LLM_URL`,
+With a connected popost.ai account (`popost auth login`), voice-over and transcription run there by default, paid in
+credits like images: a paid command prices its work and stops with exit code 3 unless it gets `--confirm --max-credits N`
+(the rest of the video's one budget), and prints `chargedCredits`; generated clips outside the agreed list need
+`--approve-unplanned <key>` (`production/approved-clips.json`). Environment variables, all optional: `POPOST_FFMPEG`,
+`POPOST_CHROME`; `POPOST_OCR_CMD`, `POPOST_ASR_CMD`, `POPOST_TTS_CMD`, `POPOST_TTS_MODEL` (the local readers and a speaker
+of your own, see `tools/`; when set, the transcriber and the speaker go before the account's); `POPOST_LLM_URL`,
 `POPOST_LLM_MODEL`, `POPOST_LLM_KEY`, `POPOST_LLM_JSON` (the model of the plan step, see `src/plan/model.ts`; a key
 is never written to a file, a log or a test); `POPOST_RENDER_PAGES`; `POPOST_VIDEO_DATA`, `POPOST_VIDEO_WORK`.
 

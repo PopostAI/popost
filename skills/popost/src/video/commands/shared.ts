@@ -4,13 +4,14 @@
  * is left to the generic handler in `main.ts` (exit code 1).
  */
 import type { OptionSpec, ParsedArgs, PositionalSpec } from '../../args';
-import { fail } from '../../core/util';
+import { fail, printJson } from '../../core/util';
 import { BrowserUnavailableError } from '../../render/browser';
 import type { Runtime } from '../../runtime';
 import { failureText, isExpectedFailure } from '../../workflow/errors';
 import type { Subcommand } from '../../workflow/subcommands';
 import { VideoUnavailableError } from '../host';
 import { FfmpegError } from '../media/ffmpeg';
+import { CONFIRM_EXIT, PriceNotAgreed } from '../wallet';
 
 /** A command's body: prints its JSON itself and returns the exit code (nothing returned means 0). */
 export type Body = (args: ParsedArgs, rt: Runtime) => Promise<number | void>;
@@ -36,6 +37,11 @@ export const command = (
     try {
       return (await body(args, rt)) ?? 0;
     } catch (error) {
+      // The price of popost.ai speech or transcription, for the user's agreement: nothing was charged.
+      if (error instanceof PriceNotAgreed) {
+        printJson(rt, { ok: false, confirm: error.confirm, next: error.next });
+        return CONFIRM_EXIT;
+      }
       if (!expected(error)) throw error;
       return fail(rt, failureText(error));
     }

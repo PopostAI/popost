@@ -9,7 +9,8 @@
 import { sha256 } from '../../core/util';
 import type { Runtime } from '../../runtime';
 import { cpuBudgetOf, partsSideBySide, withTempDir } from '../host';
-import { probe, runFfmpegOk } from '../media/ffmpeg';
+import { probe } from '../media/ffmpeg';
+import { speechWav } from '../media/wav';
 import { watchProgress, type OnStage, type Progress } from '../progress';
 import { toFrames } from '../speech/index';
 import type { Transcriber, Transcript } from '../speech/types';
@@ -45,6 +46,19 @@ export const readbackEstimate = (o: { frames: number; soundSeconds: number; cpus
   return Math.max(10, Math.round(((o.together ? Math.max(read, hear) : read + hear) + 3) / 10) * 10);
 };
 
+/** What a kept transcript is kept for: the render's sound, the language asked for, the transcriber and the frame rate. */
+const transcriptKey = (rt: Runtime, wav: Uint8Array, language: string | undefined, fps: number): string =>
+  sha256(sha256(wav) + '|' + (language ?? '') + '|' + (rt.env.POPOST_ASR_CMD || 'popost.ai') + '|' + fps);
+
+const keptTranscript = async (rt: Runtime, cacheFile: string, key: string): Promise<Transcript | undefined> => {
+  const kept = await rt.fs.readText(cacheFile).then((t) => JSON.parse(t) as { format?: string; key?: string; transcript?: Transcript }, () => undefined);
+  return kept?.format === CACHE_FORMAT && kept.key === key ? kept.transcript : undefined;
+};
+
+/** Whether the project keeps a transcript of this sound (the render's WAV as the transcribers hear it): hearing it again is free. */
+export const keptFor = (rt: Runtime, dir: string, language?: string) => async (wav: Uint8Array, fps: number): Promise<boolean> =>
+  (await keptTranscript(rt, rt.path.join(dir, TRANSCRIPT_CACHE), transcriptKey(rt, wav, language, fps))) !== undefined;
+
 /** The render's sound as the transcriber hears it, and its transcript: the kept one when the sound is the same. */
 const hear = async (rt: Runtime, o: { video: string; cacheFile: string; transcriber: Transcriber; language?: string; onStage?: OnStage }): Promise<{ transcript?: Transcript; reused: boolean }> => {
   const info = await probe(rt, o.video);
@@ -52,10 +66,10 @@ const hear = async (rt: Runtime, o: { video: string; cacheFile: string; transcri
   return withTempDir(rt, 'popost-video-audio-', async (dir) => {
     const wav = rt.path.join(dir, 'audio.wav');
     o.onStage?.('taking the sound out');
-    await runFfmpegOk(rt, ['-y', '-i', o.video, '-vn', '-ac', '1', '-ar', '16000', '-c:a', 'pcm_s16le', wav]);
-    const key = sha256(sha256(await rt.fs.readFile(wav)) + '|' + (o.language ?? '') + '|' + (rt.env.POPOST_ASR_CMD || 'popost.ai') + '|' + info.fps);
-    const kept = await rt.fs.readText(o.cacheFile).then((t) => JSON.parse(t) as { format?: string; key?: string; transcript?: Transcript }, () => undefined);
-    if (kept?.format === CACHE_FORMAT && kept.key === key && kept.transcript) return { transcript: kept.transcript, reused: true };
+    await speechWav(rt, o.video, wav);
+    const key = transcriptKey(rt, await rt.fs.readFile(wav), o.language, info.fps);
+    const kept = await keptTranscript(rt, o.cacheFile, key);
+    if (kept) return { transcript: kept, reused: true };
     o.onStage?.('the transcriber is listening to ' + info.duration.toFixed(1) + ' s of sound');
     const transcript = toFrames(await o.transcriber.transcribe(wav, o.language), info.fps);
     await rt.fs.writeFile(o.cacheFile, JSON.stringify({ format: CACHE_FORMAT, key, transcript }) + '\n');
