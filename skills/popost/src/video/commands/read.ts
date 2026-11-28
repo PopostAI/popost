@@ -8,6 +8,7 @@ import type { OptionSpec, ParsedArgs, PositionalSpec } from '../../args';
 import { isFile, printJson, readJson } from '../../core/util';
 import type { Runtime } from '../../runtime';
 import { fitsPoorly, joinedShots, transitionFile } from '../describe/frames';
+import { shotCurves } from '../describe/curves';
 import { describeReference } from '../describe/index';
 import { INSET_FILE, insetPlan, insetText } from '../describe/inset';
 import { TRACKS_FILE, tracksFile } from '../describe/paths';
@@ -37,6 +38,7 @@ import { commandTextReader, cuesOf, readSamples, withCaptionLook, type TextReadi
 import { rolesWithSpeech } from '../text/speech';
 import type { Boundary, Measure, ShotMeasure, Unrecovered } from '../types';
 import { unrecoveredIn } from './elements';
+import { measureCommands } from './measure';
 import { command, PROJECT_OPTION, userPath, VideoCommandError, videoTitle, type Commands } from './shared';
 
 const VIDEO: PositionalSpec = { name: 'video', help: 'a video file ffmpeg can read' };
@@ -97,7 +99,7 @@ const shotEntry = (s: ShotMeasure): Record<string, unknown> => ({
 });
 
 const measure = command(
-  'cuts, transitions, camera, motion and colour of a video, measured by programs',
+  'cuts, transitions, camera, motion and colour of a video, measured by programs (measure curve <video> --from S --to S --roi x,y,w,h: the curve of one moving thing, with its closest easing)',
   { positionals: [VIDEO], options: [outFile('measure.json')] },
   async (args, rt) => {
     const video = await inputFile(rt, args.req('video'));
@@ -239,7 +241,10 @@ const describe = command(
       ...(reader ? { reader } : {}), ...(transcriber ? { transcriber } : {}), ...(language ? { language } : {}),
       progress: { write: (line) => rt.stderr(line + '\n'), everyMs: PROGRESS_MS }, pictures: { dir },
     });
-    const m = got.measure, read = got.text, spoken = got.transcript, inset = got.inset;
+    // The curve of the main moving element of the shots that move throughout, for their scenes (describe/curves.ts).
+    const curves = await shotCurves(rt, video, got.measure).catch(() => []);
+    const m: Measure = curves.length ? { ...got.measure, curves } : got.measure;
+    const read = got.text, spoken = got.transcript, inset = got.inset;
     // text.json keeps the roles the speech gives (and why each cue has its role).
     const cues = read ? rolesWithSpeech(read, spoken) : undefined;
     // Why there is, or is not, a transcript: a failed transcription is not a skipped one, and neither is a missing tool.
@@ -437,3 +442,6 @@ export const readCommands: Commands = { measure, text, transcript, describe, com
 
 /** Command groups with commands of their own, e.g. `popost video scene check`. */
 export const readGroups: Readonly<Record<string, Commands>> = {};
+
+/** `popost video measure curve ...`: commands under the name of the `measure` command, told from it by their first word. */
+export const measureGroup: Commands = measureCommands;

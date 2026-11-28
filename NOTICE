@@ -29,6 +29,11 @@ Adapted code
       rea-video
       Copyright 2026 JuneYaooo
       Licensed under the Apache License, Version 2.0.
+- HyperFrames (https://github.com/heygen-com/hyperframes): the curve measurement of one moving element
+  (skills/popost/src/video/measure/move.ts and easing.ts, `popost video measure curve`) is ported from
+  packages/cli/src/measure/curve.ts at commit a8332860c396e9224d42b7ea2a9cc8f42918c961, rewritten for this engine with
+  changes that each file states. Copyright 2026 HeyGen, Inc., licensed under the Apache License, Version 2.0; the
+  license text is in skills/popost/THIRD_PARTY_NOTICES. HyperFrames ships no NOTICE file.
 
 Community template reference images
 - The preview pages are not stored in this repository. Each template's template.json lists

@@ -17,6 +17,7 @@ import { oneIn } from '../text/share';
 import type { CaptionLook, TextCue, TextTrack } from '../text/types';
 import { shotAmount, videoAmount, type Activity } from '../measure/amount';
 import { activities, movementBrief, movementCardLine, movementLine } from './movement';
+import { curveLines } from './curves';
 import { ANGLES, ownEffect, trackBrief, trackText, TRACKS_FILE } from './paths';
 import { amountKnown, cameraKnown, kindKnown, LEGEND, NO_PATH, tag } from './known';
 import type { Status, Unrecovered } from '../types';
@@ -172,8 +173,10 @@ const shotFile = (s: ShotMeasure, into: Boundary | undefined, out: Boundary | un
     L.push('', '## Text that belongs to the footage (' + own.length + ' lines; the largest)', '');
     for (const c of own.slice(0, 8)) L.push('- ' + quote(c.text) + ' ' + where(c.box) + ', height ' + pct(c.size));
   }
-  if (s.events.length) {
+  const curves = p.measure.curves?.find((c) => c.shot === k + 1);
+  if (s.events.length || curves) {
     L.push('', '## Motion events', '');
+    if (curves) L.push(...curveLines(curves));
     for (const e of s.events) L.push('- ' + eventText(e, fps) + tag({ status: 'measured', confidence: e.confidence, basis: '' }));
   }
   // The change into the shot, the change out of a shot that is part of it, and the shot's own elements that travel.
