@@ -67,10 +67,10 @@ popost video doctor
   - `speak` `"popost.ai"`: voice-over with `popost:` voices (`popost:default-male`, `popost:default-female`,
     `popost:VOICE_ID`; `video-performers.md`), paid in credits. `null`: no voice-over. Leave out `--voice`, `"voice"`,
     `--speak`, `--keep-length`, `--fit-tempo` and `--pace` below; say in the delivery that the video has no voice.
-  - `music` `null` (the default): no music is generated. The video's sound is its voice-over, a sound file the user
-    gave, or the sound its clips came with; users usually pick the music themselves when they post. `"popost.ai"`:
-    the user switched generated music on; only then read `video-tools.md`, "Generated music", and do what it says in
-    steps 0 and 6.
+  - `music` `"popost.ai"` (with a connected account): a music bed can be generated on popost.ai when the reading of
+    the reference has music; the music plan decides (`video-sound.md`, read it before step 1's cost overview).
+    `null`: no generated music; the video's sound is its voice-over, a sound file the user gave, or the sound its
+    clips came with.
   - `generate` null: no generated clips; use captured pages, the user's files and scenes.
   - `generate` set: generated clips cost money; with the built-in generator (`popost video generate`) popost.ai
     credits (`video-tools.md`, "The built-in generator").
@@ -218,6 +218,10 @@ The cost overview and the one budget, now that the reference is read (leave out 
 - Generated clips and pictures: their price per second or per picture (`popost video generate --models`) times what
   you plan. Every on-camera stretch is a clip in which a person speaks, as long as the stretch (`video-performers.md`).
 - The transcription already paid (`chargedCredits` of `describe`).
+- The music plan: `popost video music plan --project project --reading ref` proposes it from the reading of the
+  reference's sound (one bed: the user's file, else generated when the reference has music; none when it has none)
+  with its price; put its `show` lines in front of the user, then record what they agree to (`video-sound.md`).
+  When it says generated music is not available, say that one line and plan without a generated bed.
 
 Show the user the items, the total and the balance, and agree one budget for the whole video (the money rule above).
 The user agrees once; do not ask per command after that. When speaking people cost more than the user wants to spend,
@@ -338,7 +342,11 @@ the requests and run `popost video materials requests.json --out project --templ
 (`video-tools.md`, "Generated clips": the request, the price, what it prints). A shot in which a person says an
 on-camera beat is a clip with `"speech"`: the lines, who says each, their language and the beat each re-makes; the
 program takes the times from the beats and writes the dialogue into the prompt (`video-performers.md`). `materials`
-refuses a list that leaves an on-camera beat to no clip. The first such run of the project makes
+refuses a list that leaves an on-camera beat to no clip. Every clip is asked for by the role of its sound, never with
+music: a clip with lines for its speaker's voice, any other for the sound of its place, or silent under a narrator
+(`"sound"`: `speech`, `exhibit`, `ambience`, `silent`; `video-sound.md`); `--template` gives the inference what the
+reading says. After speaking clips are made, `popost video speech-check project` checks that each said its lines.
+The first such run of the project makes
 its clips the agreed clips; any other paid clip later is "unplanned" (the money rules above). Two rules about motion:
 
 - Group the calls by the continuity of the scene, not by shot: consecutive short shots of one look are one request
@@ -430,13 +438,15 @@ the most characters that can be said in its beat, the voice sped up at most 1.12
   A reference without narration gets a voice-over only when the user asked for one: pass their own words with
   `--voice-asked "<their words>"` to `plan`, `template check` and the first `template fill` (the project then keeps
   them), and name them in the delivery notes. The checks refuse a voice nobody asked for.
-- Sound is mixed in layers, by itself. A clip in which a person speaks is heard at full level and nothing speaks over
-  it. Every other clip keeps the sound it came with, lowered by 18 dB while a line of the voice-over is spoken and
-  back up in the pauses. A `"sound"` lies under everything, lowered the same way while anybody speaks, and fades out
-  at the end when it is longer than the video (shorter, it is not repeated). A shot's `"audio"` overrides this for its
-  clip: a number fixes its level, `false` mutes it (`video-templates.md`).
+- Sound is mixed in layers, by itself (`video-sound.md`, rules R1 to R5). A clip in which a person speaks is heard at
+  full level and nothing speaks over it. Every other clip keeps the sound it came with, lowered by 18 dB while a line
+  of the voice-over is spoken and back up in the pauses; a silent clip is not heard. A `"sound"` lies under
+  everything, lowered the same way while anybody speaks, gives way altogether under a clip with music of its own, and
+  fades out at the end when it is longer than the video (shorter, it is not repeated). A shot's `"audio"` overrides
+  this for its clip: a number fixes its level, `false` mutes it (`video-templates.md`).
 - `"sound"` is a file the user gave, taken in with `popost video music own --file <their file> --out
-  project/assets/<name> --given "<their words that gave it>"`. Nothing else: never put a narration together with other
+  project/assets/<name> --given "<their words that gave it>"`, or the music `popost video music make` made under the
+  agreed plan. Nothing else: never put a narration together with other
   tools (`voice speak` lines mixed with ffmpeg) and name it as `"sound"`, never write an audio track into `video.json`
   by hand, never take the music or the voice out of the reference, never make up a tone to fill silence, and never mute
   a clip to be safe. The checks refuse a sound without a record of where it came from. A quiet video is not a fault to
