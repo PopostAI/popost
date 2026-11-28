@@ -1,8 +1,9 @@
 /**
  * The style of the captions a retarget draws: what the reference's caption lines looked like (text/look.ts) when that
  * was measured: white or coloured letters on a plate, with an outline, with a shadow, or plain. Without a measurement,
- * white letters with a dark outline and a soft shadow, which stay legible on any picture. The plan's captionColor and
- * captionOutline win over both.
+ * or with plain letters whose colour could not be told (the picture behind them kept changing), white letters with a
+ * dark outline and a soft shadow, which stay legible on any picture: bare white letters vanish on a white page. The
+ * plan's captionColor and captionOutline win over both.
  */
 import type { CaptionLook } from '../text/types';
 import type { TextStyle } from '../types';
@@ -27,7 +28,7 @@ export const captionStyle = (look: CaptionLook | undefined, plan: { captionColor
   const plate = look?.kind === 'plate' && look.plate ? { background: plateStyle(look.plate) } : {};
   // An outline the plan asks for is drawn whatever the reference had (on its plate, when it had one).
   if (plan.captionOutline) return { ...base, ...outlined(plan.captionOutline), ...plate };
-  if (!look) return { ...base, ...outlined('#111111') };
+  if (!look || (look.kind === 'plain' && !look.color)) return { ...base, ...outlined('#111111') };
   if (look.kind === 'plate') return { ...base, ...plate };
   if (look.kind === 'outline') return { ...base, ...outlined(look.outline?.color ?? '#111111') };
   if (look.kind === 'shadow') return { ...base, shadow: { color: look.shadow?.color ?? '#000000', blur: 0.12, x: 0.04, y: 0.06 } };
