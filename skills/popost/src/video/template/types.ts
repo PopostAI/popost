@@ -15,6 +15,7 @@ import type { DroppedRole, LayerKind, Mark } from '../elements/types';
 import type { Inset } from '../describe/inset';
 import type { ShotLooks } from '../describe/kind';
 import type { SpeechFacts } from '../describe/speech-kind';
+import type { SoundFacts } from '../sound/reading';
 import type { BarPlaces, WordPlace } from '../retarget/titles';
 import type { CaptionLook } from '../text/types';
 import type { Box, CameraRate, Canvas, Problem, TextStyle, TransitionSpec, Unrecovered } from '../types';
@@ -170,6 +171,11 @@ export interface Template {
    * when the kinds include narration. Absent in a template saved before the kinds existed, which is held to nothing.
    */
   speech?: SpeechFacts;
+  /**
+   * What the source's sound is (sound/reading.ts): music or none, ambience, effects, and the default sound plan that
+   * follows (video-sound.md). Absent in a template saved before the sound was read: nothing is planned from it then.
+   */
+  sound?: SoundFacts;
   /** Shots of the reference left out because the reading dropped them whole; the last shot here is then the re-make's own closing. */
   dropped?: DroppedShot[];
   /**

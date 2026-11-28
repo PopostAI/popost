@@ -80,6 +80,12 @@ export interface FakeOptions {
   musicRefusal?: string;
   /** Bytes served for a music address. */
   music?: Uint8Array;
+  /** The tier a music job and its quote name (the generator returns a whole track of trackSeconds); unset: neither is named. */
+  musicModel?: (seconds: number) => { model: string; maxTrackSeconds: number };
+  /** The sound analysis: its result, or 'missing' for a server that does not have the endpoints (404), or 'fails' for a job that fails. */
+  soundAnalysis?: Record<string, unknown> | 'missing' | 'fails';
+  /** Credits an analysis of `seconds` costs. Default: 5 and 0.02 a second, rounded up. */
+  soundPrice?: (seconds: number) => number;
 }
 
 export const fakePlatform = (o: FakeOptions = {}) => {
@@ -105,7 +111,12 @@ export const fakePlatform = (o: FakeOptions = {}) => {
   /** A failed job is final for its key: asking again with the key gets the same refusal, and nothing is made or charged. */
   const failedTrack = (t: Track): Response =>
     Response.json({ success: false, data: null, error: { code: t.failure === 'rejected' ? 'CONTENT_REJECTED' : 'UPSTREAM_ERROR', message: 'Failed.', details: t.failure === 'rejected' && o.musicSuggestion ? { suggestion: o.musicSuggestion } : {} } }, { status: t.failure === 'rejected' ? 422 : 502 });
+  type Analysis = { id: string; key: string; uploaded?: Uint8Array; state: 'created' | 'ready' | 'failed'; charged: number };
+  const analyses = new Map<string, Analysis>();
+  const soundPrice = o.soundPrice ?? ((s: number) => Math.ceil(5 + 0.02 * s));
+  const analysis = (a: Analysis) => ({ id: a.id, state: a.state, seconds: ((a.uploaded?.length ?? 44) - 44) / 32000, chargedCredits: a.charged, failure: a.state === 'failed' ? 'unavailable' : null, result: a.state === 'ready' ? o.soundAnalysis : null });
   const track = (t: Track) => ({
+    ...(o.musicModel ? o.musicModel(t.seconds) : {}),
     id: t.id, state: t.state, seconds: t.seconds, chargedCredits: t.charged, audioUrl: t.state === 'ready' ? AUDIO + '/music/' + t.id + '.mp3' : null,
     failure: t.state === 'failed' ? t.failure : null, suggestion: t.state === 'failed' && t.failure === 'rejected' ? (o.musicSuggestion ?? null) : null,
   });
@@ -133,6 +144,8 @@ export const fakePlatform = (o: FakeOptions = {}) => {
       puts.push({ url: request.url, bytes, contentType: request.headers.get('content-type'), authorization: request.headers.get('authorization') });
       const job = [...jobs.values()].find((j) => request.url.endsWith('/' + j.id));
       if (job) job.uploaded = bytes;
+      const heard = [...analyses.values()].find((a) => request.url.endsWith('/sound-analyses/' + a.id));
+      if (heard) heard.uploaded = bytes;
       return new Response(null, { status: 200 });
     }
     if (url.origin === AUDIO) {
@@ -178,7 +191,30 @@ export const fakePlatform = (o: FakeOptions = {}) => {
       if (!voices.some((v) => v.id === item.id)) voices.push(item);
       return ok(item);
     }
-    if (path === '/music/quote') return ok({ credits: musicPrice(Number(body?.seconds)) });
+    if (path === '/music/quote') return ok({ credits: musicPrice(Number(body?.seconds)), ...(o.musicModel ? o.musicModel(Number(body?.seconds)) : {}) });
+    if (path.startsWith('/sound-analyses')) {
+      if (o.soundAnalysis === undefined || o.soundAnalysis === 'missing') return refuse('NOT_FOUND', 'Not found.', 404);
+      if (path === '/sound-analyses/quote') return ok({ credits: soundPrice(Number(body?.seconds)) });
+      if (path === '/sound-analyses') {
+        const key = String(body?.operationKey);
+        const known = [...analyses.values()].find((a) => a.key === key);
+        if (known) return ok({ id: known.id, uploadUrl: known.state === 'created' ? UPLOADS + '/sound-analyses/' + known.id : null, state: known.state });
+        const id = 'sa-' + (analyses.size + 1);
+        analyses.set(id, { id, key, state: 'created', charged: 0 });
+        return ok({ id, uploadUrl: UPLOADS + '/sound-analyses/' + id, state: 'created' });
+      }
+      const ran = /^\/sound-analyses\/([^/]+)\/run$/.exec(path), got = /^\/sound-analyses\/([^/]+)$/.exec(path);
+      const a = analyses.get((ran ?? got)?.[1] ?? '');
+      if (!a) return refuse('NOT_FOUND', 'No such analysis.', 404);
+      if (ran && a.state === 'created') {
+        if (!a.uploaded) return refuse('INVALID_REQUEST', 'Upload the sound first.');
+        const credits = soundPrice((a.uploaded.length - 44) / 32000);
+        if (credits > Number(body?.maxCredits)) return Response.json({ success: false, data: null, error: { code: 'CREDIT_LIMIT_EXCEEDED', message: 'The price is above maxCredits.', details: { required: credits } } }, { status: 402 });
+        if (o.soundAnalysis === 'fails') a.state = 'failed';
+        else { Object.assign(a, { state: 'ready', charged: credits }); charge(credits); }
+      }
+      return ok(analysis(a));
+    }
     if (path === '/music' && request.method === 'POST') {
       // One operation key is one job: asked for again, it is answered as it is and never charged again.
       const key = String(body?.operationKey);
@@ -244,5 +280,5 @@ export const fakePlatform = (o: FakeOptions = {}) => {
     }
     throw new Error('Unexpected test request ' + request.method + ' ' + path);
   };
-  return { handler, sent, puts, voices, jobs, made, tracks, account, paths: () => sent.map((s) => s.method + ' ' + s.path) };
+  return { handler, sent, puts, voices, jobs, made, tracks, analyses, account, paths: () => sent.map((s) => s.method + ' ' + s.path) };
 };

@@ -8,7 +8,7 @@ import { ToolError } from './tool';
 
 /** One thing a command will pay for. */
 export interface PriceItem {
-  kind: 'speech' | 'transcription' | 'music';
+  kind: 'speech' | 'transcription' | 'music' | 'sound-analysis';
   /** What it is, for the user: the line spoken, the sound transcribed, or the music described. */
   what: string;
   credits: number;

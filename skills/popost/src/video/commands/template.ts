@@ -20,6 +20,7 @@ import { checkFill } from '../template/check';
 import { dialogueFillProblems, dialogueOf, recordVoiceAsked, voiceAskedOf, voiceProblems, voiceWanted } from '../template/speech-rules';
 import { soundProblems } from '../music/provenance';
 import { SPEECH_FILE } from '../describe/speech-kind';
+import { isSoundFile, SOUND_FILE } from '../sound/reading';
 import { speechIn } from './speech-kind';
 import { captionSizeProblems } from '../template/project';
 import { notSaidBy, projectReadingProblems, projectSceneSources, readingOfTemplate } from '../elements/findings';
@@ -121,6 +122,8 @@ const save = command(
       printJson(rt, { ok: false, error: 'The kind of the reference\'s speech is not confirmed (' + SPEECH_FILE + ' in ' + ref + '); nothing was written. Whether its ' + speech.phrases.length + ' phrases are narration, said on camera or sung decides whether the re-make has a voice-over and which lines a person says in a clip.', errors: 1, problems: [{ level: 'error', at: SPEECH_FILE, message: 'The speech kind is unconfirmed.', fix }] });
       return 2;
     }
+    // The reading of the sound (describe wrote sound.json): the template keeps what follows for the re-make's sound.
+    const soundRead = await optionalJson<unknown>(rt, rt.path.join(ref, SOUND_FILE));
     // The reading of the frames, when it was written: held to the measurement first, and refused with its errors.
     const reading = await readingIn(rt, ref, read, text);
     const wrong = reading?.problems.filter((p) => p.level === 'error') ?? [];
@@ -133,6 +136,7 @@ const save = command(
       ...(reading ? { reading: { elements: reading.elements, dir: ref, measure: read } } : {}),
       unrecovered: await unrecoveredIn(rt, ref, reading?.elements ?? { shots: [] }),
       ...(speech ? { speech } : {}),
+      ...(isSoundFile(soundRead) ? { sound: soundRead } : {}),
     });
     if (errorsIn(r.problems).length) return refused(rt, 'The reference cannot be saved until its required facts are resolved.', r.problems);
     const pkg = await loadTemplate(rt, out);
@@ -144,6 +148,7 @@ const save = command(
       ...(split.added ? { cutsAdded: split.added, maxShot } : {}),
       ...(cap ? { lineHolds: { cjk: cap.cjk, latin: cap.latin, lines: cap.lines, measured: cap.measured } } : {}),
       ...(pkg.template.speech ? { speech: { ...pkg.template.speech, voiceOver: pkg.template.speech.kinds.includes('narration'), onCameraBeats: (pkg.template.captions?.beats ?? []).flatMap((b, i) => (b.speech === 'on-camera' ? [i] : [])) } } : {}),
+      ...(pkg.template.sound ? { sound: { music: pkg.template.sound.music, ...(pkg.template.sound.style ? { style: pkg.template.sound.style } : {}), ambience: pkg.template.sound.ambience, effects: pkg.template.sound.effects.length, plan: pkg.template.sound.plan } } : {}),
       ...(reading ? { reading: readingEntry(pkg) } : { note: 'There is no ' + ELEMENTS_FILE + ' in ' + ref + ', so the template does not say what each shot holds. Open the pictures, write it (popost video elements questions ' + args.req('reference-dir') + ') and save again.' }),
       errors, problems: r.problems, next: 'popost video template show ' + out,
     });

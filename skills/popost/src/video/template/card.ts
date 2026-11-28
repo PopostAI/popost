@@ -209,6 +209,21 @@ const fillPart = (tpl: Template, slots: Slots): string[] => {
     ...(tpl.shots.some((s) => s.effect) ? ['- custom in: a scene draws the effect (both pictures and the moving object, as its frames show); fill cuts there and lets that scene cover the whole effect.'] : []),
     '- Optional: voice, speed, say (spoken with --speak: beats take the spoken length), captionColor, captionOutline, sound.',
     ...speechRule(tpl),
+    ...soundRule(tpl),
+  ];
+};
+
+/** What the source's sound means for a fill (video-sound.md): music or none, ambience, effects, and the default sound plan. */
+const soundRule = (tpl: Template): string[] => {
+  const s = tpl.sound;
+  if (!s) return [];
+  const tempo = [s.tempo, s.bpm ? 'about ' + Math.round(s.bpm) + ' beats a minute' : ''].filter(Boolean).join(', ');
+  const sections = s.sections?.length ? '; sections: ' + s.sections.map((x) => x.from.toFixed(1) + '-' + x.to.toFixed(1) + ' s ' + x.what).join(', ') : '';
+  return [
+    '- Sound of the source: music ' + s.music + (s.style ? ' (' + s.style + (tempo ? '; ' + tempo : '') + ')' : tempo ? ' (' + tempo + ')' : '') + sections
+      + '; ambience ' + s.ambience + (s.ambienceWhat ? ' (' + s.ambienceWhat + ')' : '')
+      + '; effects ' + (s.sfx === 'yes' ? s.effects.slice(0, 8).map((e) => e.at.toFixed(1) + ' s ' + (e.kind || e.what)).join(', ') + (s.effects.length > 8 ? ', +' + (s.effects.length - 8) : '') : s.sfx === 'no' ? 'none' : 'not known') + '.',
+    '- Sound plan (video-sound.md): ' + s.plan.says.join(' '),
   ];
 };
 
