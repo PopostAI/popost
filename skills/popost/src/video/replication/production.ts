@@ -6,9 +6,9 @@ import type { Problem, Resolved } from '../types';
 import { error } from '../project/check-common';
 import { isOutside } from '../project/check';
 import type { MaterialRequest } from '../generate/index';
-import { evidenceSchema, explicitSpeechOverride, type ReplicationContract, type ReplicationAudioUse } from './contract';
+import { evidenceSchema, effectiveTargetSpeech, explicitSpeechOverride, type ReplicationContract, type ReplicationAudioUse } from './contract';
 import { checkReplicationAudio, checkReplicationReadiness } from './check';
-import { evidenceProblems, readReplication } from './io';
+import { evidenceProblems, readReplication, replicationWithIntent } from './io';
 
 export const AUDIO_FILE = 'replication.audio.json';
 export const PLAN_FILE = 'replication.plan.json';
@@ -40,12 +40,18 @@ export const readAudio = async (rt: Runtime, root: string): Promise<{ audio?: Re
 };
 
 /** Paid TTS and imported full-length sound use the same source speech intent. */
-export const fillReplicationProblems = async (rt: Runtime, referenceDir: string | undefined, assetsDir: string, o: { speak?: boolean; sound?: string; beds?: readonly { footage: string }[] }): Promise<Problem[]> => {
+export const fillReplicationProblems = async (rt: Runtime, referenceDir: string | undefined, assetsDir: string, o: { speak?: boolean; sound?: string; beds?: readonly { footage: string }[]; projectDir?: string }): Promise<Problem[]> => {
   if (!referenceDir) return [];
   const read = await readReplication(rt, referenceDir);
   const problems = [...read.problems];
   if (!read.contract) return problems;
-  problems.push(...checkReplicationReadiness(read.contract));
+  const project = await readReplication(rt, o.projectDir ?? assetsDir);
+  problems.push(...project.problems);
+  const assets = o.projectDir && rt.path.resolve(o.projectDir) !== rt.path.resolve(assetsDir) ? await readReplication(rt, assetsDir) : undefined;
+  problems.push(...assets?.problems ?? []);
+  const matching = project.contract?.source.fingerprint === read.contract.source.fingerprint ? project.contract : assets?.contract;
+  const contract = replicationWithIntent(read.contract, matching);
+  problems.push(...checkReplicationReadiness(contract));
   const uses: ReplicationAudioUse[] = o.speak ? [{ kind: 'speak', role: 'narration', speech: 'present' }] : [];
   const imported = [...(o.sound ? [o.sound] : []), ...(o.beds ?? []).map(b => b.footage)];
   if (imported.length) {
@@ -57,7 +63,7 @@ export const fillReplicationProblems = async (rt: Runtime, referenceDir: string 
       else uses.push(item);
     }
   }
-  return [...problems, ...checkReplicationAudio(read.contract, uses)];
+  return [...problems, ...checkReplicationAudio(contract, uses)];
 };
 
 /** Native visible speech cannot bypass the same preflight. Silence remains different from instrumental sound. */
@@ -68,7 +74,7 @@ export const materialReplicationProblems = async (rt: Runtime, dir: string, requ
   const uses: ReplicationAudioUse[] = requests.flatMap(r => r.speech ? [{ kind: 'native' as const, role, speech: 'present' as const }] : []);
   return {
     problems: [...read.problems, ...checkReplicationReadiness(read.contract), ...checkReplicationAudio(read.contract, uses)],
-    forbidNewSpeech: read.contract.audio.targetSpeech === 'absent' || (read.contract.audio.sourceSpeech === 'absent' && !read.contract.audio.userOverride),
+    forbidNewSpeech: read.contract.audio.targetSpeech === 'absent' || (effectiveTargetSpeech(read.contract) === 'absent' && !explicitSpeechOverride(read.contract.audio.userOverride)),
     forbidNewNarration: read.contract.audio.narration === 'forbid' || (read.contract.audio.narration === 'preserve' && !read.contract.audio.sourceRoles.includes('narration')),
   };
 };

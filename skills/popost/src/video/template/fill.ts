@@ -10,7 +10,7 @@ import { speakRetarget } from '../retarget/speak';
 import { commandTranscriber } from '../speech/index';
 import type { Problem, Project } from '../types';
 import { error } from '../project/check-common';
-import { hasErrors } from '../project/check';
+import { hasErrors, isOutside } from '../project/check';
 import { commandSpeaker, type Speaker } from '../voice/index';
 import type { Wallet } from '../wallet';
 import { checkFill, slotPictures } from './check';
@@ -21,6 +21,7 @@ import { retargetInputs, structureMeasure } from './structure';
 import type { TemplatePackage } from './types';
 import { copyReplication } from '../replication/io';
 import { AUDIO_FILE, fillReplicationProblems, readAudio } from '../replication/production';
+import { copyReplicationSoundEvidence, REFERENCE_SOUND_RECEIPT } from '../replication/audio-provenance';
 
 /** The voice track of a spoken fill, relative to the project directory. */
 export const VOICE_FILE = 'assets/voice.m4a';
@@ -74,6 +75,20 @@ const copyAssets = async (rt: Runtime, fill: RetargetPlan, from: string, to: str
   const pictures = (await slotPictures(rt, fill, from)).map((p) => p.file);
   // writeFile creates the parent directories.
   for (const f of new Set([...filesOf(fill), ...pictures])) await rt.fs.writeFile(rt.path.join(to, f), await rt.fs.readFile(rt.path.join(from, f)));
+  for (const f of filesOf(fill)) {
+    for (const ext of ['.sound.json', '.music.json', '.speech.json', '.voice.json', '.words.json']) {
+      const receipt = await rt.fs.readFile(rt.path.join(from, f) + ext).catch(() => undefined);
+      if (receipt) await rt.fs.writeFile(rt.path.join(to, f) + ext, receipt);
+    }
+    if (await rt.fs.stat(rt.path.join(from, f) + REFERENCE_SOUND_RECEIPT)) await copyReplicationSoundEvidence(rt, from, to, f);
+  }
+  const voices = await rt.fs.stat(rt.path.join(from, 'replication.json')) ? await rt.fs.readText(rt.path.join(from, 'voices.json')).catch(() => undefined) : undefined;
+  if (voices) {
+    const data = JSON.parse(voices) as { speakers?: { reference?: string }[] };
+    for (const speaker of data.speakers ?? []) if (speaker.reference && !isOutside(speaker.reference))
+      await rt.fs.writeFile(rt.path.join(to, speaker.reference), await rt.fs.readFile(rt.path.join(from, speaker.reference)));
+    await rt.fs.writeFile(rt.path.join(to, 'voices.json'), voices);
+  }
 };
 
 const merge = (a: Problem[], b: Problem[]): Problem[] => {
@@ -83,7 +98,7 @@ const merge = (a: Problem[], b: Problem[]): Problem[] => {
 
 const preflight = async (rt: Runtime, pkg: TemplatePackage, o: Omit<FillOptions, 'templateDir'>): Promise<{ problems: Problem[]; speaker?: Speaker }> => {
   const problems = [...await checkFill(rt, pkg, o.fill, { dir: o.assetsDir ?? o.outDir }),
-    ...await fillReplicationProblems(rt, pkg.dir, o.assetsDir ?? o.outDir, { speak: o.speak, sound: o.fill.sound, beds: o.fill.beds })];
+    ...await fillReplicationProblems(rt, pkg.dir, o.assetsDir ?? o.outDir, { speak: o.speak, sound: o.fill.sound, beds: o.fill.beds, projectDir: o.outDir })];
   if (!o.speak || hasErrors(problems)) return { problems };
   const speaker = o.speaker ?? commandSpeaker(rt, o.wallet);
   if (!speaker) return { problems: [...problems, error('speak', 'Speaking the captions needs a speaker, and none is configured.', 'Connect a popost.ai account with popost auth login (popost: voices need no local tool), or set POPOST_TTS_CMD to a speaker of your own, or fill without --speak.')] };
@@ -109,7 +124,7 @@ export const fillPackage = async (rt: Runtime, pkg: TemplatePackage, o: Omit<Fil
   if (hasErrors(pre.problems)) return { problems: pre.problems, notes: [] };
   await rt.fs.mkdir(o.outDir);
   if (pkg.dir) {
-    const copied = await copyReplication(rt, pkg.dir, o.outDir);
+    const copied = await copyReplication(rt, pkg.dir, o.outDir, { preserveIntent: true, ...(o.assetsDir ? { intentFrom: o.assetsDir } : {}) });
     if (hasErrors(copied)) return { problems: merge(pre.problems, copied), notes: [] };
   }
   if (o.assetsDir) await copyAssets(rt, o.fill, o.assetsDir, o.outDir);

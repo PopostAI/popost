@@ -9,6 +9,17 @@ import { parseReplicationContract, REPLICATION_FILE, type ReplicationContract } 
 export interface EvidenceFile { file: string; sha256: string }
 const object = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
 
+/** Keep project choices separate from the immutable reference reading when a template is filled again. */
+export const replicationWithIntent = (source: ReplicationContract, project: ReplicationContract | undefined): ReplicationContract => {
+  if (!project || project.source.fingerprint.toLowerCase() !== source.source.fingerprint.toLowerCase()) return source;
+  const audio = project.audio;
+  return { ...source, audio: { ...source.audio,
+    ...(audio.music !== undefined ? { music: audio.music, musicEvidence: audio.musicEvidence } : {}),
+    ...(audio.targetSpeech !== undefined ? { targetSpeech: audio.targetSpeech } : {}),
+    ...(audio.userOverride?.evidence.some(e => e.kind === 'user') ? { narration: audio.narration, userOverride: audio.userOverride } : {}),
+  } };
+};
+
 /** Collect only typed file evidence, never interpret a URL or prose as an inspected media file. */
 export const evidenceFiles = (value: unknown): EvidenceFile[] => {
   if (Array.isArray(value)) return value.flatMap(evidenceFiles);
@@ -55,20 +66,24 @@ export const readReplication = async (rt: Runtime, root: string): Promise<{ cont
 };
 
 /** A copied template remains verifiable when the source directory moves or disappears. */
-export const copyReplication = async (rt: Runtime, from: string, to: string): Promise<Problem[]> => {
+export const copyReplication = async (rt: Runtime, from: string, to: string, options: { preserveIntent?: boolean; intentFrom?: string } = {}): Promise<Problem[]> => {
   const read = await readReplication(rt, from);
   if (!read.contract || read.problems.some((p) => p.level === 'error')) return read.problems;
   if (rt.path.resolve(from) === rt.path.resolve(to)) return read.problems;
+  const existing = options.preserveIntent ? await readReplication(rt, to) : undefined;
+  if (existing?.problems.some(p => p.level === 'error')) return existing.problems;
+  const incoming = options.intentFrom && rt.path.resolve(options.intentFrom) !== rt.path.resolve(to) ? await readReplication(rt, options.intentFrom) : undefined;
+  if (incoming?.problems.some(p => p.level === 'error')) return incoming.problems;
   const data: unknown = JSON.parse(JSON.stringify(read.contract));
   const copied = new Map<string, string>();
-  const visit = async (value: unknown): Promise<void> => {
-    if (Array.isArray(value)) { for (const child of value) await visit(child); return; }
+  const visit = async (value: unknown, base = from): Promise<void> => {
+    if (Array.isArray(value)) { for (const child of value) await visit(child, base); return; }
     if (!object(value)) return;
     if (typeof value.file === 'string' && typeof value.sha256 === 'string') {
-      const key = value.file + ':' + value.sha256;
+      const key = base + ':' + value.file + ':' + value.sha256;
       const previous = copied.get(key);
       if (previous) { value.file = previous; return; }
-      const bytes = await rt.fs.readFile(rt.path.join(from, value.file));
+      const bytes = await rt.fs.readFile(rt.path.join(base, value.file));
       if (sha256(bytes) !== value.sha256) throw new Error('Evidence changed while copying: ' + value.file);
       const ext = rt.path.extname(value.file).replace(/[^.a-z0-9]/gi, '') || '.bin';
       const relative = 'replication-evidence/' + sha256(bytes) + ext;
@@ -76,9 +91,18 @@ export const copyReplication = async (rt: Runtime, from: string, to: string): Pr
       copied.set(key, relative);
       value.file = relative;
     }
-    for (const child of Object.values(value)) await visit(child);
+    for (const child of Object.values(value)) await visit(child, base);
   };
   await visit(data);
-  await rt.fs.writeFile(rt.path.join(to, REPLICATION_FILE), JSON.stringify(data, null, 2) + '\n');
+  const same = (c: ReplicationContract | undefined) => c?.source.fingerprint.toLowerCase() === read.contract!.source.fingerprint.toLowerCase();
+  let intent = same(existing?.contract) ? existing?.contract : same(incoming?.contract) ? incoming?.contract : undefined;
+  if (intent && intent === incoming?.contract && options.intentFrom) {
+    const a = intent.audio;
+    const target = JSON.parse(JSON.stringify({ music: a.music, musicEvidence: a.musicEvidence, targetSpeech: a.targetSpeech, narration: a.narration, userOverride: a.userOverride })) as Partial<ReplicationContract['audio']>;
+    await visit(target, options.intentFrom);
+    intent = { ...intent, audio: { ...a, ...target } };
+  }
+  const final = replicationWithIntent(data as ReplicationContract, intent);
+  await rt.fs.writeFile(rt.path.join(to, REPLICATION_FILE), JSON.stringify(final, null, 2) + '\n');
   return read.problems;
 };

@@ -1,13 +1,19 @@
 /** Strict replication guards run before mocked paid work; all files and generators are in memory. */
-import { describe, expect, it } from 'vitest';
+import { afterAll, describe, expect, it } from 'vitest';
 import { sha256 } from '../../src/core/util';
+import { createDiskRuntime } from '../../src/testing/disk';
+import { hasFfmpeg, runFfmpegOk } from '../../src/video/media/ffmpeg';
+import { checkReplicationSound, copyReplicationSoundEvidence, preserveReferenceSound, REFERENCE_SOUND_RECEIPT } from '../../src/video/replication/audio-provenance';
 import { createTestRuntime, runCli, type TestRuntime } from '../../src/testing/memory';
 import { makeMaterials, type Generator, type GenerateRequest } from '../../src/video/generate/index';
 import { parseReplicationContract, type ReplicationContract, type ReplicationEvidence } from '../../src/video/replication/contract';
 import { checkReplicationAudio } from '../../src/video/replication/check';
 import { copyReplication, readReplication } from '../../src/video/replication/io';
+import { sourceRevision } from '../../src/video/replication/revision';
 import { AUDIO_FILE, fillReplicationProblems, materialReplicationProblems, speechReplicationProblems, outputAudioProblems, outputPlanProblems } from '../../src/video/replication/production';
 import { fillPackage } from '../../src/video/template/fill';
+import { buildPage } from '../../src/video/compile/index';
+import { hasMusicTrack, soundProblems } from '../../src/video/music/provenance';
 import { loadTemplate, saveTemplate } from '../../src/video/template/save';
 import type { Measure, Problem, Resolved } from '../../src/video/types';
 
@@ -17,7 +23,7 @@ const sourceHash = sha256(sourceBytes), audioHash = sha256(audioBytes);
 const sourceEvidence = (): ReplicationEvidence => ({ kind: 'observed', detail: 'Inspected reference picture and listened to its music.', file: 'source.mp4', sha256: sourceHash, media: 'video' });
 const contract = (): ReplicationContract => ({
   format: 'popost-video-replication', version: 1, source: { fingerprint: sourceHash, fps: 30, frames: 60 },
-  audio: { sourceSpeech: 'absent', sourceRoles: ['music'], narration: 'preserve', evidence: [sourceEvidence()] },
+  audio: { sourceSpeech: 'absent', sourceRoles: ['music'], narration: 'preserve', music: 'preserve', musicEvidence: [{ kind: 'user', detail: 'Preserve the original soundtrack.' }], evidence: [sourceEvidence()] },
   visual: { medium: 'hand-drawn', style: ['Pencil outlines and textured paper'], evidence: [sourceEvidence()] },
   inventory: { status: 'complete', evidence: [sourceEvidence()] }, events: [],
 });
@@ -120,7 +126,7 @@ describe('strict generation and fill preflights', () => {
     expect(errors((await materialReplicationProblems(rt, '/work/project', [{ ...request(), speech: { mode: 'native', speaker: 'host', text: 'An unrequested explanation over the song.' } }])).problems).length).toBeGreaterThan(0);
   });
   it('permits a partial silent request but catches missing preserved speech in final audio', async () => {
-    const rt = createTestRuntime(), c = contract(); c.audio.sourceSpeech = 'present'; c.audio.sourceRoles = ['dialogue']; await bind(rt, '/work/project', c);
+    const rt = createTestRuntime(), c = contract(); c.audio.sourceSpeech = 'present'; c.audio.sourceRoles = ['dialogue']; c.audio.music = 'none'; await bind(rt, '/work/project', c);
     expect(errors((await materialReplicationProblems(rt, '/work/project', [request()])).problems)).toEqual([]);
     expect(errors(await outputAudioProblems(rt, '/work/project', c, resolved())).length).toBeGreaterThan(0);
     expect(checkReplicationAudio(c, [], { complete: true }).some(p => p.level === 'error')).toBe(true);
@@ -215,12 +221,12 @@ describe('actual media evidence and portable sidecars', () => {
     const rt = createTestRuntime({ programs: { parallelism: 1, tempDir: async () => '/scratch', run: async () => ({ code: 0, stdout: new TextEncoder().encode(crc), stderr: 'Duration: 00:00:02.00\nStream #0:0: Video: h264, yuv420p, 320x180, 30 fps\n' }) } });
     const pkg = await template(rt), filled = await fillPackage(rt, pkg, { outDir: '/work/project', fill: { shots: [{ color: '#101040' }], captions: ['Hello'] } });
     expect(filled.project).toBeDefined();
-    const c = contract(); c.audio.sourceRoles = []; c.events = [{ id: 'heading', kind: 'typing', mechanism: 'characters', objects: ['heading'], span: [0, 30], description: 'Individual letter reveal.', evidence: [sourceEvidence()] }];
+    const c = contract(); c.audio.sourceRoles = []; c.audio.music = 'none'; c.events = [{ id: 'heading', kind: 'typing', mechanism: 'characters', objects: ['heading'], span: [0, 30], description: 'Individual letter reveal.', evidence: [sourceEvidence()] }];
     await bind(rt, '/work/project', c);
     const finalBytes = new TextEncoder().encode('synthetic final artifact'), fingerprint = sha256(finalBytes);
     await rt.fs.writeFile('/work/project/final.mp4', finalBytes);
     const frame = (n: number): ReplicationEvidence => ({ kind: 'observed', detail: 'Inspected an actual final-video sample.', file: 'final.mp4', sha256: fingerprint, media: 'video', frame: n });
-    const review = { production: 'rendered', sourceFingerprint: sourceHash, artifactFingerprint: fingerprint, target: { fps: 30, frames: 60 }, audio: { status: 'passed', evidence: [{ ...frame(0), at: [0, 2] }] }, visual: { status: 'passed', evidence: [frame(0)] }, events: [{ id: 'heading', status: 'passed', evidence: [frame(0), frame(29)] }], audioUses: [] };
+    const review = { production: 'rendered', sourceFingerprint: sourceHash, sourceRevision: sourceRevision(c), artifactFingerprint: fingerprint, target: { fps: 30, frames: 60 }, audio: { status: 'passed', evidence: [{ ...frame(0), at: [0, 2] }] }, visual: { status: 'passed', evidence: [frame(0)] }, events: [{ id: 'heading', status: 'passed', evidence: [frame(0), frame(29)] }], audioUses: [] };
     await rt.fs.writeFile('/work/project/replication.review.json', JSON.stringify(review));
     await rt.fs.writeFile('/work/project/replication.plan.json', JSON.stringify({ version: 1, visual: { ...c.visual, evidence: [] }, events: [{ id: 'heading', segment: filled.project!.segments[0]!.id, span: [0, 30], mechanism: 'characters', method: 'deterministic typing', evidence: [] }] }));
     const cli = () => runCli(rt, ['video', 'replication', 'check', '/work/project', '--artifact', '/work/project/final.mp4']);
@@ -232,5 +238,107 @@ describe('actual media evidence and portable sidecars', () => {
     await rt.fs.writeFile('/work/project/replication.review.json', JSON.stringify(review));
     await rt.fs.writeFile('/work/project/final.mp4', 'changed artifact after its review');
     expect((await cli()).code).toBe(2); expect(rt.json()).toMatchObject({ artifactReady: true, requirementsMet: false, qualityStatus: 'needs_iteration' });
+  });
+});
+
+
+describe('strict registered-speech provenance', () => {
+  it('accepts actual registered speech and rejects changed profile/audio or wrong speech intent', async () => {
+    const rt = createTestRuntime(), dir = '/work/registered', c = contract();
+    c.audio.sourceSpeech = 'present'; c.audio.sourceRoles = ['narration']; c.audio.music = 'none'; await bind(rt, dir, c);
+    await inventory(rt, dir, 'narration', 'present');
+    await rt.fs.writeFile(dir + '/assets/voice-reference.wav', 'actual registered voice reference');
+    const refHash = sha256(await rt.fs.readFile(dir + '/assets/voice-reference.wav'));
+    await rt.fs.writeFile(dir + '/voices.json', JSON.stringify({ version: 1, speakers: [{ id: 'host', mode: 'audio-first', reference: 'assets/voice-reference.wav', sha256: refHash }] }));
+    await rt.fs.writeFile(dir + '/assets/audio.wav.voice.json', JSON.stringify({ version: 1, speaker: 'host', text: 'The actual new line.', tool: 'popost-hosted-voice', voiceReferenceHash: refHash, audioSha256: audioHash }));
+    expect(await checkReplicationSound(rt, dir, 'assets/audio.wav')).toEqual({ source: 'registered-voice', problems: [] });
+    c.audio.narration = 'forbid'; await bind(rt, dir, c);
+    expect((await checkReplicationSound(rt, dir, 'assets/audio.wav')).source).toBeUndefined();
+    c.audio.narration = 'preserve'; await bind(rt, dir, c);
+    await rt.fs.writeFile(dir + '/assets/voice-reference.wav', 'different timbre');
+    expect((await checkReplicationSound(rt, dir, 'assets/audio.wav')).source).toBeUndefined();
+    await rt.fs.writeFile(dir + '/assets/audio.wav', 'mixed or changed speech');
+    expect((await checkReplicationSound(rt, dir, 'assets/audio.wav')).source).toBeUndefined();
+  });
+  it('does not authorize a legacy or unregistered speech file merely because it has a voice receipt', async () => {
+    const rt = createTestRuntime(); await rt.fs.writeFile('/work/legacy/assets/voice.wav', audioBytes);
+    await rt.fs.writeFile('/work/legacy/assets/voice.wav.voice.json', JSON.stringify({ audioSha256: audioHash }));
+    expect(await checkReplicationSound(rt, '/work/legacy', 'assets/voice.wav')).toEqual({ problems: [] });
+    await bind(rt, '/work/strict'); await inventory(rt, '/work/strict', 'dialogue', 'present');
+    expect((await checkReplicationSound(rt, '/work/strict', 'assets/audio.wav')).source).toBeUndefined();
+  });
+});
+
+const disk = await createDiskRuntime();
+afterAll(async () => { await disk.cleanup(); });
+describe.skipIf(!(await hasFfmpeg(disk)))('verified source soundtrack extraction', () => {
+  const make = async (name: string, roles: ReplicationContract['audio']['sourceRoles'] = ['music']) => {
+    const dir = disk.dir + '/' + name; await disk.fs.mkdir(dir);
+    const file = dir + '/source.mp4';
+    await runFfmpegOk(disk, ['-y', '-loglevel', 'error', '-f', 'lavfi', '-i', 'color=c=gray:s=32x32:r=30:d=0.5', '-f', 'lavfi', '-i', 'sine=frequency=330:duration=0.5', '-shortest', '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-c:a', 'aac', file]);
+    const hash = sha256(await disk.fs.readFile(file)), c = contract(); c.source = { fingerprint: hash, fps: 30, frames: 15 };
+    const evidence: ReplicationEvidence = { kind: 'measured', detail: 'Actual fixture music track and frame.', file: 'source.mp4', sha256: hash, media: 'video' };
+    c.audio.sourceRoles = roles; c.audio.sourceSpeech = roles.includes('narration') ? 'present' : 'absent'; c.audio.music = 'none'; delete c.audio.musicEvidence;
+    c.audio.evidence = [evidence]; c.visual.evidence = [evidence]; c.inventory = { status: 'complete', evidence: [evidence] };
+    await disk.fs.writeFile(dir + '/replication.json', JSON.stringify(c)); return { dir, file, c };
+  };
+  it('retains authorized music through a refill and a portable assets fill, without replacing source facts', async () => {
+    const { dir, file, c } = await make('refill');
+    const m: Measure = { ...measure, source: { ...measure.source, frames: 15, duration: .5, hasAudio: true }, shots: measure.shots.map(s => ({ ...s, end: 15 })) };
+    const templateDir = dir + '/template', projectDir = dir + '/project';
+    expect(errors((await saveTemplate(disk, { measure: m, name: 'Fixture', outDir: templateDir, referenceDir: dir })).problems)).toEqual([]);
+    const pkg = await loadTemplate(disk, templateDir), fill = { shots: [{ color: '#202020' }] };
+    expect((await fillPackage(disk, pkg, { outDir: projectDir, fill })).project).toBeDefined();
+    await preserveReferenceSound(disk, { dir: projectDir, reference: file, out: 'assets/source.wav', given: 'Preserve this source soundtrack.' });
+    expect(await soundProblems(disk, projectDir, 'assets/source.wav', 'sound')).toEqual([]);
+    const withSound = { ...fill, sound: 'assets/source.wav' };
+    expect((await fillPackage(disk, pkg, { outDir: projectDir, fill: withSound })).project).toBeDefined();
+    const current = (await readReplication(disk, projectDir)).contract!;
+    expect(current.audio.music).toBe('preserve'); expect(current.visual.medium).toBe(c.visual.medium);
+    expect(current.visual.style).toEqual(c.visual.style); expect(sourceRevision(current)).toBe(sourceRevision(c));
+    expect(await hasMusicTrack(disk, projectDir)).toBe(true);
+    expect(errors((await buildPage(disk, projectDir)).problems)).toEqual([]);
+    const copied = dir + '/other-project';
+    expect((await fillPackage(disk, pkg, { outDir: copied, assetsDir: projectDir, fill: withSound })).project).toBeDefined();
+    expect(await checkReplicationSound(disk, copied, 'assets/source.wav')).toEqual({ source: 'reference', problems: [] });
+    expect(errors((await buildPage(disk, copied)).problems)).toEqual([]);
+  });
+  it('creates a real lossless, portable source soundtrack with explicit approval and exact PCM matching', async () => {
+    const { dir, file, c } = await make('preserve');
+    const approval = 'Actual source-music approval'; await disk.fs.writeFile(dir + '/approval.txt', approval);
+    c.audio.musicEvidence = [{ kind: 'user', detail: approval, file: 'approval.txt', sha256: sha256(approval), media: 'data' }];
+    await disk.fs.writeFile(dir + '/replication.json', JSON.stringify(c));
+    const receipt = await preserveReferenceSound(disk, { dir, reference: file, out: 'assets/source.wav', given: 'Preserve the source music in this repair.' });
+    expect(receipt.origin).toBe('reference');
+    expect(await checkReplicationSound(disk, dir, 'assets/source.wav')).toEqual({ source: 'reference', problems: [] });
+    const policy = JSON.parse(await disk.fs.readText(dir + '/replication.json')) as ReplicationContract;
+    expect(policy.audio.music).toBe('preserve'); expect(policy.audio.musicEvidence?.at(-1)?.kind).toBe('user');
+    expect(await disk.fs.stat(dir + '/assets/source.wav.sound.json')).toBeNull();
+    const copied = disk.dir + '/copied'; await disk.fs.mkdir(copied + '/assets');
+    await copyReplication(disk, dir, copied);
+    await disk.fs.writeFile(copied + '/assets/source.wav', await disk.fs.readFile(dir + '/assets/source.wav'));
+    await disk.fs.writeFile(copied + '/replication.audio.json', await disk.fs.readFile(dir + '/replication.audio.json'));
+    await copyReplicationSoundEvidence(disk, dir, copied, 'assets/source.wav');
+    expect(await checkReplicationSound(disk, copied, 'assets/source.wav')).toEqual({ source: 'reference', problems: [] });
+    await disk.fs.writeFile(copied + '/' + receipt.referenceFile, 'changed source bytes');
+    expect((await checkReplicationSound(disk, copied, 'assets/source.wav')).source).toBeUndefined();
+  });
+  it('never copies source narration and does not commit music policy on that refusal', async () => {
+    const { dir, file } = await make('narrated', ['narration', 'music']);
+    await expect(preserveReferenceSound(disk, { dir, reference: file, out: 'assets/source.wav', given: 'Preserve source music.' })).rejects.toThrow('never copy source dialogue or narration');
+    expect(JSON.parse(await disk.fs.readText(dir + '/replication.json')).audio.music).toBe('none');
+    expect(await disk.fs.stat(dir + '/assets/source.wav')).toBeNull();
+  });
+  it('rejects an unrelated soundtrack even if its receipt and inventory hashes were updated', async () => {
+    const { dir, file } = await make('unrelated');
+    await preserveReferenceSound(disk, { dir, reference: file, out: 'assets/source.wav', given: 'Preserve source music.' });
+    const output = dir + '/assets/source.wav';
+    await runFfmpegOk(disk, ['-y', '-loglevel', 'error', '-f', 'lavfi', '-i', 'sine=frequency=990:duration=0.5', '-ac', '2', '-ar', '48000', '-c:a', 'pcm_s16le', output]);
+    const changed = sha256(await disk.fs.readFile(output));
+    const receipt = JSON.parse(await disk.fs.readText(output + REFERENCE_SOUND_RECEIPT)); receipt.audioSha256 = changed;
+    await disk.fs.writeFile(output + REFERENCE_SOUND_RECEIPT, JSON.stringify(receipt));
+    const inv = JSON.parse(await disk.fs.readText(dir + '/replication.audio.json')); inv.items[0].sha256 = changed; inv.items[0].evidence[0].sha256 = changed;
+    await disk.fs.writeFile(dir + '/replication.audio.json', JSON.stringify(inv));
+    expect((await checkReplicationSound(disk, dir, 'assets/source.wav')).source).toBeUndefined();
   });
 });

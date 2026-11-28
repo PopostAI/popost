@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
-  parseReplicationContract, parseReplicationReview, REPLICATION_FORMAT,
+  effectiveTargetSpeech, parseReplicationContract, parseReplicationReview, REPLICATION_FORMAT,
   type ReplicationContract, type ReplicationEvidence, type ReplicationReview,
 } from '../../src/video/replication/contract';
 import { assessReplication, checkReplicationAudio, checkReplicationReadiness, checkReplicationSource } from '../../src/video/replication/check';
+import { sourceRevision } from '../../src/video/replication/revision';
 
 const sha = (letter: string) => letter.repeat(64);
 const reference = sha('a'), artifact = sha('b');
@@ -16,13 +17,13 @@ const after = () => evidence('evidence/end.png', sha('d'));
 const target = () => ({ fingerprint: artifact, fps: 30, frames: 300 });
 const contract = (): ReplicationContract => ({
   format: REPLICATION_FORMAT, version: 1, source: { fingerprint: reference, fps: 24, frames: 240 },
-  audio: { sourceSpeech: 'absent', sourceRoles: ['music'], narration: 'preserve', evidence: [sourceEvidence()] },
+  audio: { sourceSpeech: 'absent', sourceRoles: ['music'], narration: 'preserve', music: 'preserve', musicEvidence: [{ kind: 'user', detail: 'Preserve the original soundtrack.' }], evidence: [sourceEvidence()] },
   visual: { medium: 'hand-drawn', style: ['Paper texture and pencil outlines'], evidence: [sourceEvidence()] },
   inventory: { status: 'complete', evidence: [sourceEvidence()] },
   events: [{ id: 'heading', kind: 'typing', mechanism: 'characters', objects: ['heading'], description: 'Letters appear individually.', span: [24, 48], evidence: [sourceEvidence()] }],
 });
-const review = (): ReplicationReview => ({
-  production: 'rendered', sourceFingerprint: reference, artifactFingerprint: artifact, target: { fps: 30, frames: 300 },
+const review = (c: ReplicationContract = contract()): ReplicationReview => ({
+  production: 'rendered', sourceFingerprint: reference, sourceRevision: sourceRevision(c), artifactFingerprint: artifact, target: { fps: 30, frames: 300 },
   audio: { status: 'passed', evidence: [evidence('evidence/final.wav', sha('e'), 'audio')] },
   visual: { status: 'passed', evidence: [before()] },
   events: [{ id: 'heading', status: 'passed', evidence: [before(), after()] }],
@@ -31,6 +32,16 @@ const review = (): ReplicationReview => ({
 const userOverride = () => ({ instruction: 'Add a narrated explanation.', evidence: [{ kind: 'user' as const, detail: 'The user explicitly asked for a voice-over.' }] });
 
 describe('versioned replication sidecar', () => {
+  it('invalidates an old review when source events change, while portable paths and target-only choices retain the reading', () => {
+    const c = contract(), r = review(c), original = sourceRevision(c);
+    const copied = JSON.parse(JSON.stringify(c)) as ReplicationContract;
+    copied.visual.evidence[0]!.file = 'portable/source.mp4';
+    copied.audio.music = 'none';
+    expect(sourceRevision(copied)).toBe(original);
+    c.events[0]!.span = [25, 49];
+    expect(sourceRevision(c)).not.toBe(original);
+    expect(assessReplication(c, r, target()).requirementsMet).toBe(false);
+  });
   it('parses a portable media-bound contract and a review', () => {
     expect(parseReplicationContract(contract()).problems).toEqual([]);
     expect(parseReplicationReview(review()).problems).toEqual([]);
@@ -46,7 +57,7 @@ describe('versioned replication sidecar', () => {
     const c = contract(); c.audio.sourceSpeech = 'unknown'; c.visual.medium = 'unknown'; c.inventory = { status: 'unknown', evidence: [] }; c.events = [];
     expect(parseReplicationContract(c).contract).toBeDefined();
     expect(checkReplicationReadiness(c).length).toBeGreaterThan(0);
-    expect(assessReplication(c, { ...review(), events: [] }, target()).requirementsMet).toBeNull();
+    expect(assessReplication(c, { ...review(c), events: [] }, target()).requirementsMet).toBeNull();
   });
   it('requires event ids and retained source-frame intervals to be unambiguous', () => {
     const c = contract(); c.events.push({ ...c.events[0]! });
@@ -58,9 +69,9 @@ describe('versioned replication sidecar', () => {
   });
   it('permits a genuine zero-event inventory only after an actual source review', () => {
     const c = contract(); c.events = [];
-    expect(assessReplication(c, { ...review(), events: [] }, target()).qualityStatus).toBe('accepted');
+    expect(assessReplication(c, { ...review(c), events: [] }, target()).qualityStatus).toBe('accepted');
     delete c.inventory;
-    expect(assessReplication(c, { ...review(), events: [] }, target()).qualityStatus).toBe('needs_review');
+    expect(assessReplication(c, { ...review(c), events: [] }, target()).qualityStatus).toBe('needs_review');
   });
   it('checks unresolved mechanisms, causality states and transition ownership', () => {
     const c = contract(); delete c.events[0]!.mechanism;
@@ -81,7 +92,7 @@ describe('versioned replication sidecar', () => {
     expect(checkReplicationReadiness(c).some(p => p.at.endsWith('.sourceRoles'))).toBe(true);
     c.audio.sourceRoles = ['dialogue'];
     expect(checkReplicationReadiness(c).some(p => p.at.endsWith('.sourceRoles'))).toBe(true);
-    c.audio.sourceSpeech = 'present';
+    c.audio.sourceSpeech = 'present'; c.audio.music = 'none';
     expect(checkReplicationReadiness(c)).toEqual([]);
     c.audio.targetSpeech = 'unknown';
     expect(checkReplicationReadiness(c).some(p => p.at.endsWith('.targetSpeech'))).toBe(true);
@@ -94,7 +105,7 @@ describe('speech intent across all audio routes', () => {
     expect(checkReplicationAudio(contract(), [])).toEqual([]);
     expect(checkReplicationAudio(contract(), [], { complete: true }).some(p => p.level === 'error')).toBe(true);
     expect(assessReplication(contract(), { ...review(), audioUses: [] }, target()).requirementsMet).toBe(false);
-    const c = contract(); c.audio.userOverride = { instruction: 'Remove the music and make the video silent.', evidence: [{ kind: 'user', detail: 'The user explicitly requested no audio.' }] };
+    const c = contract(); c.audio.music = 'none'; c.audio.userOverride = { instruction: 'Remove the music and make the video silent.', evidence: [{ kind: 'user', detail: 'The user explicitly requested no audio.' }] };
     expect(checkReplicationAudio(c, [], { complete: true })).toEqual([]);
   });
   it('preserves vocal music without treating its sung words as permission for narration', () => {
@@ -116,7 +127,7 @@ describe('speech intent across all audio routes', () => {
   it('does not turn a language preference or an unknown role into voice permission', () => {
     const c = contract(); c.audio.evidence.push({ kind: 'user', detail: 'Use English for any words.' });
     expect(checkReplicationAudio(c, [{ kind: 'speak', role: 'narration', speech: 'present' }])[0]?.level).toBe('error');
-    const r = review(); r.audioUses = [{ kind: 'sound', role: 'unknown', speech: 'unknown' }];
+    c.audio.music = 'none'; const r = review(c); r.audioUses = [{ kind: 'sound', role: 'unknown', speech: 'unknown' }];
     expect(assessReplication(c, r, target()).requirementsMet).toBeNull();
   });
   it('requires an explicit user instruction for requested new narration', () => {
@@ -150,13 +161,13 @@ describe('speech intent across all audio routes', () => {
     const silent = [{ kind: 'native' as const, role: 'ambient' as const, speech: 'absent' as const }];
     expect(checkReplicationAudio(c, silent)).toEqual([]);
     expect(checkReplicationAudio(c, silent, { complete: true }).some(p => p.level === 'error')).toBe(true);
-    expect(assessReplication(c, { ...review(), audioUses: silent }, target()).requirementsMet).toBe(false);
+    expect(assessReplication(c, { ...review(c), audioUses: silent }, target()).requirementsMet).toBe(false);
     c.audio.narration = 'requested'; c.audio.userOverride = userOverride();
     expect(checkReplicationAudio(c, [{ kind: 'native', role: 'dialogue', speech: 'present' }], { complete: true }).some(p => p.level === 'error')).toBe(true);
     expect(checkReplicationAudio(c, [{ kind: 'speak', role: 'dialogue', speech: 'present' }], { complete: true }).some(p => p.level === 'error')).toBe(true);
   });
   it('records an explicit speech-presence change without falsifying the source facts', () => {
-    const c = contract(); c.audio.sourceSpeech = 'present'; c.audio.sourceRoles = ['dialogue']; c.audio.targetSpeech = 'absent';
+    const c = contract(); c.audio.sourceSpeech = 'present'; c.audio.sourceRoles = ['dialogue']; c.audio.music = 'none'; c.audio.targetSpeech = 'absent';
     expect(parseReplicationContract(c).contract).toBeUndefined();
     c.audio.userOverride = { instruction: 'Remove all dialogue.', evidence: [{ kind: 'user', detail: 'The user requested silence instead of the original dialogue.' }] };
     expect(parseReplicationContract(c).contract).toBeDefined();
@@ -191,6 +202,7 @@ describe('artifact completion and fidelity are separate', () => {
     const r = review(); r.target = { fps: 30, frames: 240 };
     expect(assessReplication(contract(), r, { ...target(), frames: 240 }).requirementsMet).toBe(false);
     const c = contract(); c.scope = { span: [0, 192], reason: 'Retain only the explicitly selected interval.', evidence: [sourceEvidence()] };
+    r.sourceRevision = sourceRevision(c);
     expect(assessReplication(c, r, { ...target(), frames: 240 }).requirementsMet).toBe(true);
     c.scope.evidence = [{ kind: 'unknown', detail: 'The original ending was not reviewed.' }];
     expect(parseReplicationContract(c).contract).toBeUndefined();
@@ -225,5 +237,41 @@ describe('artifact completion and fidelity are separate', () => {
     r.events = [{ id: 'different', status: 'passed', evidence: [before(), after()] }];
     expect(assessReplication(contract(), r, target()).requirementsMet).toBe(false);
     expect(assessReplication(contract(), { ...review(), score: 1 }, target()).qualityStatus).not.toBe('accepted');
+  });
+});
+
+
+describe('separate music intent follows the upstream default', () => {
+  it('does not demand omitted instrumental or vocal music, and does not invent new vocals', () => {
+    const c = contract(); delete c.audio.music; delete c.audio.musicEvidence;
+    expect(checkReplicationAudio(c, [], { complete: true })).toEqual([]);
+    expect(checkReplicationAudio(c, [{ kind: 'native', role: 'music', speech: 'absent' }])).toEqual([]);
+    expect(checkReplicationAudio(c, [{ kind: 'sound', role: 'music', speech: 'absent' }]).some(p => p.level === 'error')).toBe(true);
+    c.audio.sourceSpeech = 'present';
+    expect(effectiveTargetSpeech(c)).toBe('absent');
+    c.audio.targetSpeech = 'absent';
+    expect(parseReplicationContract(c).contract).toBeDefined();
+    expect(checkReplicationAudio(c, [], { complete: true })).toEqual([]);
+    c.audio.music = 'requested'; c.audio.musicEvidence = [{ kind: 'user', detail: 'Add instrumental music.' }];
+    expect(effectiveTargetSpeech(c)).toBe('absent');
+    expect(checkReplicationAudio(c, [{ kind: 'sound', role: 'music', speech: 'absent' }], { complete: true })).toEqual([]);
+    expect(checkReplicationAudio(c, [{ kind: 'sound', role: 'music', speech: 'present' }]).some(p => p.level === 'error')).toBe(true);
+  });
+  it('requires approval to preserve music and preserves source song facts without authorizing VO', () => {
+    const c = contract(); c.audio.sourceSpeech = 'present'; c.audio.narration = 'forbid';
+    expect(effectiveTargetSpeech(c)).toBe('present');
+    expect(checkReplicationAudio(c, [], { complete: true }).some(p => p.level === 'error')).toBe(true);
+    expect(checkReplicationAudio(c, [{ kind: 'sound', role: 'music', speech: 'present' }], { complete: true })).toEqual([]);
+    delete c.audio.musicEvidence;
+    expect(parseReplicationContract(c).contract).toBeUndefined();
+    expect(checkReplicationReadiness(c).some(p => p.at.endsWith('musicEvidence'))).toBe(true);
+  });
+  it('does not drop source dialogue or effects when music was never requested', () => {
+    const c = contract(); c.audio.music = 'none'; c.audio.sourceSpeech = 'present'; c.audio.sourceRoles = ['dialogue', 'music'];
+    expect(effectiveTargetSpeech(c)).toBe('present');
+    expect(checkReplicationAudio(c, [], { complete: true }).some(p => p.level === 'error')).toBe(true);
+    expect(checkReplicationAudio(c, [{ kind: 'native', role: 'dialogue', speech: 'present' }], { complete: true })).toEqual([]);
+    c.audio.sourceSpeech = 'absent'; c.audio.sourceRoles = ['effects', 'music'];
+    expect(checkReplicationAudio(c, [], { complete: true }).some(p => p.level === 'error')).toBe(true);
   });
 });

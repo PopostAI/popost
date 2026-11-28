@@ -11,6 +11,7 @@ import { SOUND_FIX, soundSource } from '../music/provenance';
 import { overlapOf } from '../timeline/mix';
 import type { Problem, Project, Resolved } from '../types';
 import { error } from './check-common';
+import { replicationSoundSource } from '../replication/audio-provenance';
 
 /** The record beside the voice a spoken fill mixed (retarget/speak.ts): <voice file>.mix.json with the file's hash. */
 export const VOICE_RECEIPT = '.mix.json';
@@ -51,7 +52,8 @@ export const soundRecords = async (rt: Runtime, dir: string, project: Project): 
     if (!file) continue;
     const full = rt.path.resolve(dir, file);
     // A missing file is the project check's to report.
-    if (!(await rt.fs.stat(full)) || (await voiceMixed(rt, full)) || (await soundSource(rt, full))) continue;
+    if (!(await rt.fs.stat(full)) || (await voiceMixed(rt, full)) || (await soundSource(rt, full, dir))) continue;
+    if (t.role === 'voice' && t.lines?.length && await replicationSoundSource(rt, dir, file) === 'registered-voice') continue;
     out.push(error('tracks.' + t.id, 'The audio track "' + t.id + '" plays "' + file + '", which has no record of where it came from: it is neither the voice template fill --speak mixed, nor generated music, nor a sound file the user gave.', SOUND_FIX));
   }
   return out;

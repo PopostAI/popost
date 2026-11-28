@@ -9,6 +9,8 @@ import { readReplication, evidenceProblems } from '../replication/io';
 import { artifactFacts, outputAudioProblems, outputPlanProblems } from '../replication/production';
 import { checkPairs, PAIRS_FILE, type PairUse } from '../replication/pairs';
 import { MOTION_BUNDLE } from '../replication/motion-bundle';
+import { preserveReferenceSound } from '../replication/audio-provenance';
+import { sourceRevision } from '../replication/revision';
 import type { Problem, Resolved } from '../types';
 import { error } from '../project/check-common';
 import { command, userPath, VideoCommandError, type Commands } from './shared';
@@ -47,13 +49,26 @@ const helpers = command('write the shipped deterministic typing, digit-roll, vie
   printJson(rt, { ok: true, file, sha256: await sha256File(rt, file), global: 'window.popostMotion' });
 });
 
+const sound = command('preserve explicitly approved music/effects from the bound reference as a verified lossless soundtrack; never copy source narration/dialogue', {
+  positionals: [DIR], options: [
+    { flag: '--reference', required: true, help: 'actual bound original video' },
+    { flag: '--out', required: true, help: 'lossless WAV inside the project' },
+    { flag: '--given', required: true, help: 'actual user approval for preserving the reference soundtrack' },
+  ],
+}, async (args, rt) => {
+  try {
+    const receipt = await preserveReferenceSound(rt, { dir: userPath(rt, args.req('dir')), reference: userPath(rt, args.req('reference')), out: userPath(rt, args.req('out')), given: args.req('given') });
+    printJson(rt, { ok: true, file: args.req('out'), source: 'reference', receipt });
+  } catch (e) { throw new VideoCommandError(e instanceof Error ? e.message : String(e)); }
+});
+
 const timeline = command('show actual compiled target frames, scene offsets, source footage clocks and word times after all retiming', {
   positionals: [DIR], options: [{ flag: '--out', help: 'optional JSON file for the implementation map' }],
 }, async (args, rt) => {
   const built = await buildPage(rt, userPath(rt, args.req('dir')));
   if (!built.resolved) return report(rt, built.problems);
   const r = built.resolved;
-  const data = { canvas: r.canvas, frames: r.frames, segments: r.segments, items: r.items, audio: r.audio, footage: r.footage, words: r.words ?? [] };
+  const data = { canvas: r.canvas, frames: r.frames, segments: r.segments, items: r.items, audio: r.audio, speech: r.speech, footage: r.footage, words: r.words ?? [] };
   if (args.string('out')) await writeJson(rt, userPath(rt, args.req('out')), data);
   return report(rt, built.problems, { timeline: data });
 });
@@ -106,7 +121,7 @@ const check = command('check source readiness, or an exact final artifact and it
     const file = userPath(rt, args.req('reference'));
     problems.push(...checkReplicationSource(c, await artifactFacts(rt, file, await probe(rt, file))));
   }
-  if (!args.string('artifact')) return report(rt, problems, { ready: !problems.some(p => p.level === 'error'), source: c.source });
+  if (!args.string('artifact')) return report(rt, problems, { ready: !problems.some(p => p.level === 'error'), source: c.source, sourceRevision: sourceRevision(c) });
   const artifact = userPath(rt, args.req('artifact')), actual = await artifactFacts(rt, artifact, await probe(rt, artifact));
   const built = await buildPage(rt, dir); problems.push(...built.problems);
   if (built.resolved) {
@@ -136,4 +151,4 @@ const check = command('check source readiness, or an exact final artifact and it
   return accepted ? 0 : 2;
 });
 
-export const replicationCommands: Commands = { init, check, helpers, timeline };
+export const replicationCommands: Commands = { init, check, helpers, timeline, sound };

@@ -51,6 +51,7 @@ export type ReplicationSource = z.infer<typeof sourceSchema>;
 
 const reviewSchema = z.strictObject({
   sourceFingerprint: hash,
+  sourceRevision: hash.optional(),
   production: z.enum(['planned', 'generating', 'rendered', 'failed']),
   artifactFingerprint: hash.optional(),
   target: clockSchema.optional(),
@@ -87,6 +88,10 @@ const contractSchema = z.strictObject({
     sourceRoles: z.array(z.enum(AUDIO_ROLES)),
     /** Optional explicit target: source facts stay unchanged when the user removes or adds speech. */
     targetSpeech: presence.optional(),
+    /** No separate soundtrack by default; native clips retain their own sound. */
+    music: z.enum(['none', 'preserve', 'requested']).optional(),
+    /** Actual user approval for preserving source music or adding a separate new soundtrack. */
+    musicEvidence: z.array(evidenceSchema).optional(),
     narration: z.enum(['preserve', 'forbid', 'requested']),
     /** This is an explicit request for new speech, not merely a language preference. */
     userOverride: z.strictObject({ instruction: text, evidence: z.array(evidenceSchema).min(1) }).optional(),
@@ -112,10 +117,16 @@ const contractSchema = z.strictObject({
   });
   if (v.audio.targetSpeech === 'absent' && v.audio.narration === 'requested')
     issue(['audio', 'targetSpeech'], 'Speech-absent output cannot request narration.');
-  if (v.audio.targetSpeech && v.audio.targetSpeech !== 'unknown' && v.audio.sourceSpeech !== 'unknown' && v.audio.targetSpeech !== v.audio.sourceSpeech && !explicitSpeechOverride(v.audio.userOverride))
+  const omittedSong = v.audio.targetSpeech === 'absent' && v.audio.music !== 'preserve' && v.audio.sourceRoles.includes('music') &&
+    !v.audio.sourceRoles.some(r => r === 'dialogue' || r === 'narration');
+  if (v.audio.targetSpeech && v.audio.targetSpeech !== 'unknown' && v.audio.sourceSpeech !== 'unknown' && v.audio.targetSpeech !== v.audio.sourceSpeech && !omittedSong && !explicitSpeechOverride(v.audio.userOverride))
     issue(['audio', 'userOverride'], 'Changing speech presence needs the explicit user instruction and user evidence.');
   if (v.audio.narration === 'requested' && !explicitSpeechOverride(v.audio.userOverride))
     issue(['audio', 'userOverride'], 'Requested narration needs the explicit speech instruction and user evidence.');
+  if (v.audio.music && v.audio.music !== 'none' && !v.audio.musicEvidence?.some(e => e.kind === 'user'))
+    issue(['audio', 'musicEvidence'], 'A separate soundtrack needs explicit user music approval evidence.');
+  if (v.audio.music === 'preserve' && !v.audio.sourceRoles.includes('music'))
+    issue(['audio', 'music'], 'Preserved music must be an observed source audio role.');
 });
 export type ReplicationContract = z.infer<typeof contractSchema>;
 
@@ -123,6 +134,15 @@ export type ReplicationContract = z.infer<typeof contractSchema>;
 export const knownEvidence = (evidence: readonly ReplicationEvidence[]): boolean => evidence.some(e => e.kind !== 'unknown');
 export const explicitSpeechOverride = (override: { instruction: string; evidence: ReplicationEvidence[] } | undefined): boolean =>
   !!override?.instruction.trim() && override.evidence.some(e => e.kind === 'user');
+
+/** Lyrics do not require new spoken lines when no source soundtrack is preserved. */
+export const effectiveTargetSpeech = (c: ReplicationContract): typeof PRESENCE[number] => {
+  if (c.audio.targetSpeech) return c.audio.targetSpeech;
+  if (c.audio.narration === 'requested') return 'present';
+  const songOnly = c.audio.sourceSpeech === 'present' && c.audio.sourceRoles.includes('music') &&
+    !c.audio.sourceRoles.some(r => r === 'dialogue' || r === 'narration');
+  return songOnly && c.audio.music !== 'preserve' ? 'absent' : c.audio.sourceSpeech;
+};
 
 const problemsOf = (issues: readonly z.core.$ZodIssue[]): Problem[] => issues.map(i => ({
   level: 'error', at: ['replication', ...i.path].map(String).join('.'), message: i.message,

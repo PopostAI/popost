@@ -1,7 +1,8 @@
 /** Reference fidelity gates, separate from successful compilation, rendering and numeric similarity. */
 import type { Problem } from '../types';
+import { sourceRevision } from './revision';
 import {
-  explicitSpeechOverride, knownEvidence, parseReplicationReview,
+  effectiveTargetSpeech, explicitSpeechOverride, knownEvidence, parseReplicationReview,
   type ReplicationAudioUse, type ReplicationContract, type ReplicationEvidence,
   type ReplicationFinding, type ReplicationReview, type ReplicationSource,
 } from './contract';
@@ -36,6 +37,10 @@ export const checkReplicationReadiness = (c: ReplicationContract): Problem[] => 
   if (c.audio.sourceSpeech === 'unknown' || !mediaEvidence(c.audio.evidence, AUDIBLE))
     out.push(problem('audio.sourceSpeech', 'Reference speech is not confirmed; a failed or skipped transcription is not proof of silence.'));
   if (c.audio.targetSpeech === 'unknown') out.push(problem('audio.targetSpeech', 'Resolve an explicitly uncertain target speech intent before generation.'));
+  if (c.audio.music && c.audio.music !== 'none' && !c.audio.musicEvidence?.some(e => e.kind === 'user'))
+    out.push(problem('audio.musicEvidence', 'Separate music needs actual user approval evidence.'));
+  if (c.audio.music === 'preserve' && !c.audio.sourceRoles.includes('music'))
+    out.push(problem('audio.music', 'The source has no confirmed music role to preserve.'));
   if (c.audio.sourceRoles.includes('unknown') || (c.audio.sourceSpeech === 'present' && !c.audio.sourceRoles.some(r => r === 'dialogue' || r === 'narration' || r === 'music')) ||
       (c.audio.sourceSpeech === 'absent' && c.audio.sourceRoles.some(r => r === 'dialogue' || r === 'narration')))
     out.push(problem('audio.sourceRoles', 'Classify the actual source audio roles consistently with its observed speech presence.'));
@@ -58,12 +63,15 @@ export const checkReplicationReadiness = (c: ReplicationContract): Problem[] => 
 export const checkReplicationAudio = (c: ReplicationContract, uses: readonly ReplicationAudioUse[], options: { complete?: boolean } = {}): Problem[] => {
   const out: Problem[] = [];
   const override = explicitSpeechOverride(c.audio.userOverride);
-  const targetSpeech = c.audio.targetSpeech ?? (c.audio.narration === 'requested' ? 'present' : c.audio.sourceSpeech);
+  const targetSpeech = effectiveTargetSpeech(c);
   if (c.audio.targetSpeech === 'unknown') out.push(problem('audio.targetSpeech', 'The target speech intent is unresolved.', 'warning'));
   const isNarrator = (u: ReplicationAudioUse): boolean => u.role === 'narration' || u.kind === 'speak' && u.role !== 'dialogue';
   const spokenUse = (u: ReplicationAudioUse): boolean => u.kind === 'speak' || u.role === 'narration' || u.role === 'dialogue' || u.speech === 'present';
-  if (options.complete && c.audio.sourceRoles.some(r => r !== 'unknown') && !uses.length && !override)
+  const preserved = c.audio.sourceRoles.filter(r => r !== 'unknown' && (r !== 'music' || c.audio.music === 'preserve'));
+  if (options.complete && preserved.length && !uses.length && !override)
     out.push(problem('audioUses', 'The final inventory drops all audible source roles without an explicit user audio-change instruction.'));
+  if (options.complete && c.audio.music === 'preserve' && !uses.some(u => u.role === 'music'))
+    out.push(problem('audioUses', 'The explicitly preserved source music is missing.'));
   if (options.complete && targetSpeech === 'present' && !uses.some(spokenUse)) out.push(problem('audioUses', 'Required or preserved speech is missing from the output audio inventory.'));
   if (options.complete && c.audio.narration === 'requested' && !uses.some(isNarrator)) out.push(problem('audioUses', 'The explicitly requested narration is missing.'));
   const narrationAllowed = c.audio.narration === 'requested' && override ||
@@ -72,6 +80,8 @@ export const checkReplicationAudio = (c: ReplicationContract, uses: readonly Rep
     const at = 'audioUses[' + i + ']';
     const narrator = isNarrator(u);
     const spoken = narrator || u.role === 'dialogue' || u.speech === 'present';
+    if (u.role === 'music' && u.kind !== 'native' && (c.audio.music ?? 'none') === 'none')
+      out.push(problem(at, 'No separate soundtrack was requested; native clip sound remains allowed.'));
     if (spoken && targetSpeech === 'absent' && !(override && c.audio.targetSpeech === undefined)) out.push(problem(at, 'Output speech is forbidden by the target speech intent.'));
     if (narrator && !narrationAllowed) out.push(problem(at, 'New narration is not permitted by the reference/user speech intent.'));
     else if (spoken && c.audio.sourceSpeech !== 'present' && !override)
@@ -112,6 +122,8 @@ export const assessReplication = (c: ReplicationContract, input: unknown, actual
   const readiness = checkReplicationReadiness(c);
   if (readiness.length) { unknown = true; out.push(...readiness); }
   if (!sameHash(r.sourceFingerprint, c.source.fingerprint)) fail('review.sourceFingerprint', 'Review belongs to a different reference file.');
+  if (!r.sourceRevision) pending('review.sourceRevision', 'Bind this review to the current reference-reading revision.');
+  else if (!sameHash(r.sourceRevision, sourceRevision(c))) fail('review.sourceRevision', 'The source requirements changed after this review; inspect the current source reading again.');
   if (!artifactReady) pending('review.production', 'A planned/generated clip or failed request is not a rendered final artifact.');
   if (!r.artifactFingerprint || !r.target || !actualArtifact) pending('review.artifactFingerprint', 'Bind the review to the actual final file SHA-256 and probed target fps/frames.');
   else if (!validSource(actualArtifact)) fail('review.target', 'The actual artifact must have a real SHA-256, positive fps and positive integer frame count.');

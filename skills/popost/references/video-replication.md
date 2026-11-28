@@ -19,7 +19,7 @@ Initialization binds the real source file's fingerprint and clock. It is not an 
 
 Record these source invariants:
 
-- **Audio intent:** actual dialogue/narration, music, effects, ambient sound, and uncertainty. Preserve the original voice/no-voice choice unless the user explicitly changes it. Intelligible sung lyrics can mean `sourceSpeech: "present"` with `sourceRoles: ["music"]` and `narration: "forbid"`; they do not imply voice-over. A target-language preference does not request a new narrator. Preserve quiet scenes; do not add a filler voice, tone, or music bed to make them seem finished. Follow the existing music workflow for an explicitly requested bed.
+- **Audio intent:** actual dialogue/narration, music, effects, ambient sound, and uncertainty. Preserve the original spoken voice/no-voice choice unless the user explicitly changes it. Intelligible sung lyrics can mean `sourceSpeech: "present"` with `sourceRoles: ["music"]` and `narration: "forbid"`; they do not imply voice-over. Confirm upstream `speech.json` kinds as well: on-camera lines belong to native/lip-synced footage, narration to voice-over, sung/fragments to neither. A language preference does not request a new narrator. Separate music defaults to `audio.music: "none"`; native clips retain their own sound. `preserve` or `requested` needs `musicEvidence` recording the actual user approval, including an already approved plan. Never add a filler voice, tone or music bed to make a quiet video seem finished.
 - **Visual medium and finish:** photography, screen footage, polished character animation, cut paper, drawn animation, or designed graphics; the material, light, depth, texture, lens/focus and rendering treatment that make the source recognizable. “3D” alone is not a complete style description.
 - **Objects and causality:** each actor and prop, its owner, where it appears, who moves or receives it, and the before/after states that make the payoff work. Count separate instances. Do not invent a hinge, handoff, reveal, or mechanism because it would be easy to animate.
 - **Temporal mechanisms:** letter/word growth, cursor travel and pauses; separate rolling digit columns; a mark attached to its intended UI target; camera/foreground/focus changes; incoming and outgoing transition ownership; meaningful actions and comparison stages. A single uncut shot can contain many required events.
@@ -36,9 +36,31 @@ No paid generation is needed to write these facts. Keep source facts separate fr
 | `replication.audio.json` | Version 1 audio-use manifest. Each item names its actual project-relative `file`, `sha256`, `kind` (`speak`, `sound`, `native`, or `bed`), `role`, `speech` presence, and `evidence[]`. Include direct sound files and native clip audio as well as explicit speech commands. Use an empty item list for genuinely silent output. |
 | `replication.pairs.json` | Version 1 comparison-source manifest, when actual reference/remake pairs are used. Bind declared pair IDs, source provenance, both files/hashes, product/character/stage identity, source FPS, trims with explicit units, and semantic pairing evidence. |
 
+When the user has approved preservation of a music/effects soundtrack, make the initial silent fill first, then:
+
+```bash
+popost video replication sound project --reference inputs/reference.mp4 --out project/assets/reference.wav --given "<the actual approval or approved-plan instruction>"
+```
+
+This local command verifies the bound original and actual decoded PCM, writes an independent source copy and a
+`.replication-sound.json` receipt, records the explicit music policy and inventories the WAV. Add
+`"sound": "assets/reference.wav"` to the fill and fill again. Project intent survives the refill; reference facts still
+come from the template. A source containing spoken dialogue/narration cannot use this route: its old product words
+must not be copied into the new video. Do not disguise reference extraction as an uploaded user sound. Unrequested
+separate music remains off. An existing approval is not a reason to ask again.
+
+Prefer `template fill --speak` for narration. A real registered-voice asset used directly must retain its
+`.voice.json`, `voices.json`, registered voice reference, actual role and line intervals on a `role: "voice"` track;
+it cannot be passed as a music `sound`. Native dialogue uses timed `speech.lines` and template beats. Keep the source
+presenter's full/bubble/off intervals independent of the durations of generated takes.
+
 Contract event `span` is a half-open interval `[start, end)` in **reference frames**. Plan event `span` is in **target frames**. Pair trims use the named side's source clock, with `unit: "frames"` or `"seconds"`; they do not silently inherit the project's FPS. Evidence `at` values, when used, are seconds on the named evidence file. Keep these units explicit.
 
 Evidence has a kind (`observed`, `measured`, `user`, or `unknown`) and a concrete description. Local file evidence should include its project-relative path, actual SHA-256, media kind, and relevant frame or time interval. Unknown evidence does not establish a pass. Do not put placeholder hashes, future file paths, or a prose claim of success into a completed review.
+
+`replication check` also prints `sourceRevision`. Put it in the final review beside `sourceFingerprint`. It hashes
+the source reading, not target-only audio choices or local evidence paths. Changing an event, style or source audio
+fact invalidates the former review even if the original video bytes are unchanged.
 
 Different hashes prove different bytes, not that two clips show a valid before/after relationship. Preserve the actual supplied comparison stages and product/character identities. If the relationship is unknown, leave the pair pending instead of inventing an example or presenting the same source under two labels. Rendered crops, labels and trims must still resolve to the declared pair and narrative stage.
 
