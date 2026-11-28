@@ -129,6 +129,13 @@ describe('popost video music plan', () => {
     expect(await readMusicPlan(rt, '/work/p')).toMatchObject({ music: 'generated', asked: 'put some calm music under it' });
   });
 
+  it('reads a gateway error page on the music quote (plain-text 502) as unavailable too, never as a failure', async () => {
+    const { rt, plan, quotes } = await setup('yes', { musicOff: true, musicOffPage: 502 });
+    expect((await plan()).code).toBe(0);
+    expect(rt.json()).toMatchObject({ proposed: { music: 'none', says: expect.stringContaining('not available on popost.ai right now') } });
+    expect(quotes()).toBe(1);
+  });
+
   it('plans no generated bed when the generator is switched off (HTTP 503), says so once, and materials says it in its notes', async () => {
     const { rt, platform, plan, quotes } = await setup('yes', { musicOff: true });
     expect((await plan()).code).toBe(0);

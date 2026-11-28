@@ -86,6 +86,8 @@ export interface FakeOptions {
   musicMaxSeconds?: number;
   /** The platform's music switch is off: the quote and the job answer UPSTREAM_ERROR with HTTP 503 and charge nothing. */
   musicOff?: boolean;
+  /** musicOff answered as a gateway's plain-text page with this status instead of the platform's 503 envelope */
+  musicOffPage?: number;
   /** The sound analysis: its result, or 'missing' for a server that does not have the endpoints (404), or 'fails' for a job that fails. */
   soundAnalysis?: Record<string, unknown> | 'missing' | 'fails';
   /** Credits an analysis of `seconds` costs. Default: 5 and 0.02 a second, rounded up. */
@@ -195,6 +197,8 @@ export const fakePlatform = (o: FakeOptions = {}) => {
       if (!voices.some((v) => v.id === item.id)) voices.push(item);
       return ok(item);
     }
+    if ((path === '/music/quote' || (path === '/music' && request.method === 'POST')) && o.musicOff && o.musicOffPage)
+      return new Response('error code: ' + o.musicOffPage, { status: o.musicOffPage, headers: { 'content-type': 'text/plain' } });
     if ((path === '/music/quote' || (path === '/music' && request.method === 'POST')) && o.musicOff)
       return Response.json({ success: false, data: null, error: { code: 'UPSTREAM_ERROR', message: 'Music generation is not available.' } }, { status: 503 });
     if ((path === '/music/quote' || (path === '/music' && request.method === 'POST')) && Number(body?.seconds) > (o.musicMaxSeconds ?? 180))

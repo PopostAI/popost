@@ -95,8 +95,14 @@ export type MusicOffer = { available: true; quote: MusicQuote } | { available: f
 export const UNAVAILABLE_NOW = 'Generated music is not available on popost.ai right now (nothing was charged): the plan has no generated bed. The user\'s own music file still works (popost video music own).';
 export const NO_ACCOUNT = 'Generated music needs a connected popost.ai account (popost auth login): without one the plan has no generated bed. The user\'s own music file still works (popost video music own).';
 
-/** Whether an error of the music endpoints means the generator is off or down: the platform's 503 with UPSTREAM_ERROR. */
-export const musicUnavailable = (e: unknown): boolean => e instanceof PopostApiError && e.code === 'UPSTREAM_ERROR' && (e.status === 503 || e.status === undefined);
+/**
+ * Whether an error of the music quote means the generator is off or out of reach. The quote never calls the generator,
+ * so any UPSTREAM_ERROR on it (the platform answers 503 when music is switched off) says so, and so does a gateway's own
+ * error page in front of the platform (a 502, 503 or 504 that is not the platform's envelope).
+ */
+export const musicUnavailable = (e: unknown): boolean =>
+  e instanceof PopostApiError &&
+  (e.code === 'UPSTREAM_ERROR' || (e.code === 'BAD_RESPONSE' && [502, 503, 504].includes(e.status ?? 0)));
 
 /** Asks once for the price of `seconds` of music; a 503 is an answer (unavailable), never retried. Other refusals are thrown. */
 export const musicOffer = async (rt: Runtime, seconds: number): Promise<MusicOffer> => {
