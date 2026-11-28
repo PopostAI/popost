@@ -12,6 +12,7 @@ import { MOTION_BUNDLE } from '../replication/motion-bundle';
 import { preserveReferenceSound } from '../replication/audio-provenance';
 import { sourceRevision } from '../replication/revision';
 import { observeNativeSpeech } from '../replication/speech-observed';
+import { inspectSourceClock } from '../replication/source-clock';
 import type { Problem, Resolved } from '../types';
 import { error } from '../project/check-common';
 import { command, userPath, VideoCommandError, type Commands } from './shared';
@@ -48,6 +49,19 @@ const helpers = command('write the shipped deterministic typing, digit-roll, vie
 }, async (args, rt) => {
   const file = userPath(rt, args.req('out')); await rt.fs.writeFile(file, MOTION_BUNDLE);
   printJson(rt, { ok: true, file, sha256: await sha256File(rt, file), global: 'window.popostMotion' });
+});
+
+const clock = command('map actual decoded reference-frame indices through presentation timestamps into the contract clock; necessary for VFR or held-tail sources', {
+  positionals: [DIR], options: [
+    { flag: '--reference', required: true, help: 'actual bound original video' },
+    { flag: '--out', required: true, help: 'JSON mapping of decoded index, actual PTS seconds and normalized contract frame' },
+  ],
+}, async (args, rt) => {
+  const dir = userPath(rt, args.req('dir')), read = await readReplication(rt, dir);
+  if (!read.contract || read.problems.some(p => p.level === 'error')) return report(rt, read.problems.length ? read.problems : [error(REPLICATION_FILE, 'No valid bound source contract.', 'Initialize and inspect the source first.')]);
+  const data = await inspectSourceClock(rt, userPath(rt, args.req('reference')), read.contract.source);
+  const out = userPath(rt, args.req('out')); await writeJson(rt, out, data);
+  printJson(rt, { ok: true, file: out, frames: data.frames.length, contractFPS: data.contractFPS, nonUniform: data.nonUniform, method: data.method });
 });
 
 const sound = command('preserve explicitly approved music/effects from the bound reference as a verified lossless soundtrack; never copy source narration/dialogue', {
@@ -165,4 +179,4 @@ const check = command('check source readiness, or an exact final artifact and it
   return accepted ? 0 : 2;
 });
 
-export const replicationCommands: Commands = { init, check, helpers, timeline, sound, observe };
+export const replicationCommands: Commands = { init, check, helpers, timeline, sound, observe, clock };

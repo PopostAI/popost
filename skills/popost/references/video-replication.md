@@ -70,6 +70,20 @@ Evidence has a kind (`observed`, `measured`, `user`, or `unknown`) and a concret
 the source reading, not target-only audio choices or local evidence paths. Changing an event, style or source audio
 fact invalidates the former review even if the original video bytes are unchanged.
 
+For VFR sources, reordered packets or a held final frame, an average source FPS does not recover the time of an old
+analysis frame index. Read the actual presentation clock before mapping events:
+
+```bash
+popost video replication clock project --reference inputs/reference.mp4 --out project/input/source-clock.json
+```
+
+This free local command decodes with passthrough timestamps and binds the real source SHA. Each entry records its
+decoded `index`, actual `ptsSeconds` (relative to the first displayed frame), raw media PTS and `normalizedFrame`
+(`round(ptsSeconds * contractFPS)`). Re-map old analysis indices through these entries, then convert normalized
+contract frames to target frames. Record original indices and actual seconds in the analysis evidence, and use
+actual seconds in video evidence `at`. Do not merely replace a source FPS while retaining old indices as if they
+were on that new clock. The contract schema and unrelated projects remain unchanged.
+
 Different hashes prove different bytes, not that two clips show a valid before/after relationship. Preserve the actual supplied comparison stages and product/character identities. If the relationship is unknown, leave the pair pending instead of inventing an example or presenting the same source under two labels. Rendered crops, labels and trims must still resolve to the declared pair and narrative stage.
 
 ## 3. Choose a production route that can preserve the source
