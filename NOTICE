@@ -41,6 +41,8 @@ Adapted code
 - skills/popost/references/video-motion.md adapts rules and numbers from HyperFrames' motion and sound references
   (Apache License 2.0) and from LottieFiles motion-design-skill (https://github.com/LottieFiles/motion-design-skill,
   Copyright (c) 2025 LottieFiles, MIT License); the page names what was taken from each.
+- three.js r147 (https://threejs.org, Copyright 2010-2022 Three.js Authors, MIT License) is an optional npm
+  dependency of the Skill, copied unchanged into a video project by `popost video scene library --name three`.
 
 Community template reference images
 - The preview pages are not stored in this repository. Each template's template.json lists

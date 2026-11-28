@@ -11350,6 +11350,188 @@
    "cues": []
   },
   {
+   "name": "three-chrome-knot",
+   "file": "assets/video/examples/three-chrome-knot.html",
+   "class": "3d",
+   "about": "A polished metal knot (or ring) that turns and shows its surroundings in its surface: true 3D with reflections, lit by a drawn environment. For a glossy logo mark or an object a flat stand-in would not pass for.",
+   "seconds": 4,
+   "libraries": [
+    "three"
+   ],
+   "params": [
+    "shape",
+    "roughness",
+    "metalness",
+    "spinX",
+    "spinY",
+    "distance",
+    "color",
+    "tint",
+    "floor",
+    "disc",
+    "ground",
+    "delay"
+   ],
+   "cues": [
+    {
+     "at": 0.2,
+     "cue": "shimmer",
+     "gain": 0.4
+    }
+   ],
+   "tags": [
+    "three",
+    "3d",
+    "chrome",
+    "metal",
+    "reflection",
+    "glossy",
+    "knot",
+    "torus",
+    "webgl"
+   ]
+  },
+  {
+   "name": "three-clay",
+   "file": "assets/video/examples/three-clay.html",
+   "class": "3d",
+   "about": "Matte, rounded objects as if made of clay, on a soft floor under one large light: soft shadows, no gloss. They settle in one after another on a spring and then bob gently, each on its own time.",
+   "seconds": 4,
+   "libraries": [
+    "three"
+   ],
+   "params": [
+    "objects",
+    "bob",
+    "each",
+    "seed",
+    "a",
+    "b",
+    "c",
+    "floorColor",
+    "ground",
+    "delay"
+   ],
+   "cues": [
+    {
+     "at": 0.2,
+     "cue": "pop",
+     "gain": 0.5
+    },
+    {
+     "at": 0.34,
+     "cue": "pop",
+     "gain": 0.5
+    },
+    {
+     "at": 0.48,
+     "cue": "pop",
+     "gain": 0.5
+    },
+    {
+     "at": 0.62,
+     "cue": "pop",
+     "gain": 0.5
+    },
+    {
+     "at": 0.76,
+     "cue": "pop",
+     "gain": 0.5
+    }
+   ],
+   "tags": [
+    "three",
+    "3d",
+    "clay",
+    "soft shadow",
+    "matte",
+    "toy",
+    "objects",
+    "webgl"
+   ]
+  },
+  {
+   "name": "three-cube-wave",
+   "file": "assets/video/examples/three-cube-wave.html",
+   "class": "3d",
+   "about": "A field of cubes that rise and fall as a wave travels through them from the middle, drawn as one instanced mesh, while the camera circles: depth, light and shadow that a flat drawing cannot give.",
+   "seconds": 5,
+   "libraries": [
+    "three"
+   ],
+   "params": [
+    "grid",
+    "height",
+    "speed",
+    "length",
+    "orbit",
+    "elevation",
+    "color",
+    "peak",
+    "ground",
+    "delay"
+   ],
+   "cues": [
+    {
+     "at": 0.2,
+     "cue": "swish",
+     "gain": 0.4
+    }
+   ],
+   "tags": [
+    "three",
+    "3d",
+    "cubes",
+    "wave",
+    "instanced",
+    "orbit",
+    "camera",
+    "grid",
+    "webgl"
+   ]
+  },
+  {
+   "name": "three-extruded-shape",
+   "file": "assets/video/examples/three-extruded-shape.html",
+   "class": "3d",
+   "about": "A flat outline pushed into depth with a bevelled edge, lit from the side so that it casts a soft shadow on the floor, and turned a little back and forth: a star, a heart, a bolt, an arrow or a rounded plate.",
+   "seconds": 4,
+   "libraries": [
+    "three"
+   ],
+   "params": [
+    "shape",
+    "depth",
+    "bevel",
+    "swing",
+    "period",
+    "tilt",
+    "color",
+    "floorColor",
+    "ground",
+    "delay"
+   ],
+   "cues": [
+    {
+     "at": 0.2,
+     "cue": "pop",
+     "gain": 0.6
+    }
+   ],
+   "tags": [
+    "three",
+    "3d",
+    "extrude",
+    "extruded",
+    "shadow",
+    "lit",
+    "logo",
+    "letters",
+    "bevel",
+    "webgl"
+   ]
+  },
+  {
    "name": "type-on",
    "file": "assets/video/examples/type-on.html",
    "class": "text",

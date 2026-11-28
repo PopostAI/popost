@@ -286,8 +286,8 @@ const sceneWrite = command(
 export const makeCommands: Commands = { check, frame, render, capture, preview };
 
 const sceneLibrary = command(
-  'put a script file into the project for its scenes to load, under lib/ (' + Object.keys(LIBRARIES).join(', ') + '): gsap, the unchanged file of the installed package; screen, the Skill\'s helper that shows a still of a page under a camera, with highlight, pointer, click and typing; motion, the Skill\'s motion helper (easings, springs, seeded randomness and effects that are functions of the time, each with its sound cues)',
-  { positionals: [PROJECT], options: [{ flag: '--name', default: 'gsap', choices: Object.keys(LIBRARIES), help: 'which library: gsap (timelines), screen (a still of a page driven by steps), or motion (effects as functions of the time, with sound cues)' }] },
+  'put a script file into the project for its scenes to load, under lib/ (' + Object.keys(LIBRARIES).join(', ') + '): gsap, the unchanged file of the installed package; screen, the Skill\'s helper that shows a still of a page under a camera, with highlight, pointer, click and typing; motion, the Skill\'s motion helper (easings, springs, seeded randomness and effects that are functions of the time, each with its sound cues); three, the unchanged three.js r147 for lit 3D drawn by render(seconds)',
+  { positionals: [PROJECT], options: [{ flag: '--name', default: 'gsap', choices: Object.keys(LIBRARIES), help: 'which library: gsap (timelines), screen (a still of a page driven by steps), motion (effects as functions of the time, with sound cues) or three (three.js)' }] },
   async (args, rt) => {
     const typed = args.req('project-dir');
     try {
@@ -297,6 +297,8 @@ const sceneLibrary = command(
           ? 'In a scene (a file in scenes/): an element that is the window onto the still, the tag, then popostScreen(...) as "use" shows (references/video-scenes.md, "A screen inside a scene").'
           : added.name === 'motion'
           ? 'In a scene (a file in scenes/): load it with the tag and call its effects as "use" shows; every effect is a function of the shot\'s time and declares its sound cues (references/video-motion.md; popost video scene cues <project> lists them).'
+          : added.name === 'three'
+          ? 'In a scene (a file in scenes/): load it with the tag, build the renderer, the scene and the camera once, and draw from render(seconds) as "use" shows; no animation loop, no clock, textures drawn on a canvas (references/video-motion.md, "3D").'
           : 'In a scene (a file in scenes/): load it with the tag, build one paused timeline, hand it over as "use" shows.') + ' Then: popost video scene check ' + typed });
     } catch (e) {
       if (e instanceof LibraryError) throw new VideoCommandError(e.message);

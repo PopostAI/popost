@@ -23,8 +23,8 @@ const rt = await createDiskRuntime();
 afterAll(() => rt.cleanup());
 const catalogue = await readCatalogue(rt);
 const at = (...p: string[]): string => path.join(rt.dir, ...p);
-/** three.js is not a library of the Skill yet. */
-const three = false as boolean;
+const three = await rt.fs.stat(path.join(PACKAGE_ROOT, '../../node_modules/three/build/three.min.js')).then((s) => s !== null, () => false)
+  || await rt.fs.stat(path.join(PACKAGE_ROOT, 'node_modules/three/build/three.min.js')).then((s) => s !== null, () => false);
 
 describe('the effects catalogue', () => {
   it('lists every example with its file, class, libraries, parameters and cues', async () => {
@@ -73,6 +73,7 @@ describe('the effects catalogue', () => {
   it('finds entries by words, the best first, and by class', () => {
     expect(searchCatalogue(catalogue, 'bounce ball')[0]?.name).toBe('bouncing-ball');
     expect(searchCatalogue(catalogue, 'confetti').map((e) => e.name)).toEqual(expect.arrayContaining(['confetti', 'particle-burst']));
+    expect(searchCatalogue(catalogue, 'three chrome')[0]?.name).toBe('three-chrome-knot');
     expect(searchCatalogue(catalogue, 'caption glitch').every((e) => /caption/.test(e.name + e.class + e.about) && /glitch/.test(e.name + e.about + (e.tags ?? []).join(' ') + e.cues.map((c) => c.cue).join(' ')))).toBe(true);
     expect(searchCatalogue(catalogue, 'zzzz-nothing')).toEqual([]);
     expect(searchCatalogue(catalogue, '')).toHaveLength(catalogue.entries.length);

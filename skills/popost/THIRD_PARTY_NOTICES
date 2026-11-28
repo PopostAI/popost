@@ -37,6 +37,10 @@ THIRD_PARTY NOTICES
 - references/video-motion.md : rules and numbers adapted from HyperFrames' skills/hyperframes/references/motion.md
   and sound.md (same commit, Apache License 2.0, rewritten) and from LottieFiles motion-design-skill
   (https://github.com/LottieFiles/motion-design-skill, MIT License, Copyright (c) 2025 LottieFiles; text below).
+- three : an optional npm dependency (three.js r147), installed with the package and not bundled into dist/.
+  `popost video scene library --name three` copies its unchanged build/three.min.js into a video project.
+  Copyright 2010-2022 Three.js Authors, MIT License (the file carries its notice).
+
 - assets/fonts/<role>/*.woff2 : 41 original Fontsource font families under
   SIL Open Font License 1.1. See each family LICENSE and assets/fonts/NOTICE.txt.
   assets/fonts/palette.json records pinned package versions, file SHA-256,
