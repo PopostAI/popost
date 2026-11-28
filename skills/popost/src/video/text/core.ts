@@ -3,8 +3,9 @@
  * stroke is three or four pixels wide and most of its pixels are edge pixels: a blend of the fill with what is around
  * it. The most frequent colour of the strokes is then a grey, not the fill, and a one-pixel outline is seen as a mid
  * grey, not as its colour. Every blended pixel lies between two true colours, so the true colour is at the far end:
- * - the fill is the end of the strokes' colours away from what surrounds them (coreOf): from the measured colour the
- *   strokes are taken again and again around the tenth of them farthest from the surround, until it stops moving;
+ * - the fill is the end of the strokes' colours away from what surrounds them, in lightness (coreOf): from the measured
+ *   colour the strokes are taken again and again around the tenth of them farthest from the surround, until it stops
+ *   moving;
  * - an outline's colour is the end of the colours just past the strokes away from the fill (farEnd), as long as a
  *   sixth of them or more are there (a few darker pixels of the picture are not the outline);
  * - the weight: how wide a stroke is at half its contrast, against the height of the line (weightOf). Half contrast
@@ -28,8 +29,11 @@ const coreOnLine = (f: Frame, box: Rect, lab: Lab, away: Lab): Seen | undefined 
   for (let round = 0; round < ROUNDS; round++) {
     const px = strokesOf(f, box, at, strokeMax(box));
     if (px.length < 12) break;
-    const axis = sub(at, away), len = Math.hypot(...axis) || 1;
-    const far = px.map((i) => ({ i, t: dot(sub([f.lab[3 * i] ?? 0, f.lab[3 * i + 1] ?? 0, f.lab[3 * i + 2] ?? 0], away), axis) / len }))
+    // The far end in lightness: an edge pixel is a blend towards the surround, lighter or darker than the core, while
+    // its hue follows whatever the picture is there (and bleeds: video keeps colour at half the resolution).
+    const side = Math.sign(at[0] - away[0]);
+    if (Math.abs(at[0] - away[0]) < 10) break;
+    const far = px.map((i) => ({ i, t: side * ((f.lab[3 * i] ?? 0) - away[0]) }))
       .sort((a, b) => b.t - a.t || a.i - b.i).slice(0, Math.max(6, Math.round(FAR * px.length)));
     const next = labMedian(far.map((x) => [f.lab[3 * x.i] ?? 0, f.lab[3 * x.i + 1] ?? 0, f.lab[3 * x.i + 2] ?? 0]));
     rgb = rgbMedian(far.map((x) => [f.rgb[3 * x.i] ?? 0, f.rgb[3 * x.i + 1] ?? 0, f.rgb[3 * x.i + 2] ?? 0]));

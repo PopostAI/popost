@@ -204,6 +204,19 @@
   };
   var px = function (n) { return Math.round(n * 100) / 100 + 'px'; };
   /**
+   * A copy of an element for a trail or a split, put before it. The copy has no id (an id is one element's), so what
+   * the page's CSS gives the element by its id is written onto the copy.
+   */
+  var LOOK = ['width', 'height', 'borderRadius', 'background', 'color', 'font', 'letterSpacing', 'textAlign', 'lineHeight', 'border', 'boxShadow', 'textShadow', 'padding', 'position', 'left', 'top', 'margin', 'display', 'transformOrigin'];
+  var ghostOf = function (el) {
+    var g = el.cloneNode(true), cs = getComputedStyle(el);
+    g.removeAttribute('id'); g.removeAttribute('data-slot');
+    LOOK.forEach(function (k) { g.style[k] = cs[k]; });
+    g.style.pointerEvents = 'none';
+    el.parentNode.insertBefore(g, el);
+    return g;
+  };
+  /**
    * Sets what an effect moves on an element: { x, y, scale, scaleX, scaleY, rotate (degrees), skewX, opacity, blur
    * (pixels) }. Several effects on one element are combined: each writes under its own key, and the element gets all.
    */
@@ -622,7 +635,7 @@
         return { x: mix(from[0], toX, ease(o.travel || 'linear')(k)), y: floor - half - s.y * drop + (half * (1 - sy)) * (s.contact > 0 ? 1 : 0), scaleX: sx, scaleY: sy, rotate: o.spin ? num(o.spin, 0) * k : 0, height: s.y };
       };
       var ghosts = [], shadow = null, n = Math.max(0, Math.round(num(o.trail, 0))), gap = num(o.trailGap, 0.035), i;
-      for (i = 0; i < n; i++) { var g = el.cloneNode(true); g.removeAttribute('id'); el.parentNode.insertBefore(g, el); ghosts.push(g); }
+      for (i = 0; i < n; i++) ghosts.push(ghostOf(el));
       if (o.shadow) shadow = make('div', 'position:absolute;left:0;top:0;width:' + size * 1.1 + 'px;height:' + size * 0.22 + 'px;margin:' + -(size * 0.11) + 'px 0 0 ' + -(size * 0.55) + 'px;border-radius:50%;background:' + (typeof o.shadow === 'string' ? o.shadow : 'rgba(0,0,0,0.45)') + ';', el.parentNode);
       if (shadow) el.parentNode.insertBefore(shadow, ghosts[0] || el);
       on(function (t) {
@@ -647,7 +660,7 @@
     o = o || {};
     var el = one(target), n = Math.max(1, Math.round(num(o.copies, 4))), gap = num(o.gap, 0.035), key = newKey('trail'), ghosts = [];
     if (!el) return { cues: [] };
-    for (var i = 0; i < n; i++) { var g = el.cloneNode(true); g.removeAttribute('id'); el.parentNode.insertBefore(g, el); ghosts.push(g); }
+    whenShown(function () { for (var i = 0; i < n; i++) ghosts.push(ghostOf(el)); });
     on(function (t) {
       var p = pose(t);
       put(el, key, p);
@@ -822,8 +835,8 @@
     var copies = [];
     whenShown(function () {
       copies = ['#ff2a6d', '#05d9e8'].map(function (colour) {
-        var c = el.cloneNode(true); c.removeAttribute('id'); c.style.position = 'absolute'; c.style.left = el.offsetLeft + 'px'; c.style.top = el.offsetTop + 'px'; c.style.width = el.offsetWidth + 'px'; c.style.margin = '0';
-        c.style.color = colour; c.style.mixBlendMode = 'screen'; c.style.pointerEvents = 'none'; c.style.display = 'none'; el.parentNode.insertBefore(c, el);
+        var c = ghostOf(el); c.style.position = 'absolute'; c.style.left = el.offsetLeft + 'px'; c.style.top = el.offsetTop + 'px'; c.style.width = el.offsetWidth + 'px'; c.style.margin = '0';
+        c.style.color = colour; c.style.mixBlendMode = 'screen'; c.style.display = 'none';
         return c;
       });
     });

@@ -213,7 +213,6 @@ const convert = (item, kind, html, commit, sibling) => {
   const page = (extra) => s.replace(/<\/head>/i, fitCss + '\n' + block(extra) + '\n' + SHIM([w, h], given, starts) + '\n</head>')
     .replace(body[0], '<body' + body[1] + '>\n<div id="popost-stage">' + body[2] + '</div>\n<script>window.__popostFit();</script>\n</body>')
     .replace(/^\s*<!doctype html>/i, '<!doctype html>\n' + header(kind, item.name, commit, [...changes, 'the ' + w + 'x' + h + ' composition scaled into the scene\'s canvas (parameter "fit")', 'HyperFrames variables declared as parameters', 'its clips shown and hidden from the scene\'s time', 'sound cues derived from its tweens']));
-  changes.push('scaled into the canvas');
   if (!/<\/head>/i.test(s) || !/^\s*<!doctype html>/i.test(s)) return { skip: 'is not a whole page with a head' };
   return { page, about, class: classOf(item), params: params.map((p) => p.name), placeholders: placeholders.join('; '), tags: item.tags ?? [] };
 };
@@ -378,6 +377,9 @@ const main = async () => {
   // What tools/video/verify-examples.ts found not to draw as the scene of a later shot, with the reason: left out.
   const unverifiedFile = path.join(here, 'hyperframes-unverified.json');
   const unverified = existsSync(unverifiedFile) ? JSON.parse(await readFile(unverifiedFile, 'utf8')) : {};
+  // What is left out on purpose, with the reason (tools/video/hyperframes-excluded.json).
+  const excludedFile = path.join(here, 'hyperframes-excluded.json');
+  const excluded = existsSync(excludedFile) ? JSON.parse(await readFile(excludedFile, 'utf8')) : {};
   const REASONS = [
     [/^the same picture/, 'draws nothing that moves when it is the scene of a later shot: it measures its layout while it loads, before the page is laid out'],
     [/^not the same picture/, 'a frame is not the same picture when it is drawn again after other frames: it does not follow from its time alone'],
@@ -399,6 +401,7 @@ const main = async () => {
         const file = [path.join(dir, name, 'demo.html'), path.join(dir, name, name + '.html'), path.join(dir, name, 'index.html')].find((p) => existsSync(p));
         const skip = (reason) => skipped.push({ name, source: 'hyperframes:' + kind + '/' + name, class: classOf(item), reason });
         if (!file) { skip('has no page of its own to port'); continue; }
+        if (excluded[name]) { skip(String(excluded[name])); await rm(path.join(outDir, name + '.html'), { force: true }); continue; }
         if (unverified[name]) { const why = String(unverified[name]); skip((REASONS.find(([re]) => re.test(why))?.[1] ?? why) + (/^(error|lint|batch): /.test(why) ? ' (' + why.replace(/^(error|lint|batch): /, '').slice(0, 100) + ')' : '')); await rm(path.join(outDir, name + '.html'), { force: true }); continue; }
         const html = await readFile(file, 'utf8');
         const made = convert(item, kind, html, commit, (rel) => { const f = path.join(dir, name, rel); return f.startsWith(path.join(dir, name)) && existsSync(f) ? readFileSync(f, 'utf8') : undefined; });

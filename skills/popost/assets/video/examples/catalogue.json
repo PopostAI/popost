@@ -7,8 +7,8 @@
   "licence": "Apache-2.0",
   "copyright": "Copyright 2026 HeyGen, Inc.",
   "found": 457,
-  "ported": 313,
-  "skipped": 144
+  "ported": 301,
+  "skipped": 156
  },
  "entries": [
   {
@@ -1914,36 +1914,6 @@
    ]
   },
   {
-   "name": "chatgpt-exchange",
-   "file": "assets/video/examples/hf/chatgpt-exchange.html",
-   "class": "ui",
-   "about": "A portrait ChatGPT-style exchange types and sends a prompt, streams an answer, assembles a comparison table, and scrolls back through the result",
-   "seconds": 14.15,
-   "libraries": [
-    "gsap"
-   ],
-   "params": [
-    "fit"
-   ],
-   "cues": [
-    {
-     "at": 3.91,
-     "cue": "whoosh",
-     "gain": 0.5
-    }
-   ],
-   "source": "hyperframes:blocks/chatgpt-exchange",
-   "placeholders": "3 CSS pictures as a gradient",
-   "tags": [
-    "showcase",
-    "mock-ui",
-    "ai",
-    "chat",
-    "vertical",
-    "ad-template"
-   ]
-  },
-  {
    "name": "chromatic-radial-split",
    "file": "assets/video/examples/hf/chromatic-radial-split.html",
    "class": "transition",
@@ -2021,96 +1991,6 @@
    "tags": [
     "transition",
     "shader"
-   ]
-  },
-  {
-   "name": "claude-exchange",
-   "file": "assets/video/examples/hf/claude-exchange.html",
-   "class": "ui",
-   "about": "A portrait Claude-style exchange types a prompt, works through search and reasoning steps, then streams a detailed answer with citations and actions",
-   "seconds": 20.53,
-   "libraries": [
-    "gsap"
-   ],
-   "params": [
-    "fit"
-   ],
-   "cues": [
-    {
-     "at": 3.65,
-     "cue": "whoosh",
-     "gain": 0.5
-    },
-    {
-     "at": 15.67,
-     "cue": "whoosh",
-     "gain": 0.5
-    },
-    {
-     "at": 15.99,
-     "cue": "whoosh",
-     "gain": 0.5
-    },
-    {
-     "at": 16.23,
-     "cue": "whoosh",
-     "gain": 0.5
-    },
-    {
-     "at": 16.51,
-     "cue": "whoosh",
-     "gain": 0.5
-    },
-    {
-     "at": 16.87,
-     "cue": "whoosh",
-     "gain": 0.5
-    },
-    {
-     "at": 17.23,
-     "cue": "whoosh",
-     "gain": 0.5
-    },
-    {
-     "at": 17.63,
-     "cue": "whoosh",
-     "gain": 0.5
-    },
-    {
-     "at": 17.99,
-     "cue": "whoosh",
-     "gain": 0.5
-    },
-    {
-     "at": 18.27,
-     "cue": "whoosh",
-     "gain": 0.5
-    },
-    {
-     "at": 18.59,
-     "cue": "whoosh",
-     "gain": 0.5
-    },
-    {
-     "at": 18.91,
-     "cue": "whoosh",
-     "gain": 0.5
-    },
-    {
-     "at": 19.73,
-     "cue": "whoosh",
-     "gain": 0.5
-    }
-   ],
-   "source": "hyperframes:blocks/claude-exchange",
-   "placeholders": "5 CSS pictures as a gradient",
-   "tags": [
-    "showcase",
-    "mock-ui",
-    "ai",
-    "chat",
-    "vertical",
-    "ad-template"
    ]
   },
   {
@@ -2308,35 +2188,6 @@
     "shader",
     "webgl",
     "developer"
-   ]
-  },
-  {
-   "name": "code-snippet-apple-terminal-pro",
-   "file": "assets/video/examples/hf/code-snippet-apple-terminal-pro.html",
-   "class": "ui",
-   "about": "Apple Terminal Pro profile: black background with grey text and lime green cursor, per-character typing animation of a shell session.",
-   "seconds": 6.8,
-   "libraries": [
-    "gsap"
-   ],
-   "params": [
-    "fit"
-   ],
-   "cues": [
-    {
-     "at": 0,
-     "cue": "type",
-     "gain": 0.3
-    }
-   ],
-   "source": "hyperframes:blocks/code-snippet-apple-terminal-pro",
-   "tags": [
-    "code",
-    "developer",
-    "showcase",
-    "terminal",
-    "apple",
-    "apple-terminal"
    ]
   },
   {
@@ -4587,33 +4438,6 @@
    ]
   },
   {
-   "name": "instagram-follow",
-   "file": "assets/video/examples/hf/instagram-follow.html",
-   "class": "ui",
-   "about": "Animated Instagram follow overlay with profile card and follow button",
-   "seconds": 4.05,
-   "libraries": [
-    "gsap"
-   ],
-   "params": [
-    "fit"
-   ],
-   "cues": [
-    {
-     "at": 3.8,
-     "cue": "whoosh",
-     "gain": 0.5
-    }
-   ],
-   "source": "hyperframes:blocks/instagram-follow",
-   "placeholders": "web fonts are replaced by the fonts of the machine; 1 picture as slots (picture-1 ...) with a drawn stand-in",
-   "tags": [
-    "social",
-    "overlay",
-    "instagram"
-   ]
-  },
-  {
    "name": "iris-reveal",
    "file": "assets/video/examples/hf/iris-reveal.html",
    "class": "transition",
@@ -5346,33 +5170,6 @@
    ]
   },
   {
-   "name": "macos-notification",
-   "file": "assets/video/examples/hf/macos-notification.html",
-   "class": "ui",
-   "about": "Animated macOS-style notification banner with app icon and message",
-   "seconds": 4.5,
-   "libraries": [
-    "gsap"
-   ],
-   "params": [
-    "fit"
-   ],
-   "cues": [
-    {
-     "at": 4.2,
-     "cue": "whoosh",
-     "gain": 0.5
-    }
-   ],
-   "source": "hyperframes:blocks/macos-notification",
-   "placeholders": "web fonts are replaced by the fonts of the machine",
-   "tags": [
-    "social",
-    "overlay",
-    "notification"
-   ]
-  },
-  {
    "name": "marker-checklist-card",
    "file": "assets/video/examples/hf/marker-checklist-card.html",
    "class": "ui",
@@ -6042,40 +5839,6 @@
     "overlay",
     "news",
     "ticker"
-   ]
-  },
-  {
-   "name": "north-korea-locked-down",
-   "file": "assets/video/examples/hf/north-korea-locked-down.html",
-   "class": "chart",
-   "about": "Realistic map zoom into North Korea with a red scribble circle, locked-down pop-up label, and reddish editorial wash.",
-   "seconds": 6.74,
-   "libraries": [
-    "gsap"
-   ],
-   "params": [
-    "fit"
-   ],
-   "cues": [
-    {
-     "at": 3.24,
-     "cue": "draw",
-     "gain": 0.45
-    },
-    {
-     "at": 3.46,
-     "cue": "draw",
-     "gain": 0.45
-    }
-   ],
-   "source": "hyperframes:blocks/north-korea-locked-down",
-   "placeholders": "1 picture as slots (picture-1 ...) with a drawn stand-in",
-   "tags": [
-    "showcase",
-    "map",
-    "annotation",
-    "youtube",
-    "kinetic"
    ]
   },
   {
@@ -7296,33 +7059,6 @@
    ]
   },
   {
-   "name": "reddit-post",
-   "file": "assets/video/examples/hf/reddit-post.html",
-   "class": "ui",
-   "about": "Animated Reddit post card overlay with upvotes and comments",
-   "seconds": 4.5,
-   "libraries": [
-    "gsap"
-   ],
-   "params": [
-    "fit"
-   ],
-   "cues": [
-    {
-     "at": 4.2,
-     "cue": "whoosh",
-     "gain": 0.5
-    }
-   ],
-   "source": "hyperframes:blocks/reddit-post",
-   "placeholders": "web fonts are replaced by the fonts of the machine",
-   "tags": [
-    "social",
-    "overlay",
-    "reddit"
-   ]
-  },
-  {
    "name": "ridged-burn",
    "file": "assets/video/examples/hf/ridged-burn.html",
    "class": "transition",
@@ -8079,33 +7815,6 @@
     "book-open",
     "tilt",
     "slots"
-   ]
-  },
-  {
-   "name": "spotify-card",
-   "file": "assets/video/examples/hf/spotify-card.html",
-   "class": "ui",
-   "about": "Animated Spotify now-playing card with album art and progress bar",
-   "seconds": 4.7,
-   "libraries": [
-    "gsap"
-   ],
-   "params": [
-    "fit"
-   ],
-   "cues": [
-    {
-     "at": 0.1,
-     "cue": "swish",
-     "gain": 0.4
-    }
-   ],
-   "source": "hyperframes:blocks/spotify-card",
-   "placeholders": "web fonts are replaced by the fonts of the machine",
-   "tags": [
-    "social",
-    "overlay",
-    "spotify"
    ]
   },
   {
@@ -9129,33 +8838,6 @@
     "slot-machine",
     "headline",
     "reveal"
-   ]
-  },
-  {
-   "name": "tiktok-follow",
-   "file": "assets/video/examples/hf/tiktok-follow.html",
-   "class": "ui",
-   "about": "Animated TikTok follow overlay with profile card and follow button",
-   "seconds": 4.05,
-   "libraries": [
-    "gsap"
-   ],
-   "params": [
-    "fit"
-   ],
-   "cues": [
-    {
-     "at": 3.8,
-     "cue": "whoosh",
-     "gain": 0.5
-    }
-   ],
-   "source": "hyperframes:blocks/tiktok-follow",
-   "placeholders": "web fonts are replaced by the fonts of the machine; 1 picture as slots (picture-1 ...) with a drawn stand-in",
-   "tags": [
-    "social",
-    "overlay",
-    "tiktok"
    ]
   },
   {
@@ -10622,57 +10304,6 @@
    ]
   },
   {
-   "name": "x-follow-card",
-   "file": "assets/video/examples/hf/x-follow-card.html",
-   "class": "ui",
-   "about": "A social follow card with avatar, handle, and follower motion.",
-   "seconds": 5,
-   "libraries": [
-    "gsap"
-   ],
-   "params": [
-    "fit"
-   ],
-   "cues": [
-    {
-     "at": 0.5,
-     "cue": "swish",
-     "gain": 0.4
-    }
-   ],
-   "source": "hyperframes:components/x-follow-card",
-   "tags": [
-    "social-overlay"
-   ]
-  },
-  {
-   "name": "x-post",
-   "file": "assets/video/examples/hf/x-post.html",
-   "class": "ui",
-   "about": "Animated X/Twitter post card overlay with engagement metrics",
-   "seconds": 4.5,
-   "libraries": [
-    "gsap"
-   ],
-   "params": [
-    "fit"
-   ],
-   "cues": [
-    {
-     "at": 4.2,
-     "cue": "whoosh",
-     "gain": 0.5
-    }
-   ],
-   "source": "hyperframes:blocks/x-post",
-   "placeholders": "web fonts are replaced by the fonts of the machine",
-   "tags": [
-    "social",
-    "overlay",
-    "twitter"
-   ]
-  },
-  {
    "name": "yt-camera-move",
    "file": "assets/video/examples/hf/yt-camera-move.html",
    "class": "camera",
@@ -10824,33 +10455,6 @@
     "logo",
     "intro",
     "creator"
-   ]
-  },
-  {
-   "name": "yt-lower-third",
-   "file": "assets/video/examples/hf/yt-lower-third.html",
-   "class": "caption",
-   "about": "Animated YouTube subscribe lower third with avatar and channel info",
-   "seconds": 4.05,
-   "libraries": [
-    "gsap"
-   ],
-   "params": [
-    "fit"
-   ],
-   "cues": [
-    {
-     "at": 3.8,
-     "cue": "whoosh",
-     "gain": 0.5
-    }
-   ],
-   "source": "hyperframes:blocks/yt-lower-third",
-   "placeholders": "web fonts are replaced by the fonts of the machine; 1 picture as slots (picture-1 ...) with a drawn stand-in",
-   "tags": [
-    "social",
-    "overlay",
-    "youtube"
    ]
   },
   {
@@ -11757,6 +11361,12 @@
    "reason": "draws nothing that moves when it is the scene of a later shot: it measures its layout while it loads, before the page is laid out"
   },
   {
+   "name": "x-follow-card",
+   "source": "hyperframes:components/x-follow-card",
+   "class": "ui",
+   "reason": "imitates the interface or the mark of a named third-party product: a trademark question the Skill does not take on (re-make it from the reference with the user's own material)"
+  },
+  {
    "name": "zoom-through-transition",
    "source": "hyperframes:components/zoom-through-transition",
    "class": "transition",
@@ -11772,7 +11382,7 @@
    "name": "apple-money-count",
    "source": "hyperframes:blocks/apple-money-count",
    "class": "chart",
-   "reason": "plays sound in the page: sound belongs to the project (its cues say where)"
+   "reason": "imitates the interface or the mark of a named third-party product: a trademark question the Skill does not take on (re-make it from the reference with the user's own material)"
   },
   {
    "name": "aurora",
@@ -11955,16 +11565,34 @@
    "reason": "loads picture, footage, sound or font files from its script or its data (material the Skill does not ship)"
   },
   {
+   "name": "chatgpt-exchange",
+   "source": "hyperframes:blocks/chatgpt-exchange",
+   "class": "ui",
+   "reason": "imitates the interface or the mark of a named third-party product: a trademark question the Skill does not take on (re-make it from the reference with the user's own material)"
+  },
+  {
    "name": "chrome-orb",
    "source": "hyperframes:blocks/chrome-orb",
    "class": "background",
    "reason": "a WebGPU shader of a third-party library (1.4 MB): WebGPU is not available to the renderer, and the library is not shipped"
   },
   {
+   "name": "claude-exchange",
+   "source": "hyperframes:blocks/claude-exchange",
+   "class": "ui",
+   "reason": "imitates the interface or the mark of a named third-party product: a trademark question the Skill does not take on (re-make it from the reference with the user's own material)"
+  },
+  {
    "name": "code-slice-hero",
    "source": "hyperframes:blocks/code-slice-hero",
    "class": "ui",
    "reason": "needs a bundled script of its own (a WebGL or path library built for this block), which is not shipped"
+  },
+  {
+   "name": "code-snippet-apple-terminal-pro",
+   "source": "hyperframes:blocks/code-snippet-apple-terminal-pro",
+   "class": "ui",
+   "reason": "imitates the interface or the mark of a named third-party product: a trademark question the Skill does not take on (re-make it from the reference with the user's own material)"
   },
   {
    "name": "code-snippet-dark-2026",
@@ -12105,10 +11733,16 @@
    "reason": "needs a bundled script of its own (a WebGL or path library built for this block), which is not shipped"
   },
   {
+   "name": "instagram-follow",
+   "source": "hyperframes:blocks/instagram-follow",
+   "class": "ui",
+   "reason": "imitates the interface or the mark of a named third-party product: a trademark question the Skill does not take on (re-make it from the reference with the user's own material)"
+  },
+  {
    "name": "ios26-liquid-glass",
    "source": "hyperframes:blocks/ios26-liquid-glass",
    "class": "ui",
-   "reason": "needs a library the Skill does not supply (map data, Lottie, glTF or post-processing loaders)"
+   "reason": "imitates the interface or the mark of a named third-party product: a trademark question the Skill does not take on (re-make it from the reference with the user's own material)"
   },
   {
    "name": "lens-flare",
@@ -12153,10 +11787,16 @@
    "reason": "draws nothing that moves when it is the scene of a later shot: it measures its layout while it loads, before the page is laid out"
   },
   {
+   "name": "macos-notification",
+   "source": "hyperframes:blocks/macos-notification",
+   "class": "ui",
+   "reason": "imitates the interface or the mark of a named third-party product: a trademark question the Skill does not take on (re-make it from the reference with the user's own material)"
+  },
+  {
    "name": "macos-tahoe-liquid-glass",
    "source": "hyperframes:blocks/macos-tahoe-liquid-glass",
    "class": "ui",
-   "reason": "needs a library the Skill does not supply (map data, Lottie, glTF or post-processing loaders)"
+   "reason": "imitates the interface or the mark of a named third-party product: a trademark question the Skill does not take on (re-make it from the reference with the user's own material)"
   },
   {
    "name": "marble",
@@ -12181,6 +11821,12 @@
    "source": "hyperframes:blocks/nebula",
    "class": "background",
    "reason": "a WebGPU shader of a third-party library (1.4 MB): WebGPU is not available to the renderer, and the library is not shipped"
+  },
+  {
+   "name": "north-korea-locked-down",
+   "source": "hyperframes:blocks/north-korea-locked-down",
+   "class": "chart",
+   "reason": "a news piece about a country, with its own reporting as sample content: not material the Skill ships"
   },
   {
    "name": "notification-cascade",
@@ -12231,6 +11877,12 @@
    "reason": "is written as JavaScript modules loaded from the network"
   },
   {
+   "name": "reddit-post",
+   "source": "hyperframes:blocks/reddit-post",
+   "class": "ui",
+   "reason": "imitates the interface or the mark of a named third-party product: a trademark question the Skill does not take on (re-make it from the reference with the user's own material)"
+  },
+  {
    "name": "ripples",
    "source": "hyperframes:blocks/ripples",
    "class": "background",
@@ -12252,7 +11904,7 @@
    "name": "slack-notification-ad",
    "source": "hyperframes:blocks/slack-notification-ad",
    "class": "ui",
-   "reason": "its script fails as a scene: did not load: slack-mark.svg"
+   "reason": "imitates the interface or the mark of a named third-party product: a trademark question the Skill does not take on (re-make it from the reference with the user's own material)"
   },
   {
    "name": "snow",
@@ -12277,6 +11929,12 @@
    "source": "hyperframes:blocks/split-flap-board",
    "class": "transition",
    "reason": "its script uses a name the scene lint reserves (parent, top, location)"
+  },
+  {
+   "name": "spotify-card",
+   "source": "hyperframes:blocks/spotify-card",
+   "class": "ui",
+   "reason": "imitates the interface or the mark of a named third-party product: a trademark question the Skill does not take on (re-make it from the reference with the user's own material)"
   },
   {
    "name": "strands",
@@ -12313,6 +11971,12 @@
    "source": "hyperframes:blocks/thread-message-stack",
    "class": "ui",
    "reason": "hands no timeline over (it is driven by the HyperFrames runtime alone)"
+  },
+  {
+   "name": "tiktok-follow",
+   "source": "hyperframes:blocks/tiktok-follow",
+   "class": "ui",
+   "reason": "imitates the interface or the mark of a named third-party product: a trademark question the Skill does not take on (re-make it from the reference with the user's own material)"
   },
   {
    "name": "us-map",
@@ -12427,6 +12091,18 @@
    "source": "hyperframes:blocks/worley-noise",
    "class": "background",
    "reason": "a WebGPU shader of a third-party library (1.4 MB): WebGPU is not available to the renderer, and the library is not shipped"
+  },
+  {
+   "name": "x-post",
+   "source": "hyperframes:blocks/x-post",
+   "class": "ui",
+   "reason": "imitates the interface or the mark of a named third-party product: a trademark question the Skill does not take on (re-make it from the reference with the user's own material)"
+  },
+  {
+   "name": "yt-lower-third",
+   "source": "hyperframes:blocks/yt-lower-third",
+   "class": "caption",
+   "reason": "imitates the interface or the mark of a named third-party product: a trademark question the Skill does not take on (re-make it from the reference with the user's own material)"
   },
   {
    "name": "kinetic-type",

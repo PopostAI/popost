@@ -62,7 +62,7 @@ export const readingNotes = (tpl: Template): string[] => {
   return [
     ...(read ? ['Each shot keeps its layout: find material of the new subject for it, never another layout. Layers (box, look) are in template.json shots[k].elements: keep "design", fill "replace", never draw "drop".'] : []),
     ...(marked ? ['A mark keeps its kind and look and goes on what the new line says: the new subject\'s strongest point for the beat\'s job.'] : []),
-    ...(worded ? ['Captions: *mark* stressed words (highlight)' + (wholeLines(tpl) ? '; the lines were measured to appear whole at once: no "captionReveal".' : '; "captionReveal": "words" only where the reading says the words appear one by one.')] : []),
+    ...(worded ? ['Captions: *mark* stressed words (highlight); ' + (wholeLines(tpl) ? 'lines appear whole: no "captionReveal".' : '"captionReveal": "words" (reveal).')] : []),
     ...(dropped.length ? ['The reference\'s shot' + (dropped.length > 1 ? 's ' : ' ') + dropped.map((x) => x.shot + ' (' + x.seconds.join('-') + ' s' + (x.reason ? ', ' + clip(x.reason, 100) : '') + ')').join(', ') + (dropped.length > 1 ? ' are' : ' is') + ' left out: shots[' + (tpl.shots.length - 1) + '] is the re-make\'s own closing.'] : []),
   ];
 };
