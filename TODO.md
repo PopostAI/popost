@@ -104,8 +104,7 @@ generated template; minimum number of examples.
 - [x] Addresses (2026-11-01): the web app and docs now use popost.ai instead of clipcat.ai (install commands, `popost config
       … --base-url https://popost.ai`, account center, doc link, pricing note); the unused `RAW_CLIPCAT_SOURCE` price
       snapshot in `plan-catalog-v33.ts` was removed. The endpoints themselves are tracked in §5.
-- [x] CSS comments (2026-11-01): removed every mention of renoise.ai and creatok.ai (and "per ClipCat reference") from
-      `apps/web/src/*.css`.
+- [x] CSS comments (2026-11-01): removed every mention of other products from `apps/web/src/*.css`.
 - [x] Web app clean-up items (design tokens, unused dependencies such as GSAP and shadcn files, i18n, strict TypeScript,
       `workspace-vNN.css`, favicon path) — obsolete: `apps/web` was removed on 2026-11-01. Dependencies are now only what
       the editor needs.
