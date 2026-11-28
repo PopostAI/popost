@@ -13,7 +13,7 @@
  */
 import { deltaE } from '../measure/colour';
 import { labMedian, median, r2, rgbMedian, type Frame, type Lab, type Rect, type Rgb, type Seen } from './frame';
-import { strokeMax, strokesOf } from './letters';
+import { strokeMax, strokesOf } from './strokes';
 
 const sub = (a: Lab, b: Lab): Lab => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
 const dot = (a: Lab, b: Lab): number => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];

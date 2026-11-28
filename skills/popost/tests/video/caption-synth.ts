@@ -1,7 +1,8 @@
 /**
  * Caption lines drawn into pixel buffers for the tests of the caption look (no font, no browser, no file): block
  * letters from a 5x7 table, heavy or regular strokes, an outline (the strokes grown), a soft shadow (the grown strokes
- * moved and blurred), a word in another colour, and only the first characters of a line (a line that builds up). The
+ * moved and blurred), a rounded plate behind the line, a word in another colour, and only the first characters of a
+ * line (a line that builds up). The
  * line is drawn at three times the size and averaged down, then its colour is averaged over 2x2 blocks as a 4:2:0
  * video keeps it, so strokes have the soft edges and the bled colour of a small video.
  */
@@ -28,6 +29,8 @@ export interface SynthStyle {
   stroke?: number;
   outline?: { color: Rgb; width: number };
   shadow?: { color: Rgb; dx: number; dy: number; blur: number; opacity?: number };
+  /** A plate behind the line: padding and corner radius as shares of the letters' height. */
+  plate?: { color: Rgb; padding: number; radius: number };
 }
 
 export interface SynthLine {
@@ -80,6 +83,17 @@ const grown = (m: Float32Array, w: number, h: number, r: number): Float32Array =
   return out;
 };
 
+/** A rounded rectangle around [x0, y0, x1, y1] grown by pad, corners of radius r: 1 inside. */
+const rounded = (w: number, h: number, [x0, y0, x1, y1]: [number, number, number, number], pad: number, r: number): Float32Array => {
+  const m = new Float32Array(w * h);
+  const a = [x0 - pad, y0 - pad, x1 + pad, y1 + pad] as const;
+  for (let y = Math.max(0, Math.floor(a[1])); y < Math.min(h, Math.ceil(a[3])); y++) for (let x = Math.max(0, Math.floor(a[0])); x < Math.min(w, Math.ceil(a[2])); x++) {
+    const dx = Math.max(a[0] + r - x, 0, x - (a[2] - r)), dy = Math.max(a[1] + r - y, 0, y - (a[3] - r));
+    if (dx * dx + dy * dy <= r * r) m[y * w + x] = 1;
+  }
+  return m;
+};
+
 /** One caption line as a frame and the box a text reader would give it, in pixels. */
 export const drawLine = (o: SynthLine): { frame: Frame; box: Rect } => {
   const W = o.width ?? 480, H = o.height ?? Math.round(o.glyph * 4);
@@ -110,6 +124,7 @@ export const drawLine = (o: SynthLine): { frame: Frame; box: Rect } => {
       if (rows[r + 1]?.[c] === '1') rect(into, x + pad, y + pad, x + cell - pad, y + cell + cell - pad);
     }));
   });
+  const plate = o.style.plate ? rounded(w, h, [left, top, left + total, top + 7 * cell], o.style.plate.padding * o.glyph * SS, o.style.plate.radius * o.glyph * SS) : undefined;
   const both = ink.map((v, i) => Math.max(v, lit[i] ?? 0));
   const line = o.style.outline ? grown(both, w, h, o.style.outline.width * SS) : undefined;
   const sh = o.style.shadow;
@@ -126,6 +141,7 @@ export const drawLine = (o: SynthLine): { frame: Frame; box: Rect } => {
     for (let sy = 0; sy < SS; sy++) for (let sx = 0; sx < SS; sx++) {
       const j = (y * SS + sy) * w + x * SS + sx;
       let c: Rgb = g;
+      if (plate?.[j] && o.style.plate) c = o.style.plate.color;
       const a = (shade?.[j] ?? 0) * (sh?.opacity ?? 0.8);
       if (sh && a > 0) c = [c[0] + (sh.color[0] - c[0]) * a, c[1] + (sh.color[1] - c[1]) * a, c[2] + (sh.color[2] - c[2]) * a];
       if (line?.[j] && o.style.outline) c = o.style.outline.color;
