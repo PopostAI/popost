@@ -202,9 +202,11 @@ export const openDirector = async (page: Page, o: DirectorOptions): Promise<Dire
     }
     if (drawn?.sample) tally(drawn.sample);
     const { cssVisualViewport: vv } = await cdp.send('Page.getLayoutMetrics');
+    // CDP rounds fractional CSS clip edges before multiplying by zoom/device scale. Bleed one CSS pixel on
+    // the right/bottom before that multiplication; the encoder crops it back to the fixed output viewport.
     const taken = captureScreenshot(cdp, {
       format: 'png',
-      clip: { x: vv.pageX + camera.x, y: vv.pageY + camera.y, width: view.width / camera.s, height: view.height / camera.s, scale: camera.s },
+      clip: { x: vv.pageX + camera.x, y: vv.pageY + camera.y, width: view.width / camera.s + 1, height: view.height / camera.s + 1, scale: camera.s },
       optimizeForSpeed: true,
     });
     // A browser that stopped drawing never answers: fail instead of waiting forever.

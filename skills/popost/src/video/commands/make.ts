@@ -25,6 +25,7 @@ import { projectReadingProblems, projectSceneSources, readingOfFacts } from '../
 import type { Problem, Project } from '../types';
 import { command, userPath, VideoCommandError, type Body, type Commands } from './shared';
 import { sceneExample } from './example';
+import { REPLICATION_FILE } from '../replication/contract';
 
 const PROJECT = { name: 'project-dir', help: 'the directory that holds video.json' } as const;
 const SCALE = { flag: '--scale', kind: 'number', help: 'size of the picture against the canvas, for example 0.5' } as const;
@@ -101,7 +102,10 @@ const render = command(
     const r = await renderVideo(rt, { projectDir, out, ...(scale === undefined ? {} : { scale }), ...(pages === undefined ? {} : { pages }), ...(args.flag('no-reuse') ? { reuse: false } : {}) });
     // The record of renders counts the review rounds for compare; the render is done whatever becomes of it.
     const review = await reviewRender(rt, projectDir, out).catch((e: unknown) => ({ next: 'popost video compare <reference video> ' + out, note: 'The record of renders could not be written (' + (e instanceof Error ? e.message : String(e)) + '), so compare cannot count rounds.' }));
-    printJson(rt, { ok: true, out, frames: r.frames, width: r.width, height: r.height, fps: r.fps, seconds: Number((r.ms / 1000).toFixed(1)), msPerFrame: Math.round(r.ms / r.frames), pages: r.pages, reused: r.reused, ...review });
+    const strict = await rt.fs.stat(rt.path.join(userPath(rt, projectDir), REPLICATION_FILE));
+    printJson(rt, { ok: true, out, frames: r.frames, width: r.width, height: r.height, fps: r.fps, seconds: Number((r.ms / 1000).toFixed(1)), msPerFrame: Math.round(r.ms / r.frames), pages: r.pages, reused: r.reused, ...review,
+      ...(strict ? { artifactReady: true, requirementsMet: null, qualityStatus: 'needs_review', next: 'popost video replication check ' + projectDir + ' --artifact ' + out } : {}),
+    });
   }),
 );
 

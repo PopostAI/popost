@@ -37,6 +37,7 @@ import { coverageProblems, dialogueProblems, isDialogue, NO_MUSIC, timedDialogue
 import { readClipRecord } from './approved';
 import { voiceProfile, type VoiceProfile } from '../voice/profile';
 import { audioSeconds } from '../voice/index';
+import { materialReplicationProblems } from '../replication/production';
 
 export type GenerateKind = 'video' | 'image';
 
@@ -449,6 +450,10 @@ const afterFailure = (message: string): string =>
  * this list become the agreed clips when the project has none yet.
  */
 export const makeMaterials = async (rt: Runtime, o: { requests: MaterialRequest[]; dir: string; generator: Generator; anchor?: boolean; picture?: AnchorPicture; plan?: boolean; times?: BeatTimes; music?: boolean; onStep?: (file: string, done: number, total: number) => void }): Promise<MaterialsReport> => {
+  const replication = await materialReplicationProblems(rt, o.dir, o.requests);
+  if (replication.problems.some(p => p.level === 'error')) return { materials: [], credits: 0, chargedCredits: 0, problems: replication.problems };
+  if (replication.forbidNewSpeech) o = { ...o, requests: o.requests.map(r => ({ ...r, prompt: r.prompt + ' Do not add dialogue, voice-over, spoken narration or lip-synced speech. Preserve the requested music, effects and ambience; absence of narration does not mean silence.' })) };
+  else if (replication.forbidNewNarration) o = { ...o, requests: o.requests.map(r => ({ ...r, prompt: r.prompt + ' Do not add a voice-over or narrator. Preserve only the planned source-role dialogue, music/vocals, effects and ambience.' })) };
   const before = Array.isArray(o.requests) && o.times ? await saidBefore(rt, o.dir, o.requests) : undefined;
   const problems = await checkRequests(rt, o.requests, o.dir, {selectedIdentity:!!o.picture, ...(o.times ? { times: o.times } : {}), ...(before ? { covered: before } : {})});
   if (problems.length) return { materials: [], credits: 0, chargedCredits: 0, problems };

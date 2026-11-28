@@ -51,7 +51,8 @@ const RULES = [
   'Motion is on the engine\'s clock, counted in seconds from the start of the shot. The renderer draws frames in any order, so a frame must depend on its time only.',
   'NOT allowed: setTimeout, setInterval, requestAnimationFrame, Date.now, performance.now, Math.random, CSS transition, <video>, <audio>, <iframe>, fetch, anything from the network.',
   'Mark every text that belongs to the subject (titles, labels, card texts, numbers) with data-slot="a-short-name"; leave a little room in its box.',
-  'Chinese text uses font-family "Noto Sans CJK SC", sans-serif. There are no picture files: draw icons, arrows and characters with HTML, CSS and inline SVG.',
+  'Chinese text uses font-family "Noto Sans CJK SC", sans-serif. This writer builds graphic scenes: draw graphic icons and arrows with HTML, CSS and inline SVG. Do not use primitive characters or geometric scenery to stand in for reference illustration, cinematic miniature footage or detailed character animation. Those require actual matching assets, or a clearly reported missing-material checkpoint.',
+  'Preserve the measured reveal mechanism: characters and their cursor pauses, independently rolling digits, or a full phrase are different effects. Keep marks attached to their target under the same crop/zoom. A custom transition must draw the outgoing and incoming states and the actual moving carrier on the compiled shot clock.',
 ];
 const CSS_MOTION = 'Write motion as CSS animations (@keyframes) with animation-delay and animation-fill-mode: both, as if they played from the start of the shot; the engine pauses them and sets their time.';
 const GSAP_MOTION = [

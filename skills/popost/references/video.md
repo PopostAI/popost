@@ -3,6 +3,11 @@
 Re-creating a reference video with new content ("the same effects and motion, about my topic") with `popost video`.
 Read this page once, then do steps 0 to 7 in order; "Done when" says what must be true before the next step.
 
+For every new reference replication, also read [strict replication](video-replication.md). Its internal source
+contract, complete event inventory, target map, audio/pair checks and artifact-bound review are required throughout
+the steps below. The user need not supply a detailed motion prompt. Existing projects without a replication sidecar
+keep their previous behavior; an approved repair uses a separate project and does not rewrite unrelated work.
+
 ## Rules for every step
 
 - For Jianying Pro or CapCut delivery, use [direct desktop draft export](video-draft-export.md). Local Studio saves into the application's drafts folder and offers Open/Restart after success; a ZIP download is not this interaction.
@@ -33,8 +38,9 @@ Read this page once, then do steps 0 to 7 in order; "Done when" says what must b
   says and run the same command again.
 - Read only the files this page names. Never open `measure.json`, `text.json`, `transcript.json`,
   `reference.measure.json`, `slots.json`, `*.words.json` or `.cache/`: they are data for the programs.
-- Open pictures one at a time: each one stays in your context. Write no times and no frame numbers anywhere but in a
-  capture plan (step 3): the program takes every time from the reference. Never invent numbers, quotes, names or results that the user or a
+- Open pictures one at a time: each one stays in your context. The measured reference clock, the source contract,
+  capture plan and final compiled target map own their respective times. Keep reference, target and footage FPS
+  explicit; never guess cumulative scene offsets. Never invent numbers, quotes, names or results that the user or a
   source you fetched did not give.
 - There is no time limit. Never shorten or skip a step, a scene or a review round to save time: a video takes
   half an hour to an hour of work, and that is expected.
@@ -220,6 +226,13 @@ the user decides what to do: never turn a speaking person into silent footage wi
 Done when: you have opened every picture of `ref/`, `popost video elements check ref` prints `"ok": true` (every
 shot has an entry that says its layout, how it begins and ends as its frames show it, and which layers are the
 platform's or the author's), the speech kind is confirmed, and the user agreed a budget (or no paid work is planned).
+
+Before saving a new replication template, run `popost video replication init ref --reference reference.mp4`,
+complete `replication.json` from the actual source video/audio, and run
+`popost video replication check ref --reference reference.mp4`. Include short in-shot events as well as cuts:
+typing, cursor/marks, masked rolling digits, actor visibility, camera/focus moves and prop causality. Uncertain
+speech/style or an unreviewed empty inventory stops paid production. A song does not become a narrator because ASR
+recognized its lyrics. The complete contract and its local evidence are carried into the template and filled project.
 
 ## 2. Keep its structure
 
@@ -429,6 +442,8 @@ the most characters that can be said in its beat, the voice sped up at most 1.12
   a clip to be safe. The checks refuse a sound without a record of where it came from. A quiet video is not a fault to
   repair; the user adds music when they post, or in an editor.
 
+For strict replications, the confirmed speech kinds also populate `replication.json`: distinguish narration, on-camera dialogue, music/vocals, effects and ambience. A skipped ASR result or a song lyric does not request a narrator. Record every actual audio route and file hash in `replication.audio.json`; the strict final review checks these against the resolved timeline. Explicitly authorized reference-music preservation uses the verified source-audio workflow in [video-replication.md](video-replication.md), rather than an invented uploaded-file provenance.
+
 ```bash
 popost video template check template --fill fill.json --pace <budgets.pace> --fit-tempo 1.12
 ```
@@ -451,9 +466,10 @@ a file with different `slots`. The rules (the whole contract: `<skill>/reference
    `popost video scene library project`; read "A timeline library" in `video-scenes.md` first.
 3. Never: `setTimeout`, `setInterval`, `requestAnimationFrame`, `Date.now()`, `performance.now()`,
    `Math.random()`, CSS `transition`, `<video>`, `<audio>`, `<iframe>`, `fetch`.
-4. The shot's length changes (with a voice, a beat takes the length of its spoken line). Finish every entrance in the
-   first half of the reference shot and hold the end state (`both` does it); never animate an exit, the cut does
-   that. A move through the whole shot (a slow drift, a growing bar) may last the reference shot, then holds.
+4. Use the actual filled shot's clock. Match the reference entrance, dwell, exit and handoff; do not move every
+   entrance into the first half or erase an observed exit. After speech retiming or custom-transition ownership
+   changes, export `video replication timeline project` and refresh the event map. All related layers use that
+   same clock and viewport, including marks, cursor, number cells and their labels.
 5. Put `data-slot="name"` on each element that holds only a text (or an `<img>`) of the topic: the check warns when
    the glyphs of a marked text leave its box, or when a box around it with `overflow: hidden` cuts them off. A fill's `"slots": {"name": "new words"}` replaces its text (an `<img>`'s
    `src`, as a path relative to the scene file: `"../assets/new.png"`).
@@ -554,6 +570,16 @@ densely) and when a scene or a caption shows the reference's own words or figure
 Done when: all four print `"ok": true`, with no warning about the size of the captions.
 
 ## 7. Render, compare, deliver
+
+For a new replication, rendering reports `artifactReady: true`, `requirementsMet: null` until the exact output is
+reviewed. Numeric similarity and a successful `compare` are measurements, not a fidelity pass. Follow
+[strict replication review](video-replication.md): inspect the opening, active motion and resolved state of every
+required event, not only 25/50/75% scene samples. Check real pair identity/stage, style/performer archetype, all
+audible roles and duration. Keep `replication.plan.json` mapped to the compiled project, write the evidence review,
+then run `popost video replication check project --reference reference.mp4 --artifact final.mp4`.
+Only `qualityStatus: "accepted"` establishes a completed strict replication. Missing or failed requirements remain
+pending/failed even when the file renders. An upstream failure is a checkpoint, not permission to substitute a
+simpler visual medium. Ordinary comparison warnings still guide iteration; they are not all made fatal globally.
 
 ```bash
 popost video render project --out final.mp4

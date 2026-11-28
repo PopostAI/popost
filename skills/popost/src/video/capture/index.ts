@@ -254,7 +254,7 @@ export const capturePage = async (rt: Runtime, o: CaptureOptions): Promise<Captu
     });
     // At Chrome's priority: the encoder drains the page (runFfmpeg).
     const r = await runFfmpeg(rt, args, recorded(page, o, tally, director, view), undefined, { lowPriority: false });
-    if (r.code !== 0) throw new Error('Encoding the capture failed (ffmpeg exited with ' + r.code + '): ' + r.stderr.trim().split('\n').slice(-2).join(' | '));
+    if (r.code !== 0) throw new Error('Encoding the capture failed (ffmpeg exited with ' + r.code + '): ' + r.stderr.trim().split('\n').slice(-8).join(' | '));
     const { text } = director.finish();
     return { frames: tally.frames, width: even(o.width * scale), height: even(o.height * scale), fps: o.fps, ms: Date.now() - started, pageHeight, notes: tally.notes, text };
   });

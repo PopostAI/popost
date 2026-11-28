@@ -90,7 +90,8 @@ const answerPart = (o: PromptInput): string[] => {
       '- A shot may also be {"generate": "..."}: a clip is made from your words. Say in English what is seen, in one or two sentences: who or what, doing what, where, how the camera moves. No text on screen. Keep the people and the place the same from shot to shot by describing them the same way every time.' +
         (o.generate.product ? ' The product is the picture @image1: write "@image1" wherever the product appears.' : ''),
     ] : []),
-    ...(o.materials.length ? ['- Prefer footage and pictures from the materials where they fit; use a card for a title or an ending.'] : o.generate ? ['- There are no materials: fill a shot with "generate", or with a card or a color where that fits better.'] : ['- There are no materials: fill every shot with a card or a color.']),
+    ...(o.materials.length ? ['- Prefer footage and pictures from the materials where they fit; use a card only where the reference has a graphic title or ending.'] : o.generate ? ['- There are no materials: use "generate" for shots that need footage; a card or color is allowed only where the reference itself uses a graphic plate.'] : ['- There are no materials: obtain the required footage, illustrations or product pictures before filling those shots. A card or color is allowed only for a reference graphic plate.']),
+    '- Preserve the reference visual medium, rendering finish, camera path, reveal mechanism and transition carrier. Missing assets or a failed generation never authorize replacing a cinematic or character shot with flat cards, primitive geometry or another medium.',
   ];
 };
 

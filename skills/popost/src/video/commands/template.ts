@@ -129,11 +129,12 @@ const save = command(
       return 2;
     }
     const r = await saveTemplate(rt, {
-      measure: split.measure, ...(text ? { text } : {}), ...(transcript ? { transcript } : {}), ...(inset ? { inset } : {}), name: args.req('name'), ...(label ? { label } : {}), outDir: out,
+      measure: split.measure, ...(text ? { text } : {}), ...(transcript ? { transcript } : {}), ...(inset ? { inset } : {}), name: args.req('name'), ...(label ? { label } : {}), outDir: out, referenceDir: ref,
       ...(reading ? { reading: { elements: reading.elements, dir: ref, measure: read } } : {}),
       unrecovered: await unrecoveredIn(rt, ref, reading?.elements ?? { shots: [] }),
       ...(speech ? { speech } : {}),
     });
+    if (errorsIn(r.problems).length) return refused(rt, 'The reference cannot be saved until its required facts are resolved.', r.problems);
     const pkg = await loadTemplate(rt, out);
     const cap = pkg.slots.captions?.capacity;
     const errors = errorsIn(r.problems).length;

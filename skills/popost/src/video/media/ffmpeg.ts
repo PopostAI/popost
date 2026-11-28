@@ -79,6 +79,22 @@ const rational = (s: string): number => {
   return b ? (a ?? 0) / b : (a ?? 0);
 };
 
+/** Packet presentation time, not container/audio tail length or a variable stream's nominal frame rate. */
+export const packetClock = (crc: string): { frames: number; duration?: number; fps?: number } => {
+  const rows = crc.split('\n').filter(line => line.trim() && !line.startsWith('#'));
+  const tb = crc.match(/^#tb\s+0:\s*(\d+\/\d+)/m)?.[1];
+  const ticks = tb ? rational(tb) : 0;
+  let first = Infinity, end = -Infinity;
+  for (const row of rows) {
+    const parts = row.split(',').map(s => s.trim());
+    const pts = Number(parts[2]), duration = Number(parts[3]);
+    if (parts.length < 4 || !Number.isFinite(pts) || !Number.isFinite(duration) || duration <= 0) return { frames: rows.length };
+    first = Math.min(first, pts); end = Math.max(end, pts + duration);
+  }
+  const duration = (end - first) * ticks;
+  return duration > 0 && Number.isFinite(duration) ? { frames: rows.length, duration, fps: rows.length / duration } : { frames: rows.length };
+};
+
 /**
  * Size, frame rate, frame count and duration of a video file. The frame count is exact: the packets of the video
  * stream are listed without decoding (one line each from the framecrc muxer) and counted.
@@ -89,11 +105,18 @@ export const probe = async (rt: Runtime, file: string): Promise<Probe> => {
   if (!video) throw new FfmpegError('No video stream found in ' + file, r.stderr);
   const size = video[0].match(/, (\d{2,5})x(\d{2,5})[ ,[]/);
   const fpsText = video[0].match(/, ([\d.]+) fps/)?.[1] ?? video[0].match(/, ([\d.]+) tbr/)?.[1];
+  const reportedAverage = video[0].match(/, ([\d.]+) fps/)?.[1];
   const rate = r.stderr.match(/r_frame_rate=(\d+\/\d+)/)?.[1];
-  const frames = new TextDecoder('latin1').decode(r.stdout).split('\n').filter((line) => line && !line.startsWith('#')).length;
+  const clock = packetClock(new TextDecoder('latin1').decode(r.stdout));
+  const frames = clock.frames;
   const d = r.stderr.match(/Duration: (\d+):(\d+):([\d.]+)/);
   const duration = d ? Number(d[1]) * 3600 + Number(d[2]) * 60 + Number(d[3]) : 0;
   if (!size || !fpsText) throw new FfmpegError('Could not read the size or frame rate of ' + file, r.stderr);
-  const fps = rate ? rational(rate) : Number(fpsText);
+  // Presentation reordering/edit lists can leave terminal packet PTS beyond a stream's declared end. In that
+  // case its reported average is preferable to the packet envelope (and never to the nominal tbr). Keep the
+  // exact packet clock for CFR/fractional rates when the difference is only the header's printed precision.
+  const precision = reportedAverage ? Math.min(.005, .5 / 10 ** (reportedAverage.split('.')[1]?.length ?? 0)) : Infinity;
+  const edited = clock.fps !== undefined && reportedAverage !== undefined && Math.abs(clock.fps - Number(reportedAverage)) > precision + 1e-9;
+  const fps = edited ? Number(reportedAverage) : clock.fps ?? (rate ? rational(rate) : Number(fpsText));
   return { width: Number(size[1]), height: Number(size[2]), fps, frames, duration: frames && fps ? frames / fps : duration, hasAudio: /Stream #0:\d+[^\n]*: Audio:/.test(r.stderr) };
 };

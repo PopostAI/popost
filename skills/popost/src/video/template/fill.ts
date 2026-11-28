@@ -19,6 +19,8 @@ import { writeFacts } from './facts';
 import { jsonText, loadTemplate } from './save';
 import { retargetInputs, structureMeasure } from './structure';
 import type { TemplatePackage } from './types';
+import { copyReplication } from '../replication/io';
+import { AUDIO_FILE, fillReplicationProblems, readAudio } from '../replication/production';
 
 /** The voice track of a spoken fill, relative to the project directory. */
 export const VOICE_FILE = 'assets/voice.m4a';
@@ -80,7 +82,8 @@ const merge = (a: Problem[], b: Problem[]): Problem[] => {
 };
 
 const preflight = async (rt: Runtime, pkg: TemplatePackage, o: Omit<FillOptions, 'templateDir'>): Promise<{ problems: Problem[]; speaker?: Speaker }> => {
-  const problems = await checkFill(rt, pkg, o.fill, { dir: o.assetsDir ?? o.outDir });
+  const problems = [...await checkFill(rt, pkg, o.fill, { dir: o.assetsDir ?? o.outDir }),
+    ...await fillReplicationProblems(rt, pkg.dir, o.assetsDir ?? o.outDir, { speak: o.speak, sound: o.fill.sound, beds: o.fill.beds })];
   if (!o.speak || hasErrors(problems)) return { problems };
   const speaker = o.speaker ?? commandSpeaker(rt, o.wallet);
   if (!speaker) return { problems: [...problems, error('speak', 'Speaking the captions needs a speaker, and none is configured.', 'Connect a popost.ai account with popost auth login (popost: voices need no local tool), or set POPOST_TTS_CMD to a speaker of your own, or fill without --speak.')] };
@@ -105,7 +108,15 @@ export const fillPackage = async (rt: Runtime, pkg: TemplatePackage, o: Omit<Fil
   const pre = await preflight(rt, pkg, o);
   if (hasErrors(pre.problems)) return { problems: pre.problems, notes: [] };
   await rt.fs.mkdir(o.outDir);
+  if (pkg.dir) {
+    const copied = await copyReplication(rt, pkg.dir, o.outDir);
+    if (hasErrors(copied)) return { problems: merge(pre.problems, copied), notes: [] };
+  }
   if (o.assetsDir) await copyAssets(rt, o.fill, o.assetsDir, o.outDir);
+  if (o.assetsDir && rt.path.resolve(o.assetsDir) !== rt.path.resolve(o.outDir)) {
+    const audio = await readAudio(rt, o.assetsDir);
+    if (audio.audio && !hasErrors(audio.problems)) await rt.fs.writeFile(rt.path.join(o.outDir, AUDIO_FILE), jsonText(audio.audio));
+  }
   const inputs = retargetInputs(pkg.template);
   const pace = pkg.slots.voice.pace;
   // The beats a person of a clip says: the voice never reads them (speech-rules.ts).

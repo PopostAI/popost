@@ -9,6 +9,7 @@ import { pathToFileURL } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { PAGE_BUNDLE } from '../../src/video/compile/page-bundle';
 import { SHELL_BUNDLE } from '../../src/video/preview/shell-bundle';
+import { MOTION_BUNDLE } from '../../src/video/replication/motion-bundle';
 
 const packageRoot = resolve(import.meta.dirname, '..', '..');
 
@@ -21,7 +22,7 @@ const builder = async (): Promise<Builder> =>
 describe('video bundles', () => {
   it('are up to date with their sources, and the same bytes on every build', async () => {
     const { VIDEO_BUNDLES, renderVideoBundle } = await builder();
-    expect(VIDEO_BUNDLES.map((b) => b.target)).toEqual(['src/video/compile/page-bundle.ts', 'src/video/preview/shell-bundle.ts']);
+    expect(VIDEO_BUNDLES.map((b) => b.target)).toEqual(['src/video/compile/page-bundle.ts', 'src/video/preview/shell-bundle.ts', 'src/video/replication/motion-bundle.ts']);
     for (const bundle of VIDEO_BUNDLES) {
       const committed = readFileSync(resolve(packageRoot, bundle.target), 'utf8');
       const fresh = await renderVideoBundle(bundle);
@@ -31,11 +32,12 @@ describe('video bundles', () => {
   });
 
   it('are self-contained scripts: no module syntax, and they start what they are for', () => {
-    for (const code of [PAGE_BUNDLE, SHELL_BUNDLE]) {
+    for (const code of [PAGE_BUNDLE, SHELL_BUNDLE, MOTION_BUNDLE]) {
       expect(code).not.toMatch(/^\s*(import|export)\b/m);
       expect(code.length).toBeGreaterThan(1000);
     }
     expect(PAGE_BUNDLE).toContain('__popostVideo');
     expect(SHELL_BUNDLE).toContain('/api/state');
+    expect(MOTION_BUNDLE).toContain('popostMotion');
   });
 });

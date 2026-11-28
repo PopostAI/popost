@@ -22,6 +22,8 @@ import { slotsOf } from './slots';
 import { cardLayout, sourceBeats, startsOf, templateFrom } from './structure';
 import { barPlaces, titlePlaces } from '../retarget/titles';
 import { FILES, SLOTS_FORMAT, TEMPLATE_FORMAT, TEMPLATE_VERSION, TEXT_FORMAT, type Capacity, type ReferenceTextFile, type Slots, type Template, type TemplatePackage } from './types';
+import { readReplication, copyReplication } from '../replication/io';
+import { checkReplicationReadiness } from '../replication/check';
 
 /** JSON with the keys of every object sorted, so that a hash does not depend on the order a file was written in. */
 const canonical = (v: unknown): string =>
@@ -62,6 +64,8 @@ export interface SaveOptions {
   /** Where it came from, for people; never a file name of a private data set. Default: the name. */
   label?: string;
   outDir: string;
+  /** Optional source directory for portable replication constraints, even without an elements reading. */
+  referenceDir?: string;
   /**
    * The reading of the frames (elements.json, already checked) and the directory describe wrote, which holds its
    * pictures. measure: the measurement its shot numbers refer to, when the measure above has its shots cut in parts
@@ -92,6 +96,14 @@ const sourceOf = (o: SaveOptions): { measure: Measure; text?: TextTrack; transcr
 };
 
 export const saveTemplate = async (rt: Runtime, o: SaveOptions): Promise<{ problems: Problem[] }> => {
+  const referenceDir = o.referenceDir ?? o.reading?.dir;
+  if (referenceDir) {
+    const replication = await readReplication(rt, referenceDir);
+    const problems = [...replication.problems, ...(replication.contract ? checkReplicationReadiness(replication.contract) : [])];
+    if (problems.some(p => p.level === 'error')) return { problems };
+    const copied = await copyReplication(rt, referenceDir, o.outDir);
+    if (copied.some(p => p.level === 'error')) return { problems: copied };
+  }
   const src = sourceOf(o);
   const m = src.measure;
   const kinds = kindsUntil(o.speech, src.from === undefined ? undefined : m.source.frames);

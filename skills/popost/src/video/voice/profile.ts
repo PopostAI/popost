@@ -6,6 +6,7 @@ import { runTool } from '../tool';
 import { runFfmpegOk } from '../media/ffmpeg';
 import { hostedSpeech, selectHostedVoice } from './hosted';
 import { NOTHING, type Wallet } from '../wallet';
+import { speechReplicationProblems } from '../replication/production';
 
 export interface VoiceProfile { id: string; reference: string; sha256: string; mode: 'audio-first' | 'native-reference'; providerVoice?: string }
 interface Voices { version: 1; speakers: VoiceProfile[] }
@@ -47,6 +48,8 @@ export const registerVoice = async (rt: Runtime, dir: string, id: string, file: 
  * Word times the synthesizer gave (hosted speech does) are kept beside out as <out>.words.json; returns that path.
  */
 export const speakProfile = async (rt: Runtime, dir: string, id: string, text: string, out: string, wallet: Wallet = NOTHING()): Promise<{ words?: string }> => {
+  const replication = await speechReplicationProblems(rt, dir);
+  if (replication.some(p => p.level === 'error')) throw new Error(replication.map(p => p.message).join(' '));
   const profile=await voiceProfile(rt,dir,id);
   if (!profile || !text.trim()) throw new Error('Register the speaker and supply the final spoken text.');
   return withTempDir(rt,'popost-shared-voice-',async temp=>{
@@ -68,6 +71,8 @@ export const speakProfile = async (rt: Runtime, dir: string, id: string, text: s
 
 /** Import speech actually produced by the host's selected voice service, preserving its real provenance. */
 export const completeVoice = async (rt: Runtime, dir: string, id: string, text: string, file: string, out: string, tool: string): Promise<void> => {
+  const replication = await speechReplicationProblems(rt, dir);
+  if (replication.some(p => p.level === 'error')) throw new Error(replication.map(p => p.message).join(' '));
   const profile=await voiceProfile(rt,dir,id);
   if(!profile || !text.trim() || !tool.trim())throw new Error('Register the speaker and supply the exact spoken text and actual tool provenance.');
   const seconds=await audioSeconds(rt,file);

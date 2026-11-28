@@ -82,7 +82,8 @@ describe('plan: the prompt', () => {
     expect(u).not.toContain('template check');
     const none = planMessages({ card, slots: pkg.slots, brief: 'x', materials: [] })[1]?.content ?? '';
     expect(none).toContain('(none)');
-    expect(none).toContain('fill every shot with a card or a color');
+    expect(none).toContain('obtain the required footage, illustrations or product pictures');
+    expect(none).toContain('only for a reference graphic plate');
     expect(materialLines([{ file: 'a.mp4', kind: 'footage' }])).toEqual(['- a.mp4: footage']);
     // The card shows what each beat said, so the prompt does not list the beats again.
     expect(u).not.toContain('One line per beat');
@@ -233,7 +234,8 @@ describe('plan: shots filled by words', () => {
     expect(off.fill).toBeUndefined();
     const u = planMessages({ card, slots: pkg.slots, brief: 'x', materials: [], generate: { product: false }, shotNotes: ['a woman talks to the camera', 'the product on a table', 'she waves'] })[1]?.content ?? '';
     expect(u).toContain('## What the source showed\n\n- shots[0]: a woman talks to the camera\n- shots[1]: the product on a table');
-    expect(u).toContain('fill a shot with "generate", or with a card or a color');
+    expect(u).toContain('use "generate" for shots that need footage');
+    expect(u).toContain('only where the reference itself uses a graphic plate');
     expect(u).not.toContain('@image1');
   });
 });
