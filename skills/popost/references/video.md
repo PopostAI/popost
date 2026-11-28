@@ -478,7 +478,10 @@ The rules (the whole contract: `<skill>/references/video-scenes.md`):
    0 s; the engine sets every animation to the frame's time. A counter or a typed text:
    `window.__popostScene = { render(seconds) { ... } }`, which sets everything it changes from `seconds` alone.
    Motion in sequence (a list that staggers in, several elements one after another): a GSAP timeline, after
-   `popost video scene library project`; read "A timeline library" in `video-scenes.md` first.
+   `popost video scene library project`; read "A timeline library" in `video-scenes.md` first. A bounce, a slam, a
+   pop, a draw-on, a morph, particles, a glitch, a counter, lit 3D: the motion helper
+   (`popost video scene library project --name motion`), three.js (`--name three`) or an entry of the effects
+   catalogue, as `video-motion.md` shows; never one element dropping on a CSS keyframe where the reference bounces.
 3. Never: `setTimeout`, `setInterval`, `requestAnimationFrame`, `Date.now()`, `performance.now()`,
    `Math.random()`, CSS `transition`, `<video>`, `<audio>`, `<iframe>`, `fetch`.
 4. Use the actual filled shot's clock. Match the reference entrance, dwell, exit and handoff; do not move every

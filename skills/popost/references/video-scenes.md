@@ -71,6 +71,38 @@ popost video scene library project        # writes project/lib/gsap.min.js; a sc
 
 Items in a template fill may specify `span: [0.15, 1]` to appear from fifteen percent of the shot until its end. The interval follows the shot when speech changes its length. `enter` and `exit` use native motions, for example `{ "preset": "fade", "frames": 9 }`; the clip starts at `in` when its visible interval starts. `audio: 0` preserves its source sound; omitted audio is silent.
 
+## The motion helper, three.js and the effects catalogue
+
+Before drawing an effect by hand, look for it. The rules of motion, each effect as a function of time and the cue
+contract are in `video-motion.md`: **read it before writing the scene of any shot that moves throughout** (step 5 of
+`video.md` makes this mandatory), and whenever the reference is motion graphics.
+
+```bash
+popost video scene library project --name motion    # lib/popost-motion.js: easings, springs, seeded randomness, effects, sound cues
+popost video scene library project --name three     # lib/three.min.js: three.js r147 for lit 3D, drawn from render(seconds)
+popost video scene example --search "confetti"      # the effects catalogue (video-effects.md): several hundred ready scenes
+popost video scene cues project                     # every scene's sound cues in the video's time, without rendering
+```
+
+```html
+<script src="../lib/popost-motion.js"></script>
+<script>
+  var M = popostMotion;                                       // every effect is a function of the shot's time
+  var b = M.bounce('#ball', { at: 0.2, for: 1.6, from: [380, 90], to: [900], floor: 590, size: 100, bounces: 3, trail: 4, shadow: true });
+  M.shockwave({ at: b.contacts[0], x: 510, y: 590, radius: 160, flat: 0.22 });
+  M.slam('#title', { at: 1.9 });                              // lands with a flash frame, then stays still
+  M.sunburst({ at: 2.1, speed: 18 });                         // ambient: keeps turning to the end of the shot
+</script>
+```
+
+- The helper adds itself to `window.__popostScene.render`; set your own `__popostScene` first, or draw your own parts
+  with `M.on(function (seconds, fps) { ... })`. A GSAP timeline and the helper can share a scene.
+- Every effect declares its sound cues (`window.__popostScene.cues`); `video-motion.md`, "Sound cues", is the contract.
+- The scene of a later shot loads in a layer that is not displayed, where every size is 0 until its first frame: take
+  the canvas size from the size the file declares, and read sizes of elements inside `M.whenShown(function () { ... })`.
+- A catalogue entry is used like the four examples below (`--set`, `--sheet`, `--out`); an entry ported from another
+  project keeps its motion and has stand-ins where the original loaded pictures or fonts.
+
 ## Example scenes with parameters
 
 Four effects that are easy to get wrong by hand are in the Skill as scenes with declared parameters. Each is a scene

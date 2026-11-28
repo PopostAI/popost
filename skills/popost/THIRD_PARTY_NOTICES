@@ -25,6 +25,9 @@ THIRD_PARTY NOTICES
   frames and Runtime; a ground that is not flat is taken per pixel; the move is fitted along its path; turns, settle
   time, peak speed and squash / stretch are added; bounce, expo.in / inOut and a spring family are added to the eases.
 
+- references/video-motion.md : rules and numbers adapted from HyperFrames' skills/hyperframes/references/motion.md
+  and sound.md (same commit, Apache License 2.0, rewritten) and from LottieFiles motion-design-skill
+  (https://github.com/LottieFiles/motion-design-skill, MIT License, Copyright (c) 2025 LottieFiles; text below).
 - assets/fonts/<role>/*.woff2 : 41 original Fontsource font families under
   SIL Open Font License 1.1. See each family LICENSE and assets/fonts/NOTICE.txt.
   assets/fonts/palette.json records pinned package versions, file SHA-256,
@@ -209,3 +212,28 @@ Apache License 2.0 (applies to the rea-video and HyperFrames code above)
       of your accepting any such warranty or additional liability.
 
    END OF TERMS AND CONDITIONS
+
+MIT License (applies to the material adapted from LottieFiles motion-design-skill above)
+--------------------------------------------------------------------------------------
+
+MIT License
+
+Copyright (c) 2025 LottieFiles
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

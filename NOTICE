@@ -34,6 +34,9 @@ Adapted code
   packages/cli/src/measure/curve.ts at commit a8332860c396e9224d42b7ea2a9cc8f42918c961, rewritten for this engine with
   changes that each file states. Copyright 2026 HeyGen, Inc., licensed under the Apache License, Version 2.0; the
   license text is in skills/popost/THIRD_PARTY_NOTICES. HyperFrames ships no NOTICE file.
+- skills/popost/references/video-motion.md adapts rules and numbers from HyperFrames' motion and sound references
+  (Apache License 2.0) and from LottieFiles motion-design-skill (https://github.com/LottieFiles/motion-design-skill,
+  Copyright (c) 2025 LottieFiles, MIT License); the page names what was taken from each.
 
 Community template reference images
 - The preview pages are not stored in this repository. Each template's template.json lists
