@@ -7,6 +7,7 @@ import type { FootageFacts } from '../types';
 import { FRAME_DIGITS, framePath } from '../timeline/footage';
 import { probe, runFfmpeg, runFfmpegOk } from './ffmpeg';
 import { readObservedSpeech } from '../replication/speech-observed';
+import { readModeReceipt } from '../sound/modes';
 
 /** How the source's YUV values are to be read: the matrix and the range of its colour tags. */
 export interface FootageColour { matrix: 'bt709' | 'bt601' | 'bt2020'; range: 'tv' | 'pc' }
@@ -43,16 +44,22 @@ export const readFootage = async (rt: Runtime, file: string, options: { strictSp
     speech = observed.spans ?? (speech ? [[0, p.frames / p.fps]] : undefined);
     if (observed.spans) speechObserved = true;
   }
-  return { facts: { width: p.width, height: p.height, fps: p.fps, frames: p.frames, hasAudio: p.hasAudio, ...(speech ? { speech } : {}), ...(speechObserved ? { speechObserved } : {}) }, colour: colourOf(header.stderr, p.width, p.height) };
+  // The role the clip's sound was made for, and the recorded basis of music inside it (sound/modes.ts).
+  const mode = await readModeReceipt(rt, file);
+  return { facts: { width: p.width, height: p.height, fps: p.fps, frames: p.frames, hasAudio: p.hasAudio, ...(speech ? { speech } : {}), ...(speechObserved ? { speechObserved } : {}), ...(mode ? { sound: mode.sound } : {}), ...(mode?.clipMusic ? { clipMusic: mode.clipMusic } : {}) }, colour: colourOf(header.stderr, p.width, p.height) };
 };
 
 /**
  * When a person speaks in a clip made with speech, from its receipt beside it (<file>.speech.json, generate/speech.ts):
- * the slot of every line, or the whole clip for a receipt without lines. undefined for a clip without a receipt.
+ * the measured stretches of speech when the clip was transcribed, else the slot of every line, or the whole clip for a
+ * receipt without lines. undefined for a clip without a receipt.
  */
 export const speechSpans = async (rt: Runtime, file: string, seconds: number): Promise<[number, number][] | undefined> => {
-  const receipt = await rt.fs.readText(file + '.speech.json').then((t) => JSON.parse(t) as { lines?: { at?: unknown; to?: unknown }[] } | null, () => undefined);
+  const receipt = await rt.fs.readText(file + '.speech.json').then((t) => JSON.parse(t) as { lines?: { at?: unknown; to?: unknown }[]; measured?: { spans?: unknown } } | null, () => undefined);
   if (!receipt || typeof receipt !== 'object') return undefined;
+  // Measured times (sound/speech-check.ts: the clip was transcribed) go before the slots the lines were asked for.
+  const measured = (Array.isArray(receipt.measured?.spans) ? receipt.measured.spans : []).flatMap((x): [number, number][] => (Array.isArray(x) && typeof x[0] === 'number' && typeof x[1] === 'number' && x[1] > x[0] ? [[x[0], x[1]]] : []));
+  if (measured.length) return measured;
   const lines = (Array.isArray(receipt.lines) ? receipt.lines : []).flatMap((l): [number, number][] => (typeof l?.at === 'number' && typeof l.to === 'number' && l.to > l.at ? [[l.at, l.to]] : []));
   return lines.length ? lines : [[0, seconds]];
 };

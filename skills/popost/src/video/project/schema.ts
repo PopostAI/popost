@@ -3,7 +3,7 @@
  * become warnings (they are ignored), so a project written for a later version still parses.
  */
 import { z } from 'zod';
-import { LOOP_PRESETS, MOTION_PRESETS, TRANSITION_KINDS } from '../types';
+import { LOOP_PRESETS, MOTION_PRESETS, SOUND_MODES, TRANSITION_KINDS } from '../types';
 import type { Base, CameraSpec, Problem, Project } from '../types';
 import { TEXT_STYLE_NAMES } from '../presets/text-styles';
 import { issueProblems, unknownKeyProblems, type KeyTable } from './issues';
@@ -85,8 +85,9 @@ const CameraSchema = CameraObjectSchema.refine((c) => c.moves === undefined || (
   params: { allowed: ['zoom', 'pan', 'moves'], fix: 'Keep "moves" and remove "zoom" and "pan", or the other way round.' },
 }).transform((c): CameraSpec => (c.moves ? { moves: c.moves } : { ...(c.zoom !== undefined ? { zoom: c.zoom } : {}), ...(c.pan ? { pan: c.pan } : {}) }));
 
-/** in / speed / audio of a video material (types.ts FootageSpec). */
+/** in / speed / audio / soundMode of a video material (types.ts FootageSpec). */
 const footage = {
+  soundMode: z.enum(SOUND_MODES).optional(),
   in: z.number().int().min(0).optional(),
   speed: z.number().min(0.25).max(4).optional(),
   audio: z.custom<false | number>((v) => v === false || (typeof v === 'number' && v >= -60 && v <= 24), {
@@ -107,13 +108,13 @@ export const BaseObjectSchema = z.object({
   slots: z.record(z.string(), z.string()).optional(),
   offset: z.number().min(0).optional(),
 });
-const FOOTAGE_KEYS = ['in', 'speed', 'audio'] as const;
+const FOOTAGE_KEYS = ['in', 'speed', 'audio', 'soundMode'] as const;
 const BaseSchema = BaseObjectSchema.refine(
   (b) => [b.material, b.color, b.scene].filter((v) => v !== undefined).length === 1,
   { error: 'needs exactly one of "material", "color" and "scene"', params: { allowed: ['material', 'color', 'scene'], fix: 'Write { "color": "#101014" } or { "material": "<image material id>" }.' } },
 ).transform((b): Base => {
   if (b.material !== undefined) {
-    const play = { ...(b.in !== undefined ? { in: b.in } : {}), ...(b.speed !== undefined ? { speed: b.speed } : {}), ...(b.audio !== undefined ? { audio: b.audio } : {}) };
+    const play = { ...(b.in !== undefined ? { in: b.in } : {}), ...(b.speed !== undefined ? { speed: b.speed } : {}), ...(b.audio !== undefined ? { audio: b.audio } : {}), ...(b.soundMode !== undefined ? { soundMode: b.soundMode } : {}) };
     return { material: b.material, ...(b.fit ? { fit: b.fit } : {}), ...(b.ground !== undefined ? { ground: b.ground } : {}), ...(b.camera ? { camera: b.camera } : {}), ...play };
   }
   if (b.color !== undefined) return { color: b.color };
@@ -236,8 +237,11 @@ export const AudioTrackSchema = z.object({
   bed: z.literal(true).optional(),
   in: z.number().int().min(0).optional(),
   fadeOut: z.number().min(0).max(10).optional(),
-  role: z.enum(['voice', 'music']).optional(),
+  role: z.enum(['voice', 'music', 'sfx']).optional(),
   lines: z.array(z.tuple([z.number().int().min(0), z.number().int().min(0)])).optional(),
+  at: z.number().int().min(0).optional(),
+  lead: z.literal(true).optional(),
+  cue: z.string().optional(),
 });
 /** Empty cue text parses; check reports it with the cue's place. */
 export const CueSchema = z.object({ text: z.string(), during: SpanSchema, spans: textSpans.optional(), note: z.string().optional() });

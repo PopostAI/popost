@@ -11,15 +11,29 @@ import type { Runtime } from '../../runtime';
 import { error } from '../project/check-common';
 import type { Problem } from '../types';
 import { replicationSoundSource, REFERENCE_SOUND_RECEIPT } from '../replication/audio-provenance';
+import { isClipMusicBasis, type ClipMusicBasis } from '../sound/modes';
 
 export const MUSIC_PLAN_FILE = 'music-plan.json';
-/** generated: one track made for the whole video; own: the user's file; none: no music. */
-export interface MusicPlan { version: 1; music: 'generated' | 'own' | 'none'; style?: string }
+/**
+ * A recorded exception to "clips carry no music" (video-sound.md, R4): which exception, and what it rests on, in the
+ * words of the reference reading or of the user. It is shown to the user with the plan and its price.
+ */
+export interface ClipMusicException { basis: ClipMusicBasis; why: string }
+/**
+ * generated: one track made for the whole video; own: the user's file; none: no music. basis: what the choice rests
+ * on (the reference reading, or the user's words). clipMusic: the recorded exceptions under which clips carry music.
+ */
+export interface MusicPlan { version: 1; music: 'generated' | 'own' | 'none'; style?: string; basis?: string; clipMusic?: ClipMusicException[] }
 
 export const readMusicPlan = async (rt: Runtime, project: string): Promise<MusicPlan | undefined> => {
   const raw = await rt.fs.readText(rt.path.join(project, MUSIC_PLAN_FILE)).then((t) => JSON.parse(t) as Partial<MusicPlan>, () => undefined);
-  return raw && (raw.music === 'generated' || raw.music === 'own' || raw.music === 'none') ? { version: 1, music: raw.music, ...(typeof raw.style === 'string' ? { style: raw.style } : {}) } : undefined;
+  if (!raw || !(raw.music === 'generated' || raw.music === 'own' || raw.music === 'none')) return undefined;
+  const clipMusic = (Array.isArray(raw.clipMusic) ? raw.clipMusic : []).filter((c): c is ClipMusicException => isClipMusicBasis(c?.basis) && typeof c.why === 'string' && c.why.trim() !== '');
+  return { version: 1, music: raw.music, ...(typeof raw.style === 'string' ? { style: raw.style } : {}), ...(typeof raw.basis === 'string' && raw.basis.trim() ? { basis: raw.basis.trim() } : {}), ...(clipMusic.length ? { clipMusic } : {}) };
 };
+
+/** The exceptions a project records for music inside its clips. */
+export const clipMusicBases = async (rt: Runtime, project: string): Promise<ClipMusicBasis[]> => ((await readMusicPlan(rt, project))?.clipMusic ?? []).map((c) => c.basis);
 
 export const writeMusicPlan = async (rt: Runtime, project: string, plan: MusicPlan): Promise<void> => {
   await rt.fs.mkdir(project);

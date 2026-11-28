@@ -202,3 +202,14 @@ Apache License 2.0 (applies to the rea-video code above)
       of your accepting any such warranty or additional liability.
 
    END OF TERMS AND CONDITIONS
+
+================================================================================
+Sound effects: SFX Kit by Wyzowl, version 1.0.0
+https://github.com/wyzowl/sfx-kit (commit 92780e7ab0cdfb557497a988089c47f46e8c7412)
+Licence: CC0 1.0 Universal. The kit says: "Free for any use, commercial or not:
+CC0, no credit required."
+
+The effects listed in assets/video/sfx/catalogue.json are 69 sounds of that kit,
+converted (48 kHz; 16-bit WAV up to 0.6 s, AAC above) and served from
+https://static.popost.ai/sfx/v1/. No sound file is part of this repository or of
+the npm package; the catalogue keeps each source file's name and hash.

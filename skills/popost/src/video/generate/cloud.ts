@@ -30,6 +30,7 @@ import { AmbiguousSubmitError, PopostApiError } from '../../providers/errors';
 import { defaultTaskDir } from '../../providers/paths';
 import { sleep, timeoutSignal } from '../../providers/time';
 import type { Runtime } from '../../runtime';
+import { readWav } from '../media/wav';
 import { clipStanding, projectOf, recordClip, shortWhat, type ClipGate, type UnplannedClip } from './approved';
 import { ConfirmNeeded, type GenerateKind, type GenerateRequest, type PriceToConfirm } from './index';
 
@@ -287,7 +288,7 @@ const ensureUploads = async (rt: Runtime, client: PopostClient, refs: readonly R
 // ---------- quote, task ----------
 
 /** The body of the quote, and of the generation besides its prompt, quote id and key. */
-const specOf = (s: CloudSettings, request: GenerateRequest, seconds: number, refs: readonly Reference[], sent: Sent): JsonRecord => {
+const specOf = (s: CloudSettings, request: GenerateRequest, seconds: number, refs: readonly Reference[], sent: Sent, silent = false): JsonRecord => {
   const idOf = (r: Reference | undefined): string => sent.uploads[r?.sha256 ?? '']?.uploadId ?? '';
   const ids = (kind: MediaKind): string[] => refs.filter((r) => r.kind === kind && !r.frame).map(idOf);
   const references = Object.fromEntries(LISTS.map(([kind, list]) => [list, ids(kind)] as const).filter(([, list]) => list.length));
@@ -299,6 +300,8 @@ const specOf = (s: CloudSettings, request: GenerateRequest, seconds: number, ref
     ...(request.aspect ? { aspectRatio: request.aspect } : {}),
     ...(first ? { frames: { first: idOf(first), ...(last ? { last: idOf(last) } : {}) } } : {}),
     ...(Object.keys(references).length ? { references } : {}),
+    // Only for a model that can make a clip without a sound track; the quote and the generation say the same.
+    ...(silent ? { generateAudio: false } : {}),
   };
 };
 
@@ -354,6 +357,8 @@ interface Job {
   readonly seconds: number;
   readonly refs: readonly Reference[];
   readonly file: string;
+  /** The clip is made without a sound track (the request says audio: false and the model can). */
+  readonly silent: boolean;
   /** Set when the clip is not one the user agreed to: it is asked about, whatever the budget. */
   readonly unplanned?: UnplannedClip;
   /** Called once the task is made, with the price it was made at. */
@@ -364,7 +369,7 @@ const submit = async (rt: Runtime, client: PopostClient, s: CloudSettings, job: 
   let sent = start;
   for (let round = 1; ; round++) {
     sent = await ensureUploads(rt, client, job.refs, sent, job.file);
-    const body = specOf(s, job.request, job.seconds, job.refs, sent);
+    const body = specOf(s, job.request, job.seconds, job.refs, sent, job.silent);
     sent = await ensureQuote(rt, client, body, sent, job.file);
     const quote = sent.quote as Quote;
     // Only the price was asked for (GenerateRequest.priceOnly): it is answered as a price to agree to, whatever the budget.
@@ -462,6 +467,39 @@ const gateOf = async (rt: Runtime, s: CloudSettings, out: string): Promise<ClipG
   return { ...s.gate, project, ...(file ? { file } : {}) };
 };
 
+/** What the platform says of the model a clip is made with: whether it can leave the sound track out, and what reference sounds it takes. */
+interface ModelFacts { audioOptional: boolean; maxReferenceAudios?: number; maxReferenceAudioSeconds?: number }
+
+/** The facts of the model in use (POPOST_VIDEO_MODEL, else the platform's default); undefined when the list cannot be read or does not have it. */
+const modelFacts = async (client: PopostClient, id: string | undefined): Promise<ModelFacts | undefined> => {
+  const data = await client.request('GET', '/videos/models').catch(() => undefined);
+  if (!isRecord(data) || !Array.isArray(data.models)) return undefined;
+  const wanted = id ?? (typeof data.default === 'string' ? data.default : undefined);
+  const model = data.models.find((m): m is JsonRecord => isRecord(m) && m.id === wanted);
+  if (!model) return undefined;
+  const count = (v: unknown): number | undefined => (typeof v === 'number' && v >= 0 ? v : undefined);
+  const [sounds, seconds] = [count(model.maxReferenceAudios), count(model.maxReferenceAudioSeconds)];
+  return { audioOptional: model.audioOptional === true, ...(sounds !== undefined ? { maxReferenceAudios: sounds } : {}), ...(seconds !== undefined ? { maxReferenceAudioSeconds: seconds } : {}) };
+};
+
+/** Seconds of a PCM WAV by its header; undefined for any other sound (its length is the platform's to check). */
+const wavSeconds = (bytes: Uint8Array): number | undefined => {
+  try { return readWav(bytes).seconds; } catch { return undefined; }
+};
+
+/** Reference sounds the model does not take are refused here, before anything is uploaded or priced. */
+const checkReferenceSounds = (refs: readonly Reference[], facts: ModelFacts | undefined): void => {
+  const sounds = refs.filter((r) => r.kind === 'audio');
+  if (!sounds.length || !facts) return;
+  if (facts.maxReferenceAudios !== undefined && sounds.length > facts.maxReferenceAudios)
+    throw new GenerateError(facts.maxReferenceAudios === 0
+      ? 'This video model takes no reference sounds, and the request has ' + sounds.length + ' in "audios" (a voice sample goes with every speaking clip of a registered voice). Choose a model that takes them with POPOST_VIDEO_MODEL (popost video generate --models lists "maxReferenceAudios"), or remove the sounds. Nothing was sent.'
+      : 'This video model takes at most ' + facts.maxReferenceAudios + ' reference sound' + (facts.maxReferenceAudios === 1 ? '' : 's') + ', and the request has ' + sounds.length + '. Nothing was sent.', 2);
+  const total = sounds.reduce((n, r) => n + (wavSeconds(r.bytes) ?? 0), 0);
+  if (facts.maxReferenceAudioSeconds !== undefined && facts.maxReferenceAudioSeconds > 0 && total > facts.maxReferenceAudioSeconds + 0.05)
+    throw new GenerateError('The reference sounds of this request are ' + total.toFixed(1) + ' s together; this video model takes ' + facts.maxReferenceAudioSeconds + ' s in all. Cut each to a shorter sample (popost video voice sample --seconds N). Nothing was sent.', 2);
+};
+
 /** What a made clip says: what it cost, what this call charged (0 when it was paid before) and its request key. */
 export interface MadeClip { credits?: number; chargedCredits: number; key: string }
 
@@ -469,10 +507,15 @@ export interface MadeClip { credits?: number; chargedCredits: number; key: strin
 export const makeClip = async (rt: Runtime, client: PopostClient, s: CloudSettings, request: GenerateRequest, out: string): Promise<MadeClip> => {
   const seconds = request.seconds ?? DEFAULT_SECONDS;
   const refs = await readReferences(rt, request);
+  // The model's own facts are read only when the request needs them: reference sounds to hold to its limits, or a clip without sound.
+  const facts = request.audio === false || refs.some((r) => r.kind === 'audio') ? await modelFacts(client, s.videoModel) : undefined;
+  checkReferenceSounds(refs, facts);
+  // A model that always makes a sound track is asked as usual; materials takes the track out of the file.
+  const silent = request.audio === false && facts?.audioOptional === true;
   const byContent = Object.fromEntries(LISTS.map(([kind, list]) => [list, refs.filter((r) => r.kind === kind && !r.frame).map((r) => r.sha256)]));
   // The frames join the key only when there are any, so a request without them keeps the key it always had.
   const frames = Object.fromEntries(refs.flatMap((r) => (r.frame ? [[r.frame + 'Frame', r.sha256]] : [])));
-  const key = requestKey('video', { model: s.videoModel ?? null, resolution: s.resolution ?? null, prompt: request.prompt, seconds, aspect: request.aspect ?? null, ...byContent, ...frames });
+  const key = requestKey('video', { model: s.videoModel ?? null, resolution: s.resolution ?? null, prompt: request.prompt, seconds, aspect: request.aspect ?? null, ...byContent, ...frames, ...(silent ? { generateAudio: false } : {}) });
   const file = recordFile(rt, key);
   let sent = await readRecord(rt, file, key);
   let task = sent.taskId ? await findTask(client, sent.taskId) : undefined;
@@ -492,7 +535,7 @@ export const makeClip = async (rt: Runtime, client: PopostClient, s: CloudSettin
       charged = credits;
       if (gate && (standing === 'plan' || standing === 'user')) await recordClip(rt, gate, { key, ...(gate.file ? { file: gate.file } : {}), what, seconds, credits, by: standing });
     };
-    task = await submit(rt, client, s, { request, seconds, refs, file, onPaid, ...(unplanned ? { unplanned } : {}) }, sent);
+    task = await submit(rt, client, s, { request, seconds, refs, file, silent, onPaid, ...(unplanned ? { unplanned } : {}) }, sent);
   }
   const done = await waitFor(rt, client, task, s.waitMinutes);
   if (done.status !== 'succeeded') throw ended(done);
@@ -507,6 +550,6 @@ export const listModels = async (client: PopostClient): Promise<JsonRecord> => {
   return {
     models: data.models,
     default: data.default ?? null,
-    note: 'POPOST_VIDEO_MODEL takes an id, POPOST_VIDEO_RESOLUTION one of its resolutions. "frames": true is a model that takes "firstFrame" and "lastFrame". Every clip costs credits, and popost.ai keeps it 7 days.',
+    note: 'POPOST_VIDEO_MODEL takes an id, POPOST_VIDEO_RESOLUTION one of its resolutions. "frames": true is a model that takes "firstFrame" and "lastFrame". "audioOptional": true is a model that makes a clip without a sound track for a request whose "sound" is "silent" (any other model\'s track is taken out of the file). "maxReferenceAudios" and "maxReferenceAudioSeconds" are the reference sounds it takes (the voice sample of a speaking clip). Every clip costs credits, and popost.ai keeps it 7 days.',
   };
 };

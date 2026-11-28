@@ -82,8 +82,35 @@ const firstShot = (s: DialogueSpeech, times: BeatTimes): number | undefined => {
   return beats.length ? shotAt(times.shots, Math.min(...beats)) : 0;
 };
 
+/**
+ * A free-form speaking clip (no template's beats, no seconds written): its lines get slots by an estimate of the
+ * speaking rate, one after another: a third of a second before the first line and between lines, each line at an
+ * ordinary pace (ORDINARY_PACE), never under 0.8 s. The clip is sized from them (estimatedSeconds); what the person
+ * really says when is measured after the clip is made (sound/speech-check.ts), and the mix follows the measurement.
+ */
+export const ESTIMATE = { lead: 0.3, gap: 0.35, least: 0.8, tail: 0.5 } as const;
+
+/** true: no line names a beat or seconds, and no template gives beats: the slots are estimated. */
+export const isFreeForm = (s: DialogueSpeech, times: BeatTimes | undefined): boolean =>
+  !(times?.beats.length) && s.lines.length > 0 && s.lines.every((l) => l && l.beat === undefined && l.at === undefined && l.to === undefined);
+
+export const estimatedLines = (s: DialogueSpeech): TimedLine[] => {
+  let t: number = ESTIMATE.lead;
+  return s.lines.map((l) => {
+    const text = typeof l.text === 'string' ? l.text : '';
+    const length = Math.max(ESTIMATE.least, spokenChars(text).length / (wideText(text) ? ORDINARY_PACE.wide : ORDINARY_PACE.latin));
+    const line = { speaker: l.speaker, text, at: r2(t), to: r2(t + length) };
+    t += length + ESTIMATE.gap;
+    return line;
+  });
+};
+
+/** The whole seconds a free-form clip needs for its lines: to the end of the last one and half a second more. */
+export const estimatedSeconds = (s: DialogueSpeech): number => Math.ceil((estimatedLines(s).at(-1)?.to ?? 0) + ESTIMATE.tail - 1e-6);
+
 /** The lines with their slots in the clip; a line whose time cannot be told keeps none (the problems say why). */
 export const timedLines = (s: DialogueSpeech, times: BeatTimes | undefined): (TimedLine | undefined)[] => {
+  if (isFreeForm(s, times)) return estimatedLines(s);
   const shot = times ? firstShot(s, times) : undefined;
   const zero = times && shot !== undefined ? (times.shots[shot] ?? 0) : 0;
   return s.lines.map((l): TimedLine | undefined => {
@@ -117,6 +144,7 @@ export const dialogueProblems = (s: DialogueSpeech, o: { at: string; cast: reado
   if (!s.lines.length) return [...out, error(at + '.lines', '"lines" is empty: a clip with speech says at least one line.', 'Write the lines, for example ' + EXAMPLE + ', or remove "speech" for a clip nobody speaks in.')];
   const times = o.times;
   const hasBeats = (times?.beats.length ?? 0) > 0;
+  const free = isFreeForm(s, times);
   if (s.shot !== undefined && !(times && Number.isInteger(s.shot) && s.shot >= 1 && s.shot <= times.shots.length))
     out.push(error(at + '.shot', '"shot" is the shot of the template the clip starts at, from 1' + (times ? ' to ' + times.shots.length : ' (it needs the template: --template <dir>)') + '; it is ' + JSON.stringify(s.shot) + '.', 'Write the number of the shot this clip fills first, or remove "shot": the clip then starts with the shot its first line\'s beat begins in.'));
   s.lines.forEach((l, i) => {
@@ -135,11 +163,11 @@ export const dialogueProblems = (s: DialogueSpeech, o: { at: string; cast: reado
       else if (!Number.isInteger(l.beat) || !times.beats[l.beat]) out.push(error(where + '.beat', 'The template has no beat ' + JSON.stringify(l.beat) + ' (its beats are 0 to ' + (times.beats.length - 1) + ').', 'Write the number of the beat this line re-makes, as timeline.md and TEMPLATE.md number them.'));
       else if (times.kinds && times.beats[l.beat]?.speech !== 'on-camera') out.push(error(where + '.beat', 'Beat ' + l.beat + ' is not said on camera in the reference: no person of a clip says it.', 'Name only beats TEMPLATE.md marks "on camera"; narration is the voice-over\'s (the fill\'s "voice").'));
     } else if (hasBeats) out.push(error(where, 'A line of a video made from a template names the beat it re-makes; its time is the program\'s, not written by hand.', 'Write "beat": <the number of its beat> and remove "at" and "to".'));
-    else if (!(typeof l.at === 'number' && typeof l.to === 'number' && l.at >= 0 && l.to > l.at)) out.push(error(where, 'Without a template\'s beats a line says when it is spoken in the clip: "at" and "to" in seconds, "to" after "at".', 'Write "at": 0.5, "to": 2.8.'));
+    else if (!free && !(typeof l.at === 'number' && typeof l.to === 'number' && l.at >= 0 && l.to > l.at)) out.push(error(where, 'Without a template\'s beats the lines of a clip either all say when they are spoken ("at" and "to" in seconds, "to" after "at") or none does: the program then gives them slots by an ordinary speaking rate.', 'Write "at": 0.5, "to": 2.8 on every line, or remove "at" and "to" from all of them.'));
   });
   if (out.length) return out;
   const lines = timedLines(s, times);
-  if (o.seconds === undefined) out.push(error(o.at + '.seconds', 'A clip with timed lines says how long it is.', 'Write "seconds": the length of the clip, at least to the end of its last line.'));
+  if (o.seconds === undefined) out.push(error(o.at + '.seconds', 'A clip with lines says how long it is.', free ? 'Write "seconds": ' + estimatedSeconds(s) + ' (what these lines take at an ordinary speaking rate), or more.' : 'Write "seconds": the length of the clip, at least to the end of its last line.'));
   lines.forEach((l, i) => {
     if (!l) return;
     const where = at + '.lines[' + i + ']', prev = lines[i - 1];

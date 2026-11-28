@@ -1,0 +1,2283 @@
+{
+ "format": "popost-video-sfx",
+ "version": 1,
+ "base": "https://static.popost.ai/sfx/v1/",
+ "source": {
+  "name": "SFX Kit by Wyzowl",
+  "version": "1.0.0",
+  "homepage": "https://github.com/wyzowl/sfx-kit",
+  "commit": "92780e7ab0cdfb557497a988089c47f46e8c7412",
+  "licence": "CC0-1.0"
+ },
+ "sounds": [
+  {
+   "id": "whoosh-fast-soft",
+   "cues": [
+    "whoosh"
+   ],
+   "category": "whoosh",
+   "name": "Whoosh, fast and soft",
+   "description": "A quick, gentle puff of air with a soft edge and no weight.",
+   "url": "https://static.popost.ai/sfx/v1/whoosh-fast-soft-756989ac1676.wav",
+   "sha256": "756989ac16760273ae1c8ad352725b71cf12ab9b0200cab1cf73f4ad9ff064b9",
+   "bytes": 48044,
+   "seconds": 0.25,
+   "channels": 2,
+   "sync": 0.099,
+   "meets": "move-peak",
+   "peak": 0.095,
+   "loudness": {
+    "lufs": -24,
+    "truePeakDb": -13.5,
+    "tier": "soft"
+   },
+   "underVoiceDb": -2,
+   "fitsSeconds": [
+    0.12,
+    0.44
+   ],
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "whoosh-fast-soft",
+    "file": "sounds/whooshes/whoosh-fast-soft.wav",
+    "sha256": "ecc83a9cab2342eba9fa71dc321776156ffefbdcda2c672298fda385a4e0a103"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "whoosh-fast-medium",
+   "cues": [
+    "whoosh"
+   ],
+   "category": "whoosh",
+   "name": "Whoosh, fast and medium",
+   "description": "A quick, clean swish of air with a defined middle.",
+   "url": "https://static.popost.ai/sfx/v1/whoosh-fast-medium-670b88a6b3df.wav",
+   "sha256": "670b88a6b3df70b8c6f054dff22e49f7f6b396d1a97558b21c79a7b80fc60db1",
+   "bytes": 48332,
+   "seconds": 0.252,
+   "channels": 2,
+   "sync": 0.096,
+   "meets": "move-peak",
+   "peak": 0.102,
+   "loudness": {
+    "lufs": -20.5,
+    "truePeakDb": -8.1,
+    "tier": "medium"
+   },
+   "underVoiceDb": -3,
+   "fitsSeconds": [
+    0.12,
+    0.44
+   ],
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "whoosh-fast-medium",
+    "file": "sounds/whooshes/whoosh-fast-medium.wav",
+    "sha256": "b3cf3c589e738a62c1cc9bd3f620b69c831b64616427fdce57ba073d2a357a0d"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "whoosh-medium-soft",
+   "cues": [
+    "whoosh"
+   ],
+   "category": "whoosh",
+   "name": "Whoosh, medium and soft",
+   "description": "A smooth, gentle sweep of air that rises and fades without an edge.",
+   "url": "https://static.popost.ai/sfx/v1/whoosh-medium-soft-37c2a9d55ebb.wav",
+   "sha256": "37c2a9d55ebbf8a2008543ca36c6a0c0776b6b1d160f77a603411c80adcbe0be",
+   "bytes": 104204,
+   "seconds": 0.542,
+   "channels": 2,
+   "sync": 0.229,
+   "meets": "move-peak",
+   "peak": 0.235,
+   "loudness": {
+    "lufs": -24,
+    "truePeakDb": -15.2,
+    "tier": "soft",
+    "integratedLufs": -27.9
+   },
+   "underVoiceDb": -2,
+   "fitsSeconds": [
+    0.28,
+    0.81
+   ],
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "whoosh-medium-soft",
+    "file": "sounds/whooshes/whoosh-medium-soft.wav",
+    "sha256": "a114611a09e02ab26cfbd8d796279eac358b6df4c3923db3f269ac34c340eeac"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "whoosh-medium-medium",
+   "cues": [
+    "whoosh"
+   ],
+   "category": "whoosh",
+   "name": "Whoosh, medium and medium",
+   "description": "A balanced swish of air: a clear rise, a defined peak and a smooth fade.",
+   "url": "https://static.popost.ai/sfx/v1/whoosh-medium-medium-b1c1faf87723.wav",
+   "sha256": "b1c1faf87723db6c88c9e7d29580c79fc48bf55e4431acaa2d58249c4a620462",
+   "bytes": 99212,
+   "seconds": 0.516,
+   "channels": 2,
+   "sync": 0.209,
+   "meets": "move-peak",
+   "peak": 0.212,
+   "loudness": {
+    "lufs": -20.5,
+    "truePeakDb": -10.5,
+    "tier": "medium",
+    "integratedLufs": -24.6
+   },
+   "underVoiceDb": -3,
+   "fitsSeconds": [
+    0.28,
+    0.81
+   ],
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "whoosh-medium-medium",
+    "file": "sounds/whooshes/whoosh-medium-medium.wav",
+    "sha256": "f044a68bb41007a7c926b4d09c8755700c4770ac737a62a88f87af896c69a534"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "whoosh-slow-soft",
+   "cues": [
+    "whoosh"
+   ],
+   "category": "whoosh",
+   "name": "Whoosh, slow and soft",
+   "description": "A long, soft breath of air drifting past.",
+   "url": "https://static.popost.ai/sfx/v1/whoosh-slow-soft-e87deca56435.m4a",
+   "sha256": "e87deca56435ccc40d1ae6ff92aa2c7d457bfcb58ba138353ffac44224038bf3",
+   "bytes": 17443,
+   "seconds": 1.067,
+   "channels": 2,
+   "sync": 0.452,
+   "meets": "move-peak",
+   "peak": 0.495,
+   "loudness": {
+    "lufs": -24,
+    "truePeakDb": -15.7,
+    "tier": "soft",
+    "integratedLufs": -28.6
+   },
+   "underVoiceDb": -2,
+   "fitsSeconds": [
+    0.52,
+    1.5
+   ],
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "whoosh-slow-soft",
+    "file": "sounds/whooshes/whoosh-slow-soft.wav",
+    "sha256": "9eadf61f7476f2ca0a6d6acd95a7be26a2ac57ed6c0ea7e76473051a926a2baa"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "swish-soft",
+   "cues": [
+    "swish"
+   ],
+   "category": "whoosh",
+   "name": "Swish, soft",
+   "description": "A soft, thin swish: something light flicked past.",
+   "url": "https://static.popost.ai/sfx/v1/swish-soft-681e6d532148.wav",
+   "sha256": "681e6d5321480ebd4d79f9c35f1ca4bd40815a706f6453c670bf895f2dd331fe",
+   "bytes": 42860,
+   "seconds": 0.223,
+   "channels": 2,
+   "sync": 0.085,
+   "meets": "move-peak",
+   "peak": 0.09,
+   "loudness": {
+    "lufs": -24,
+    "truePeakDb": -13.4,
+    "tier": "soft"
+   },
+   "underVoiceDb": -2,
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "swish-soft",
+    "file": "sounds/swishes-and-zips/swish-soft.wav",
+    "sha256": "c18c581c43ac848b10c946e2a3c402b79370d99b057c2399b832d39f9d9236ab"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "swish-medium",
+   "cues": [
+    "swish"
+   ],
+   "category": "whoosh",
+   "name": "Swish, medium",
+   "description": "A quick, clean swish through the air, with a little whistle.",
+   "url": "https://static.popost.ai/sfx/v1/swish-medium-cd70e79ac792.wav",
+   "sha256": "cd70e79ac792c6a3e499c95ad7f8401575cc18bce52b271a3f510f9c06c88121",
+   "bytes": 38540,
+   "seconds": 0.201,
+   "channels": 2,
+   "sync": 0.076,
+   "meets": "move-peak",
+   "peak": 0.072,
+   "loudness": {
+    "lufs": -21,
+    "truePeakDb": -10.1,
+    "tier": "medium"
+   },
+   "underVoiceDb": -3,
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "swish-medium",
+    "file": "sounds/swishes-and-zips/swish-medium.wav",
+    "sha256": "41a97a849f311cdb0da2de185386fc88e74db2df54d214bc8d9ff931b5e83c9c"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "zip-in-medium",
+   "cues": [
+    "swish"
+   ],
+   "category": "whoosh",
+   "name": "Zip in, medium",
+   "description": "A quick zip in: rising to a stop.",
+   "url": "https://static.popost.ai/sfx/v1/zip-in-medium-e9c641a0f4ef.wav",
+   "sha256": "e9c641a0f4ef08f78cf8bfb827841de9d5cb263a26ba7f7c278f6e01450c54ee",
+   "bytes": 67052,
+   "seconds": 0.349,
+   "channels": 2,
+   "sync": 0.233,
+   "meets": "arrival",
+   "peak": 0.237,
+   "loudness": {
+    "lufs": -21,
+    "truePeakDb": -10.1,
+    "tier": "medium"
+   },
+   "underVoiceDb": -3,
+   "fitsSeconds": [
+    0.19,
+    0.26
+   ],
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "zip-in-medium",
+    "file": "sounds/swishes-and-zips/zip-in-medium.wav",
+    "sha256": "9df62ced1c90dc50943829c8fdd8e804a7add2d6e92b4b219a586f066dedf559"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "swipe-fast-soft",
+   "cues": [
+    "swipe"
+   ],
+   "category": "whoosh",
+   "name": "Swipe, fast and soft",
+   "description": "A light, quick flick of a fingertip across a screen.",
+   "url": "https://static.popost.ai/sfx/v1/swipe-fast-soft-40f39fdd24ea.wav",
+   "sha256": "40f39fdd24ea86b11c5de48ef61fca907478007a32581e142d0d2cfe24eee7c6",
+   "bytes": 19820,
+   "seconds": 0.206,
+   "channels": 1,
+   "sync": 0,
+   "meets": "action-start",
+   "peak": 0.05,
+   "loudness": {
+    "lufs": -27,
+    "truePeakDb": -17.8,
+    "tier": "soft"
+   },
+   "underVoiceDb": -1,
+   "fitsSeconds": [
+    0.14,
+    0.19
+   ],
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "swipe-fast-soft",
+    "file": "sounds/swipes/swipe-fast-soft.wav",
+    "sha256": "aeafbf705dd62cd55d55b3a99e14bf508d09cbd244b004da0c40d3f9bf8377a8"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "swipe-medium-soft",
+   "cues": [
+    "swipe"
+   ],
+   "category": "whoosh",
+   "name": "Swipe, medium and soft",
+   "description": "A soft fingertip swipe across a screen.",
+   "url": "https://static.popost.ai/sfx/v1/swipe-medium-soft-6ba722aaa561.wav",
+   "sha256": "6ba722aaa5618dc9aca76e14d1d238999743021ac853903d7aa610877d1ea17c",
+   "bytes": 28172,
+   "seconds": 0.293,
+   "channels": 1,
+   "sync": 0,
+   "meets": "action-start",
+   "peak": 0.005,
+   "loudness": {
+    "lufs": -27,
+    "truePeakDb": -18.9,
+    "tier": "soft"
+   },
+   "underVoiceDb": -1,
+   "fitsSeconds": [
+    0.2,
+    0.28
+   ],
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "swipe-medium-soft",
+    "file": "sounds/swipes/swipe-medium-soft.wav",
+    "sha256": "283b80027d256476b872fe711d116c5c7ac0f2c1095953bc6d0458c85276e5eb"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "move-zoom-in",
+   "cues": [
+    "zoom"
+   ],
+   "category": "whoosh",
+   "name": "Zoom in",
+   "description": "Zooming in: air rushing nearer and rising to the moment it arrives.",
+   "url": "https://static.popost.ai/sfx/v1/move-zoom-in-33d501b19977.wav",
+   "sha256": "33d501b19977a5d16bf1010e1269a055576e8143fdc8c5db838455427c6a9991",
+   "bytes": 108620,
+   "seconds": 0.566,
+   "channels": 2,
+   "sync": 0.489,
+   "meets": "arrival",
+   "peak": 0.53,
+   "loudness": {
+    "lufs": -22,
+    "truePeakDb": -15,
+    "tier": "zoom-in",
+    "integratedLufs": -28.9
+   },
+   "underVoiceDb": -3,
+   "fitsSeconds": [
+    0.38,
+    0.54
+   ],
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "move-zoom-in",
+    "file": "sounds/bounce-spin-zoom/move-zoom-in.wav",
+    "sha256": "3e32c4e2d4c3fe42e777693aebc96ec59d81015e9ef9a95487a6ac396bd52a8e"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "pop-small-in",
+   "cues": [
+    "pop"
+   ],
+   "category": "pop",
+   "name": "Pop in, small",
+   "description": "A tiny, bright pop that lifts as it appears.",
+   "url": "https://static.popost.ai/sfx/v1/pop-small-in-fda68cbfee00.wav",
+   "sha256": "fda68cbfee0069c8792f9323ff4d1ecfe061bf8b433694ecb4fa92ec5305a026",
+   "bytes": 3836,
+   "seconds": 0.04,
+   "channels": 1,
+   "sync": 0.01,
+   "meets": "instant",
+   "peak": 0.005,
+   "loudness": {
+    "lufs": -25,
+    "truePeakDb": -7.6,
+    "tier": "small"
+   },
+   "underVoiceDb": -2,
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "pop-small-in",
+    "file": "sounds/pops/pop-small-in.wav",
+    "sha256": "917759c812aff57bca97627a3c89c7aa5f1b4be7c9494a352cd6ba1dc0984769"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "pop-medium-in",
+   "cues": [
+    "pop"
+   ],
+   "category": "pop",
+   "name": "Pop in, medium",
+   "description": "A round, friendly pop that lifts into place.",
+   "url": "https://static.popost.ai/sfx/v1/pop-medium-in-777ca5eaa14a.wav",
+   "sha256": "777ca5eaa14a1f4181106f7a7f808365950959bece1615c7733d0104e7625f7d",
+   "bytes": 5804,
+   "seconds": 0.06,
+   "channels": 1,
+   "sync": 0.011,
+   "meets": "instant",
+   "peak": 0.005,
+   "loudness": {
+    "lufs": -22.5,
+    "truePeakDb": -6.5,
+    "tier": "medium"
+   },
+   "underVoiceDb": -2,
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "pop-medium-in",
+    "file": "sounds/pops/pop-medium-in.wav",
+    "sha256": "0c92cb9be01b1b5a3b51d4a6bfe427947b228ea71bb95d5a0b6c8641b7eab511"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "pop-large-in",
+   "cues": [
+    "pop"
+   ],
+   "category": "pop",
+   "name": "Pop in, large",
+   "description": "A full, round pop with a little puff of air.",
+   "url": "https://static.popost.ai/sfx/v1/pop-large-in-201ecd77f5dc.wav",
+   "sha256": "201ecd77f5dc10fd547ecb7242bb7f263707594f488583085a6732d408abbd71",
+   "bytes": 10748,
+   "seconds": 0.112,
+   "channels": 1,
+   "sync": 0.011,
+   "meets": "instant",
+   "peak": 0.007,
+   "loudness": {
+    "lufs": -20,
+    "truePeakDb": -6.1,
+    "tier": "large"
+   },
+   "underVoiceDb": -2,
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "pop-large-in",
+    "file": "sounds/pops/pop-large-in.wav",
+    "sha256": "6f92a0b5d0cce03a0768e5795b06fd7018fe52dfc753e40ed2580cc1bb953c2e"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "pop-small-bubble",
+   "cues": [
+    "pop"
+   ],
+   "category": "pop",
+   "name": "Bubble pop, small",
+   "description": "A tiny water-bubble blip, light and quick.",
+   "url": "https://static.popost.ai/sfx/v1/pop-small-bubble-dbd792c435f7.wav",
+   "sha256": "dbd792c435f70fabbbe4af8b13db2882dc01379e55f99eff74547ff96d104990",
+   "bytes": 7772,
+   "seconds": 0.081,
+   "channels": 1,
+   "sync": 0.01,
+   "meets": "instant",
+   "peak": 0.005,
+   "loudness": {
+    "lufs": -25,
+    "truePeakDb": -12.9,
+    "tier": "small"
+   },
+   "underVoiceDb": -2,
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "pop-small-bubble",
+    "file": "sounds/pops/pop-small-bubble.wav",
+    "sha256": "73691f1ecec5b2f8d1dc231244281558479a42e347f738c16aa6551be21e6124"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "pop-medium-bubble",
+   "cues": [
+    "pop"
+   ],
+   "category": "pop",
+   "name": "Bubble pop, medium",
+   "description": "A clean bubble plip with a small one after it.",
+   "url": "https://static.popost.ai/sfx/v1/pop-medium-bubble-71902a56a724.wav",
+   "sha256": "71902a56a724c26e4df9028fc3a5298b5bd5a73d64c703e7a29db45c8b7f6ccb",
+   "bytes": 12140,
+   "seconds": 0.126,
+   "channels": 1,
+   "sync": 0.011,
+   "meets": "instant",
+   "peak": 0.007,
+   "loudness": {
+    "lufs": -22.5,
+    "truePeakDb": -10.9,
+    "tier": "medium"
+   },
+   "underVoiceDb": -2,
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "pop-medium-bubble",
+    "file": "sounds/pops/pop-medium-bubble.wav",
+    "sha256": "1e9da202369ae1c9d54eb1156e0217b9c1cc4a20aceba2c698d877539b104033"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "pop-small-out",
+   "cues": [
+    "pop-out"
+   ],
+   "category": "pop",
+   "name": "Pop out, small",
+   "description": "A tiny, soft pop that drops away.",
+   "url": "https://static.popost.ai/sfx/v1/pop-small-out-49bf180629ad.wav",
+   "sha256": "49bf180629ad2e86096e388877a64478d48501f757916647012950e902c49b81",
+   "bytes": 4892,
+   "seconds": 0.051,
+   "channels": 1,
+   "sync": 0.011,
+   "meets": "instant",
+   "peak": 0.007,
+   "loudness": {
+    "lufs": -25,
+    "truePeakDb": -6.2,
+    "tier": "small"
+   },
+   "underVoiceDb": -2,
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "pop-small-out",
+    "file": "sounds/pops/pop-small-out.wav",
+    "sha256": "2f5dfa14cca1e64b1a4007a7f16a9fb648edb24cde4c499c312f4cb2a5d7ec66"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "click-mouse-soft",
+   "cues": [
+    "click"
+   ],
+   "category": "click",
+   "name": "Mouse click, soft",
+   "description": "A quiet mouse click, down and up.",
+   "url": "https://static.popost.ai/sfx/v1/click-mouse-soft-67fb73009e99.wav",
+   "sha256": "67fb73009e99bf8cc91a8c7ffdf3f6797869af1d35f31a02edd87bf072ab326c",
+   "bytes": 9548,
+   "seconds": 0.099,
+   "channels": 1,
+   "sync": 0.009,
+   "meets": "instant",
+   "peak": 0.005,
+   "loudness": {
+    "lufs": -29,
+    "truePeakDb": -10,
+    "tier": "soft"
+   },
+   "underVoiceDb": -1,
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "click-mouse-soft",
+    "file": "sounds/interface/click-mouse-soft.wav",
+    "sha256": "2f29f78bb97071417e8658735851a25a591e4bf962ee1aff9d85f08957f50d7e"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "click-mouse-medium",
+   "cues": [
+    "click"
+   ],
+   "category": "click",
+   "name": "Mouse click, medium",
+   "description": "A natural mouse click: the press and its release.",
+   "url": "https://static.popost.ai/sfx/v1/click-mouse-medium-f704157291ba.wav",
+   "sha256": "f704157291ba7698b856ba4dfb3cdc960557e2237bbcadf6d8edb436a2f0756c",
+   "bytes": 8828,
+   "seconds": 0.091,
+   "channels": 1,
+   "sync": 0.009,
+   "meets": "instant",
+   "peak": 0.005,
+   "loudness": {
+    "lufs": -27,
+    "truePeakDb": -8.7,
+    "tier": "medium"
+   },
+   "underVoiceDb": -1,
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "click-mouse-medium",
+    "file": "sounds/interface/click-mouse-medium.wav",
+    "sha256": "e2f90638293c1f03d1c50620c9a8e364a6148a5d03531a667d7f8bee3f5fb13b"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "click-button-soft",
+   "cues": [
+    "click"
+   ],
+   "category": "click",
+   "name": "Button click, soft",
+   "description": "A gentle, soft press of a small button.",
+   "url": "https://static.popost.ai/sfx/v1/click-button-soft-e34282a073f5.wav",
+   "sha256": "e34282a073f52a06a8c2cd0fb216aea090ad5ba36547d01dffc80c7eefd02893",
+   "bytes": 1580,
+   "seconds": 0.016,
+   "channels": 1,
+   "sync": 0.009,
+   "meets": "instant",
+   "peak": 0.003,
+   "loudness": {
+    "lufs": -29,
+    "truePeakDb": -9,
+    "tier": "soft"
+   },
+   "underVoiceDb": -1,
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "click-button-soft",
+    "file": "sounds/interface/click-button-soft.wav",
+    "sha256": "67b805971d75ecc458891989debbf045b752518fa8b4b697f42691b012f5f56a"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "click-button-medium",
+   "cues": [
+    "click"
+   ],
+   "category": "click",
+   "name": "Button click, medium",
+   "description": "A clean, crisp button click.",
+   "url": "https://static.popost.ai/sfx/v1/click-button-medium-69bc6533cbc1.wav",
+   "sha256": "69bc6533cbc1cb36d70d3e908fd5b49c01f1404a836946b6f781f7bb545db7c2",
+   "bytes": 1676,
+   "seconds": 0.017,
+   "channels": 1,
+   "sync": 0.009,
+   "meets": "instant",
+   "peak": 0.003,
+   "loudness": {
+    "lufs": -27,
+    "truePeakDb": -9,
+    "tier": "medium"
+   },
+   "underVoiceDb": -1,
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "click-button-medium",
+    "file": "sounds/interface/click-button-medium.wav",
+    "sha256": "7ce9dde81146c6791f90e2dcc09c9be90be31e51fd604a2b580b967289605a7f"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "click-tap-soft",
+   "cues": [
+    "tap"
+   ],
+   "category": "click",
+   "name": "Tap, soft",
+   "description": "A soft fingertip tap on glass.",
+   "url": "https://static.popost.ai/sfx/v1/click-tap-soft-65320b20d310.wav",
+   "sha256": "65320b20d31072dab70af88ad27d680f7b9923790a1ef6a048a058e992a30b4c",
+   "bytes": 1580,
+   "seconds": 0.016,
+   "channels": 1,
+   "sync": 0.009,
+   "meets": "instant",
+   "peak": 0.005,
+   "loudness": {
+    "lufs": -29,
+    "truePeakDb": -8.7,
+    "tier": "soft"
+   },
+   "underVoiceDb": -1,
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "click-tap-soft",
+    "file": "sounds/interface/click-tap-soft.wav",
+    "sha256": "e870f882b03aed3036011235a06350e626ae69a92dd5c138eb370d87194c6784"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "click-tap-medium",
+   "cues": [
+    "tap"
+   ],
+   "category": "click",
+   "name": "Tap, medium",
+   "description": "A clear tap on a screen, with a faint glassy tick.",
+   "url": "https://static.popost.ai/sfx/v1/click-tap-medium-49a414744ff8.wav",
+   "sha256": "49a414744ff81488cf3930d61371913cfea97802e07c384180895aeee81dfd28",
+   "bytes": 2108,
+   "seconds": 0.021,
+   "channels": 1,
+   "sync": 0.009,
+   "meets": "instant",
+   "peak": 0.005,
+   "loudness": {
+    "lufs": -27,
+    "truePeakDb": -6.6,
+    "tier": "medium"
+   },
+   "underVoiceDb": -1,
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "click-tap-medium",
+    "file": "sounds/interface/click-tap-medium.wav",
+    "sha256": "d9354a3293aa0dca0fd9824a830f593a154535e829317b16ce5cd4256a61ec0a"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "click-toggle-on-medium",
+   "cues": [
+    "toggle"
+   ],
+   "category": "click",
+   "name": "Toggle on, medium",
+   "description": "A switch flipping on: tick, then a bright snap above it.",
+   "url": "https://static.popost.ai/sfx/v1/click-toggle-on-medium-a6c1baa3e18c.wav",
+   "sha256": "a6c1baa3e18c229adc1f42ca209b3f64d770573520449011bbdb5c2cdb87eef9",
+   "bytes": 3260,
+   "seconds": 0.034,
+   "channels": 1,
+   "sync": 0.025,
+   "meets": "instant",
+   "peak": 0.02,
+   "loudness": {
+    "lufs": -27,
+    "truePeakDb": -10.4,
+    "tier": "medium"
+   },
+   "underVoiceDb": -1,
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "click-toggle-on-medium",
+    "file": "sounds/interface/click-toggle-on-medium.wav",
+    "sha256": "18e1a177e69d9a6884a5fee9658452f50627dce62adeb86c214ddf37bb0f6f55"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "click-hover-soft",
+   "cues": [
+    "hover"
+   ],
+   "category": "click",
+   "name": "Hover tick, soft",
+   "description": "The faintest tick: a cursor gliding over something.",
+   "url": "https://static.popost.ai/sfx/v1/click-hover-soft-879bda110a83.wav",
+   "sha256": "879bda110a83d3a8cb1fb7a31270650521434ade6553934eafac529e88c813ac",
+   "bytes": 1340,
+   "seconds": 0.013,
+   "channels": 1,
+   "sync": 0.007,
+   "meets": "instant",
+   "peak": 0.003,
+   "loudness": {
+    "lufs": -32,
+    "truePeakDb": -10.3,
+    "tier": "hover soft"
+   },
+   "underVoiceDb": -1,
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "click-hover-soft",
+    "file": "sounds/interface/click-hover-soft.wav",
+    "sha256": "6f58da1b9d8e958f24b5b8f653b9f159c2f0c7497c3c0cd54d317234b6108b54"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "keyboard-letter-soft",
+   "cues": [
+    "key",
+    "type-key"
+   ],
+   "category": "typing",
+   "name": "Letter key, soft",
+   "description": "A soft keypress and its quiet release.",
+   "url": "https://static.popost.ai/sfx/v1/keyboard-letter-soft-18cf873e9f4c.wav",
+   "sha256": "18cf873e9f4c03d252cd855476f62b9d32af46c6e4311f39da6893a16823bbe9",
+   "bytes": 8588,
+   "seconds": 0.089,
+   "channels": 1,
+   "sync": 0.009,
+   "meets": "instant",
+   "peak": 0.007,
+   "loudness": {
+    "lufs": -30,
+    "truePeakDb": -11.3,
+    "tier": "soft"
+   },
+   "underVoiceDb": -1,
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "keyboard-letter-soft",
+    "file": "sounds/keyboard/keyboard-letter-soft.wav",
+    "sha256": "9df40ea662c67e9543f740834d0bd7b5be10812c62364da60bacc6405d0d7c2a"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "keyboard-letter-medium",
+   "cues": [
+    "key",
+    "type-key"
+   ],
+   "category": "typing",
+   "name": "Letter key, medium",
+   "description": "A natural keypress: the key going down and coming back up.",
+   "url": "https://static.popost.ai/sfx/v1/keyboard-letter-medium-ea255479a1ff.wav",
+   "sha256": "ea255479a1ffeda00cb9ca4ae0c0cf1aa721f5ff2024007980f3b06e320c8b0d",
+   "bytes": 8012,
+   "seconds": 0.083,
+   "channels": 1,
+   "sync": 0.009,
+   "meets": "instant",
+   "peak": 0.007,
+   "loudness": {
+    "lufs": -27.5,
+    "truePeakDb": -11.2,
+    "tier": "medium"
+   },
+   "underVoiceDb": -1,
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "keyboard-letter-medium",
+    "file": "sounds/keyboard/keyboard-letter-medium.wav",
+    "sha256": "69c4c9f1d7be12900bb1b2f0686d8ec2e8cba1862a7348be773030578fd03b5e"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "keyboard-typing-steady-short",
+   "cues": [
+    "typing",
+    "type"
+   ],
+   "category": "typing",
+   "name": "Typing, steady, short",
+   "description": "A short burst of steady typing: a word or two.",
+   "url": "https://static.popost.ai/sfx/v1/keyboard-typing-steady-short-e86400d7df53.m4a",
+   "sha256": "e86400d7df534b956bf0eb05e0bb0d4ba73746d041f4c29af4ea95cbbe04ef03",
+   "bytes": 8130,
+   "seconds": 0.789,
+   "channels": 1,
+   "sync": 0,
+   "meets": "action-start",
+   "peak": 0.61,
+   "loudness": {
+    "lufs": -27,
+    "truePeakDb": -12.4,
+    "tier": "typing",
+    "integratedLufs": -34.5
+   },
+   "underVoiceDb": -1,
+   "fitsSeconds": [
+    0.66,
+    0.81
+   ],
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "keyboard-typing-steady-short",
+    "file": "sounds/keyboard/keyboard-typing-steady-short.wav",
+    "sha256": "25cb5926ae96c53c768ad3ce02584e8dd3ebc3cc7fe6c281b144e5bf0d8869f8"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "keyboard-typing-steady-medium",
+   "cues": [
+    "typing",
+    "type"
+   ],
+   "category": "typing",
+   "name": "Typing, steady, medium",
+   "description": "Steady typing, about a short phrase.",
+   "url": "https://static.popost.ai/sfx/v1/keyboard-typing-steady-medium-11d83b03aeee.m4a",
+   "sha256": "11d83b03aeee0ba6689aa5f3dac4657c84aca00129018fe80d6f14f54f1518cc",
+   "bytes": 12044,
+   "seconds": 1.536,
+   "channels": 1,
+   "sync": 0,
+   "meets": "action-start",
+   "peak": 0.22,
+   "loudness": {
+    "lufs": -27,
+    "truePeakDb": -10.5,
+    "tier": "typing",
+    "integratedLufs": -32.1
+   },
+   "underVoiceDb": -1,
+   "fitsSeconds": [
+    1.34,
+    1.64
+   ],
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "keyboard-typing-steady-medium",
+    "file": "sounds/keyboard/keyboard-typing-steady-medium.wav",
+    "sha256": "bb6371b868eccd0510e31645eb78ed490df3418ad34fae185bbbd18bbe550c9c"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "impact-light-soft",
+   "cues": [
+    "impact"
+   ],
+   "category": "impact",
+   "name": "Impact, light, on a soft surface",
+   "description": "A light, muffled landing: something small dropping onto a cushion.",
+   "url": "https://static.popost.ai/sfx/v1/impact-light-soft-abdfe6999889.wav",
+   "sha256": "abdfe6999889f40ab345c706eb5099082505d144786b94ae673e248c1856d74b",
+   "bytes": 15932,
+   "seconds": 0.166,
+   "channels": 1,
+   "sync": 0.012,
+   "meets": "instant",
+   "peak": 0.007,
+   "loudness": {
+    "lufs": -25,
+    "truePeakDb": -11.3,
+    "tier": "light"
+   },
+   "underVoiceDb": -2,
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "impact-light-soft",
+    "file": "sounds/impacts/impact-light-soft.wav",
+    "sha256": "45d0e503454aec241115f05482115d412d15d6d74d6c658a0193a78611382a94"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "impact-medium-soft",
+   "cues": [
+    "impact"
+   ],
+   "category": "impact",
+   "name": "Impact, medium, on a soft surface",
+   "description": "A soft, padded thud: something landing on fabric.",
+   "url": "https://static.popost.ai/sfx/v1/impact-medium-soft-2f26d5c3ec21.wav",
+   "sha256": "2f26d5c3ec21f5ccf052cb88b6adeb6f9d0064bb89d4fa381641306117dc42e5",
+   "bytes": 20204,
+   "seconds": 0.21,
+   "channels": 1,
+   "sync": 0.013,
+   "meets": "instant",
+   "peak": 0.013,
+   "loudness": {
+    "lufs": -22,
+    "truePeakDb": -8.2,
+    "tier": "medium"
+   },
+   "underVoiceDb": -3,
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "impact-medium-soft",
+    "file": "sounds/impacts/impact-medium-soft.wav",
+    "sha256": "88fa4920ffef8f6295df929e9f0d671fafdfb6f9d5a7f82840b755adf9fb7d7f"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "impact-medium-firm",
+   "cues": [
+    "impact"
+   ],
+   "category": "impact",
+   "name": "Impact, medium, on a firm surface",
+   "description": "A solid knock: a medium-sized object landing on wood.",
+   "url": "https://static.popost.ai/sfx/v1/impact-medium-firm-656844e966ca.wav",
+   "sha256": "656844e966ca792387ef523d5dea52ee6d432ff5c061824a3ac6ffedc5b219b1",
+   "bytes": 16796,
+   "seconds": 0.174,
+   "channels": 1,
+   "sync": 0.012,
+   "meets": "instant",
+   "peak": 0.007,
+   "loudness": {
+    "lufs": -22,
+    "truePeakDb": -8.7,
+    "tier": "medium"
+   },
+   "underVoiceDb": -3,
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "impact-medium-firm",
+    "file": "sounds/impacts/impact-medium-firm.wav",
+    "sha256": "23666447a7ece5c661abe9fa2fdcd70d08a937612d88e7916cafddc5800ebeee"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "impact-heavy-soft",
+   "cues": [
+    "impact"
+   ],
+   "category": "impact",
+   "name": "Impact, heavy, on a soft surface",
+   "description": "A heavy, muffled thump: weight landing on something soft.",
+   "url": "https://static.popost.ai/sfx/v1/impact-heavy-soft-28e0581bba53.wav",
+   "sha256": "28e0581bba5327905119af44b1fdb38d7c8ca4a20abdbd5d757c79d020983263",
+   "bytes": 30764,
+   "seconds": 0.32,
+   "channels": 1,
+   "sync": 0.018,
+   "meets": "instant",
+   "peak": 0.02,
+   "loudness": {
+    "lufs": -19,
+    "truePeakDb": -8.1,
+    "tier": "heavy"
+   },
+   "underVoiceDb": -4,
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "impact-heavy-soft",
+    "file": "sounds/impacts/impact-heavy-soft.wav",
+    "sha256": "7e2d91a2ebccc3be2d82f5293ec442c8490548e0823c22f73eddaa43f74b8076"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "impact-deep-soft",
+   "cues": [
+    "thud"
+   ],
+   "category": "impact",
+   "name": "Impact, deep, on a soft surface",
+   "description": "A deep, bass-heavy thud: something big landing on something soft.",
+   "url": "https://static.popost.ai/sfx/v1/impact-deep-soft-60d5581f1812.m4a",
+   "sha256": "60d5581f181238b0601508a6c943402fcb9a2f5b0bb5752bb034afa37e78ff62",
+   "bytes": 9417,
+   "seconds": 1.28,
+   "channels": 1,
+   "sync": 0.045,
+   "meets": "instant",
+   "peak": 0.048,
+   "loudness": {
+    "lufs": -19,
+    "truePeakDb": -10.3,
+    "tier": "deep",
+    "integratedLufs": -31.0
+   },
+   "underVoiceDb": -7,
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "impact-deep-soft",
+    "file": "sounds/impacts/impact-deep-soft.wav",
+    "sha256": "5cde20390327d485f3b6c7ce42c295cffa61880d72e3f1238449fb5c32d330e7"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "boom-hit-soft",
+   "cues": [
+    "thud"
+   ],
+   "category": "impact",
+   "name": "Boom hit, soft",
+   "description": "A soft, deep boom: a big drum struck gently in a hall.",
+   "url": "https://static.popost.ai/sfx/v1/boom-hit-soft-16748e6bc0e3.m4a",
+   "sha256": "16748e6bc0e3471fa127e25eb9f2dfaa34294ae1eb7a2f7e42bbaaef9f1163f5",
+   "bytes": 15965,
+   "seconds": 1.024,
+   "channels": 2,
+   "sync": 0.031,
+   "meets": "instant",
+   "peak": 0.02,
+   "loudness": {
+    "lufs": -27,
+    "truePeakDb": -20.5,
+    "tier": "soft",
+    "integratedLufs": -34.8
+   },
+   "underVoiceDb": -8,
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "boom-hit-soft",
+    "file": "sounds/booms-and-bass/boom-hit-soft.wav",
+    "sha256": "742dea42e8b84076158a626600eb87ee43a12280bf18afd9aec8d204aa1c3f11"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "riser-1s-soft",
+   "cues": [
+    "riser"
+   ],
+   "category": "riser",
+   "name": "Riser, 1 s, soft",
+   "description": "A 1-second soft, airy rise that builds to its peak at the end.",
+   "url": "https://static.popost.ai/sfx/v1/riser-1s-soft-645335c1bece.m4a",
+   "sha256": "645335c1beceb72c1b1b83c7ab335abbf579b2604f83118a240939be7750c047",
+   "bytes": 20405,
+   "seconds": 1.195,
+   "channels": 2,
+   "sync": 0.982,
+   "meets": "arrival",
+   "peak": 0.978,
+   "loudness": {
+    "lufs": -24,
+    "truePeakDb": -18.1,
+    "tier": "soft",
+    "integratedLufs": -29.3
+   },
+   "underVoiceDb": -3,
+   "fitsSeconds": [
+    0.82,
+    1
+   ],
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "riser-1s-soft",
+    "file": "sounds/risers-and-fallers/riser-1s-soft.wav",
+    "sha256": "fca1d503b69d4ac32cd7f307cf497fa36c2db8589b878b075c8d372ac3f4fe61"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "riser-2s-soft",
+   "cues": [
+    "riser"
+   ],
+   "category": "riser",
+   "name": "Riser, 2 s, soft",
+   "description": "A 2-second soft, airy rise that builds to its peak at the end.",
+   "url": "https://static.popost.ai/sfx/v1/riser-2s-soft-28b0e375f8c7.m4a",
+   "sha256": "28b0e375f8c746436605aa192152104d9a42ca51c8e700653d550ac7d0ecae27",
+   "bytes": 36601,
+   "seconds": 2.197,
+   "channels": 2,
+   "sync": 1.994,
+   "meets": "arrival",
+   "peak": 1.998,
+   "loudness": {
+    "lufs": -24,
+    "truePeakDb": -17.4,
+    "tier": "soft",
+    "integratedLufs": -29.8
+   },
+   "underVoiceDb": -3,
+   "fitsSeconds": [
+    1.68,
+    2.06
+   ],
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "riser-2s-soft",
+    "file": "sounds/risers-and-fallers/riser-2s-soft.wav",
+    "sha256": "ffe1d0975ce052a9eb3247e2b0bb492413d6e04cbb81f749cf3b074e2a5f4467"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "riser-2s-strong",
+   "cues": [
+    "riser"
+   ],
+   "category": "riser",
+   "name": "Riser, 2 s, strong",
+   "description": "A 2-second strong, bright rise that builds to its peak at the end.",
+   "url": "https://static.popost.ai/sfx/v1/riser-2s-strong-7e9c44903db9.m4a",
+   "sha256": "7e9c44903db9831c3439300b828c91f88c3bbebf15126a47ece6d325bac13430",
+   "bytes": 36417,
+   "seconds": 2.197,
+   "channels": 2,
+   "sync": 1.978,
+   "meets": "arrival",
+   "peak": 1.883,
+   "loudness": {
+    "lufs": -20,
+    "truePeakDb": -13.4,
+    "tier": "strong",
+    "integratedLufs": -24.9
+   },
+   "underVoiceDb": -5,
+   "fitsSeconds": [
+    1.65,
+    2.01
+   ],
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "riser-2s-strong",
+    "file": "sounds/risers-and-fallers/riser-2s-strong.wav",
+    "sha256": "26263a64a7b141a14f8bc6ab96db9c22926265b429a799d5f77db33c1a85d43f"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "reverse-whoosh-medium-soft",
+   "cues": [
+    "suck-in"
+   ],
+   "category": "riser",
+   "name": "Reverse whoosh, medium and soft",
+   "description": "A soft reverse whoosh: air drawn in, building to a sudden stop.",
+   "url": "https://static.popost.ai/sfx/v1/reverse-whoosh-medium-soft-cbe030406b30.m4a",
+   "sha256": "cbe030406b30ffba18043ee9976901fff46c319cfdb02f7bf21846410bdcc641",
+   "bytes": 14647,
+   "seconds": 0.875,
+   "channels": 2,
+   "sync": 0.679,
+   "meets": "arrival",
+   "peak": 0.693,
+   "loudness": {
+    "lufs": -24,
+    "truePeakDb": -15.9,
+    "tier": "soft",
+    "integratedLufs": -30.2
+   },
+   "underVoiceDb": -3,
+   "fitsSeconds": [
+    0.52,
+    0.71
+   ],
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "reverse-whoosh-medium-soft",
+    "file": "sounds/reverse-whooshes/reverse-whoosh-medium-soft.wav",
+    "sha256": "200b74d413d51459fa3274b82616f70dc8ba6dc93430912a18d611e03dd5ae6d"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "tone-ding-mid",
+   "cues": [
+    "ding"
+   ],
+   "category": "ding",
+   "name": "Ding, middle",
+   "description": "A small bell's clear ding (C, middle).",
+   "url": "https://static.popost.ai/sfx/v1/tone-ding-mid-5cd5123f36b5.m4a",
+   "sha256": "5cd5123f36b50465571aec63bcef7678bc255ca1c645f1781a82eaa41351d4bf",
+   "bytes": 9089,
+   "seconds": 1.067,
+   "channels": 1,
+   "sync": 0,
+   "meets": "instant",
+   "peak": 0.01,
+   "loudness": {
+    "lufs": -23,
+    "truePeakDb": -17.6,
+    "tier": "ding",
+    "integratedLufs": -33.4
+   },
+   "underVoiceDb": -3,
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "tone-ding-mid",
+    "file": "sounds/tones/tone-ding-mid.wav",
+    "sha256": "ee072e95a2634c39a0b54efb06a41e0cc337d4a502719d9b45e85474f6b32837"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "tone-ding-high",
+   "cues": [
+    "ding"
+   ],
+   "category": "ding",
+   "name": "Ding, high",
+   "description": "A small bell's clear ding (E, high).",
+   "url": "https://static.popost.ai/sfx/v1/tone-ding-high-fe3f7fe9c485.m4a",
+   "sha256": "fe3f7fe9c485459fcdb80f857692c22a6850490b49ae0bc2a6e22db7c6c369d2",
+   "bytes": 6973,
+   "seconds": 0.832,
+   "channels": 1,
+   "sync": 0,
+   "meets": "instant",
+   "peak": 0.02,
+   "loudness": {
+    "lufs": -23,
+    "truePeakDb": -18.4,
+    "tier": "ding",
+    "integratedLufs": -33.3
+   },
+   "underVoiceDb": -3,
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "tone-ding-high",
+    "file": "sounds/tones/tone-ding-high.wav",
+    "sha256": "4a77d6a7a7d10956997e9bf8353fc1aaa6bb5f191f5e1ffbb36c33471b162f92"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "tone-step-1",
+   "cues": [
+    "step"
+   ],
+   "category": "ding",
+   "name": "Step 1 of 5",
+   "description": "Step 1 of 5: a soft marimba note (C), each one higher.",
+   "url": "https://static.popost.ai/sfx/v1/tone-step-1-28894813e46f.wav",
+   "sha256": "28894813e46fbfc123df4771457e8c1162a1dac71a1b32cf4a37bedf6e281d4b",
+   "bytes": 49244,
+   "seconds": 0.512,
+   "channels": 1,
+   "sync": 0,
+   "meets": "instant",
+   "peak": 0.007,
+   "loudness": {
+    "lufs": -26,
+    "truePeakDb": -20.8,
+    "tier": "step",
+    "integratedLufs": -35.4
+   },
+   "underVoiceDb": -2,
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "tone-step-1",
+    "file": "sounds/tones/tone-step-1.wav",
+    "sha256": "425c4981f965f7db88f9d1971b6c9747539dc5209c52935319a7451feb5ec571"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "tone-step-2",
+   "cues": [
+    "step"
+   ],
+   "category": "ding",
+   "name": "Step 2 of 5",
+   "description": "Step 2 of 5: a soft marimba note (E), each one higher.",
+   "url": "https://static.popost.ai/sfx/v1/tone-step-2-7ec9d0ed0b63.wav",
+   "sha256": "7ec9d0ed0b638465e95cd941afee3e1412ee8e088d86feafb016aebf049fc810",
+   "bytes": 42764,
+   "seconds": 0.445,
+   "channels": 1,
+   "sync": 0,
+   "meets": "instant",
+   "peak": 0.007,
+   "loudness": {
+    "lufs": -26,
+    "truePeakDb": -19.9,
+    "tier": "step",
+    "integratedLufs": -33.1
+   },
+   "underVoiceDb": -2,
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "tone-step-2",
+    "file": "sounds/tones/tone-step-2.wav",
+    "sha256": "249b0751f67d067ec6c680cd236658d78a836562dc4fdac5f801a1235717a09f"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "tone-step-3",
+   "cues": [
+    "step"
+   ],
+   "category": "ding",
+   "name": "Step 3 of 5",
+   "description": "Step 3 of 5: a soft marimba note (G), each one higher.",
+   "url": "https://static.popost.ai/sfx/v1/tone-step-3-775024febb86.wav",
+   "sha256": "775024febb86be0aae7716e4fca8b5d4b33b080b63269c1d3712f8652fcde451",
+   "bytes": 38684,
+   "seconds": 0.403,
+   "channels": 1,
+   "sync": 0,
+   "meets": "instant",
+   "peak": 0.007,
+   "loudness": {
+    "lufs": -26,
+    "truePeakDb": -18.5,
+    "tier": "step",
+    "integratedLufs": -33.1
+   },
+   "underVoiceDb": -2,
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "tone-step-3",
+    "file": "sounds/tones/tone-step-3.wav",
+    "sha256": "f994c56e0c78fd3d87780e1f2c1819678029042a785fa7db859483a97ca2f30c"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "notification-message-in-soft",
+   "cues": [
+    "notification"
+   ],
+   "category": "ding",
+   "name": "Message arriving, soft",
+   "description": "A little bubble and a warm note: a new message.",
+   "url": "https://static.popost.ai/sfx/v1/notification-message-in-soft-da47547b3ce7.wav",
+   "sha256": "da47547b3ce7fe52a7f6fb8457c85f65e70f61cf3af672564e5e0bf2462e2637",
+   "bytes": 40652,
+   "seconds": 0.423,
+   "channels": 1,
+   "sync": 0.046,
+   "meets": "instant",
+   "peak": 0.055,
+   "loudness": {
+    "lufs": -24,
+    "truePeakDb": -16.5,
+    "tier": "soft",
+    "integratedLufs": -31.2
+   },
+   "underVoiceDb": -3,
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "notification-message-in-soft",
+    "file": "sounds/notifications/notification-message-in-soft.wav",
+    "sha256": "1ded331dcb7a44c658f4f56692ec33eea5820f1c4d0442574e7cd6aea50ed460"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "notification-attention-soft",
+   "cues": [
+    "notification"
+   ],
+   "category": "ding",
+   "name": "Attention, soft",
+   "description": "A knock-knock on wood.",
+   "url": "https://static.popost.ai/sfx/v1/notification-attention-soft-d4a74639cb12.wav",
+   "sha256": "d4a74639cb12c13929e3f149286f2256652d955a46935e979fd9f96d2a393684",
+   "bytes": 31484,
+   "seconds": 0.328,
+   "channels": 1,
+   "sync": 0,
+   "meets": "instant",
+   "peak": 0.168,
+   "loudness": {
+    "lufs": -24,
+    "truePeakDb": -11.9,
+    "tier": "soft"
+   },
+   "underVoiceDb": -3,
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "notification-attention-soft",
+    "file": "sounds/notifications/notification-attention-soft.wav",
+    "sha256": "f4d75e08bdcfa6dc9f939cee8a973e2b9a7c96c6ef33d07ffebd20854dbde44a"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "notification-success-soft",
+   "cues": [
+    "success"
+   ],
+   "category": "ding",
+   "name": "Success, soft",
+   "description": "A warm, rising three-note marimba arpeggio: done.",
+   "url": "https://static.popost.ai/sfx/v1/notification-success-soft-2c5ae3b57e35.wav",
+   "sha256": "2c5ae3b57e359612af365e7c3772c22f749262c78274866861652e446a21e487",
+   "bytes": 50924,
+   "seconds": 0.53,
+   "channels": 1,
+   "sync": 0,
+   "meets": "instant",
+   "peak": 0.007,
+   "loudness": {
+    "lufs": -24,
+    "truePeakDb": -17,
+    "tier": "soft",
+    "integratedLufs": -31.0
+   },
+   "underVoiceDb": -3,
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "notification-success-soft",
+    "file": "sounds/notifications/notification-success-soft.wav",
+    "sha256": "49fa865e894e26a59dea81144844270d532fa899d7eb94f2ac0687af4a66ebc1"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "notification-error-soft",
+   "cues": [
+    "error"
+   ],
+   "category": "ding",
+   "name": "Error, soft",
+   "description": "A soft, falling two-note marimba: something's not right, gently.",
+   "url": "https://static.popost.ai/sfx/v1/notification-error-soft-e846cbe3ac7a.wav",
+   "sha256": "e846cbe3ac7a18f2e543fff6e1716f226fdacb12e899457f71df4c28ff8d5ed1",
+   "bytes": 54428,
+   "seconds": 0.567,
+   "channels": 1,
+   "sync": 0,
+   "meets": "instant",
+   "peak": 0.128,
+   "loudness": {
+    "lufs": -24,
+    "truePeakDb": -16.3,
+    "tier": "soft",
+    "integratedLufs": -30.3
+   },
+   "underVoiceDb": -3,
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "notification-error-soft",
+    "file": "sounds/notifications/notification-error-soft.wav",
+    "sha256": "a4fbba71503798c6c3f375b41e69d2f4dcf43866a1a29273eaa54a0280c8f339"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "shimmer-short-soft",
+   "cues": [
+    "shimmer"
+   ],
+   "category": "shimmer",
+   "name": "Shimmer, short, soft",
+   "description": "A short shimmer: a few soft, glassy glints that ring out gently.",
+   "url": "https://static.popost.ai/sfx/v1/shimmer-short-soft-229df9884494.wav",
+   "sha256": "229df9884494f4e959392fde7a0cb8374ab25e4d26dc673a008cb8c69b82fa5c",
+   "bytes": 91820,
+   "seconds": 0.478,
+   "channels": 2,
+   "sync": 0.012,
+   "meets": "instant",
+   "peak": 0.007,
+   "loudness": {
+    "lufs": -25,
+    "truePeakDb": -15.9,
+    "tier": "soft",
+    "integratedLufs": -29.1
+   },
+   "underVoiceDb": -3,
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "shimmer-short-soft",
+    "file": "sounds/shimmers/shimmer-short-soft.wav",
+    "sha256": "c0cdc8cc61e6b1dd0b16732161ff3967ad6242e2f673957bef88a49805c6286e"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "shimmer-medium-soft",
+   "cues": [
+    "shimmer"
+   ],
+   "category": "shimmer",
+   "name": "Shimmer, medium, soft",
+   "description": "A shimmer: a few soft, glassy glints that ring out gently.",
+   "url": "https://static.popost.ai/sfx/v1/shimmer-medium-soft-14a1424b7e5b.m4a",
+   "sha256": "14a1424b7e5b43a391a9d7356ed9b0239bc1389b93e7f79fc74c47585629f83f",
+   "bytes": 19605,
+   "seconds": 1.131,
+   "channels": 2,
+   "sync": 0.011,
+   "meets": "instant",
+   "peak": 0.005,
+   "loudness": {
+    "lufs": -25,
+    "truePeakDb": -18.4,
+    "tier": "soft",
+    "integratedLufs": -35.4
+   },
+   "underVoiceDb": -3,
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "shimmer-medium-soft",
+    "file": "sounds/shimmers/shimmer-medium-soft.wav",
+    "sha256": "b6ca9eff8d1804b4b61d1bac5559c986549a0917d27a70a9d0e8831f43f20a45"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "digital-glitch-subtle",
+   "cues": [
+    "glitch"
+   ],
+   "category": "glitch",
+   "name": "Glitch, subtle",
+   "description": "A gentle, clean stutter.",
+   "url": "https://static.popost.ai/sfx/v1/digital-glitch-subtle-40c5c8aaf090.wav",
+   "sha256": "40c5c8aaf090647867d75eee0eb7a8f136926a84f6a2d8aac70a4d7ed2e70fa5",
+   "bytes": 15788,
+   "seconds": 0.164,
+   "channels": 1,
+   "sync": 0.02,
+   "meets": "instant",
+   "peak": 0.007,
+   "loudness": {
+    "lufs": -26,
+    "truePeakDb": -21.6,
+    "tier": "subtle"
+   },
+   "underVoiceDb": -2,
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "digital-glitch-subtle",
+    "file": "sounds/digital/digital-glitch-subtle.wav",
+    "sha256": "0d19e6785f156881ef01366b2677b7ad59b443893c166dc6cc08c9f3686c786c"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "digital-glitch-clear",
+   "cues": [
+    "glitch"
+   ],
+   "category": "glitch",
+   "name": "Glitch, clear",
+   "description": "A crisp little glitch, stepping in pitch.",
+   "url": "https://static.popost.ai/sfx/v1/digital-glitch-clear-1ca55933f7dd.wav",
+   "sha256": "1ca55933f7dd36459057235cb9730dd93e81a2911b1ca1a1d55c1448346cd887",
+   "bytes": 23084,
+   "seconds": 0.24,
+   "channels": 1,
+   "sync": 0.018,
+   "meets": "instant",
+   "peak": 0.018,
+   "loudness": {
+    "lufs": -22,
+    "truePeakDb": -17.8,
+    "tier": "clear"
+   },
+   "underVoiceDb": -2,
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "digital-glitch-clear",
+    "file": "sounds/digital/digital-glitch-clear.wav",
+    "sha256": "0160031c5dd4e4c047224b2c0f79e822e7589d91e98dc321f1f79360ff8752f8"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "digital-static",
+   "cues": [
+    "glitch"
+   ],
+   "category": "glitch",
+   "name": "TV static",
+   "description": "A burst of TV static: bright snow with a faint buzz in it.",
+   "url": "https://static.popost.ai/sfx/v1/digital-static-453424eff1b5.m4a",
+   "sha256": "453424eff1b5172a39ea9590a2ecebe655cb07478f44df2b9480fbc10457d924",
+   "bytes": 9071,
+   "seconds": 0.661,
+   "channels": 1,
+   "sync": 0,
+   "meets": "action-start",
+   "peak": 0.562,
+   "loudness": {
+    "lufs": -24,
+    "truePeakDb": -12.7,
+    "tier": "glitch",
+    "integratedLufs": -27.4
+   },
+   "underVoiceDb": -4,
+   "fitsSeconds": [
+    0.53,
+    0.75
+   ],
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "digital-static",
+    "file": "sounds/digital/digital-static.wav",
+    "sha256": "85fb1ec4ceb4962e102a57899e0ae54b734811cb636cd105e5cd3d9130a5140a"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "mechanical-shutter-light",
+   "cues": [
+    "shutter"
+   ],
+   "category": "shutter",
+   "name": "Shutter, light",
+   "description": "A compact camera shutter: a quick ka-chik.",
+   "url": "https://static.popost.ai/sfx/v1/mechanical-shutter-light-80acac516060.wav",
+   "sha256": "80acac5160603c822f10674ccdf08b42234abf14de18101cae0e6852691bf853",
+   "bytes": 10604,
+   "seconds": 0.11,
+   "channels": 1,
+   "sync": 0.01,
+   "meets": "instant",
+   "peak": 0.005,
+   "loudness": {
+    "lufs": -25,
+    "truePeakDb": -11.6,
+    "tier": "light"
+   },
+   "underVoiceDb": -2,
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "mechanical-shutter-light",
+    "file": "sounds/mechanical/mechanical-shutter-light.wav",
+    "sha256": "e2f95d0345aeb91871f74ba26d9618031d6f50e8bc7359acf9a8d28e6b3be000"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "mechanical-shutter-heavy",
+   "cues": [
+    "shutter"
+   ],
+   "category": "shutter",
+   "name": "Shutter, heavy",
+   "description": "A camera's mirror and shutter: a fuller, slower ka-chunk.",
+   "url": "https://static.popost.ai/sfx/v1/mechanical-shutter-heavy-5574f56ed8ae.wav",
+   "sha256": "5574f56ed8ae4f7241790881a1938b93e90327dd3b562a11d194f0158c90df80",
+   "bytes": 17660,
+   "seconds": 0.183,
+   "channels": 1,
+   "sync": 0.01,
+   "meets": "instant",
+   "peak": 0.005,
+   "loudness": {
+    "lufs": -22.5,
+    "truePeakDb": -8.6,
+    "tier": "heavy"
+   },
+   "underVoiceDb": -3,
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "mechanical-shutter-heavy",
+    "file": "sounds/mechanical/mechanical-shutter-heavy.wav",
+    "sha256": "e3a881f2e86471f577b474ad37ab9601c6a47cb9c9847d52db36b1690a5f88b2"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "props-page-turn",
+   "cues": [
+    "page"
+   ],
+   "category": "paper",
+   "name": "Page turn",
+   "description": "A page turning: lifted at the corner, swung over and falling flat.",
+   "url": "https://static.popost.ai/sfx/v1/props-page-turn-f1f3efa2d336.wav",
+   "sha256": "f1f3efa2d336b8334f87c6682d3f864580ecf0202acec1df1b224b6f070060d9",
+   "bytes": 51884,
+   "seconds": 0.54,
+   "channels": 1,
+   "sync": 0,
+   "meets": "action-start",
+   "peak": 0.427,
+   "loudness": {
+    "lufs": -26,
+    "truePeakDb": -12.4,
+    "tier": "page-turn",
+    "integratedLufs": -30.7
+   },
+   "underVoiceDb": -3,
+   "fitsSeconds": [
+    0.42,
+    0.57
+   ],
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "props-page-turn",
+    "file": "sounds/everyday-props/props-page-turn.wav",
+    "sha256": "816a38d1987dbb1cb3ca5a712a74675c819fabeea058f81f18835443a16fa6ef"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "foley-paper-slide",
+   "cues": [
+    "page"
+   ],
+   "category": "paper",
+   "name": "Paper slide",
+   "description": "Paper sliding across a desk: a soft, dry hiss.",
+   "url": "https://static.popost.ai/sfx/v1/foley-paper-slide-f4db07752a3c.wav",
+   "sha256": "f4db07752a3c43fde7653719459d1787cbca0bed594c111101ddcac7c572431c",
+   "bytes": 47228,
+   "seconds": 0.491,
+   "channels": 1,
+   "sync": 0.006,
+   "meets": "action-start",
+   "peak": 0.255,
+   "loudness": {
+    "lufs": -25,
+    "truePeakDb": -17.6,
+    "tier": "slide",
+    "integratedLufs": -30.4
+   },
+   "underVoiceDb": -2,
+   "fitsSeconds": [
+    0.4,
+    0.5
+   ],
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "foley-paper-slide",
+    "file": "sounds/foley/foley-paper-slide.wav",
+    "sha256": "5c46a7e86caeb6f71249fa294b5e654866f283c0470d39ab756b671f7c4c2e17"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "foley-paper-touch",
+   "cues": [
+    "page"
+   ],
+   "category": "paper",
+   "name": "Paper touch",
+   "description": "A sheet of paper handled: a quick crinkle and rustle.",
+   "url": "https://static.popost.ai/sfx/v1/foley-paper-touch-6119c07d67f4.wav",
+   "sha256": "6119c07d67f44dbde7fd73a20885c71c895097a7dc3df0e3e4343ed769b4eccc",
+   "bytes": 29756,
+   "seconds": 0.309,
+   "channels": 1,
+   "sync": 0.022,
+   "meets": "instant",
+   "peak": 0.03,
+   "loudness": {
+    "lufs": -24,
+    "truePeakDb": -9.9,
+    "tier": "touch"
+   },
+   "underVoiceDb": -2,
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "foley-paper-touch",
+    "file": "sounds/foley/foley-paper-touch.wav",
+    "sha256": "37c6dd31840b0910df0f61b5714a8aba916c704a33eee6293a92603cea9e1360"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "data-tick",
+   "cues": [
+    "tick"
+   ],
+   "category": "tick",
+   "name": "Count tick",
+   "description": "A single soft, woody tick: one step of a number changing.",
+   "url": "https://static.popost.ai/sfx/v1/data-tick-f95406184114.wav",
+   "sha256": "f954061841146034f66d740f17d35b633774bda85f03b2ac37ed915daabdbd0b",
+   "bytes": 1772,
+   "seconds": 0.018,
+   "channels": 1,
+   "sync": 0.008,
+   "meets": "instant",
+   "peak": 0.003,
+   "loudness": {
+    "lufs": -28,
+    "truePeakDb": -9.2,
+    "tier": "tick"
+   },
+   "underVoiceDb": -2,
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "data-tick",
+    "file": "sounds/data/data-tick.wav",
+    "sha256": "a60916f54e990d5c67be412e5791e889f6b82d96dcf9a9b8d6e91f20b01517ab"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "data-countup-short",
+   "cues": [
+    "count"
+   ],
+   "category": "tick",
+   "name": "Count-up, short",
+   "description": "A short count-up: ticks that speed up and settle, about 0.6 seconds.",
+   "url": "https://static.popost.ai/sfx/v1/data-countup-short-9b7d8cf16125.m4a",
+   "sha256": "9b7d8cf161250159692850f5e8909d9e0ba220f80bf7b85c9eae88ac5ba2337c",
+   "bytes": 6947,
+   "seconds": 0.64,
+   "channels": 1,
+   "sync": 0,
+   "meets": "action-start",
+   "peak": 0.305,
+   "loudness": {
+    "lufs": -25,
+    "truePeakDb": -10.9,
+    "tier": "countup",
+    "integratedLufs": -29.8
+   },
+   "underVoiceDb": -2,
+   "fitsSeconds": [
+    0.51,
+    0.72
+   ],
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "data-countup-short",
+    "file": "sounds/data/data-countup-short.wav",
+    "sha256": "0500ae02404de9c0d863b270dbad0368ffff30e8fe17032f79c5cace714e0f5f"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "data-number-land",
+   "cues": [
+    "number-land"
+   ],
+   "category": "tick",
+   "name": "Number landing",
+   "description": "A woody knock with a small, bright ping: a number landing.",
+   "url": "https://static.popost.ai/sfx/v1/data-number-land-1a1f7b99ab13.wav",
+   "sha256": "1a1f7b99ab1378c044aaf394732dd8607a80693db7edad6bb495b375e760ea56",
+   "bytes": 22412,
+   "seconds": 0.233,
+   "channels": 1,
+   "sync": 0.011,
+   "meets": "instant",
+   "peak": 0.005,
+   "loudness": {
+    "lufs": -22,
+    "truePeakDb": -8.9,
+    "tier": "land"
+   },
+   "underVoiceDb": -2,
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "data-number-land",
+    "file": "sounds/data/data-number-land.wav",
+    "sha256": "5a8af582b3bea2dba401afa55b223cafa8d6a3d1259e72e57dc701b6fc0d82fa"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "sting-minimal-short",
+   "cues": [
+    "sting"
+   ],
+   "category": "sting",
+   "name": "Logo sting, minimal, short",
+   "description": "A minimal sting: two kalimba notes, rising.",
+   "url": "https://static.popost.ai/sfx/v1/sting-minimal-short-2676c6d91ebf.m4a",
+   "sha256": "2676c6d91ebf6dafd657bb7bd9d686267aa926da130eca3e0cd85a8ba01b8781",
+   "bytes": 21287,
+   "seconds": 1.28,
+   "channels": 2,
+   "sync": 0.1,
+   "meets": "instant",
+   "peak": 0.1,
+   "loudness": {
+    "lufs": -24,
+    "truePeakDb": -17.4,
+    "tier": "minimal",
+    "integratedLufs": -29.9
+   },
+   "underVoiceDb": -6,
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "sting-minimal-short",
+    "file": "sounds/logo-stings/sting-minimal-short.wav",
+    "sha256": "e688de069518fed41c4f5e386d6eca3db95f73e450b36be5d067d7f7edd298c2"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "sting-warm-short",
+   "cues": [
+    "sting"
+   ],
+   "category": "sting",
+   "name": "Logo sting, warm, short",
+   "description": "A warm marimba sting: a quick roll up into a rich, rounded chord.",
+   "url": "https://static.popost.ai/sfx/v1/sting-warm-short-1c995981fe26.m4a",
+   "sha256": "1c995981fe26765f311a134b5e7b1f9840f7f42e8950d0e7397b96298606f7ec",
+   "bytes": 23600,
+   "seconds": 1.685,
+   "channels": 2,
+   "sync": 0.107,
+   "meets": "instant",
+   "peak": 0.113,
+   "loudness": {
+    "lufs": -23,
+    "truePeakDb": -16,
+    "tier": "warm",
+    "integratedLufs": -29.2
+   },
+   "underVoiceDb": -6,
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "sting-warm-short",
+    "file": "sounds/logo-stings/sting-warm-short.wav",
+    "sha256": "329c1a297186d212fd51fbe8730cd8075b9355e9f72011ea30f5b175962cb951"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "bass-rumble-short",
+   "cues": [
+    "rumble"
+   ],
+   "category": "impact",
+   "name": "Rumble, short",
+   "description": "A quick low rumble, rolling in and away.",
+   "url": "https://static.popost.ai/sfx/v1/bass-rumble-short-a9f6c80bd8a0.m4a",
+   "sha256": "a9f6c80bd8a0f0b7eae0f21231a2fe0a0a5e609b40192e73be5f05d4654caaf6",
+   "bytes": 24978,
+   "seconds": 1.536,
+   "channels": 2,
+   "sync": 0.003,
+   "meets": "action-start",
+   "peak": 0.225,
+   "loudness": {
+    "lufs": -24,
+    "truePeakDb": -13,
+    "tier": "rumble",
+    "integratedLufs": -28.5
+   },
+   "underVoiceDb": -8,
+   "fitsSeconds": [
+    0.97,
+    1.36
+   ],
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "bass-rumble-short",
+    "file": "sounds/booms-and-bass/bass-rumble-short.wav",
+    "sha256": "53920f72a9a30088543be3993fbc601f6a02c0704514590dcaa362e872c0adf2"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "bass-rumble-medium",
+   "cues": [
+    "rumble"
+   ],
+   "category": "impact",
+   "name": "Rumble, medium",
+   "description": "A low rumble of about three seconds: distant thunder, the ground shaking.",
+   "url": "https://static.popost.ai/sfx/v1/bass-rumble-medium-a02a72f0df57.m4a",
+   "sha256": "a02a72f0df5796d179e85466f285d00b94e7c1af49e79df781a407854dc825ac",
+   "bytes": 45534,
+   "seconds": 2.816,
+   "channels": 2,
+   "sync": 0.017,
+   "meets": "action-start",
+   "peak": 0.812,
+   "loudness": {
+    "lufs": -24,
+    "truePeakDb": -14.5,
+    "tier": "rumble",
+    "integratedLufs": -29.4
+   },
+   "underVoiceDb": -8,
+   "fitsSeconds": [
+    1.8,
+    2.54
+   ],
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "bass-rumble-medium",
+    "file": "sounds/booms-and-bass/bass-rumble-medium.wav",
+    "sha256": "38ddc6474d57dc706c1a67cd83d4d449fb91b87baf69f0fbfcd24476e509a6b0"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "writing-marker-draw",
+   "cues": [
+    "draw"
+   ],
+   "category": "paper",
+   "name": "Whiteboard marker drawing",
+   "description": "A marker on a whiteboard, drawing a few long strokes.",
+   "url": "https://static.popost.ai/sfx/v1/writing-marker-draw-c05d9b1cdb96.m4a",
+   "sha256": "c05d9b1cdb966d7a47627725b3cc8e658791dec5da4ba16dc20ea5632b553da5",
+   "bytes": 14177,
+   "seconds": 1.067,
+   "channels": 1,
+   "sync": 0,
+   "meets": "action-start",
+   "peak": 0.805,
+   "loudness": {
+    "lufs": -25,
+    "truePeakDb": -19.6,
+    "tier": "marker",
+    "integratedLufs": -32.8
+   },
+   "underVoiceDb": -1,
+   "fitsSeconds": [
+    0.84,
+    1.19
+   ],
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "writing-marker-draw",
+    "file": "sounds/writing-and-drawing/writing-marker-draw.wav",
+    "sha256": "928249d92b7c4ecfc8d5f3883afd22d54c3b34bad17a1e59ce76676ce41da69d"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "writing-pen-draw",
+   "cues": [
+    "draw"
+   ],
+   "category": "paper",
+   "name": "Pen drawing",
+   "description": "A pen on paper, drawing a few long strokes.",
+   "url": "https://static.popost.ai/sfx/v1/writing-pen-draw-05922d2740d6.m4a",
+   "sha256": "05922d2740d61b32c2cdda705bd3999903b4a1f1446c151e903c7a2494b2f63b",
+   "bytes": 15467,
+   "seconds": 1.28,
+   "channels": 1,
+   "sync": 0,
+   "meets": "action-start",
+   "peak": 1.13,
+   "loudness": {
+    "lufs": -27,
+    "truePeakDb": -18.8,
+    "tier": "pen",
+    "integratedLufs": -35.1
+   },
+   "underVoiceDb": -1,
+   "fitsSeconds": [
+    1.04,
+    1.46
+   ],
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "writing-pen-draw",
+    "file": "sounds/writing-and-drawing/writing-pen-draw.wav",
+    "sha256": "0b6c3ac88aa4888a076865edef35e626bd8ca30c57b83276b031b73e51c08576"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "shimmer-short-sparkle",
+   "cues": [
+    "sparkle"
+   ],
+   "category": "shimmer",
+   "name": "Shimmer, short, sparkle",
+   "description": "A short shimmer: a dense, tinkling sparkle, high and light.",
+   "url": "https://static.popost.ai/sfx/v1/shimmer-short-sparkle-488166484e03.wav",
+   "sha256": "488166484e0323069b6de5f0708ef629fcd988cb7b14eb311ebeda20ae8b0839",
+   "bytes": 101708,
+   "seconds": 0.529,
+   "channels": 2,
+   "sync": 0.012,
+   "meets": "instant",
+   "peak": 0.007,
+   "loudness": {
+    "lufs": -22.5,
+    "truePeakDb": -12.6,
+    "tier": "sparkle",
+    "integratedLufs": -28.3
+   },
+   "underVoiceDb": -3,
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "shimmer-short-sparkle",
+    "file": "sounds/shimmers/shimmer-short-sparkle.wav",
+    "sha256": "e0a5e97ece9d4787bb6bd50fd88546d673f96c4b46938de0fb82b43b24b28af5"
+   },
+   "licence": "CC0-1.0"
+  },
+  {
+   "id": "shimmer-medium-sparkle",
+   "cues": [
+    "sparkle"
+   ],
+   "category": "shimmer",
+   "name": "Shimmer, medium, sparkle",
+   "description": "A shimmer: a dense, tinkling sparkle, high and light.",
+   "url": "https://static.popost.ai/sfx/v1/shimmer-medium-sparkle-6ce2b4bbb9fd.m4a",
+   "sha256": "6ce2b4bbb9fd3fdd9b0a12b54085c33f7c556e90262ec3c4f9cb5ae51a8a0419",
+   "bytes": 19356,
+   "seconds": 1.109,
+   "channels": 2,
+   "sync": 0.011,
+   "meets": "instant",
+   "peak": 0.007,
+   "loudness": {
+    "lufs": -22.5,
+    "truePeakDb": -12,
+    "tier": "sparkle",
+    "integratedLufs": -29.9
+   },
+   "underVoiceDb": -3,
+   "source": {
+    "kit": "SFX Kit by Wyzowl",
+    "version": "1.0.0",
+    "id": "shimmer-medium-sparkle",
+    "file": "sounds/shimmers/shimmer-medium-sparkle.wav",
+    "sha256": "26c108bdb2e41b70a1b57f2c4700b40bce7d0e78a327e6b5e3bf0355d0510263"
+   },
+   "licence": "CC0-1.0"
+  }
+ ]
+}

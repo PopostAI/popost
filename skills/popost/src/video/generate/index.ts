@@ -3,8 +3,9 @@
  * does not live in this package: a Generator is the interface, and POPOST_GEN_CMD names a command that implements it,
  * called as
  *   <command> video|image <request.json> <out-file>
- * with request.json = { "prompt", "seconds"?, "aspect"?, "images"?, "videos"?, "audios"?, "firstFrame"?, "lastFrame"? }
- * (references and frames as paths; frames never together with references); on
+ * with request.json = { "prompt", "seconds"?, "aspect"?, "images"?, "videos"?, "audios"?, "firstFrame"?, "lastFrame"?, "audio"?: false }
+ * (references and frames as paths; frames never together with references; "audio": false asks for a clip without a
+ * sound track, which a generator may ignore: materials takes the track out of a silent clip that still has one); on
  * success it prints one JSON line, { "credits"?: number }. A command that wants the user to agree to a price first
  * makes nothing, charges nothing, prints { "confirm": { "credits": n, ... } } and exits with 3 (ConfirmNeeded). Such a
  * command answers a request with "priceOnly": true the same way whatever budget it has: only the price is wanted.
@@ -39,6 +40,9 @@ import { voiceProfile, type VoiceProfile } from '../voice/profile';
 import { audioSeconds } from '../voice/index';
 import { materialReplicationProblems } from '../replication/production';
 import { materialSignatures } from './provenance';
+import { clipMusicBases } from '../music/provenance';
+import { inferMode, modeProblems, readModeReceipt, soundTail, writeModeReceipt, type ClipMusicBasis, type ModeContext, type SoundMode } from '../sound/modes';
+import { sampleSecondsFor, voiceSample, VOICE_NAMED } from '../voice/sample';
 
 export type GenerateKind = 'video' | 'image';
 
@@ -59,6 +63,11 @@ export interface GenerateRequest {
    */
   firstFrame?: string;
   lastFrame?: string;
+  /**
+   * false: the clip is used without its sound ("sound": "silent"). A generator makes it without a sound track where
+   * its model can, at that model's price for it; materials takes the sound out of any clip that still has one.
+   */
+  audio?: false;
   /**
    * Only the price is wanted: a generator that asks before it charges answers with the price (ConfirmNeeded) and makes
    * nothing, whatever budget it has. Sent only to a generator that has just asked for another clip of the same list.
@@ -147,6 +156,14 @@ export interface MaterialRequest extends GenerateRequest {
   /** Visible role ids from cast.json; [] explicitly declares a shot without people. */
   cast?: string[];
   speech?: VisibleSpeech;
+  /**
+   * The role of the clip's own sound in the video (sound/modes.ts; video-sound.md): "speech", "exhibit", "ambience"
+   * or "silent". Left out: speech for a clip with lines, else ambience (silent under a narrator when the reference's
+   * places are not heard).
+   */
+  sound?: SoundMode;
+  /** Why this clip carries music of its own: one of the exceptions the project's music plan records (music plan --clip-music). */
+  clipMusic?: ClipMusicBasis;
   /** Path in the project, for example "assets/desk.mp4". Its extension says what it is. */
   file: string;
   /** What the material shows, for whoever chooses materials later. Default: the prompt. */
@@ -171,7 +188,7 @@ export interface MaterialsReport { materials: MadeMaterial[]; credits: number; c
  * name a beat their times (dialogue.ts); with them, every beat the reference said on camera must be said by one clip
  * of the list, or by a clip the project already has (covered).
  */
-export interface RequestPolicy { selectedIdentity?: boolean; times?: BeatTimes; covered?: ReadonlySet<number> }
+export interface RequestPolicy { selectedIdentity?: boolean; times?: BeatTimes; covered?: ReadonlySet<number>; /** The exceptions the project records for music inside clips. */ clipMusic?: readonly ClipMusicBasis[] }
 
 const VIDEOS = ['.mp4', '.mov', '.webm'];
 const PICTURES = ['.png', '.jpg', '.jpeg', '.webp'];
@@ -294,6 +311,7 @@ export const checkRequests = async (rt: Runtime, requests: unknown, dir: string,
     if (r.anchor !== undefined && typeof r.anchor !== 'boolean') out.push(error(at + '.anchor', '"anchor" is false for a clip that shares nothing with the others; it is ' + JSON.stringify(r.anchor) + '.', 'Write "anchor": false, or remove it.'));
     if (r.aspect !== undefined && !(typeof r.aspect === 'string' && ASPECT.test(r.aspect))) out.push(error(at + '.aspect', '"aspect" is a ratio such as "16:9", "9:16" or "1:1", or "adaptive"; it is ' + JSON.stringify(r.aspect) + '.', 'Write "aspect": "16:9".', ['16:9', '9:16', '1:1', 'adaptive']));
     out.push(...frameProblems(r, at, found, clips));
+    out.push(...modeProblems(r, at, policy.clipMusic ?? [], kindOf(String(r.file)) !== 'image'));
     for (const k of LISTS) {
       for (const [j, p] of listed(r, k).entries()) {
         if (typeof p !== 'string' || !found.has(p)) out.push(error(at + '.' + k + '[' + j + ']', 'The reference ' + REFERENCES[k] + ' ' + JSON.stringify(p) + ' does not exist in ' + dir + '.', 'Put the file there, or remove it from "' + k + '".'));
@@ -322,6 +340,14 @@ const saidBefore = async (rt: Runtime, dir: string, requests: readonly MaterialR
   const listed = new Set(requests.map((r) => r.file));
   const others = [...(record?.plan ?? []), ...(record?.clips ?? [])].map((c) => c.file).filter((f): f is string => typeof f === 'string' && !listed.has(f));
   return new Set((await beatsSaid(rt, dir, others)).keys());
+};
+
+/** Takes the sound track out of a clip, in place (the pictures are copied as they are). */
+const stripSound = async (rt: Runtime, clip: string): Promise<true> => {
+  const out = clip + '.mute' + rt.path.extname(clip);
+  await runFfmpegOk(rt, ['-y', '-loglevel', 'error', '-i', clip, '-map', '0:v', '-c', 'copy', '-an', '-movflags', '+faststart', out]);
+  await rt.fs.rename(out, clip);
+  return true;
 };
 
 /** The picture that carries what the clips share (a person, a product, a place) from one clip to the others, beside the clips. */
@@ -450,24 +476,30 @@ const afterFailure = (message: string): string =>
  * to (approved.ts). o.plan (materials --confirm): the clips of
  * this list become the agreed clips when the project has none yet.
  */
-export const makeMaterials = async (rt: Runtime, o: { requests: MaterialRequest[]; dir: string; generator: Generator; anchor?: boolean; picture?: AnchorPicture; plan?: boolean; times?: BeatTimes; music?: boolean; onStep?: (file: string, done: number, total: number) => void }): Promise<MaterialsReport> => {
+export const makeMaterials = async (rt: Runtime, o: { requests: MaterialRequest[]; dir: string; generator: Generator; anchor?: boolean; picture?: AnchorPicture; plan?: boolean; times?: BeatTimes; music?: boolean; modes?: ModeContext; onStep?: (file: string, done: number, total: number) => void }): Promise<MaterialsReport> => {
   const replication = await materialReplicationProblems(rt, o.dir, o.requests);
   if (replication.problems.some(p => p.level === 'error')) return { materials: [], credits: 0, chargedCredits: 0, problems: replication.problems };
   if (replication.forbidNewSpeech) o = { ...o, requests: o.requests.map(r => ({ ...r, prompt: r.prompt + ' Do not add dialogue, voice-over, spoken narration or lip-synced speech. Preserve the requested music, effects and ambience; absence of narration does not mean silence.' })) };
   else if (replication.forbidNewNarration) o = { ...o, requests: o.requests.map(r => ({ ...r, prompt: r.prompt + ' Do not add a voice-over or narrator. Preserve only the planned source-role dialogue, music/vocals, effects and ambience.' })) };
   const before = Array.isArray(o.requests) && o.times ? await saidBefore(rt, o.dir, o.requests) : undefined;
-  const problems = await checkRequests(rt, o.requests, o.dir, {selectedIdentity:!!o.picture, ...(o.times ? { times: o.times } : {}), ...(before ? { covered: before } : {})});
+  const bases = await clipMusicBases(rt, o.dir);
+  const problems = await checkRequests(rt, o.requests, o.dir, {selectedIdentity:!!o.picture, ...(o.times ? { times: o.times } : {}), ...(before ? { covered: before } : {}), clipMusic: bases});
   if (problems.length) return { materials: [], credits: 0, chargedCredits: 0, problems };
   const said: string[] = [];
   // The video's music is one separate track (o.music): its clips are asked for without music of their own, unless the
   // video is one generated clip, whose own continuous soundtrack may stay.
   const clipFiles = new Set([...o.requests.filter((r) => kindOf(r.file) === 'video').map((r) => r.file), ...((await readClipRecord(rt, o.dir).catch(() => undefined))?.plan ?? []).map((c) => c.file)]);
-  const noMusic = o.music === true && clipFiles.size > 1;
-  if (o.music && clipFiles.size) said.push(noMusic
-    ? 'The video has a music track of its own, so every clip was asked for without background music: only ambience, effects and dialogue. A clip that exists already was not made again; the track is mixed under it as it is.'
-    : 'The video is one generated clip: it keeps its own continuous soundtrack, and no sentence about music was added to its prompt.');
+  // What the signature of an existing clip was made with: the sentence about music it got before the modes existed.
+  const separateMusic = o.music === true && clipFiles.size > 1;
+  // A strict remake of a reference keeps the sound its contract plans: the modes then apply only where a request names one.
+  const strict = replication.forbidNewSpeech === true || replication.forbidNewNarration === true;
+  const modeOf = (r: MaterialRequest): SoundMode | undefined => (kindOf(r.file) !== 'video' || (strict && r.sound === undefined) ? undefined : inferMode(r, o.modes));
+  if (clipFiles.size && !strict) said.push('Every clip is asked for by the role of its sound (video-sound.md): a clip with lines for its speaker\'s voice, any other for the sound of its place or without sound, and none with music: the video\'s music is one track'
+    + (bases.length ? ', except under the exceptions the project records (' + bases.join(', ') + ') for the clips that name one ("clipMusic")' : '') + '. An "exhibit" is left free. A clip that exists already was not made again.');
   const locked = new Map<string, Awaited<ReturnType<typeof castImages>>>();
   const voices = new Map<string, VoiceProfile>();
+  /** The speakers of a clip whose registered voices go with it as reference sounds, in the order they speak. */
+  const spoken = new Map<string, { id: string; profile: VoiceProfile }[]>();
   const uses = new Map<string, number>();
   for (const r of o.requests) for (const id of r.cast ?? []) uses.set(id, (uses.get(id) ?? 0) + 1);
   for (const r of o.requests) if (r.cast?.length) {
@@ -486,10 +518,13 @@ export const makeMaterials = async (rt: Runtime, o: { requests: MaterialRequest[
       // A person who speaks in a clip speaks natively whatever voice the project registered: the registered voice is
       // the timbre reference where it can be one (native-reference, a clip made from references), and otherwise the
       // clip speaks with the model's voice, which is said, never refused.
-      const profile = await voiceProfile(rt,o.dir,speaker).catch(() => undefined);
-      if (!profile) continue;
-      if (profile.mode === 'native-reference' && !usesFrames(r)) { voices.set(r.file,profile); continue; }
-      said.push(r.file + ': ' + speaker + ' speaks with the video model\'s own voice; the voice registered for the project is not passed as a reference (' + (profile.mode === 'native-reference' ? 'this clip starts from a frame, and a clip made from frames takes no references' : 'it is registered audio-first; register it with --mode native-reference to pass it as the timbre reference where the model takes one') + '). Listen to the clip beside the voice-over.');
+      const refs: { id: string; profile: VoiceProfile }[] = [];
+      for (const id of speakersOf(r.speech)) { const profile = await voiceProfile(rt,o.dir,id).catch(() => undefined); if (profile) refs.push({ id, profile }); }
+      if (!refs.length) continue;
+      // The registered voice goes to every speaking clip of its character as the reference of its voice (voice/sample.ts),
+      // whatever way it was registered: the person then sounds the same on camera and in the voice-over.
+      if (!usesFrames(r)) { spoken.set(r.file, refs); if (refs[0]?.id === speaker) voices.set(r.file, refs[0].profile); continue; }
+      said.push(r.file + ': ' + refs.map((v) => v.id).join(', ') + ' speak' + (refs.length === 1 ? 's' : '') + ' with the video model\'s own voice; the voice registered for the project is not passed as a reference (this clip starts from a frame, and a clip made from frames takes no references). Listen to the clip beside the voice-over.');
       continue;
     }
     try {
@@ -519,23 +554,37 @@ export const makeMaterials = async (rt: Runtime, o: { requests: MaterialRequest[
     const cast = locked.get(original.file);
     const voice = voices.get(original.file);
     const withCast = cast ? { ...original, ...(!usesFrames(original) ? { images: [...(original.images ?? []), ...cast.images] } : {}), prompt: original.prompt + ' ' + cast.instruction } : original;
-    const asked = voice && original.speech?.mode === 'native' ? { ...withCast, audios:[...(withCast.audios??[]),voice.reference], prompt:withCast.prompt+' @audio'+((withCast.audios?.length??0)+1)+' defines the voice identity and timbre only. Speak the exact new dialogue with that voice, never the reference recording’s words. Keep the speaker’s voice stable across all shots.' } : withCast;
+    // Every speaker's sample as a reference sound, named in the prompt: one voice per character, on camera and off.
+    const refs = original.speech?.mode === 'native' ? (spoken.get(original.file) ?? []) : [];
+    const samples: string[] = [];
+    for (const v of refs) samples.push(await voiceSample(rt, o.dir, v.profile, sampleSecondsFor(refs.length)));
+    const asked = refs.length ? { ...withCast, audios: [...(withCast.audios ?? []), ...samples], prompt: withCast.prompt + VOICE_NAMED(refs.map((v) => v.id), (withCast.audios?.length ?? 0) + 1) } : withCast;
     // Speech as it is sent: timed lines get their slots from the template here (checkRequests made sure each has one).
     const sent: SentSpeech | undefined = isDialogue(original.speech) ? timedDialogue(original.speech, o.times) : original.speech;
-    const dependencies=[...LISTS.flatMap(k=>asked[k]??[]),asked.firstFrame,asked.lastFrame,asked.continues,speechAudio(asked.speech)].filter((p):p is string=>typeof p==='string');
-    const legacyRequests = cast?.legacyInstructions?.map(instruction => ({ ...asked,
-      prompt: original.prompt + ' ' + instruction + (voice && original.speech?.mode === 'native'
-        ? ' @audio'+((withCast.audios?.length??0)+1)+' defines the voice identity and timbre only. Speak the exact new dialogue with that voice, never the reference recording’s words. Keep the speaker’s voice stable across all shots.' : ''),
-    })) ?? [];
-    const signatures = materialSignatures({ request: asked, voiceHash: voice?.sha256,
-      dependencies: await Promise.all(dependencies.map(async p => [p, await rt.fs.readFile(rt.path.resolve(o.dir,p)).then(sha256,()=>null)] as const)),
-      ...(sent && 'lines' in sent ? { lines: sent.lines } : {}), ...(noMusic ? { separateMusic: true as const } : {}),
-    }, legacyRequests);
+    const hashed = (paths: readonly (string | undefined)[]) => Promise.all(paths.filter((p): p is string => typeof p === 'string').map(async p => [p, await rt.fs.readFile(rt.path.resolve(o.dir,p)).then(sha256,()=>null)] as const));
+    const dependenciesOf = (r: MaterialRequest) => hashed([...LISTS.flatMap(k=>r[k]??[]),r.firstFrame,r.lastFrame,r.continues,speechAudio(r.speech)]);
+    // The role of the sound is kept in the clip's mode receipt, not in its signature: naming it later does not disown a clip.
+    const signed = ({ sound: _sound, clipMusic: _music, ...r }: MaterialRequest): MaterialRequest => r;
+    const rest = { ...(sent && 'lines' in sent ? { lines: sent.lines } : {}), ...(separateMusic ? { separateMusic: true as const } : {}) };
+    const signatures = materialSignatures({ request: signed(asked), voiceHash: voice?.sha256, dependencies: await dependenciesOf(asked), ...rest },
+      cast?.legacyInstructions?.map(instruction => ({ ...signed(asked), prompt: original.prompt + ' ' + instruction + (refs.length ? VOICE_NAMED(refs.map((v) => v.id), (withCast.audios?.length ?? 0) + 1) : '') })) ?? []);
+    // A clip made before every speaking clip took a voice sample keeps its signature: made with the whole registered
+    // reference under the earlier sentence (a voice registered native-reference), or without any (audio-first).
+    if (refs.length) {
+      const first = refs[0]!.profile;
+      const before = { ...withCast, audios:[...(withCast.audios??[]),first.reference], prompt:withCast.prompt+' @audio'+((withCast.audios?.length??0)+1)+' defines the voice identity and timbre only. Speak the exact new dialogue with that voice, never the reference recording’s words. Keep the speaker’s voice stable across all shots.' };
+      signatures.push(
+        ...materialSignatures({ request: signed(before), voiceHash: first.sha256, dependencies: await dependenciesOf(before), ...rest },
+          cast?.legacyInstructions?.map(instruction => ({ ...signed(before), prompt: original.prompt + ' ' + instruction + before.prompt.slice(withCast.prompt.length) })) ?? []),
+        ...materialSignatures({ request: signed(withCast), dependencies: await dependenciesOf(withCast), ...rest }, cast?.legacyInstructions?.map(instruction => ({ ...signed(withCast), prompt: original.prompt + ' ' + instruction })) ?? []),
+      );
+    }
     const signature = signatures[0]!;
     const isAnchor = first >= 0 && i === 0;
     const takes = source !== undefined && takesAnchor(asked) && !isAnchor;
     const needs = [...(takes && anchorFile ? [anchorFile] : []), ...(asked.continues ? [asked.continues] : [])];
     const kind = kindOf(asked.file) as GenerateKind;
+    const mode = modeOf(original);
     const target = rt.path.resolve(o.dir, asked.file);
     o.onStep?.(asked.file, i, o.requests.length);
     let entry: MadeMaterial = { file: asked.file, kind, made: false };
@@ -560,7 +609,8 @@ export const makeMaterials = async (rt: Runtime, o: { requests: MaterialRequest[
         const references = Object.fromEntries(LISTS.flatMap((k) => (r[k]?.length ? [[k, (r[k] ?? []).map(at)]] : [])));
         const start = priceOnly ? undefined : asked.continues ? await lastFrameOf(rt, o.dir, asked.continues) : asked.firstFrame ? at(asked.firstFrame) : undefined;
         const frames = { ...(start ? { firstFrame: start } : {}), ...(start && asked.lastFrame ? { lastFrame: at(asked.lastFrame) } : {}) };
-        const request: GenerateRequest = { prompt: r.prompt + (sent ? speechPrompt(sent) : '') + (noMusic && kind === 'video' ? NO_MUSIC : ''), ...(r.seconds ? { seconds: r.seconds } : {}), ...(r.aspect ? { aspect: r.aspect } : {}), ...references, ...frames, ...(priceOnly ? { priceOnly: true as const } : {}) };
+        const tail = mode ? soundTail(mode, original.clipMusic ? { music: original.clipMusic } : {}) : separateMusic && kind === 'video' ? NO_MUSIC : '';
+        const request: GenerateRequest = { prompt: r.prompt + (sent ? speechPrompt(sent) : '') + tail, ...(mode === 'silent' ? { audio: false as const } : {}), ...(r.seconds ? { seconds: r.seconds } : {}), ...(r.aspect ? { aspect: r.aspect } : {}), ...references, ...frames, ...(priceOnly ? { priceOnly: true as const } : {}) };
         // The project (its task, for pictures too) and, for a clip, which agreed clip it is.
         const agreement: Record<string, string> = { POPOST_GEN_PROJECT: o.dir, ...(kind === 'video' ? { POPOST_GEN_FILE: original.file, POPOST_GEN_REQUEST: requestHash(rt, original) } : {}) };
         const made = await o.generator.make(kind, request, partial, agreement);
@@ -569,7 +619,10 @@ export const makeMaterials = async (rt: Runtime, o: { requests: MaterialRequest[
         if (charged !== undefined) entry = { ...entry, chargedCredits: charged };
         if (!(await exists(partial))) throw new Error('The generator finished without writing the file.');
         if (sent) await finalizeSpeech(rt, partial, sent, o.dir, target);
+        // A silent clip is never heard: a model that made a sound track anyway loses it here.
+        const stripped = mode === 'silent' && (await probe(rt, partial).then((p) => p.hasAudio, () => false)) ? await stripSound(rt, partial) : false;
         await rt.fs.rename(partial, target);
+        if (mode) await writeModeReceipt(rt, target, { sound: mode, ...(original.clipMusic ? { clipMusic: original.clipMusic } : {}), ...(stripped ? { stripped: true as const } : {}) });
         if (asked.speech) for (const ext of ['.speech.wav','.speech.json']) await rt.fs.rename(partial + ext, target + ext);
         if (cast || asked.speech) await rt.fs.writeFile(target + '.generation.json', signature);
         // A generator that does not know "priceOnly" and had the budget made the clip: it is there, without what it waited for.
@@ -582,6 +635,8 @@ export const makeMaterials = async (rt: Runtime, o: { requests: MaterialRequest[
         continue;
       }
     }
+    // A clip that was there before its request named the role of its sound gets the receipt the mix reads; the file stays as it is.
+    if (mode && original.sound !== undefined && !(await readModeReceipt(rt, target))) await writeModeReceipt(rt, target, { sound: mode, ...(original.clipMusic ? { clipMusic: original.clipMusic } : {}) });
     if (kind === 'video') {
       const p = await probe(rt, target).catch(() => undefined);
       if (p) entry = { ...entry, seconds: Math.round((p.frames / p.fps) * 100) / 100 };

@@ -38,14 +38,21 @@ interface AudioInput { file: string; chain: string }
  */
 export const duckFilter = (duck: Duck | undefined, fps: number, offset = 0, duration = Infinity): string => {
   if (!duck) return '';
-  const ramp = duck.ramp / fps;
-  const terms = duck.spans
-    .map(([start, end]) => [(start - offset) / fps, (end - offset) / fps] as const)
-    .filter(([a, b]) => b + ramp > 0 && a - ramp < duration)
-    .map(([a, b]) => 'min(clip((t-' + s6(a - ramp) + ')/' + s6(ramp) + ',0,1),clip((' + s6(b + ramp) + '-t)/' + s6(ramp) + ',0,1))');
-  if (!terms.length) return '';
-  const depth = terms.reduce((x, y) => 'max(' + x + ',' + y + ')');
-  return ",volume=volume='pow(10,-" + s6(duck.db) + '/20*' + depth + ")':eval=frame";
+  /** The depth (0..1) of one lowering as an expression of t, or '' when none of its spans is heard in the range. */
+  const depthOf = (spans: readonly (readonly [number, number])[], frames: number): string => {
+    const ramp = frames / fps;
+    const terms = spans
+      .map(([start, end]) => [(start - offset) / fps, (end - offset) / fps] as const)
+      .filter(([a, b]) => b + ramp > 0 && a - ramp < duration)
+      .map(([a, b]) => 'min(clip((t-' + s6(a - ramp) + ')/' + s6(ramp) + ',0,1),clip((' + s6(b + ramp) + '-t)/' + s6(ramp) + ',0,1))');
+    return terms.length ? terms.reduce((x, y) => 'max(' + x + ',' + y + ')') : '';
+  };
+  const under = depthOf(duck.spans, duck.ramp), away = duck.away ? depthOf(duck.away.spans, duck.away.ramp) : '';
+  if (!under && !away) return '';
+  // Without a span to give way on the expression is the one a sound under speech always had.
+  if (!away) return ",volume=volume='pow(10,-" + s6(duck.db) + '/20*' + under + ")':eval=frame";
+  const sum = [under ? s6(duck.db) + '*' + under : '', s6(duck.away?.db ?? 0) + '*' + away].filter(Boolean).join('+');
+  return ",volume=volume='pow(10,-(" + sum + ")/20)':eval=frame";
 };
 
 /**

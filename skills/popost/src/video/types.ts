@@ -168,8 +168,23 @@ export type Fill = string | Gradient;
 /** A soft shadow. Units are given where it is used. */
 export interface Shadow { color: string; blur?: number; x?: number; y?: number }
 
+/**
+ * What a clip's own sound is in the video (references/video-sound.md, rule R3). speech: the person on screen is the
+ * video's speaker: heard at full level, and no voice-over lies over it. exhibit: the clip is the thing being shown:
+ * its whole sound (speech and music included) is heard, lowered under the voice-over and back in its pauses, and the
+ * video's music gives way for the span. ambience: the sound of the place, lowered under every voice. silent: never heard.
+ */
+export const SOUND_MODES = ['speech', 'exhibit', 'ambience', 'silent'] as const;
+export type SoundMode = (typeof SOUND_MODES)[number];
+
 /** How a video material plays where it is used (a segment base or a video item). The frame mapping is in the header. */
 export interface FootageSpec {
+  /**
+   * The role of the footage's sound here (SoundMode). Left out: the mode the clip was made with (its receipt,
+   * <file>.mode.json), else the automatic rule of "audio" below. A mode says the sound is wanted: an exhibit or an
+   * ambience is heard in a project with audio tracks too.
+   */
+  soundMode?: SoundMode;
   /** The first frame shown, counted in the source video's own frames. Default 0. */
   in?: number;
   /** Playback rate, 0.25 to 4. Default 1. */
@@ -360,9 +375,12 @@ export interface VideoTrack extends ItemCommon, FootageSpec { type: 'video'; mat
  * lines are spoken on, counted from the track's start, and other sound gives way on them. 'music': it lies under
  * everything and gives way to every speech, unless "gain" fixes its level. A project whose audio tracks (beds apart)
  * all have a role is mixed in layers: its clips keep their own sound. A track without a role is a sound of the
- * project's own as before: it keeps footage silent unless a use says "audio".
+ * project's own as before: it keeps footage silent unless a use says "audio". 'sfx': a one-shot sound effect placed on
+ * an event of the picture (popost video sfx place): it sits above the music and below speech, lowered a little while
+ * someone speaks unless it is the "lead" of its moment. at: the frame of the video its file starts on (an effect is
+ * placed by frame, not by segment); cue: the event it was placed for, for the record.
  */
-export interface AudioTrack { id: string; type: 'audio'; material: string; gain?: number; during?: Span; note?: string; bed?: true; in?: number; fadeOut?: number; role?: 'voice' | 'music'; lines?: [number, number][] }
+export interface AudioTrack { id: string; type: 'audio'; material: string; gain?: number; during?: Span; note?: string; bed?: true; in?: number; fadeOut?: number; role?: 'voice' | 'music' | 'sfx'; lines?: [number, number][]; at?: number; lead?: true; cue?: string }
 
 /** One caption: shown on its span (which may run past its segment), in the track's box, style, entrance and exit. */
 export interface CaptionCue { text: string; during: Span; spans?: TextSpanStyle[]; note?: string }
@@ -411,6 +429,9 @@ export type FootageFacts = Pick<Probe, 'width' | 'height' | 'fps' | 'frames' | '
    * Such a clip is never muted by itself.
    */
   speech?: [number, number][];
+  /** The mode the clip was made with, and the recorded basis of music made inside it (its receipt, <file>.mode.json; sound/modes.ts). */
+  sound?: SoundMode;
+  clipMusic?: string;
   /** Strict native speech measured from hash-bound actual ASR, independently of requested receipt slots. */
   speechObserved?: true;
 };
@@ -561,7 +582,14 @@ export interface ResolvedItem {
  * How a sound gives way to speech (timeline/mix.ts): lowered by db on the spans (timeline frames, start .. end-1), its
  * level going down over ramp frames before a span and coming back over ramp frames after it.
  */
-export interface Duck { spans: [number, number][]; db: number; ramp: number }
+export interface Duck {
+  spans: [number, number][]; db: number; ramp: number;
+  /**
+   * Spans on which the sound gives way altogether (music under a clip that brings music of its own: one music source
+   * at a time), lowered by its own db over its own, longer ramp. Added to the lowering above.
+   */
+  away?: { spans: [number, number][]; db: number; ramp: number };
+}
 
 export interface ResolvedAudio {
   id: string;
@@ -597,6 +625,12 @@ export interface Resolved {
    * the id of the clip's sound). Written only when there is any; the checks hold one against the other.
    */
   speech?: { voice: [number, number][]; dialogue: { id: string; spans: [number, number][] }[] };
+  /**
+   * Where music is heard, in timeline frames: the music tracks (fixed: a track whose "gain" keeps it from giving way)
+   * and the clips that bring music of their own (an exhibit, or a clip made with music on a recorded basis). Written
+   * only when there is any; the check holds them to one source at a time (project/check-sound.ts).
+   */
+  music?: { tracks: { id: string; span: [number, number]; fixed: boolean }[]; clips: { id: string; span: [number, number]; exhibit: boolean; basis?: string }[] };
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
