@@ -264,6 +264,20 @@ shot's picture to the same picture.
 
 ## Checking a scene
 
+### Full-project resource preflight
+
+The current renderer creates one iframe for every scene segment, including repeated uses of the same scene file. Hidden scenes initialize their documents, fonts and images too; a scene that eagerly loads a full native frame sequence repeats that work in every instance. A bounded, active-only iframe lifecycle is not implemented. Increasing the navigation timeout or changing its load milestone does not remove this initialization work.
+
+Before a long render, run `popost video scene check <project-dir> --shots <dir>` on the complete assembled project and keep its actual result and pictures. A small project containing one scene does not prove that the full project loads. If full initialization times out, preserve the existing native clips and receipts; an initialization failure is not a reason to purchase unchanged clips again.
+
+- Count repeated scene instances, images and large decoded pictures. Parallel render pages multiply this load; start resource-heavy projects with one render page.
+- A continuous, editable master scene can replace repeated instances when it preserves every measured event, cut, overlay, transition, source-in and audio clock. This is a composition change, not automatic renderer deduplication. It must not become a still frame used to fill time.
+- Keep large geometry and tracking data in separate editable source files and, where needed, a generated local data script instead of repeating the same large JSON in every HTML document. Follow the existing sandbox and local-loading rules.
+- Prefer core video items or the footage helper's required-frame extraction. If a custom scene needs frame pictures, bound them to the span it uses; do not preload every native clip's entire sequence in each document.
+- Repeat the full-project load preflight after changing resource ownership or assets. A higher timeout, a successful isolated scene, or a generation receipt does not prove a correct full render.
+
+Resource readiness and visual fidelity are separate checks. After consolidation, inspect same-time source/output pairs, transition boundaries and backward seeks; preserving loadability must not change an event's clock or remove a required action.
+
 ```bash
 popost video check <project-dir>                 # the rules above, with a place and a fix
 popost video scene check <project-dir> --shots <dir>   # every scene opened; three frames of each kept in <dir>

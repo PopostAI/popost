@@ -109,6 +109,10 @@ Use the reported segment starts, effect spans, owner and FPS. Do not reconstruct
 
 A scene receives seconds from its own segment's start. The engine may expose it early during a transition and seek frames in any order. Use one declared frame clock for its text, objects, media and marks. Do not add timers, wall-clock reads, random state, or an independent playback loop.
 
+Use `sceneClock` integer frames and half-open ranges (`start <= frame && frame < end`) for display branches and source windows. Do not compare a frame-derived time with a rounded decimal boundary: a six-decimal second value can fall on the opposite side of the intended frame. Check the exact frame before, at and after each boundary, including the footage holder and its overlay.
+
+Follow the [full-project resource preflight](video-scenes.md#full-project-resource-preflight) before long renders. Repeated eager scene instances can exhaust initialization even when an isolated scene passes. Preserve the existing media and clocks when restructuring resource ownership. A timeout is not a completed artifact, and increasing it does not implement lazy loading.
+
 The exported helper file defines `window.popostMotion`. It has no network or Node dependency and changes no existing scene until that scene loads it. Load it synchronously from a scene in `scenes/`:
 
 ```html
@@ -258,6 +262,8 @@ popost video replication check project --reference inputs/reference.mp4 \
 The review binds the actual source fingerprint, artifact fingerprint, target FPS and frame count. It separately records audio, visual, and every required event as pending, passed, failed or unknown, with evidence. Include all actual audio uses in the audio manifest. A generated speech file routed through a generic `sound` field still counts as added speech; it cannot bypass the no-new-narrator rule.
 
 For every temporal event, inspect at least two different actual output frame indices; add intermediate states when a path, interaction or reveal needs them. Bind those indices to the real artifact hash. A source contact sheet, one attractive output frame, a statement saying “passed,” or evidence from an older render does not prove current motion. Recheck after any edit changes the artifact bytes.
+
+Inspect the actual subtitle cues as well as their layout. A word split across two cues can disappear or break in the middle of an utterance; review adjacent cues against the real speech and their boundary frames, rather than accepting the frame size alone. Automated checks do not identify every empty frame or broken word.
 
 Check the first seconds densely enough to distinguish a static sentence from typing and a sharp prop close-up from a focus reveal. Check object ownership and causal state changes, digit/label spacing during the roll, marks under the actual viewport motion, media coverage across transition boundaries, source-like acting/material finish, full duration and audio intent. Automated measurements and composite similarity scores are diagnostics; they do not establish semantic pairing or faithful performance.
 
