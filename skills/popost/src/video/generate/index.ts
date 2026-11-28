@@ -38,6 +38,7 @@ import { readClipRecord } from './approved';
 import { voiceProfile, type VoiceProfile } from '../voice/profile';
 import { audioSeconds } from '../voice/index';
 import { materialReplicationProblems } from '../replication/production';
+import { materialSignatures } from './provenance';
 
 export type GenerateKind = 'video' | 'image';
 
@@ -522,7 +523,15 @@ export const makeMaterials = async (rt: Runtime, o: { requests: MaterialRequest[
     // Speech as it is sent: timed lines get their slots from the template here (checkRequests made sure each has one).
     const sent: SentSpeech | undefined = isDialogue(original.speech) ? timedDialogue(original.speech, o.times) : original.speech;
     const dependencies=[...LISTS.flatMap(k=>asked[k]??[]),asked.firstFrame,asked.lastFrame,asked.continues,speechAudio(asked.speech)].filter((p):p is string=>typeof p==='string');
-    const signature = sha256(JSON.stringify({ request: asked, voiceHash: voice?.sha256, dependencies:await Promise.all(dependencies.map(async p=>[p,await rt.fs.readFile(rt.path.resolve(o.dir,p)).then(sha256,()=>null)])), ...(sent && 'lines' in sent ? { lines: sent.lines } : {}) }));
+    const legacyRequests = cast?.legacyInstructions?.map(instruction => ({ ...asked,
+      prompt: original.prompt + ' ' + instruction + (voice && original.speech?.mode === 'native'
+        ? ' @audio'+((withCast.audios?.length??0)+1)+' defines the voice identity and timbre only. Speak the exact new dialogue with that voice, never the reference recording’s words. Keep the speaker’s voice stable across all shots.' : ''),
+    })) ?? [];
+    const signatures = materialSignatures({ request: asked, voiceHash: voice?.sha256,
+      dependencies: await Promise.all(dependencies.map(async p => [p, await rt.fs.readFile(rt.path.resolve(o.dir,p)).then(sha256,()=>null)] as const)),
+      ...(sent && 'lines' in sent ? { lines: sent.lines } : {}), ...(noMusic ? { separateMusic: true as const } : {}),
+    }, legacyRequests);
+    const signature = signatures[0]!;
     const isAnchor = first >= 0 && i === 0;
     const takes = source !== undefined && takesAnchor(asked) && !isAnchor;
     const needs = [...(takes && anchorFile ? [anchorFile] : []), ...(asked.continues ? [asked.continues] : [])];
@@ -532,7 +541,7 @@ export const makeMaterials = async (rt: Runtime, o: { requests: MaterialRequest[
     let entry: MadeMaterial = { file: asked.file, kind, made: false };
     if ((cast || asked.speech) && await exists(target)) {
       const previous = await rt.fs.readText(target + '.generation.json').catch(() => '');
-      if (previous !== signature) { materials.push({ ...entry, error: 'Existing clip has different or missing cast/speech provenance. Keep it and choose a new output filename for this request.' }); continue; }
+      if (!signatures.includes(previous)) { materials.push({ ...entry, error: 'Existing clip has different or missing cast/speech provenance. Keep it and choose a new output filename for this request.' }); continue; }
     }
     if (!(await exists(target))) {
       const failed = needs.find((f) => absent.get(f) === 'failed');

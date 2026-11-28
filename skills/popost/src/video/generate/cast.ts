@@ -40,6 +40,17 @@ export interface CastRole {
 }
 export interface CastManifest { version: 1; roles: CastRole[] }
 export const CAST_FILE = 'cast.json';
+/** Bound content keeps its identity when a portable copy changes only its local path. */
+const evidenceIdentity = (e: CastVisualEvidence, verified: ReadonlySet<string>): string => {
+  if (!e.sha256 || !e.file || !verified.has(e.sha256.toLowerCase())) return JSON.stringify(e);
+  return JSON.stringify(Object.fromEntries(Object.entries(e).filter(([key]) => key !== 'file').sort(([a], [b]) => a.localeCompare(b))
+    .map(([key, value]) => [key, key === 'sha256' ? e.sha256!.toLowerCase() : value])));
+};
+const uniqueEvidence = (items: CastVisualEvidence[], verified: ReadonlySet<string>): CastVisualEvidence[] => {
+  const result = new Map<string, CastVisualEvidence>();
+  for (const item of items) { const key = evidenceIdentity(item, verified); if (!result.has(key)) result.set(key, item); }
+  return [...result.values()];
+};
 export const personPrompt = /\b(?:person|people|woman|women|man|men|presenter|speaker|host|actor|actress|talking|speaking)\b|人物|出镜|口播|说话|主持人|男性|女性/i;
 const inside = (rt: Runtime, dir: string, file: string): string => {
   const p = rt.path.resolve(dir, file), rel = rt.path.relative(rt.path.resolve(dir), p);
@@ -67,7 +78,7 @@ export const castPrompt = (role: CastRole): string =>
     ' Invent a distinct fictional individual with their own facial geometry and features. The description specifies an archetype, never the identity of a reference creator. Do not reproduce a real reference person.') +
   ' No text, watermark, collage, or additional ' + (role.visual ? 'character' : 'person') + '. Keep this identity and wardrobe for all subsequent shots.';
 
-export const readCast = async (rt: Runtime, dir: string): Promise<CastManifest> => {
+const readCastVersion = async (rt: Runtime, dir: string, legacyPaths = false): Promise<CastManifest> => {
   const raw: unknown = JSON.parse(await rt.fs.readText(rt.path.join(dir, CAST_FILE)));
   if (!raw || typeof raw !== 'object' || !('roles' in raw) || !Array.isArray(raw.roles)) throw new Error('cast.json needs {"version":1,"roles":[{"id":"host","description":"...","identity":"new"}]}.');
   const roles = raw.roles as CastRole[], ids = new Set<string>();
@@ -98,23 +109,27 @@ export const readCast = async (rt: Runtime, dir: string): Promise<CastManifest> 
   if (replication.problems.some(p => p.level === 'error')) throw new Error('Invalid replication.json for cast: ' + replication.problems.map(p => p.message).join(' '));
   if (replication.contract) {
     const source = replication.contract.visual;
+    const verified = new Set(source.evidence.filter(e => e.file && e.sha256).map(e => e.sha256!.toLowerCase()));
     for (const role of roles) {
       const visual = role.visual;
       role.visual = {
         ...visual,
         medium: visual?.medium ?? source.medium,
         style: visual?.style?.length ? visual.style : [...source.style],
-        evidence: [...new Map([...source.evidence.map(e => ({ ...e })), ...(visual?.evidence ?? [])].map(e => [JSON.stringify(e), e])).values()],
+        evidence: uniqueEvidence([...source.evidence.map(e => ({ ...e })), ...(visual?.evidence ?? [])], legacyPaths ? new Set() : verified),
       };
     }
   }
   return { version: 1, roles };
 };
+export const readCast = (rt: Runtime, dir: string): Promise<CastManifest> => readCastVersion(rt, dir);
 
-export const castImages = async (rt: Runtime, dir: string, ids: string[], uses: ReadonlyMap<string, number> = new Map()): Promise<{ images: string[]; instruction: string }> => {
-  const cast = await readCast(rt, dir), images: string[] = [], lines: string[] = [];
+export const castImages = async (rt: Runtime, dir: string, ids: string[], uses: ReadonlyMap<string, number> = new Map()): Promise<{ images: string[]; instruction: string; legacyInstructions?: string[] }> => {
+  const cast = await readCast(rt, dir);
+  const render = async (manifest: CastManifest): Promise<{ images: string[]; instruction: string }> => {
+  const images: string[] = [], lines: string[] = [];
   for (const id of ids) {
-    const role = cast.roles.find(r => r.id === id);
+    const role = manifest.roles.find(r => r.id === id);
     if (!role) throw new Error('No cast role named "' + id + '". Define its archetype in cast.json.');
     const recurring = uses.has(id) ? (uses.get(id) ?? 0) > 1 : (role.shots?.length ?? 0) > 1;
     if (!role.image && !recurring && (!role.identity || role.identity === 'new')) {
@@ -128,6 +143,25 @@ export const castImages = async (rt: Runtime, dir: string, ids: string[], uses: 
     images.push(role.image); lines.push(id + ': ' + role.description + castVisualInstruction(role));
   }
   return { images, instruction: (images.length ? 'The final ' + images.length + ' reference image(s) are the locked cast. ' : 'This is a single-appearance cast, defined directly for video generation. ') + lines.join('; ') + '. Preserve the described identity, face, build, hair and wardrobe. Do not introduce a reference creator or a different actor.' };
+  };
+  const current = await render(cast);
+  const legacy = await readCastVersion(rt, dir, true);
+  const alternatives = [legacy];
+  const raw = JSON.parse(await rt.fs.readText(rt.path.join(dir, CAST_FILE))) as CastManifest;
+  const replication = await readReplication(rt, dir);
+  const verified = new Set(replication.contract?.visual.evidence.filter(e => e.file && e.sha256).map(e => e.sha256!.toLowerCase()) ?? []);
+  // A stored list can preserve an earlier duplicate count. It is eligible only if it contains the exact same
+  // evidence identities as the current verified context, so new source facts cannot be silently dropped.
+  const stored: CastManifest = { version: 1, roles: cast.roles.map(role => {
+    const prior = raw.roles.find(r => r.id === role.id)?.visual?.evidence;
+    const actual = role.visual?.evidence;
+    const keys = (items: CastVisualEvidence[]) => [...new Set(items.map(e => evidenceIdentity(e, verified)))].sort();
+    return prior && actual && JSON.stringify(keys(prior)) === JSON.stringify(keys(actual))
+      ? { ...role, visual: { ...role.visual, evidence: prior } } : role;
+  }) };
+  alternatives.push(stored);
+  const legacyInstructions = [...new Set(await Promise.all(alternatives.map(async m => (await render(m)).instruction)))].filter(s => s !== current.instruction);
+  return { ...current, ...(legacyInstructions.length ? { legacyInstructions } : {}) };
 };
 
 export const completeCast = async (rt: Runtime, dir: string, id: string, from: string, provenance: string): Promise<CastRole> => {

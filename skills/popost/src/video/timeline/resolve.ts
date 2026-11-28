@@ -160,7 +160,20 @@ const mixedAudio = (ctx: Ctx, segments: readonly ResolvedSegment[], items: reado
   const tracks = trackSounds(ctx);
   const clips = clipSounds(ctx, segments, items, tracks);
   const voice = joinSpans(tracks.flatMap((t) => t.lines));
-  const dialogue = clips.filter((c) => c.speech.length).map((c) => ({ id: c.sound.id, spans: joinSpans(c.speech) }));
+  // Actual strict speech can continue under B-roll through a bed even when its original face is not visible.
+  const observedBeds = tracks.flatMap(t => {
+    if (!t.bed) return [];
+    const f = factsOf(ctx, t.material);
+    if (!f.speechObserved) return [];
+    const use = { start: t.sound.start, end: t.sound.end ?? ctx.tl.total, inSeconds: t.sound.from ? t.sound.from.frame / t.sound.from.fps : 0, speed: t.sound.speed ?? 1 };
+    const spans = (f.speech ?? []).flatMap(s => { const heard = heardSpan(s, use, ctx.fps); return heard ? [heard] : []; });
+    return spans.length ? [{ id: t.sound.id, spans: joinSpans(spans), sound: t.sound }] : [];
+  });
+  const dialogue = [
+    ...clips.filter(c => c.speech.length && !(c.carried && observedBeds.some(b => b.sound.src === c.sound.src && b.sound.start <= c.sound.start && (b.sound.end ?? ctx.tl.total) >= (c.sound.end ?? ctx.tl.total))))
+      .map(c => ({ id: c.sound.id, spans: joinSpans(c.speech) })),
+    ...observedBeds.map(b => ({ id: b.id, spans: b.spans })),
+  ];
   const under = (spans: readonly (readonly [number, number])[], a: ResolvedAudio): ResolvedAudio => {
     const duck = duckOf(spans.filter(([s, e]) => e > a.start && s < (a.end ?? ctx.tl.total)), ctx.fps);
     return duck ? { ...a, duck } : a;

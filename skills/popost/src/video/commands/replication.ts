@@ -11,6 +11,7 @@ import { checkPairs, PAIRS_FILE, type PairUse } from '../replication/pairs';
 import { MOTION_BUNDLE } from '../replication/motion-bundle';
 import { preserveReferenceSound } from '../replication/audio-provenance';
 import { sourceRevision } from '../replication/revision';
+import { observeNativeSpeech } from '../replication/speech-observed';
 import type { Problem, Resolved } from '../types';
 import { error } from '../project/check-common';
 import { command, userPath, VideoCommandError, type Commands } from './shared';
@@ -71,6 +72,19 @@ const timeline = command('show actual compiled target frames, scene offsets, sou
   const data = { canvas: r.canvas, frames: r.frames, segments: r.segments, items: r.items, audio: r.audio, speech: r.speech, footage: r.footage, words: r.words ?? [] };
   if (args.string('out')) await writeJson(rt, userPath(rt, args.req('out')), data);
   return report(rt, built.problems, { timeline: data });
+});
+
+const observe = command('import actual native-clip ASR and optional inspected words/articulation evidence, independently of requested line slots', {
+  positionals: [DIR], options: [
+    { flag: '--media', required: true, help: 'actual native video inside the project' },
+    { flag: '--transcript', required: true, help: 'real video transcript JSON; its FPS is the ASR clock' },
+    { flag: '--review', help: 'words/articulation review JSON with actual media/hash/frame/audio evidence' },
+  ],
+}, async (args, rt) => {
+  try {
+    const observation = await observeNativeSpeech(rt, { dir: userPath(rt, args.req('dir')), media: userPath(rt, args.req('media')), transcript: userPath(rt, args.req('transcript')), ...(args.string('review') ? { review: userPath(rt, args.req('review')) } : {}) });
+    printJson(rt, { ok: true, observation, next: 'Rebuild the timeline to use actual source speech seconds; inspect audible words and visible articulation before strict final acceptance.' });
+  } catch (e) { throw new VideoCommandError(e instanceof Error ? e.message : String(e)); }
 });
 
 /** Native base/items are mapped using each file's source rate, never the target rate. */
@@ -151,4 +165,4 @@ const check = command('check source readiness, or an exact final artifact and it
   return accepted ? 0 : 2;
 });
 
-export const replicationCommands: Commands = { init, check, helpers, timeline, sound };
+export const replicationCommands: Commands = { init, check, helpers, timeline, sound, observe };

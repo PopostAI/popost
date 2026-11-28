@@ -6,6 +6,7 @@ import type { Runtime } from '../../runtime';
 import type { FootageFacts } from '../types';
 import { FRAME_DIGITS, framePath } from '../timeline/footage';
 import { probe, runFfmpeg, runFfmpegOk } from './ffmpeg';
+import { readObservedSpeech } from '../replication/speech-observed';
 
 /** How the source's YUV values are to be read: the matrix and the range of its colour tags. */
 export interface FootageColour { matrix: 'bt709' | 'bt601' | 'bt2020'; range: 'tv' | 'pc' }
@@ -30,11 +31,19 @@ export const colourOf = (stderr: string, width: number, height: number): Footage
 };
 
 /** Size, rate, exact frame count, sound and colour of a video file. Throws an FfmpegError when it is not a video ffmpeg reads. */
-export const readFootage = async (rt: Runtime, file: string): Promise<{ facts: FootageFacts; colour: FootageColour }> => {
+export const readFootage = async (rt: Runtime, file: string, options: { strictSpeechRoot?: string } = {}): Promise<{ facts: FootageFacts; colour: FootageColour }> => {
   const [p, header] = await Promise.all([probe(rt, file), runFfmpeg(rt, ['-i', file])]);
   if (!(p.frames > 0) || !(p.fps > 0)) throw new Error('no video frames were found in ' + rt.path.basename(file));
-  const speech = p.hasAudio ? await speechSpans(rt, file, p.frames / p.fps) : undefined;
-  return { facts: { width: p.width, height: p.height, fps: p.fps, frames: p.frames, hasAudio: p.hasAudio, ...(speech ? { speech } : {}) }, colour: colourOf(header.stderr, p.width, p.height) };
+  let speech = p.hasAudio ? await speechSpans(rt, file, p.frames / p.fps) : undefined;
+  let speechObserved: true | undefined;
+  if (p.hasAudio && options.strictSpeechRoot) {
+    const observed = await readObservedSpeech(rt, options.strictSpeechRoot, rt.path.relative(options.strictSpeechRoot, file), { clock: p });
+    if (observed.problems.length) throw new Error(observed.problems.map(x => x.message).join(' '));
+    // A first strict draft protects the entire unobserved speaking clip. Requested slots are never an actual timing observation.
+    speech = observed.spans ?? (speech ? [[0, p.frames / p.fps]] : undefined);
+    if (observed.spans) speechObserved = true;
+  }
+  return { facts: { width: p.width, height: p.height, fps: p.fps, frames: p.frames, hasAudio: p.hasAudio, ...(speech ? { speech } : {}), ...(speechObserved ? { speechObserved } : {}) }, colour: colourOf(header.stderr, p.width, p.height) };
 };
 
 /**

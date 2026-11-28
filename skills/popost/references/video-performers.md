@@ -38,6 +38,8 @@ When a visible person says the words in the reference (its speech kind is `on-ca
 
 ## Visible speech has one final audio source
 
+For strict replication, requested native line slots are not observed speech timing. Read [video-native-observation.md](video-native-observation.md): import the actual clip's ASR clock and inspect its audible words and articulation before final acceptance. The separate observation drives real overlap/ducking intervals and survives portable template fills; keep the original requested receipt unchanged.
+
 When the audience can see somebody say the words, use one of two explicit paths:
 
 - Native, with timed lines: `"speech":{"mode":"native","language":"en-US","lines":[{"speaker":"host","text":"The exact final words","beat":3}]}`, the default for on-camera lines; or, for one speaker's words over a whole clip without a template's beats, `"speech":{"mode":"native","speaker":"host","text":"The exact final words"}`. Generate the performance and speech together. Its embedded audio is authoritative. Do not add a different TTS voice later, fit a replacement voice to independently timed mouth motion, or stretch the two separately. After generation the engine extracts and hashes its actual audio and writes a speech receipt. Read back the words and inspect articulation; a receipt is provenance, not a phoneme-quality score.

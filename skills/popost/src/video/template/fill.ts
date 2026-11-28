@@ -14,7 +14,7 @@ import { hasErrors, isOutside } from '../project/check';
 import { commandSpeaker, type Speaker } from '../voice/index';
 import type { Wallet } from '../wallet';
 import { checkFill, slotPictures } from './check';
-import { dialogueOf } from './speech-rules';
+import { clipsOf, dialogueOf } from './speech-rules';
 import { writeFacts } from './facts';
 import { jsonText, loadTemplate } from './save';
 import { retargetInputs, structureMeasure } from './structure';
@@ -22,6 +22,7 @@ import type { TemplatePackage } from './types';
 import { copyReplication } from '../replication/io';
 import { AUDIO_FILE, fillReplicationProblems, readAudio } from '../replication/production';
 import { copyReplicationSoundEvidence, REFERENCE_SOUND_RECEIPT } from '../replication/audio-provenance';
+import { copyObservedSpeech } from '../replication/speech-observed';
 
 /** The voice track of a spoken fill, relative to the project directory. */
 export const VOICE_FILE = 'assets/voice.m4a';
@@ -74,13 +75,15 @@ const copyAssets = async (rt: Runtime, fill: RetargetPlan, from: string, to: str
   // The pictures the fill gives the scenes' picture places are files it names too (checkFill has found them).
   const pictures = (await slotPictures(rt, fill, from)).map((p) => p.file);
   // writeFile creates the parent directories.
-  for (const f of new Set([...filesOf(fill), ...pictures])) await rt.fs.writeFile(rt.path.join(to, f), await rt.fs.readFile(rt.path.join(from, f)));
-  for (const f of filesOf(fill)) {
+  const media = [...new Set([...filesOf(fill), ...clipsOf(fill)])];
+  for (const f of new Set([...media, ...pictures])) await rt.fs.writeFile(rt.path.join(to, f), await rt.fs.readFile(rt.path.join(from, f)));
+  for (const f of media) {
     for (const ext of ['.sound.json', '.music.json', '.speech.json', '.voice.json', '.words.json']) {
       const receipt = await rt.fs.readFile(rt.path.join(from, f) + ext).catch(() => undefined);
       if (receipt) await rt.fs.writeFile(rt.path.join(to, f) + ext, receipt);
     }
     if (await rt.fs.stat(rt.path.join(from, f) + REFERENCE_SOUND_RECEIPT)) await copyReplicationSoundEvidence(rt, from, to, f);
+    await copyObservedSpeech(rt, from, to, f);
   }
   const voices = await rt.fs.stat(rt.path.join(from, 'replication.json')) ? await rt.fs.readText(rt.path.join(from, 'voices.json')).catch(() => undefined) : undefined;
   if (voices) {

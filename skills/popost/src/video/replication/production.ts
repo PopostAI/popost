@@ -10,6 +10,7 @@ import { evidenceSchema, effectiveTargetSpeech, explicitSpeechOverride, type Rep
 import { checkReplicationAudio, checkReplicationReadiness } from './check';
 import { evidenceProblems, readReplication, replicationWithIntent } from './io';
 import { voiceSpanProblems } from './voice-spans';
+import { readObservedSpeech } from './speech-observed';
 
 export const AUDIO_FILE = 'replication.audio.json';
 export const PLAN_FILE = 'replication.plan.json';
@@ -99,6 +100,12 @@ export const outputAudioProblems = async (rt: Runtime, dir: string, c: Replicati
     if (!read.audio?.items.some(a => a.file === file)) problems.push(error(AUDIO_FILE, 'An actual resolved audio route is missing from the inventory: ' + file, 'Review this sound/native clip and bind its exact file and role.'));
   }
   const uses = read.audio?.items.filter(a => used.includes(a.file)) ?? [];
+  const native = new Set(uses.filter(a => a.kind === 'native' && a.speech === 'present').map(a => a.file));
+  for (const file of used) if (await rt.fs.stat(rt.path.join(dir, file) + '.speech.json')) native.add(file);
+  for (const file of native) {
+    const clock = Object.values(resolved.footage ?? {}).find(f => f.src === file);
+    problems.push(...(await readObservedSpeech(rt, dir, file, { required: true, final: true, ...(clock ? { clock } : {}) })).problems);
+  }
   problems.push(...checkReplicationAudio(c, uses, { complete: true }));
   return problems;
 };

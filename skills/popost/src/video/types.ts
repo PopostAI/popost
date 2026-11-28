@@ -406,10 +406,13 @@ export interface Project {
  */
 export type FootageFacts = Pick<Probe, 'width' | 'height' | 'fps' | 'frames' | 'hasAudio'> & {
   /**
-   * A clip made with speech (its receipt, <file>.speech.json): the seconds of the file on which a person in it speaks,
-   * a span per line, or the whole clip when the receipt has no lines. Such a clip is never muted by itself.
+   * Seconds of source speech. Strict remakes use independently observed ASR timing, never requested line slots;
+   * an unobserved first draft conservatively protects the whole speaking clip. Legacy projects keep receipt timing.
+   * Such a clip is never muted by itself.
    */
   speech?: [number, number][];
+  /** Strict native speech measured from hash-bound actual ASR, independently of requested receipt slots. */
+  speechObserved?: true;
 };
 export type FootageInfo = FootageFacts | { error: string };
 

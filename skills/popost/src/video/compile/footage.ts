@@ -33,11 +33,12 @@ export interface FootageStats {
 /** Reads every video material whose file lies inside the project and exists (check reports the others). */
 export const probeFootage = async (rt: Runtime, project: Project, projectDir: string): Promise<FootageProbe> => {
   const root = rt.path.resolve(rt.cwd, projectDir);
+  const strictSpeechRoot = await rt.fs.stat(rt.path.join(root, 'replication.json')) ? root : undefined;
   const named = project.materials.filter((m) => m.kind === 'video' && m.file && !isOutside(m.file));
   const videos = (await Promise.all(named.map(async (m) => ((await rt.fs.stat(rt.path.resolve(root, m.file ?? ''))) === null ? [] : [m])))).flat();
   const read = await mapLimit(videos, heavyJobs(rt), async (m) => {
     try {
-      return { id: m.id, ...(await readFootage(rt, rt.path.resolve(root, m.file ?? ''))) };
+      return { id: m.id, ...(await readFootage(rt, rt.path.resolve(root, m.file ?? ''), { strictSpeechRoot })) };
     } catch (e) {
       return { id: m.id, error: (e instanceof Error ? e.message : String(e)).split('\n')[0] ?? 'unreadable' };
     }
