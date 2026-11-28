@@ -472,7 +472,13 @@
       var to = o.to !== undefined ? o.to : Number(String(el.getAttribute('data-to') || el.__popostTo || (el.__popostTo = el.textContent)).replace(/[^0-9.-]/g, '')) || 0;
       el.textContent = format(mix(from, to, e(progress(t, at, len))));
     });
-    var list = [[at + len, 'pop', 0.6]];
+    // The pop goes where the shown number stops changing: on an ease-out it reaches its last digit before the end of the
+    // count (0 to 12,800 on a long ease-out: a tenth of a second early), and a pop at the end is heard on a still number.
+    // The target is the given "to", else the slot's text as it is now (a later fill moves the landing by a frame or so).
+    var goal = o.to !== undefined ? o.to : Number(String((el && (el.getAttribute('data-to') || el.textContent)) || '').replace(/[^0-9.-]/g, '')) || 0;
+    var land = at + len, step = 0.5 * Math.pow(10, -decimals);
+    for (var s = 0; s <= 240; s++) if (Math.abs(goal - mix(from, goal, e(s / 240))) < step) { land = at + (len * s) / 240; break; }
+    var list = [[land, 'pop', 0.6]];
     for (var i = 0; i < 6; i++) list.push([at + len * (1 - Math.pow(1 - i / 6, 2)) * 0.9, 'tick', 0.25]);
     return { at: at, end: at + len, cues: declare(o, 'counter', list) };
   };

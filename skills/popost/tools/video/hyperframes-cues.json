@@ -1,0 +1,846 @@
+{
+ "ascii-trail-reveal": {
+  "cues": [
+   {
+    "at": 0.367,
+    "cue": "whoosh",
+    "gain": 0.5
+   }
+  ],
+  "moved": 1,
+  "removed": 0
+ },
+ "camera-dolly-zoom": {
+  "cues": [
+   {
+    "at": 0.2,
+    "cue": "whoosh",
+    "gain": 0.5
+   }
+  ],
+  "moved": 1,
+  "removed": 0
+ },
+ "curtain-reveal": {
+  "cues": [
+   {
+    "at": 0.1,
+    "cue": "whoosh",
+    "gain": 0.5
+   }
+  ],
+  "moved": 1,
+  "removed": 0
+ },
+ "device-frame-stage": {
+  "cues": [
+   {
+    "at": 0.2,
+    "cue": "swish",
+    "gain": 0.4
+   }
+  ],
+  "moved": 1,
+  "removed": 0
+ },
+ "echo-smear": {
+  "cues": [
+   {
+    "at": 0.233,
+    "cue": "tick",
+    "gain": 0.3
+   }
+  ],
+  "moved": 1,
+  "removed": 0
+ },
+ "hw-scribble-transition": {
+  "cues": [
+   {
+    "at": 0.133,
+    "cue": "draw",
+    "gain": 0.45
+   },
+   {
+    "at": 1.42,
+    "cue": "type",
+    "gain": 0.3
+   },
+   {
+    "at": 1.433,
+    "cue": "draw",
+    "gain": 0.45
+   },
+   {
+    "at": 1.53,
+    "cue": "type",
+    "gain": 0.3
+   }
+  ],
+  "moved": 2,
+  "removed": 0
+ },
+ "line-swap": {
+  "cues": [
+   {
+    "at": 0.1,
+    "cue": "whoosh",
+    "gain": 0.5
+   },
+   {
+    "at": 1.3,
+    "cue": "whoosh",
+    "gain": 0.5
+   },
+   {
+    "at": 1.52,
+    "cue": "whoosh",
+    "gain": 0.5
+   },
+   {
+    "at": 1.667,
+    "cue": "swish",
+    "gain": 0.45
+   }
+  ],
+  "moved": 2,
+  "removed": 0
+ },
+ "lt-neon-border": {
+  "cues": [
+   {
+    "at": 0.1,
+    "cue": "tick",
+    "gain": 0.3
+   }
+  ],
+  "moved": 1,
+  "removed": 0
+ },
+ "notification-pileup": {
+  "cues": [
+   {
+    "at": 0.167,
+    "cue": "pop",
+    "gain": 0.65
+   }
+  ],
+  "moved": 1,
+  "removed": 0
+ },
+ "stitched-text-draw": {
+  "cues": [
+   {
+    "at": 0.167,
+    "cue": "draw",
+    "gain": 0.45
+   }
+  ],
+  "moved": 1,
+  "removed": 0
+ },
+ "stop-motion-cadence": {
+  "cues": [
+   {
+    "at": 0.267,
+    "cue": "swish",
+    "gain": 0.4
+   }
+  ],
+  "moved": 1,
+  "removed": 0
+ },
+ "ui-3d-reveal": {
+  "cues": [
+   {
+    "at": 0.1,
+    "cue": "draw",
+    "gain": 0.45
+   },
+   {
+    "at": 7.3,
+    "cue": "whoosh",
+    "gain": 0.5
+   },
+   {
+    "at": 7.9,
+    "cue": "draw",
+    "gain": 0.45
+   },
+   {
+    "at": 8.05,
+    "cue": "draw",
+    "gain": 0.45
+   },
+   {
+    "at": 8.2,
+    "cue": "draw",
+    "gain": 0.45
+   },
+   {
+    "at": 8.35,
+    "cue": "draw",
+    "gain": 0.45
+   },
+   {
+    "at": 8.5,
+    "cue": "draw",
+    "gain": 0.45
+   },
+   {
+    "at": 11.7,
+    "cue": "draw",
+    "gain": 0.45
+   }
+  ],
+  "moved": 1,
+  "removed": 0
+ },
+ "us-map-hex": {
+  "cues": [
+   {
+    "at": 0.1,
+    "cue": "swish",
+    "gain": 0.45
+   },
+   {
+    "at": 0.83,
+    "cue": "pop",
+    "gain": 0.65
+   }
+  ],
+  "moved": 1,
+  "removed": 0
+ },
+ "variable-font-flex": {
+  "cues": [
+   {
+    "at": 0.167,
+    "cue": "tick",
+    "gain": 0.3
+   }
+  ],
+  "moved": 1,
+  "removed": 0
+ },
+ "transitions-blur": {
+  "cues": [
+   {
+    "at": 0.6,
+    "cue": "tick",
+    "gain": 0.3
+   },
+   {
+    "at": 3.233,
+    "cue": "swish",
+    "gain": 0.45
+   },
+   {
+    "at": 7.5,
+    "cue": "swish",
+    "gain": 0.45
+   },
+   {
+    "at": 9.15,
+    "cue": "tick",
+    "gain": 0.3
+   },
+   {
+    "at": 12,
+    "cue": "swish",
+    "gain": 0.45
+   },
+   {
+    "at": 17.1,
+    "cue": "tick",
+    "gain": 0.3
+   }
+  ],
+  "moved": 1,
+  "removed": 0
+ },
+ "transitions-destruction": {
+  "cues": [
+   {
+    "at": 0.6,
+    "cue": "tick",
+    "gain": 0.3
+   },
+   {
+    "at": 3.233,
+    "cue": "swish",
+    "gain": 0.45
+   },
+   {
+    "at": 8,
+    "cue": "swish",
+    "gain": 0.45
+   },
+   {
+    "at": 11.1,
+    "cue": "tick",
+    "gain": 0.3
+   }
+  ],
+  "moved": 1,
+  "removed": 0
+ },
+ "transitions-dissolve": {
+  "cues": [
+   {
+    "at": 0.6,
+    "cue": "tick",
+    "gain": 0.3
+   },
+   {
+    "at": 3.233,
+    "cue": "swish",
+    "gain": 0.45
+   },
+   {
+    "at": 7.5,
+    "cue": "swish",
+    "gain": 0.45
+   },
+   {
+    "at": 12,
+    "cue": "swish",
+    "gain": 0.45
+   },
+   {
+    "at": 16.5,
+    "cue": "swish",
+    "gain": 0.45
+   },
+   {
+    "at": 21.6,
+    "cue": "tick",
+    "gain": 0.3
+   }
+  ],
+  "moved": 1,
+  "removed": 0
+ },
+ "transitions-mechanical": {
+  "cues": [
+   {
+    "at": 0.6,
+    "cue": "tick",
+    "gain": 0.3
+   },
+   {
+    "at": 3.233,
+    "cue": "swish",
+    "gain": 0.45
+   },
+   {
+    "at": 4.5,
+    "cue": "whoosh",
+    "gain": 0.5
+   },
+   {
+    "at": 7.5,
+    "cue": "swish",
+    "gain": 0.45
+   },
+   {
+    "at": 9,
+    "cue": "swish",
+    "gain": 0.45
+   },
+   {
+    "at": 9.3,
+    "cue": "swish",
+    "gain": 0.45
+   },
+   {
+    "at": 9.42,
+    "cue": "swish",
+    "gain": 0.45
+   },
+   {
+    "at": 12.6,
+    "cue": "tick",
+    "gain": 0.3
+   }
+  ],
+  "moved": 1,
+  "removed": 0
+ },
+ "transitions-other": {
+  "cues": [
+   {
+    "at": 0.6,
+    "cue": "tick",
+    "gain": 0.3
+   },
+   {
+    "at": 3.233,
+    "cue": "swish",
+    "gain": 0.45
+   },
+   {
+    "at": 7.5,
+    "cue": "swish",
+    "gain": 0.45
+   },
+   {
+    "at": 9,
+    "cue": "whoosh",
+    "gain": 0.5
+   },
+   {
+    "at": 12,
+    "cue": "swish",
+    "gain": 0.45
+   },
+   {
+    "at": 17.1,
+    "cue": "tick",
+    "gain": 0.3
+   }
+  ],
+  "moved": 1,
+  "removed": 0
+ },
+ "transitions-push": {
+  "cues": [
+   {
+    "at": 0.6,
+    "cue": "tick",
+    "gain": 0.3
+   },
+   {
+    "at": 3.233,
+    "cue": "swish",
+    "gain": 0.45
+   },
+   {
+    "at": 4.5,
+    "cue": "whoosh",
+    "gain": 0.5
+   },
+   {
+    "at": 7.5,
+    "cue": "swish",
+    "gain": 0.45
+   },
+   {
+    "at": 9,
+    "cue": "whoosh",
+    "gain": 0.5
+   },
+   {
+    "at": 12,
+    "cue": "swish",
+    "gain": 0.45
+   },
+   {
+    "at": 13.5,
+    "cue": "whoosh",
+    "gain": 0.5
+   },
+   {
+    "at": 16.5,
+    "cue": "swish",
+    "gain": 0.45
+   },
+   {
+    "at": 18.1,
+    "cue": "swish",
+    "gain": 0.45
+   },
+   {
+    "at": 21.6,
+    "cue": "tick",
+    "gain": 0.3
+   }
+  ],
+  "moved": 1,
+  "removed": 0
+ },
+ "transitions-scale": {
+  "cues": [
+   {
+    "at": 0.6,
+    "cue": "tick",
+    "gain": 0.3
+   },
+   {
+    "at": 3.233,
+    "cue": "swish",
+    "gain": 0.45
+   },
+   {
+    "at": 7.5,
+    "cue": "swish",
+    "gain": 0.45
+   },
+   {
+    "at": 12.6,
+    "cue": "tick",
+    "gain": 0.3
+   }
+  ],
+  "moved": 1,
+  "removed": 0
+ },
+ "transitions-light": {
+  "cues": [
+   {
+    "at": 5.2,
+    "cue": "whoosh",
+    "gain": 0.5
+   },
+   {
+    "at": 5.5,
+    "cue": "whoosh",
+    "gain": 0.5
+   },
+   {
+    "at": 15.2,
+    "cue": "whoosh",
+    "gain": 0.5
+   }
+  ],
+  "moved": 2,
+  "removed": 0
+ },
+ "extended-keyframe": {
+  "cues": [
+   {
+    "at": 1.9,
+    "cue": "whoosh",
+    "gain": 0.5
+   },
+   {
+    "at": 3.9,
+    "cue": "whoosh",
+    "gain": 0.5
+   }
+  ],
+  "moved": 2,
+  "removed": 0
+ },
+ "grid-pixelate-wipe": {
+  "cues": [
+   {
+    "at": 2.133,
+    "cue": "whoosh",
+    "gain": 0.5
+   }
+  ],
+  "moved": 1,
+  "removed": 0
+ },
+ "kinetic-type-swap": {
+  "cues": [
+   {
+    "at": 0.567,
+    "cue": "whoosh",
+    "gain": 0.5
+   },
+   {
+    "at": 1.7,
+    "cue": "whoosh",
+    "gain": 0.5
+   }
+  ],
+  "moved": 2,
+  "removed": 0
+ },
+ "lt-bold-block": {
+  "cues": [
+   {
+    "at": 0.1,
+    "cue": "swish",
+    "gain": 0.45
+   },
+   {
+    "at": 4.433,
+    "cue": "swish",
+    "gain": 0.45
+   }
+  ],
+  "moved": 1,
+  "removed": 0
+ },
+ "lt-mask-reveal": {
+  "cues": [
+   {
+    "at": 0.12,
+    "cue": "whoosh",
+    "gain": 0.5
+   },
+   {
+    "at": 0.16,
+    "cue": "swish",
+    "gain": 0.45
+   },
+   {
+    "at": 4.4,
+    "cue": "swish",
+    "gain": 0.45
+   }
+  ],
+  "moved": 1,
+  "removed": 0
+ },
+ "news-ticker": {
+  "cues": [
+   {
+    "at": 0.033,
+    "cue": "swish",
+    "gain": 0.45
+   },
+   {
+    "at": 0.34,
+    "cue": "whoosh",
+    "gain": 0.5
+   },
+   {
+    "at": 3.42,
+    "cue": "whoosh",
+    "gain": 0.5
+   }
+  ],
+  "moved": 1,
+  "removed": 0
+ },
+ "per-word-crossfade": {
+  "cues": [
+   {
+    "at": 0.6,
+    "cue": "tick",
+    "gain": 0.3
+   }
+  ],
+  "moved": 1,
+  "removed": 0
+ },
+ "slot-machine-roll": {
+  "cues": [
+   {
+    "at": 0.6,
+    "cue": "tick",
+    "gain": 0.35
+   }
+  ],
+  "moved": 1,
+  "removed": 0
+ },
+ "card-resize": {
+  "cues": [
+   {
+    "at": 0.533,
+    "cue": "tick",
+    "gain": 0.3
+   }
+  ],
+  "moved": 1,
+  "removed": 1
+ },
+ "colorama-wipe": {
+  "cues": [
+   {
+    "at": 0.633,
+    "cue": "whoosh",
+    "gain": 0.5
+   }
+  ],
+  "moved": 1,
+  "removed": 0
+ },
+ "press-ripple": {
+  "cues": [
+   {
+    "at": 0.3,
+    "cue": "whoosh",
+    "gain": 0.5
+   },
+   {
+    "at": 1,
+    "cue": "whoosh",
+    "gain": 0.5
+   }
+  ],
+  "moved": 1,
+  "removed": 0
+ },
+ "social-proof-card": {
+  "cues": [
+   {
+    "at": 0.367,
+    "cue": "pop",
+    "gain": 0.65
+   }
+  ],
+  "moved": 1,
+  "removed": 0
+ },
+ "text-shimmer": {
+  "cues": [
+   {
+    "at": 1,
+    "cue": "shimmer",
+    "gain": 0.45
+   }
+  ],
+  "moved": 1,
+  "removed": 0
+ },
+ "code-shader-dissolve": {
+  "cues": [
+   {
+    "at": 0.567,
+    "cue": "type",
+    "gain": 0.35
+   }
+  ],
+  "moved": 1,
+  "removed": 0
+ },
+ "cross-warp-morph": {
+  "cues": [
+   {
+    "at": 1.667,
+    "cue": "whoosh",
+    "gain": 0.5
+   }
+  ],
+  "moved": 1,
+  "removed": 0
+ },
+ "domain-warp-dissolve": {
+  "cues": [
+   {
+    "at": 1.367,
+    "cue": "whoosh",
+    "gain": 0.5
+   }
+  ],
+  "moved": 1,
+  "removed": 0
+ },
+ "flash-through-white": {
+  "cues": [
+   {
+    "at": 1.433,
+    "cue": "whoosh",
+    "gain": 0.5
+   }
+  ],
+  "moved": 1,
+  "removed": 0
+ },
+ "freeze-frame-dressing": {
+  "cues": [
+   {
+    "at": 1.033,
+    "cue": "swish",
+    "gain": 0.4
+   }
+  ],
+  "moved": 1,
+  "removed": 0
+ },
+ "gravitational-lens": {
+  "cues": [
+   {
+    "at": 1,
+    "cue": "whoosh",
+    "gain": 0.5
+   }
+  ],
+  "moved": 1,
+  "removed": 0
+ },
+ "halftone-dissolve": {
+  "cues": [
+   {
+    "at": 1.033,
+    "cue": "whoosh",
+    "gain": 0.5
+   }
+  ],
+  "moved": 1,
+  "removed": 0
+ },
+ "parallax-unzoom": {
+  "cues": [
+   {
+    "at": 1.467,
+    "cue": "whoosh",
+    "gain": 0.5
+   }
+  ],
+  "moved": 1,
+  "removed": 0
+ },
+ "rack-focus": {
+  "cues": [
+   {
+    "at": 1.633,
+    "cue": "whoosh",
+    "gain": 0.5
+   }
+  ],
+  "moved": 1,
+  "removed": 0
+ },
+ "ridged-burn": {
+  "cues": [
+   {
+    "at": 1,
+    "cue": "whoosh",
+    "gain": 0.5
+   }
+  ],
+  "moved": 1,
+  "removed": 0
+ },
+ "sdf-iris": {
+  "cues": [
+   {
+    "at": 1.1,
+    "cue": "whoosh",
+    "gain": 0.5
+   }
+  ],
+  "moved": 1,
+  "removed": 0
+ },
+ "segmentation-flood": {
+  "cues": [
+   {
+    "at": 0.767,
+    "cue": "swish",
+    "gain": 0.4
+   }
+  ],
+  "moved": 1,
+  "removed": 0
+ },
+ "skeleton-reveal": {
+  "cues": [
+   {
+    "at": 1.3,
+    "cue": "whoosh",
+    "gain": 0.5
+   }
+  ],
+  "moved": 1,
+  "removed": 0
+ },
+ "slit-scan-reveal": {
+  "cues": [
+   {
+    "at": 0.8,
+    "cue": "whoosh",
+    "gain": 0.5
+   }
+  ],
+  "moved": 1,
+  "removed": 0
+ }
+}
