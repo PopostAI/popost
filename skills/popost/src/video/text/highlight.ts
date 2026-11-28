@@ -14,7 +14,8 @@ import { deltaE } from '../measure/colour';
 import { toHex } from '../measure/pixels';
 import { coreOf } from './core';
 import { r2, type Frame, type Lab, type Rect } from './frame';
-import { dEdge, isPicture, strokeMax, strokesOf, SURE, type Surround } from './letters';
+import { dEdge, isPicture, SURE, type Surround } from './letters';
+import { strokeMax, strokesOf } from './strokes';
 import type { CaptionHighlight } from './types';
 
 /**
