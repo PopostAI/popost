@@ -116,6 +116,13 @@ npx vite-node skills/popost/src/cli.ts video --help  # 从源码运行 popost vi
 
 连接 popost.ai 账户（`popost auth login`）后，配音和转写默认在平台上完成，也可以在平台上生成背景音乐（`popost video music`，`src/video/music/`），像图片一样按积分计费：付费命令先报价，没有 `--confirm --max-credits N`（这条视频唯一预算的剩余额度）就以退出码 3 停下、不扣费，完成后输出 `chargedCredits`；不在已同意清单里的生成视频片段要 `--approve-unplanned <key>`（`production/approved-clips.json`）。在工程里发出的每个 Open API 请求都带上工程的任务（`x-popost-task`、`x-popost-task-title`、`x-popost-agent-session`；`src/providers/task.ts`），`popost usage --dir P` 读出平台记在它名下的费用（`--title TEXT` 先给任务起名）。环境变量，全部可选：`POPOST_FFMPEG`、`POPOST_CHROME`；`POPOST_OCR_CMD`、`POPOST_ASR_CMD`、`POPOST_TTS_CMD`、`POPOST_TTS_MODEL`（本机读取器和自己的合成器，见 `tools/`；设置后，转写器和合成器优先于账户）；`POPOST_LLM_URL`、`POPOST_LLM_MODEL`、`POPOST_LLM_KEY`、`POPOST_LLM_JSON`（模型环节用的模型，见 `src/plan/model.ts`；密钥不写进任何文件、日志或测试）；`POPOST_RENDER_PAGES`；`POPOST_VIDEO_DATA`、`POPOST_VIDEO_WORK`。
 
+语音和声音跟着参考视频走，没人要求的东西一律拒绝（报错并给出修正办法）：
+
+- `describe` 写出 `speech.json`（`src/video/describe/speech-kind.ts`）：参考视频里语音的类型。程序能判定 `none`、`unknown`（跳过、失败、没有转写工具，各自如实说明）和 `fragments`（`FRAGMENT_SHARE`、`FRAGMENT_SYLLABLES`）；旁白（narration）、出镜说话（on-camera）、演唱（sung）要看画面按短语区间确认（`popost video speech-kind show|confirm`）。`template save` 保存这些类型；演唱和零碎词不成为 beat，出镜说话的 beat 是对白 beat。
+- 只有参考视频有旁白，或用户亲口要求（`--voice-asked`，记在工程里），才配旁白：`src/video/template/speech-rules.ts`。fill 的 `"sound"` 以及由参考视频生成的工程里每条音轨，都必须有来源记录：`src/video/music/provenance.ts`、`src/video/project/check-sound.ts`。
+- 生成片段里出镜说话的人：`speech.lines` 写明语言和每句对应的 beat，时间由程序从模板取，并由程序把对白段写进提示词（`src/video/generate/dialogue.ts`）。
+- 混音按已知时间分层，不做电平检测（`src/video/timeline/mix.ts`）：`resolve` 给需要避让语音的声音一个 `duck`（区间、分贝、过渡），渲染时写成 ffmpeg 的 volume 表达式（`render/encode.ts` 的 `duckFilter`），Studio 逐帧应用，草稿导出则直接烘进音频文件。
+
 ## 5. 评测循环
 
 有这个循环，是为了让一处改动因为数字变了才被留下，而不是因为看起来更好。

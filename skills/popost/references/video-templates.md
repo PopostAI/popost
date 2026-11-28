@@ -11,12 +11,19 @@ by position. The program keeps every length, cut, transition and caption time; a
 | File | Holds | Read it? |
 |---|---|---|
 | `TEMPLATE.md` | one screen: the beats, the shots, the forms of a fill, the rules | yes (`template show` prints it as `card`) |
-| `template.json` | the structure: canvas, shots with their lengths and transitions, the caption band and its beats, the frame around the content when the shots had one (`TEMPLATE.md` says it) | no |
+| `template.json` | the structure: canvas, shots with their lengths and transitions, the caption band and its beats, the kind of the reference's speech as it was confirmed (`speech`), the frame around the content when the shots had one (`TEMPLATE.md` says it) | no |
 | `slots.json` | the limits of every place a fill writes | no: `template show` prints it as `slots` |
 | `shots.txt` | one line per shot saying what it showed (only when `template see` was run with a model) | if present |
 | `reference-text.json` | the reference's on-screen text by shot (only when describe read text) | no: `template fill` copies it into the project's record |
 
-`--max-shot <seconds>` cuts longer shots into equal parts (for clips a generator makes).
+`--max-shot <seconds>` cuts longer shots into equal parts (for clips a generator makes). `template save` refuses a
+reference whose speech kind is unconfirmed (`popost video speech-kind confirm`, video.md step 1): the beats follow the
+kinds. Sung words and fragments are no beats; a beat a person said on camera is marked.
+
+A fill has a `voice` only when the kinds include `narration`. Otherwise `template check` and `template fill` refuse
+`"voice"`, `"say"` and `--speak` with the fix "leave the voice out"; `--voice-asked "<the user's words>"` lifts that
+when the user asked for a narration, and `template fill` keeps the words in the project (`voice-asked.json`), so
+later commands need no flag. With the files at hand they also refuse an on-camera line that no clip of the fill says.
 
 ## Slots and limits
 
@@ -27,6 +34,8 @@ A slot is one place a fill writes, named by its position:
   `footage.seconds`: how much footage a clip must have from its `"in"` so that it does not run out.
 - `captions.lines[i]`: the beat's `seconds`, `max` (characters, full-width `cjk` or `latin`), the reference's
   line as `example` with its length, `shown: false` for a beat that was only said (its line is spoken, not drawn),
+  `speech: "on-camera"` for a beat a visible person said (its line is said by the person of a generated clip, whose
+  request names the beat in `speech.lines`; the voice-over never reads it),
   `unsure` when the reader or the transcriber was not sure. `captions.box` is the caption band as
   `[x, y, width, height]` fractions of the canvas; `captions.capacity` was measured by laying out text in the band
   in Chrome.
@@ -52,10 +61,19 @@ A shot is exactly one of:
 | color | `color` | neighbouring colour shots need clearly different colours |
 | card | `card`: `title`, `lines`, `background`, `color` | a title and lines that enter one after another; 1 s or more |
 
-The sound a clip came with (a footage shot, a `"video"` item) is kept or dropped by itself when the fill says no
-`"audio"`: a video with no voice (`--speak`) and no `"sound"` keeps every clip's sound at its own level; a video with
-one keeps the clips silent, so that nothing sounds under the voice or the music. `"audio": 0` keeps a clip's sound in any case, a
-negative number keeps it lower (`-18` sits under a voice), `false` mutes it. The sound plays at the clip's `speed`.
+The sound is mixed in layers, by itself, from times the program knows (no level is measured):
+
+- A clip made with speech (its receipt, `<file>.speech.json`): at full level while it is shown; no line of the
+  voice-over may be spoken over its lines (the checks refuse that).
+- Every other clip (a footage shot, a `"video"` item): the sound it came with, at its own level; lowered by 18 dB
+  while a line of the voice-over or a person of another clip speaks, with ramps of 0.2 s, and back up in the pauses.
+  Without a voice and without speaking people it simply plays.
+- `"sound"`: under everything; lowered the same way while anybody speaks, back up in the pauses, and faded out over
+  the last second when the video cuts it off.
+
+`"audio"` on a shot overrides this for its clip: `0` or another number of dB fixes its level (no lowering under
+speech), `false` mutes it. The sound plays at the clip's `speed`. Leave `"audio"` out unless a clip's sound is wrong
+for the video: never mute a clip to be safe.
 
 `"beds": [{ "footage": "assets/film.mp4", "shots": [1, 7] }]` lets the sound of one clip run on, in one piece, under
 the shots cut from it (the first and the last shot, from 1): the shots under a bed do not sound themselves, so nothing
@@ -95,9 +113,9 @@ source's colours are not measured). More words than the source's bar has is refu
 Other keys: `captions` (one line per beat; `""` for none), `voice` and `speed` (passed to the speaker), `say`
 (`[{"text": "SaaS", "as": "sass"}]`: how a word is spoken), `captionColor`, `captionOutline`, `captionSpoken`
 (`true`: light up the spoken word), `captionReveal` (`"words"`: show each word when it is spoken), `sound` (an
-audio file for the whole video, relative to the project: the user's own file, or the music `popost video music make`
-wrote, `"assets/music.mp3"`; it starts with the video at its own level, lies 18 dB under the voice of a spoken fill,
-fades out over the last second when it is longer than the video and is not repeated when it is shorter), `beds`
+audio file for the whole video, relative to the project: the user's own file, taken in with `popost video music own`, or
+generated music with its receipt; a file without such a record is refused. It starts with the video at its own level,
+is lowered while anybody speaks (above), fades out over the last second when it is longer than the video and is not repeated when it is shorter), `beds`
 (above), `note`. File paths are relative to the project. Lists are
 matched by position; no times, no frames except `in`. The captions look as the reference's did when `describe` could
 measure it: the colour that fills its letters (inside the outline, not the outline) on its plate (colour, opacity,
@@ -111,8 +129,8 @@ are neither drawn nor spoken.
 
 ```bash
 popost video template show template                                   # TEMPLATE.md and the slots
-popost video template check template --fill fill.json [--assets project] [--pace P [--fit-tempo T]]   # problems, each with a fix
-popost video template fill template --fill fill.json --out project [--speak --keep-length --fit-tempo T] [--pace P]
+popost video template check template --fill fill.json [--assets project] [--pace P [--fit-tempo T]] [--voice-asked "<words>"]   # problems, each with a fix
+popost video template fill template --fill fill.json --out project [--speak --keep-length --fit-tempo T] [--pace P] [--voice-asked "<words>"]
 ```
 
 `template check` looks at the files only with `--assets` (the directory the fill's paths are relative to), the
@@ -122,7 +140,7 @@ smaller or larger than the reference's captions is a warning with both sizes in 
 fill` checks the fill, then writes `video.json`, `reference.measure.json` and `reference.facts.json` (the record the checks
 compare the project with, `video-project.md`) into `--out`; it reads the fill's files
 from `--out` itself (or copies them in from `--assets`) and never changes the files you put there, so it can run
-again and again. `--speak` speaks the lines (`POPOST_TTS_CMD`) and re-flows every beat to its spoken line: the
+again and again. `--speak` speaks the lines of the narration beats (`POPOST_TTS_CMD`; a line a person says on camera is left to its clip) and re-flows every beat to its spoken line: the
 pauses between beats stay and each shot moves with the beat it falls in. `--keep-length` keeps a beat at least as
 long as in the reference. `--fit-tempo T` (1 to 1.5; 1.12 is hardly heard) first speeds a line that would run over
 its beat up as far as it needs, at most T times, pitch kept; only the rest re-flows, and a note per line says what

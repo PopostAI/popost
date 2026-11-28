@@ -18,6 +18,9 @@ import { CONFIRM_EXIT, Wallet } from '../wallet';
 import { CREDIT_OPTIONS, ceilingOf } from './credits';
 import { platform } from './generate';
 import { command, userPath, VideoCommandError } from './shared';
+import { hasMusicTrack } from '../music/provenance';
+import { loadTemplate } from '../template/save';
+import { beatTimesOf } from '../template/speech-rules';
 
 const errorsIn = (problems: readonly Problem[]): number => problems.filter((p) => p.level === 'error').length;
 
@@ -83,10 +86,11 @@ const toAgree = (materials: readonly MadeMaterial[]): { confirm: Record<string, 
 export const materials = command(
   'makes the clips and pictures a list asks for, from prompts; a file that exists is not made again, and what each shows goes to materials.json for plan. Two or more clips keep what they share the same through one reference picture (the anchor). Needs POPOST_GEN_CMD; --check only reads the list. Paid generation is priced first (exit code 3, nothing charged) and made with --confirm --max-credits N; a clip that is not among the agreed clips needs --approve-unplanned <key>',
   {
-    positionals: [{ name: 'requests', help: 'a JSON list of material requests: file, prompt, seconds, aspect, references; visible people list cast role ids from cast.json ([] for no people), and visible speech declares speech {mode,speaker,text,audio?}. New single-appearance people may be defined directly; recurring roles reuse a completed image. Frames/continues cannot be combined with references.' }],
+    positionals: [{ name: 'requests', help: 'a JSON list of material requests: file, prompt, seconds, aspect, references; visible people list cast role ids from cast.json ([] for no people), and visible speech declares speech {mode:"native",language,lines:[{speaker,text,beat}]} (timed lines; needs --template) or {mode,speaker,text,audio?}. New single-appearance people may be defined directly; recurring roles reuse a completed image. Frames/continues cannot be combined with references.' }],
     options: [
       { flag: '--out', required: true, metavar: 'DIR', help: 'the project directory the files go into' },
       { flag: '--check', kind: 'flag', help: 'only say what is wrong with the list; nothing is made' },
+      { flag: '--template', metavar: 'DIR', help: 'the template the clips are for: a line of "speech.lines" that names a beat gets its time from it, and every beat the reference said on camera must be said by one clip' },
       { flag: '--anchor', kind: 'flag', help: 'the default for two or more clips: one of them is made first and a frame of it goes to the others as a reference picture, so that they keep the same person, product and place; given, it is done for a single clip too. A request with "anchor": false stays out' },
       { flag: '--no-anchor', kind: 'flag', help: 'no shared reference picture: every clip is made from its own request alone' },
       { flag: '--anchor-image', metavar: 'FILE', help: 'a picture of yours as the anchor of every clip (the person, the product); no clip is made first' },
@@ -98,8 +102,10 @@ export const materials = command(
   async (args, rt) => {
     const requests = (await readUserJson(rt, args.req('requests'))) as MaterialRequest[];
     const dir = userPath(rt, args.req('out'));
+    const template = args.string('template');
+    const times = template === undefined ? undefined : beatTimesOf(await loadTemplate(rt, userPath(rt, template)));
     if (args.flag('check')) {
-      const wrong = await checkRequests(rt, requests, dir, {selectedIdentity:!!(args.string('character')||args.string('anchor-image'))});
+      const wrong = await checkRequests(rt, requests, dir, {selectedIdentity:!!(args.string('character')||args.string('anchor-image')), ...(times ? { times } : {})});
       // Advice on how the list is cut into calls is a warning: the list can be made as it is.
       printJson(rt, { ok: wrong.length === 0, requests: Array.isArray(requests) ? requests.length : 0, problems: [...wrong, ...groupingAdvice(requests)] });
       return wrong.length ? 2 : 0;
@@ -113,6 +119,8 @@ export const materials = command(
     const wallet = max !== undefined ? new Wallet(max) : undefined;
     const r = await makeMaterials(rt, {
       requests, dir, generator: budgeted(generator, wallet, args.list('approve-unplanned')), plan: wallet !== undefined,
+      // The template's beats give spoken lines their times; a video with a music track of its own gets clips without music.
+      ...(times ? { times } : {}), music: await hasMusicTrack(rt, dir),
       ...(off ? { anchor: false } : args.flag('anchor') ? { anchor: true } : {}), ...(picture ? { picture } : {}),
       // A clip takes minutes: a person watching sees which one, on stderr; stdout keeps the one JSON document.
       onStep: (file, done, total) => rt.stderr(file + ' (' + (done + 1) + '/' + total + ')\n'),
@@ -123,7 +131,7 @@ export const materials = command(
       made: r.materials.filter((m) => m.made).length, kept: r.materials.filter((m) => !m.made && !m.error && !m.waiting).length, failed: r.materials.filter((m) => m.error && !m.confirm).length,
       ...(r.materials.some((m) => m.waiting) ? { waiting: r.materials.filter((m) => m.waiting).length } : {}),
       credits: r.credits, chargedCredits: r.chargedCredits, ...(r.anchor ? { anchor: r.anchor } : {}), ...(r.toConfirm ? { toConfirm: r.toConfirm } : {}), ...(agree ?? {}),
-      materials: r.materials, problems: [...r.problems, ...groupingAdvice(requests)],
+      materials: r.materials, ...(r.notes?.length ? { notes: r.notes } : {}), problems: [...r.problems, ...groupingAdvice(requests)],
     });
     return agree ? CONFIRM_EXIT : errorsIn(r.problems) ? 2 : 0;
   },

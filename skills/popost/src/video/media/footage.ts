@@ -33,7 +33,19 @@ export const colourOf = (stderr: string, width: number, height: number): Footage
 export const readFootage = async (rt: Runtime, file: string): Promise<{ facts: FootageFacts; colour: FootageColour }> => {
   const [p, header] = await Promise.all([probe(rt, file), runFfmpeg(rt, ['-i', file])]);
   if (!(p.frames > 0) || !(p.fps > 0)) throw new Error('no video frames were found in ' + rt.path.basename(file));
-  return { facts: { width: p.width, height: p.height, fps: p.fps, frames: p.frames, hasAudio: p.hasAudio }, colour: colourOf(header.stderr, p.width, p.height) };
+  const speech = p.hasAudio ? await speechSpans(rt, file, p.frames / p.fps) : undefined;
+  return { facts: { width: p.width, height: p.height, fps: p.fps, frames: p.frames, hasAudio: p.hasAudio, ...(speech ? { speech } : {}) }, colour: colourOf(header.stderr, p.width, p.height) };
+};
+
+/**
+ * When a person speaks in a clip made with speech, from its receipt beside it (<file>.speech.json, generate/speech.ts):
+ * the slot of every line, or the whole clip for a receipt without lines. undefined for a clip without a receipt.
+ */
+export const speechSpans = async (rt: Runtime, file: string, seconds: number): Promise<[number, number][] | undefined> => {
+  const receipt = await rt.fs.readText(file + '.speech.json').then((t) => JSON.parse(t) as { lines?: { at?: unknown; to?: unknown }[] } | null, () => undefined);
+  if (!receipt || typeof receipt !== 'object') return undefined;
+  const lines = (Array.isArray(receipt.lines) ? receipt.lines : []).flatMap((l): [number, number][] => (typeof l?.at === 'number' && typeof l.to === 'number' && l.to > l.at ? [[l.at, l.to]] : []));
+  return lines.length ? lines : [[0, seconds]];
 };
 
 /** Bumped whenever the pictures an extraction writes would change, so that old caches are not reused. */

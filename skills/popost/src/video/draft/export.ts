@@ -3,6 +3,7 @@ import { sha256 } from '../../core/util';
 import { renderVideo } from '../render/index';
 import { runFfmpegOk } from '../media/ffmpeg';
 import { buildPage } from '../compile/index';
+import { duckFilter } from '../render/encode';
 import type { Project } from '../types';
 import { draftContentId, type DraftCaption, type DraftMedia } from './schema';
 
@@ -37,7 +38,7 @@ export const draftSourceHash = async (rt: Runtime, dir: string, source: Project)
       if ((await rt.fs.stat(dependency))?.isFile) pending.push(rt.path.relative(dir, dependency));
     }
   }
-  return sha256(JSON.stringify({ source, assets: [...found].sort(([a], [b]) => a.localeCompare(b)), renderer: 'draft-visual-2' }));
+  return sha256(JSON.stringify({ source, assets: [...found].sort(([a], [b]) => a.localeCompare(b)), renderer: 'draft-visual-3' }));
 };
 const tempo = (speed: number): string => {
   const factors: number[] = []; let left = speed;
@@ -70,7 +71,7 @@ export const prepareDraft = async (rt: Runtime, dir: string, source: Project): P
   for (const [index, item] of r.audio.entries()) {
     const file = 'media/audio-' + String(index + 1).padStart(3, '0') + '.wav', length = (item.end ?? r.frames) - item.start;
     if (length <= 0) continue;
-    await cached(rt, rt.path.join(directory, file), out => runFfmpegOk(rt, ['-y', '-loglevel', 'error', '-ss', String(item.from ? item.from.frame / item.from.fps : 0), '-i', rt.path.resolve(dir, item.src), '-t', String(length / r.canvas.fps), '-vn', '-af', tempo(item.speed ?? 1) + ',apad', '-ar', '48000', '-ac', '2', '-c:a', 'pcm_s16le', out]));
+    await cached(rt, rt.path.join(directory, file), out => runFfmpegOk(rt, ['-y', '-loglevel', 'error', '-ss', String(item.from ? item.from.frame / item.from.fps : 0), '-i', rt.path.resolve(dir, item.src), '-t', String(length / r.canvas.fps), '-vn', '-af', tempo(item.speed ?? 1) + duckFilter(item.duck, r.canvas.fps, item.start) + ',apad', '-ar', '48000', '-ac', '2', '-c:a', 'pcm_s16le', out]));
     audio.push({ id: draftContentId(rt), file, start: us(item.start), duration: us(length), gain: 10 ** (item.gain / 20) });
   }
   const cover = rt.path.join(directory, 'cover.jpg');

@@ -57,7 +57,7 @@ const beatLines = (o: PromptInput): string[] => {
     o.budgets ? '## Limits of the lines' : '## Beats', '',
     'One line per beat: its place in "captions", how long it lasts' + (o.budgets ? ', the most characters the voice can say in it (spaces and punctuation are not counted),' : ',') + ' and what the source said or showed there.', '',
     ...lines.map((l, i) => '- captions[' + i + '] ' + l.seconds + ' s' + (o.budgets?.[i] !== undefined ? ', at most ' + o.budgets[i] + ' characters' : '') + (l.example ? ': "' + clip(l.example.text.replace(/"/g, "'"), 30) + '" (' + l.example.chars + ')' : '') +
-      (l.shown === false ? ' (spoken only)' : '') + (l.unsure ? ' (unsure)' : '')),
+      (l.shown === false ? ' (spoken only)' : '') + (l.speech === 'on-camera' ? ' (on camera)' : '') + (l.unsure ? ' (unsure)' : '')),
     '',
   ];
 };
@@ -83,6 +83,7 @@ const answerPart = (o: PromptInput): string[] => {
         ? '- Every line has its own limit, written above: the voice cannot say more in that beat, and a longer line is refused. Say less rather than squeeze: drop a detail, keep the point.'
         : '- Write each line about as long as the source\'s line of that beat (the number in brackets): a longer line makes the video longer when it is spoken.'] : []),
     ...(o.slots.captions?.lines.some((l) => l.shown === false) ? ['- A beat marked "spoken only" is said by the voice and not drawn; it still needs its line. "(unsure)" marks a source line that may be misheard.'] : []),
+    ...(o.slots.captions?.lines.some((l) => l.speech === 'on-camera') ? ['- A beat marked "on camera" is said by a person in a generated clip, never by the voice-over: write the words that person says.'] : []),
     '- Captions are written in ' + (o.language ?? 'the language of the brief') + '.',
     keysRule(o),
     ...(o.generate ? [

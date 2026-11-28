@@ -17,6 +17,10 @@ import { spokenPrice, VOICE_FILE, WORDS_FILE } from '../retarget/speak';
 import { CREDIT_OPTIONS, walletFor } from './credits';
 import type { Transcript } from '../speech/types';
 import { checkFill } from '../template/check';
+import { dialogueFillProblems, dialogueOf, recordVoiceAsked, voiceAskedOf, voiceProblems, voiceWanted } from '../template/speech-rules';
+import { soundProblems } from '../music/provenance';
+import { SPEECH_FILE } from '../describe/speech-kind';
+import { speechIn } from './speech-kind';
 import { captionSizeProblems } from '../template/project';
 import { notSaidBy, projectReadingProblems, projectSceneSources, readingOfTemplate } from '../elements/findings';
 import { FACTS_FILE } from '../template/facts';
@@ -38,6 +42,7 @@ const TEMPLATE: PositionalSpec = { name: 'template-dir', help: 'a directory writ
 const FILL: OptionSpec = { flag: '--fill', required: true, metavar: 'FILE', help: 'the fill: {"shots": [...], "captions": [...]}, matched by position' };
 const ASSETS: OptionSpec = { flag: '--assets', metavar: 'DIR', help: 'where the fill\'s files are (its paths are relative to it)' };
 const PACE: OptionSpec = { flag: '--pace', kind: 'number', help: 'characters a second of the voice that will speak the lines: a line over its beat\'s budget is an error, as in plan' };
+export const VOICE_ASKED: OptionSpec = { flag: '--voice-asked', metavar: 'WORDS', help: 'the user\'s own words that asked for a narration, when the reference has none: only then may the video have a voice-over. Kept in the project (voice-asked.json) once template fill has it, and named in the delivery notes' };
 
 const errorsIn = (problems: readonly Problem[]): Problem[] => problems.filter((p) => p.level === 'error');
 
@@ -52,11 +57,22 @@ const readFill = async (rt: Runtime, typed: string): Promise<RetargetPlan> => {
   return fill as RetargetPlan;
 };
 
-/** The problems of a fill as the plan step's repair loop reports them, and the budgets it was held to. */
-const fillProblems = async (rt: Runtime, pkg: TemplatePackage, fill: RetargetPlan, dir: string | undefined, pace: number | undefined, tempo?: number): Promise<Problem[]> => {
+/**
+ * The problems of a fill as the plan step's repair loop reports them, and the budgets it was held to. With them, what
+ * was not asked for is refused (template/speech-rules.ts, music/provenance.ts): a voice the reference gives no reason
+ * for, and with the files at hand a sound without a record of where it came from and an on-camera line no clip says.
+ */
+const fillProblems = async (rt: Runtime, pkg: TemplatePackage, fill: RetargetPlan, dir: string | undefined, pace: number | undefined, tempo: number | undefined, voice: { speak?: boolean; asked?: string }): Promise<Problem[]> => {
   const checked = await checkFill(rt, pkg, fill, dir === undefined ? {} : { dir });
+  if (errorsIn(checked).length) return checked;
+  const asked = await voiceAskedOf(rt, voice.asked, dir);
+  const refused = [
+    ...voiceProblems(pkg.template.speech, voiceWanted(fill, { ...(voice.speak ? { speak: true } : {}) }), asked),
+    ...(dir !== undefined && typeof fill.sound === 'string' ? await soundProblems(rt, dir, fill.sound, 'sound') : []),
+    ...(dir !== undefined ? await dialogueFillProblems(rt, pkg, fill, dir, asked) : []),
+  ];
   // The budgets are read only of a fill whose captions are a list of strings, which checkFill has made sure of.
-  return errorsIn(checked).length ? checked : [...checked, ...budgetProblems(pkg, fill, paceBudgets(pkg, pace, tempo))];
+  return [...checked, ...refused, ...budgetProblems(pkg, fill, paceBudgets(pkg, pace, tempo))];
 };
 
 /** What a fill with errors prints: its problems, and the text a model would be sent to correct them. */
@@ -98,6 +114,13 @@ const save = command(
     const transcript = await optionalJson<Transcript>(rt, rt.path.join(ref, 'transcript.json'));
     const inset = await optionalJson<Inset>(rt, rt.path.join(ref, INSET_FILE));
     const label = args.string('label');
+    // The kind of the speech (describe wrote speech.json): the beats follow it, so it is confirmed before a template is saved.
+    const speech = await speechIn(rt, ref);
+    if (speech && !speech.confirmed) {
+      const fix = 'Open the pictures of the phrases (popost video speech-kind show ' + args.req('reference-dir') + ') and record each kind: popost video speech-kind confirm ' + args.req('reference-dir') + ' --narration ... --on-camera ... --sung ... --fragments ... (or --all <kind>). Then save again.';
+      printJson(rt, { ok: false, error: 'The kind of the reference\'s speech is not confirmed (' + SPEECH_FILE + ' in ' + ref + '); nothing was written. Whether its ' + speech.phrases.length + ' phrases are narration, said on camera or sung decides whether the re-make has a voice-over and which lines a person says in a clip.', errors: 1, problems: [{ level: 'error', at: SPEECH_FILE, message: 'The speech kind is unconfirmed.', fix }] });
+      return 2;
+    }
     // The reading of the frames, when it was written: held to the measurement first, and refused with its errors.
     const reading = await readingIn(rt, ref, read, text);
     const wrong = reading?.problems.filter((p) => p.level === 'error') ?? [];
@@ -109,6 +132,7 @@ const save = command(
       measure: split.measure, ...(text ? { text } : {}), ...(transcript ? { transcript } : {}), ...(inset ? { inset } : {}), name: args.req('name'), ...(label ? { label } : {}), outDir: out,
       ...(reading ? { reading: { elements: reading.elements, dir: ref, measure: read } } : {}),
       unrecovered: await unrecoveredIn(rt, ref, reading?.elements ?? { shots: [] }),
+      ...(speech ? { speech } : {}),
     });
     const pkg = await loadTemplate(rt, out);
     const cap = pkg.slots.captions?.capacity;
@@ -118,6 +142,7 @@ const save = command(
       shots: pkg.template.shots.length, beats: pkg.template.captions?.beats.length ?? 0, frames: pkg.template.frames, fps: pkg.template.canvas.fps,
       ...(split.added ? { cutsAdded: split.added, maxShot } : {}),
       ...(cap ? { lineHolds: { cjk: cap.cjk, latin: cap.latin, lines: cap.lines, measured: cap.measured } } : {}),
+      ...(pkg.template.speech ? { speech: { ...pkg.template.speech, voiceOver: pkg.template.speech.kinds.includes('narration'), onCameraBeats: (pkg.template.captions?.beats ?? []).flatMap((b, i) => (b.speech === 'on-camera' ? [i] : [])) } } : {}),
       ...(reading ? { reading: readingEntry(pkg) } : { note: 'There is no ' + ELEMENTS_FILE + ' in ' + ref + ', so the template does not say what each shot holds. Open the pictures, write it (popost video elements questions ' + args.req('reference-dir') + ') and save again.' }),
       errors, problems: r.problems, next: 'popost video template show ' + out,
     });
@@ -174,7 +199,7 @@ const show = command(
 
 const check = command(
   'the problems of a fill, each with its place, its limit and one fix; files are looked at only with --assets, and when that directory holds a video.json (the project), its captions are held to the template\'s size',
-  { positionals: [TEMPLATE], options: [FILL, ASSETS, PACE, { ...FIT_TEMPO, help: 'with --pace: the most a line will be sped up to fit its beat (template fill --fit-tempo); every budget grows by it' }] },
+  { positionals: [TEMPLATE], options: [FILL, ASSETS, PACE, { ...FIT_TEMPO, help: 'with --pace: the most a line will be sped up to fit its beat (template fill --fit-tempo); every budget grows by it' }, VOICE_ASKED] },
   looping(async (args, rt) => {
     const pkg = await loadTemplate(rt, userPath(rt, args.req('template-dir')));
     const assets = args.string('assets');
@@ -185,7 +210,8 @@ const check = command(
     const project = projectFile === undefined ? undefined : await optionalJson<Project>(rt, projectFile).catch(() => undefined);
     // The project against the template's reading of the frames: an effect drawn by a preset, the layout changed, the platform's words.
     const reading = project && dir !== undefined ? projectReadingProblems(readingOfTemplate(pkg, (p) => rt.path.relative(rt.cwd, rt.path.resolve(pkg.dir ?? '', p))), project, await projectSceneSources(rt, dir, project)) : [];
-    const fromFill = await fillProblems(rt, pkg, await readFill(rt, args.req('fill')), dir, args.number('pace'), fitTempoOf(args));
+    const asked = args.string('voice-asked');
+    const fromFill = await fillProblems(rt, pkg, await readFill(rt, args.req('fill')), dir, args.number('pace'), fitTempoOf(args), { ...(asked ? { asked } : {}) });
     // A project warning that says what the fill's warning already says, in the same or other words, is left out (the fill's place is kept).
     const problems = [...fromFill, ...(project ? captionSizeProblems(pkg, project) : []), ...notSaidBy(fromFill, reading)];
     const errors = errorsIn(problems);
@@ -206,6 +232,7 @@ const fill = command(
       { flag: '--keep-length', kind: 'flag', help: 'with --speak: a beat keeps its reference length when its line is shorter' },
       FIT_TEMPO,
       PACE,
+      VOICE_ASKED,
       ...CREDIT_OPTIONS,
     ],
   },
@@ -218,17 +245,24 @@ const fill = command(
     const speak = args.flag('speak');
     const fitTempo = fitTempoOf(args);
     if (fitTempo && !speak) throw new VideoCommandError('--fit-tempo changes the tempo of the spoken lines: give --speak too.');
-    const before = await fillProblems(rt, pkg, plan, assetsDir ?? outDir, args.number('pace'), fitTempo);
+    // The user's words that asked for a narration: given now, or kept in the project by an earlier fill.
+    const voiceAsked = await voiceAskedOf(rt, args.string('voice-asked'), outDir);
+    const before = await fillProblems(rt, pkg, plan, assetsDir ?? outDir, args.number('pace'), fitTempo, { speak, ...(voiceAsked ? { asked: voiceAsked } : {}) });
     if (errorsIn(before).length) return refused(rt, 'The fill has ' + errorsIn(before).length + ' error(s); nothing was written. Correct them and run it again.', before);
     // The lines a popost.ai voice speaks are priced before anything is written: without --confirm the price is all there is.
-    const wallet = speak ? await walletFor(rt, args, await spokenPrice(rt, plan)) : undefined;
-    const r = await fillPackage(rt, pkg, { fill: plan, outDir, speak, ...(args.flag('keep-length') ? { hold: true } : {}), ...(fitTempo ? { fitTempo } : {}), ...(assetsDir ? { assetsDir } : {}), ...(wallet ? { wallet } : {}) });
+    const wallet = speak ? await walletFor(rt, args, await spokenPrice(rt, plan, await dialogueOf(rt, pkg, plan, assetsDir ?? outDir, voiceAsked))) : undefined;
+    const r = await fillPackage(rt, pkg, { fill: plan, outDir, speak, ...(args.flag('keep-length') ? { hold: true } : {}), ...(fitTempo ? { fitTempo } : {}), ...(assetsDir ? { assetsDir } : {}), ...(wallet ? { wallet } : {}), ...(voiceAsked ? { voiceAsked } : {}) });
     if (!r.project) return refused(rt, 'The fill has ' + errorsIn(r.problems).length + ' error(s); nothing was written. Correct them and run it again.', r.problems);
-    const written = ['video.json', STRUCTURE_FILE, FACTS_FILE, ...(r.spoken ? [VOICE_FILE, WORDS_FILE, 'assets/voice/'] : [])];
+    const wantsVoice = voiceWanted(plan, { speak }).length > 0;
+    const askedFor = voiceAsked && wantsVoice && pkg.template.speech && !pkg.template.speech.kinds.includes('narration') ? voiceAsked : undefined;
+    if (askedFor) await recordVoiceAsked(rt, outDir, askedFor);
+    const written = ['video.json', STRUCTURE_FILE, FACTS_FILE, ...(r.spoken ? [VOICE_FILE, WORDS_FILE, 'assets/voice/'] : []), ...(askedFor ? ['voice-asked.json'] : [])];
     printJson(rt, {
       ok: true, dir: outDir, project: rt.path.join(outDir, 'video.json'), written,
       segments: r.project.segments.length, tracks: r.project.tracks.length, frames: r.project.segments.reduce((n, s) => n + (s.frames ?? 0), 0),
-      ...(r.spoken ? { spoken: r.spoken } : {}), problems: r.problems, notes: r.notes, chargedCredits: wallet?.spent ?? 0,
+      ...(r.spoken ? { spoken: r.spoken } : {}), problems: r.problems,
+      notes: [...r.notes, ...(askedFor ? ['The reference has no narration; the voice-over is there because the user asked for it ("' + askedFor + '"). Say so in the delivery notes.'] : [])],
+      chargedCredits: wallet?.spent ?? 0,
       next: 'popost video check ' + outDir + ' --layout',
     });
   }),

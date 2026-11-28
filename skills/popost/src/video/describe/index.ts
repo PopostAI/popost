@@ -19,6 +19,7 @@ import { ANGLES, ownEffect, trackBrief, trackText, TRACKS_FILE } from './paths';
 import { amountKnown, cameraKnown, kindKnown, LEGEND, NO_PATH, tag } from './known';
 import type { Status, Unrecovered } from '../types';
 import { LISTED, UNRECOVERED_FILE, unrecoveredLine, unrecoveredOf } from './unrecovered';
+import { kindLine, kindRanges, type SpeechFile } from './speech-kind';
 
 export interface Description {
   /** File name (relative to reference/) -> content. */
@@ -247,7 +248,7 @@ const effectQuestions = (m: Measure, p: Pictures): string[] => {
   ];
 };
 
-const card = (m: Measure, text: TextTrack | undefined, transcript: Transcript | undefined, phrases: Phrase[], beats: Beat[], name: string, tokens: Record<string, number>, inset: Inset | undefined, p: Pictures, lost: readonly Unrecovered[]): string => {
+const card = (m: Measure, text: TextTrack | undefined, transcript: Transcript | undefined, phrases: Phrase[], beats: Beat[], name: string, tokens: Record<string, number>, inset: Inset | undefined, p: Pictures, lost: readonly Unrecovered[], speech?: SpeechFile): string => {
   const { fps, frames, width, height, duration, hasAudio } = m.source;
   const lengths = m.shots.map((s) => (s.end - s.start) / fps);
   const L: string[] = ['# Reference: ' + name, ''];
@@ -285,8 +286,11 @@ const card = (m: Measure, text: TextTrack | undefined, transcript: Transcript | 
       const lead = captionLead(text.cues, phrases);
       if (lead.n >= 2) L.push('- Captions and speech: a caption line appears ' + Math.abs(lead.mean) + ' frames ' + (lead.mean <= 0 ? 'before' : 'after') + ' its first word on average (' + lead.n + ' lines, at most ' + lead.worst + ' frames apart; the caption times are exact to about ' + Math.ceil(text.step / 2) + ' frames)');
     }
-  } else L.push(transcript ? '- Speech: none recognised' : '- Speech was not transcribed (no transcriber was available)');
+    if (speech) L.push(kindLine(speech));
+  } else L.push(speech ? kindLine(speech) : transcript ? '- Speech: none recognised' : '- Speech was not transcribed (no transcriber was available)');
   L.push(beatsLine(beats, transcript, text));
+  const dialogue = beats.flatMap((b, i) => (b.speech === 'on-camera' ? [i] : []));
+  if (dialogue.length) L.push('- Dialogue beats (a visible person says them; timeline.md marks them "on camera"): ' + dialogue.join(', ') + '. No voice-over reads them: the person of the re-make says them in a clip');
   L.push('- ' + LEGEND);
   if (p.written) L.push(...picturesBlock(m));
   L.push('', '## Not recovered', '');
@@ -308,14 +312,14 @@ const card = (m: Measure, text: TextTrack | undefined, transcript: Transcript | 
 
 /** One beat of timeline.md: its index, its time, whether it was only said, what was said or shown, and a mark when unsure. */
 const beatText = (b: Beat, i: number, fps: number): string =>
-  i + ' ' + sec(b.start, fps) + '-' + sec(b.end, fps) + (b.shown ? '' : ' spoken only') + ' ' + quote(b.text) + (b.confidence < UNSURE ? ' (unsure)' : '');
+  i + ' ' + sec(b.start, fps) + '-' + sec(b.end, fps) + (b.shown ? '' : ' spoken only') + (b.speech === 'on-camera' ? ' on camera' : '') + ' ' + quote(b.text) + (b.confidence < UNSURE ? ' (unsure)' : '');
 
 const timeline = (m: Measure, cues: TextCue[], beats: Beat[], step: number, p: Pictures): string => {
   const fps = m.source.fps;
   const shots = m.shots.map((s, k) => timelineLine(s, k > 0 ? m.boundaries[k - 1] : undefined, m.boundaries[k], cues, beats, fps, step, p));
   return [
     '# Timeline', '', '## Beats', '',
-    'What is said or shown as a caption, once each, in time order (seconds). The plan\'s "captions" follow this list: captions[i] is the new line of beat i. "spoken only": said with no caption on screen; its new line is spoken, not drawn. "(unsure)": the reader or the recogniser was not sure.', '',
+    'What is said or shown as a caption, once each, in time order (seconds). The plan\'s "captions" follow this list: captions[i] is the new line of beat i. "spoken only": said with no caption on screen; its new line is spoken, not drawn. "on camera": a visible person says it; its new line is said by the person of a generated clip, never by a voice-over. "(unsure)": the reader or the recogniser was not sure.', '',
     ...(beats.length ? beats.map((b, i) => beatText(b, i, fps)) : ['None: no caption was read and no speech was heard.']), '',
     '## Shots', '',
     'One shot per line: #number start-end (seconds) @first-last frame | in: how the shot begins | camera | the beats in it | other text | motion.'
@@ -327,12 +331,14 @@ const timeline = (m: Measure, cues: TextCue[], beats: Beat[], step: number, p: P
 /**
  * name: what to call the reference in the card (not a file name of a private data set). inset: the frame around the
  * content (inset.ts). o.pictures: the pictures of frames.ts were written beside the text, which then names them.
+ * o.speech: the record of the speech's kind (speech-kind.ts): the card says it, and confirmed kinds shape the beats.
  */
-export const describeReference = (m: Measure, text: TextTrack | undefined, name: string, transcript?: Transcript, inset?: Inset, o: { pictures?: boolean } = {}): Description => {
+export const describeReference = (m: Measure, text: TextTrack | undefined, name: string, transcript?: Transcript, inset?: Inset, o: { pictures?: boolean; speech?: SpeechFile } = {}): Description => {
   const p: Pictures = { written: o.pictures === true, joined: joinedShots(m), amounts: m.shots.map((_s, k) => shotAmount(m, k)), amount: videoAmount(m), tracks: m.tracks ?? [], measure: m };
   const fps = m.source.fps;
   const boundaries = m.boundaries.map((b) => b.frame);
-  const read = referenceBeats({ ...(text ? { text } : {}), ...(transcript ? { transcript } : {}), total: m.source.frames, boundaries });
+  const kinds = kindRanges(o.speech);
+  const read = referenceBeats({ ...(text ? { text } : {}), ...(transcript ? { transcript } : {}), total: m.source.frames, boundaries, ...(kinds ? { kinds } : {}) });
   const roles = read.text;
   const cues = roles?.cues ?? [];
   const phrases = transcript ? phrasesOf(transcript, { boundaries }) : [];
@@ -343,8 +349,8 @@ export const describeReference = (m: Measure, text: TextTrack | undefined, name:
   // Without a text reader the text facts are unknown, not absent: shotLooks is given no cues then.
   m.shots.forEach((s, k) => { files['shots/' + two(k + 1) + '.md'] = shotFile(s, k > 0 ? m.boundaries[k - 1] : undefined, m.boundaries[k], cues, phrases, read.beats, fps, step, shotLooks(s, roles?.cues, step), p); });
   const tokens = Object.fromEntries(Object.entries(files).map(([k, v]) => [k, roughTokens(v)]));
-  const unrecovered = unrecoveredOf(m, { text: roles, transcript, beats: read.beats });
-  files['REFERENCE.md'] = card(m, roles, transcript, phrases, read.beats, name, tokens, inset, p, unrecovered);
+  const unrecovered = unrecoveredOf(m, { text: roles, transcript, beats: read.beats, ...(o.speech ? { speech: o.speech } : {}) });
+  files['REFERENCE.md'] = card(m, roles, transcript, phrases, read.beats, name, tokens, inset, p, unrecovered, o.speech);
   tokens['REFERENCE.md'] = roughTokens(files['REFERENCE.md']);
   return { files, tokens, unrecovered };
 };

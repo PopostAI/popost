@@ -11,6 +11,7 @@ import { droppedFrom, droppedShots, droppedTexts, endAt, withReading } from '../
 import type { Elements } from '../elements/types';
 import { withCaptionRoles } from '../elements/caption-roles';
 import type { Transcript } from '../speech/types';
+import { factsOfSpeech, kindRanges, type SpeechFile } from '../describe/speech-kind';
 import type { TextTrack } from '../text/types';
 import { error, warning } from '../project/check-common';
 import { estimateCapacity, measureCapacities, type Band } from './capacity';
@@ -69,7 +70,16 @@ export interface SaveOptions {
   reading?: { elements: Elements; dir: string; measure?: Measure };
   /** What was not recovered of the reference: describe's list (unrecovered.json) and what the reader added. Kept in the template. */
   unrecovered?: Unrecovered[];
+  /**
+   * The record of the speech's kind (speech.json, confirmed): the beats follow it and the template keeps the kinds.
+   * Without it (a reference described before the record existed) every heard word is a line, as before.
+   */
+  speech?: SpeechFile;
 }
+
+/** The kinds of the speech that reach the template: the phrases that lie before the end, when shots were dropped there. */
+const kindsUntil = (speech: SpeechFile | undefined, end: number | undefined): ReturnType<typeof kindRanges> =>
+  kindRanges(speech)?.filter((k) => end === undefined || k.start < end);
 
 /** The inputs of a template: as given, or ending where the shots the reading drops whole at the end begin. */
 const sourceOf = (o: SaveOptions): { measure: Measure; text?: TextTrack; transcript?: Transcript; from?: number } => {
@@ -84,7 +94,9 @@ const sourceOf = (o: SaveOptions): { measure: Measure; text?: TextTrack; transcr
 export const saveTemplate = async (rt: Runtime, o: SaveOptions): Promise<{ problems: Problem[] }> => {
   const src = sourceOf(o);
   const m = src.measure;
-  const made = templateFrom({ measure: m, ...(src.text ? { text: src.text } : {}), ...(src.transcript ? { transcript: src.transcript } : {}), ...(o.inset ? { inset: o.inset } : {}), name: o.name, label: o.label ?? o.name, hash: measureHash(m) });
+  const kinds = kindsUntil(o.speech, src.from === undefined ? undefined : m.source.frames);
+  const made = templateFrom({ measure: m, ...(src.text ? { text: src.text } : {}), ...(src.transcript ? { transcript: src.transcript } : {}), ...(o.inset ? { inset: o.inset } : {}), name: o.name, label: o.label ?? o.name, hash: measureHash(m), ...(kinds ? { kinds } : {}) });
+  if (o.speech) made.speech = factsOfSpeech(o.speech);
   const fingerprint = src.from === undefined ? undefined : referenceFingerprint(o.reading?.measure ?? o.measure);
   if (fingerprint) made.source.fingerprint = fingerprint;
   // The reading: each shot's elements, an effect of its own as "custom" with the picture of its frames (a path from the template directory).
@@ -96,7 +108,7 @@ export const saveTemplate = async (rt: Runtime, o: SaveOptions): Promise<{ probl
   const template = o.unrecovered?.length ? { ...read0, unrecovered: o.unrecovered } : read0;
   const { capacity, card: cardSlot, problems } = await capacitiesOf(rt, template);
   // The same beats templateFrom kept, with their wording, and the text with the roles the speech gave it.
-  const read = sourceBeats(m, src.text, src.transcript);
+  const read = sourceBeats(m, src.text, src.transcript, kinds);
   const words = titlePlaces(m, read.text).map((xs) => xs.map((x) => x.text));
   const tplBar = barPlaces(m, read.text);
   const slots = slotsOf(template, capacity, { ...(read.text ? { text: read.text } : {}), ...(src.transcript ? { transcript: src.transcript } : {}), ...(cardSlot ? { card: cardSlot } : {}), beats: read.beats, words, ...(tplBar ? { bar: tplBar.texts } : {}) });

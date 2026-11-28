@@ -14,6 +14,7 @@ import type { CameraAim } from '../describe/aim';
 import type { DroppedRole, LayerKind, Mark } from '../elements/types';
 import type { Inset } from '../describe/inset';
 import type { ShotLooks } from '../describe/kind';
+import type { SpeechFacts } from '../describe/speech-kind';
 import type { BarPlaces, WordPlace } from '../retarget/titles';
 import type { CaptionLook } from '../text/types';
 import type { Box, CameraRate, Canvas, Problem, TextStyle, TransitionSpec, Unrecovered } from '../types';
@@ -136,8 +137,10 @@ export interface TemplateCaptions {
    * The beats of the source, in order (src/describe/beats.ts): a fill's captions[i] is the line of beat i, on frames
    * start .. end-1. shown: false marks a beat the source only said (no caption on screen): a fill's line there is
    * spoken and never drawn. Absent means shown, so templates saved before the flag existed load unchanged.
+   * speech: 'on-camera' marks a dialogue beat, whose words a visible person said: its line is said by the person of
+   * a generated clip (generate/dialogue.ts) and never read by a voice-over.
    */
-  beats: { start: number; end: number; shown?: false }[];
+  beats: { start: number; end: number; shown?: false; speech?: 'on-camera' }[];
   /** The script most of the source's caption characters were written in. */
   script: 'cjk' | 'latin';
   /** What was behind the source's caption letters (text/look.ts); style above follows it, and so does a fill's. */
@@ -162,6 +165,11 @@ export interface Template {
    * each shot marks (-1: none). A fill's "bar" gives the words. Absent when the source had none.
    */
   bar?: BarPlaces;
+  /**
+   * The kind of the source's speech as it was confirmed (describe/speech-kind.ts): a voice-over belongs to a fill only
+   * when the kinds include narration. Absent in a template saved before the kinds existed, which is held to nothing.
+   */
+  speech?: SpeechFacts;
   /** Shots of the reference left out because the reading dropped them whole; the last shot here is then the re-make's own closing. */
   dropped?: DroppedShot[];
   /**
@@ -224,6 +232,8 @@ export interface CaptionSlot {
   example?: { text: string; chars: number };
   /** false: a beat the source only said; its line is spoken and not drawn. Absent: shown. */
   shown?: false;
+  /** 'on-camera': a visible person said it; its line belongs to a generated clip's speech.lines, never to the voice-over. */
+  speech?: 'on-camera';
   /** true: the reader or the recogniser was not sure of this beat (confidence under 0.6). */
   unsure?: true;
   /** About how many characters the source's speaker said in a beat this long (only with a transcript). */

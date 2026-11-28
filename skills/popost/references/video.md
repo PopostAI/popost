@@ -7,18 +7,17 @@ Read this page once, then do steps 0 to 7 in order; "Done when" says what must b
 
 - For Jianying Pro or CapCut delivery, use [direct desktop draft export](video-draft-export.md). Local Studio saves into the application's drafts folder and offers Open/Restart after success; a ZIP download is not this interaction.
 
-- For any generated people or audible dialogue, read [people and shared voices](video-performers.md). Follow explicit user character requirements/material first; otherwise match the role and mood with a new face. Keeping a presenter, avatar window or layout does not select the original person's identity. One generated clip may define its new person in the prompt; multiple generated clips reuse one new identity image. Visible mouths and the final audio share one timing source; a mixed video uses one registered voice profile for its speaker and voice-over.
+- For any generated people or audible dialogue, read [people and shared voices](video-performers.md). Follow explicit user character requirements/material first; otherwise match the role and mood with a new face. Keeping a presenter, avatar window or layout does not select the original person's identity. One generated clip may define its new person in the prompt; multiple generated clips reuse one new identity image. Visible mouths and the final audio share one timing source; a mixed video uses one registered voice profile for its speaker and voice-over. A person who speaks on camera in the reference speaks on camera in the re-make, in a generated clip that says the lines; never silent footage with a voice-over on top.
 
-- Money: one budget for the whole video. What costs credits is popost.ai voice-over, transcription, generated music,
-  generated clips and pictures (each call at least 1 credit). Step 0 ends with one cost overview and one total budget the user agrees
-  to. Every paid call is booked under the project's task, and `popost usage --dir project --budget <agreed>` prints
+- Money: one budget for the whole video. What costs credits is popost.ai voice-over, transcription, generated clips
+  and pictures (each call at least 1 credit). Step 0 agrees the transcription, at its exact quote; step 1 ends with
+  one cost overview and one total budget the user agrees to, once the reference has been read. Every paid call is booked under the project's task, and `popost usage --dir project --budget <agreed>` prints
   what popost.ai counts as spent so far (refunds included, also clips paid by a run that stopped) and `budget.left`,
   what is left. Before each paid command (`transcript`, `describe`, `plan --voice`, `template fill --speak`,
-  `retarget --speak`, `readback`, `voice speak`, `music make`, `materials`), run it and pass `--confirm --max-credits <left>`. The
+  `retarget --speak`, `readback`, `voice speak`, `materials`), run it and pass `--confirm --max-credits <left>`. The
   `chargedCredits` each command prints is a quick check, not the count. A command that ends with exit code 3 and
   `confirm` made and charged nothing: ask the user again only when its credits are more than what is left or the scope
-  changed (more or longer shots, another voice, music that was not agreed or in another style or length); otherwise
-  run it again within what is left. `INSUFFICIENT_CREDITS`:
+  changed (more or longer shots, another voice); otherwise run it again within what is left. `INSUFFICIENT_CREDITS`:
   the balance is short; `popost account` shows it and where to add credits. Tell the user once that the video's
   charges show as one line, "Task: <the title step 0 gave it>", with its items, on their popost.ai account page.
 - Generated video is the expensive item. Never regenerate a clip to fix its quality, make a variant, change a clip's
@@ -62,49 +61,30 @@ popost video doctor
   - `speak` `"popost.ai"`: voice-over with `popost:` voices (`popost:default-male`, `popost:default-female`,
     `popost:VOICE_ID`; `video-performers.md`), paid in credits. `null`: no voice-over. Leave out `--voice`, `"voice"`,
     `--speak`, `--keep-length`, `--fit-tempo` and `--pace` below; say in the delivery that the video has no voice.
-  - `music` `"popost.ai"`: background music can be generated from a description, paid in credits by its length (the
-    music plan below). `null`: no generated music; the video's sound is a file of the user's own, or none.
+  - `music` `null` (the default): no music is generated. The video's sound is its voice-over, a sound file the user
+    gave, or the sound its clips came with; users usually pick the music themselves when they post. `"popost.ai"`:
+    the user switched generated music on; only then read `video-tools.md`, "Generated music", and do what it says in
+    steps 0 and 6.
   - `generate` null: no generated clips; use captured pages, the user's files and scenes.
   - `generate` set: generated clips cost money; with the built-in generator (`popost video generate`) popost.ai
     credits (`video-tools.md`, "The built-in generator").
 
-Then, before step 1, the cost overview (leave out what this video does not use):
+Then, before step 1:
 
 ```bash
 popost usage --dir project --title "<a few words naming this video for the user: the product and the platform>"
 popost account                                         # the balance
 popost video transcript reference.mp4 --quote          # transcription of the reference: its exact price, free
-popost video voice quote --voice default-male --text "<a script as long as the reference's speech>"
-popost video music quote --video reference.mp4         # generated music as long as the reference: its price, free
 ```
 
 The first line names the video's line on the account page, in the user's language (for example "Coffee grinder
-for TikTok"); run it once, before the first paid command (it is free and creates `project/`). Add up: the
-transcription (exact), the voice-over (the quote of a script of about the reference's length; it is an
-estimate until the lines are written), a little for pace calibration (`plan --voice` speaks one sentence), and for
-generated clips and pictures their price per second or per picture (`popost video generate --models`) times what you
-plan, and the music of the music plan.
+for TikTok"); run it once, before the first paid command (it is free and creates `project/`). The transcription is
+the one paid item before the reference is read: tell the user its price and the balance and get a yes to it. Quote
+nothing else yet, and propose no voice-over: whether the video has one, and whether its people speak, is decided by
+what the reference says and who says it (step 1). The whole cost overview and the one budget come at the end of
+step 1.
 
-The music plan is one of the items, shown with the others, in these words:
-
-- Music: generated, or none. Propose none, at no cost, when the reference has no sound (`transcript --quote` prints
-  `"sound": false`) or the user says it has no music, when the user gave a sound file of their own (it is the video's
-  `"sound"`), and when `music` is `null`; unless the request asks for generated music.
-- Style, in plain words: genre, mood, tempo, instruments. Take it from what the user says about the reference's
-  music; the programs do not hear music, so otherwise propose a style that fits the reference's subject and pace,
-  say that it is your proposal, and let the user change it. Never the name of an artist, a band, a song, an album or
-  a label, and no lyrics: such a description is refused.
-- Length: the video's, which is about the reference's (`seconds` of the quote).
-- With a voice-over: instrumental, under the voice (18 dB lower). Without one: at its own level.
-- Price: `credits` of the quote.
-
-Show the user the items, the music plan, the total and the balance, and agree one budget for the whole video (the
-money rule above). The user may say no to the music and still have the video: then it has none, and its price leaves
-the total. Do not ask per command after that. No music is generated that the user did not agree to here, or later with
-a clear yes to its style and price.
-
-Done when: `"ok": true`, you know which tools are `null`, and the user agreed a budget (or no paid work is planned)
-and the music plan (or no music).
+Done when: `"ok": true`, you know which tools are `null`, and the user agreed to the transcription (or said no to it).
 
 ## 1. Read the reference
 
@@ -114,9 +94,10 @@ Put the reference at `reference.mp4` (`cp` a local file, or `curl -L -o referenc
 popost video describe reference.mp4 --out ref --project project --confirm --max-credits <left>
 ```
 
-With `transcribe` `"popost.ai"` this pays for the transcription of the overview (`--project project`: under the
-video's task, though the project has no files yet); when the user left it out of the budget, write `--no-speech`
-instead of `--confirm --max-credits`. `describe` measures shots, cuts, transitions, camera, motion, how much the picture moves, colours (captions and speech with those tools) and draws
+With `transcribe` `"popost.ai"` this pays for the transcription the user agreed to in step 0 (`<left>` is here the
+quote's `credits`; `--project project`: under the video's task, though the project has no files yet); when the user
+said no to it, write `--no-speech` instead of `--confirm --max-credits`. A transcription that fails does not stop
+the reading (`leftOut` says so): run the same command again, which starts a new one. `describe` measures shots, cuts, transitions, camera, motion, how much the picture moves, colours (captions and speech with those tools) and draws
 the pictures to open, consecutive frames with the time of each under it: `ref/opening.jpg` (the first 3 s, 6 frames a
 second), `ref/shots/NN-frames.jpg` (each shot from just before the change into it to its end, up to 12 frames) and
 `ref/transitions/NN.jpg` (each change that is not a plain cut, frame by frame from 0.2 s before to 0.2 s after, named
@@ -193,9 +174,52 @@ description, a watermark no `platform` layer covers, a mark without its reason, 
 dropped, a measured value contradicted without a note. Correct every error and answer every warning (each says what it found and what to write) until it prints
 `"ok": true`.
 
-Done when: you have opened every picture of `ref/`, and `popost video elements check ref` prints `"ok": true`: every
+The kind of the speech. REFERENCE.md has a line `Speech kind:` (or says why nothing was transcribed); the kind decides
+what the re-make does with a voice:
+
+| Kind | What it is | The re-make |
+|---|---|---|
+| `narration` | heard while nobody on screen says it | a voice-over (steps 4 and 6) |
+| `on-camera` | a visible person says it: a talking head, an interview, a presenter in a window | the person of a generated clip says the lines (step 3); no voice-over reads them |
+| `sung` | the lyrics of the music | no voice |
+| `fragments` | a few exclamations or single words, no script | no voice |
+| `none` | nothing is said | no voice |
+| `unknown` | not transcribed (skipped, failed, no transcriber) | treated as no narration: no voice; say so in the delivery notes |
+
+The program decides `none`, `unknown` and `fragments` (words heard for less than 15% of the length, in phrases of 4
+syllables or fewer on average). Whether heard words are narration, said on camera or sung it cannot hear:
+`Speech kind: unconfirmed` means you decide it from the frames.
+
+```bash
+popost video speech-kind show ref
+popost video speech-kind confirm ref --narration <phrases> --on-camera <phrases>
+```
+
+`show` lists the phrases, each with its time and `picture` (a sheet in `ref/speech/` with the frame at the middle of
+each phrase, its time under it). Open the sheets and hold each phrase against its frame and the frames of its shot:
+is the person who says these words visible? `confirm` records one kind for every phrase (`--narration`,
+`--on-camera`, `--sung`, `--fragments`, each with the numbers of its phrases, singly or as ranges like `2-6`; `--all <kind>` for all of them); a video
+can be part narration, part on camera. It writes `timeline.md` again: read its beats once more ("on camera" marks a
+beat a person says; sung words and fragments are no beats). `template save` refuses a reference whose kind is
+unconfirmed.
+
+The cost overview and the one budget, now that the reference is read (leave out what this video does not use):
+
+- Voice-over, only when the kinds include `narration`: `popost video voice quote --voice default-male --text "<a
+  script as long as the reference's narration>"` (an estimate until the lines are written), and a little for pace
+  calibration (`plan --voice` speaks one sentence). No narration: no voice-over in the overview, and none is made,
+  unless the user asks for one in their own words.
+- Generated clips and pictures: their price per second or per picture (`popost video generate --models`) times what
+  you plan. Every on-camera stretch is a clip in which a person speaks, as long as the stretch (`video-performers.md`).
+- The transcription already paid (`chargedCredits` of `describe`).
+
+Show the user the items, the total and the balance, and agree one budget for the whole video (the money rule above).
+The user agrees once; do not ask per command after that. When speaking people cost more than the user wants to spend,
+the user decides what to do: never turn a speaking person into silent footage with a narration to save money.
+
+Done when: you have opened every picture of `ref/`, `popost video elements check ref` prints `"ok": true` (every
 shot has an entry that says its layout, how it begins and ends as its frames show it, and which layers are the
-platform's or the author's.
+platform's or the author's), the speech kind is confirmed, and the user agreed a budget (or no paid work is planned).
 
 ## 2. Keep its structure
 
@@ -297,8 +321,11 @@ the `box` of each element from `--outline` (`<skill>/references/video-scenes.md`
    the middle and nothing covers it. Otherwise zoom closer or hide what covers it, and record again.
 
 A shot of filmed material that no file of the user's shows can be generated when `generate` is set (step 0): write
-the requests and run `popost video materials requests.json --out project --confirm --max-credits <left>`
-(`video-tools.md`, "Generated clips": the request, the price, what it prints). The first such run of the project makes
+the requests and run `popost video materials requests.json --out project --template template --confirm --max-credits <left>`
+(`video-tools.md`, "Generated clips": the request, the price, what it prints). A shot in which a person says an
+on-camera beat is a clip with `"speech"`: the lines, who says each, their language and the beat each re-makes; the
+program takes the times from the beats and writes the dialogue into the prompt (`video-performers.md`). `materials`
+refuses a list that leaves an on-camera beat to no clip. The first such run of the project makes
 its clips the agreed clips; any other paid clip later is "unplanned" (the money rules above). Two rules about motion:
 
 - Group the calls by the continuity of the scene, not by shot: consecutive short shots of one look are one request
@@ -379,17 +406,28 @@ the most characters that can be said in its beat, the voice sped up at most 1.12
   goes on what the new line says, that strongest point, never on the new subject's version of the reference's fact.
 - `voice`: the same `<voice>`, as `answer` and `rules` say: `template fill --speak` reads it from the fill. No times, no
   frame numbers except `in`, no other keys.
-- A reference without speech (REFERENCE.md: `Speech: none recognised`) is re-made without a voice-over, unless the
-  request asks for one: leave out `--voice`, `"voice"`, `--speak`, `--keep-length`, `--fit-tempo` and `--pace` here
-  and in step 6; its caption lines are still drawn.
-- Sound: a video without a voice keeps the sound its clips came with (a generated clip has sound), each at its own
-  level; with a voice or a `"sound"` file the clips are silent unless a shot says `"audio"` (`video-templates.md`).
-  `"sound"` is a sound file the user gave, which always wins, or the music generated as the music plan of step 0 says
-  (step 6 makes it, when the video's length is known; leave `"sound"` out until then). Without either, the video has
-  no music: never generate music the user did not agree to, never make up a tone or a sound to fill silence, and
-  never mute a clip to be safe. A quiet video is not a fault to repair; the user can add sound in an editor. A
-  `"sound"` under a voice lies 18 dB lower by itself; one longer than the video fades out at its end, one shorter is
-  not repeated.
+- The voice follows the speech kind (step 1; TEMPLATE.md repeats it):
+  - `narration`: a voice-over. Its beats' lines are spoken by `--speak`.
+  - `on-camera`: the line of such a beat (TEMPLATE.md: "on camera") is the line the person says in the clip of that
+    shot; write the same words in `captions[i]` and in the clip's `speech.lines`. The voice-over never reads it, and
+    it is drawn as a caption when its beat is a shown one. Fill the shot with that clip from `"in": 0`.
+  - `sung`, `fragments`, `none`, `unknown`: no voice. Leave out `--voice`, `"voice"`, `"say"`, `--speak`,
+    `--keep-length`, `--fit-tempo` and `--pace` here and in step 6; the caption lines are still drawn. For `unknown`,
+    write into the delivery notes that the speech was not transcribed and the video therefore has no voice-over.
+  A reference without narration gets a voice-over only when the user asked for one: pass their own words with
+  `--voice-asked "<their words>"` to `plan`, `template check` and the first `template fill` (the project then keeps
+  them), and name them in the delivery notes. The checks refuse a voice nobody asked for.
+- Sound is mixed in layers, by itself. A clip in which a person speaks is heard at full level and nothing speaks over
+  it. Every other clip keeps the sound it came with, lowered by 18 dB while a line of the voice-over is spoken and
+  back up in the pauses. A `"sound"` lies under everything, lowered the same way while anybody speaks, and fades out
+  at the end when it is longer than the video (shorter, it is not repeated). A shot's `"audio"` overrides this for its
+  clip: a number fixes its level, `false` mutes it (`video-templates.md`).
+- `"sound"` is a file the user gave, taken in with `popost video music own --file <their file> --out
+  project/assets/<name> --given "<their words that gave it>"`. Nothing else: never put a narration together with other
+  tools (`voice speak` lines mixed with ffmpeg) and name it as `"sound"`, never write an audio track into `video.json`
+  by hand, never take the music or the voice out of the reference, never make up a tone to fill silence, and never mute
+  a clip to be safe. The checks refuse a sound without a record of where it came from. A quiet video is not a fault to
+  repair; the user adds music when they post, or in an editor.
 
 ```bash
 popost video template check template --fill fill.json --pace <budgets.pace> --fit-tempo 1.12
@@ -500,31 +538,14 @@ popost video scene check project
 popost video template check template --fill fill.json --assets project --pace <budgets.pace> --fit-tempo 1.12
 ```
 
-`--speak` speaks every caption line into `project/assets/voice.m4a` (every time it runs; it takes minutes; a line
-already spoken in the same words is not paid again) and
+`--speak` speaks every caption line of a narration beat into `project/assets/voice.m4a` (a line a person says on
+camera is left to its clip; every time it runs; it takes minutes; a line already spoken in the same words is not
+paid again) and
 re-flows each beat to its spoken line; `--keep-length` keeps each beat at least as long as in the reference, so the
 cuts keep its rhythm; `--fit-tempo 1.12` speeds a line that would run over its beat up as far as it needs, at most
 12% (hardly heard; the pitch stays), and only the rest makes the beat longer. Its `notes` say which lines were sped
 up and give the new length. When the reading says the words appear one by one, add `"captionReveal": "words"` to the fill (`template check` warns when it is missing). From now on run `template fill` only with these options, or the voice is dropped.
-Without a speaker, or for a video without a voice (step 4), leave out `--speak --keep-length --fit-tempo 1.12 --pace <budgets.pace> --confirm --max-credits <left>`.
-
-Music, only when the music plan of step 0 says generated (never for a video whose `"sound"` is the user's file): now
-that `template fill` has given the video its length, make the track, name it in the fill, and fill again:
-
-```bash
-popost video music make --project project --prompt "<the agreed style: genre, mood, tempo, instruments>" --out project/assets/music.mp3 --confirm --max-credits <left>
-```
-
-It takes the length from the project, prints the price first like every paid command (exit code 3 without
-`--confirm`, or when the price is above `<left>`), then `file`, `seconds` and `chargedCredits`; it can take a few
-minutes. Add `"sound": "assets/music.mp3"` to fill.json and run the `template fill` line above again (the lines
-already spoken are not paid again). The same command again reads the track already paid for. A refused description
-(`problems` at `--prompt`) was not charged: write it without names, or take `suggestion`, and run it once more
-without asking, at the same price. Another style, or a new track because the length changed, is a new purchase:
-show the user the reason and the price and get a yes first, as for a generated clip; a video that got a little
-longer or shorter keeps its track (it fades out at the end; `video-tools.md`, "Generated music").
-
-The last command of the four
+Without a speaker, or for a video without a voice (step 4: no narration in the reference), leave out `--speak --keep-length --fit-tempo 1.12 --pace <budgets.pace> --confirm --max-credits <left>`; `template fill` refuses them there. The last command
 looks at the files of the fill and at `project/video.json`: run it again after every hand edit of `video.json`; it
 warns when the captions are much smaller or larger than the reference's, with both sizes in pixels (`video check` does
 too). `scene check` also warns when a scene is far emptier than its reference shot (draw what the shot holds, as
@@ -599,7 +620,5 @@ Deliver `final.mp4`, its editable Studio URL, the `project/` directory and the d
 the reference, what differs and why (no voice, a missing tool, a source that did not have something), each shot of
 the last `worst` that was not fixed, with its reason, and under "Not recovered" every entry of `compare`'s
 `notRecovered` (the reading's list and what you added to `elements.json`): what was not recovered and what the video
-does instead. Never leave an entry out because the result looks fine: the user decides whether the assumption holds.
-Under "Music": the generated track (its style in the words of the prompt, its length, under the voice or alone) and
-what it cost, or the user's file, or that the video has no music and why; and that the user can swap or remove the
-track in the Studio or in their editor (it is `assets/music.mp3`). Say the Studio is open only after it has actually loaded.
+does instead. Never leave an entry out because the result looks fine: the user decides whether the assumption holds. Say what the video's sound is (the voice-over, people who speak in clips, the user's file, the clips' own sound, or none), the reference's speech kind and what followed from it (a voice-over the user asked for is quoted with their words; `unknown`: not transcribed, so no voice-over), and that the user
+can add or swap music in the Studio or when they post. Say the Studio is open only after it has actually loaded.

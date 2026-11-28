@@ -1,5 +1,6 @@
 import type { Store } from '../app';
 import { fileUrl } from './ui';
+import { duckAt } from '../../../timeline/mix';
 
 export const mountProjectAudio = (store: Store): void => {
  let nodes: { audio: HTMLAudioElement; gain: GainNode; source: string }[] = [];
@@ -16,7 +17,8 @@ export const mountProjectAudio = (store: Store): void => {
   const t = v.frame / r.canvas.fps;
   nodes.forEach((node, i) => {
    const a = wanted[i]; if (!a) return;
-   node.gain.gain.value = v.muted ? 0 : 10 ** (a.gain / 20);
+   // The layers of the mix as the render makes them: a sound that gives way to speech is lowered on its spans (timeline/mix.ts).
+   node.gain.gain.value = v.muted ? 0 : 10 ** ((a.gain - duckAt(a.duck, v.frame)) / 20);
    const inside = v.frame >= a.start && (a.end === undefined || v.frame < a.end);
    const time = Math.max(0, (t - a.start / r.canvas.fps) * (a.speed ?? 1) + (a.from ? a.from.frame / a.from.fps : 0));
    node.audio.playbackRate = v.speed * (a.speed ?? 1);

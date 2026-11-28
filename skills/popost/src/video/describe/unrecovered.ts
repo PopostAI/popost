@@ -11,6 +11,7 @@ import type { Measure, Unrecovered } from '../types';
 import { UNSURE, type Beat } from './beats';
 import { shotSheetFile, transitionFile } from './frames';
 import { cameraKnown, edgeKnown, kindKnown, ownEffect } from './known';
+import type { SpeechFile } from './speech-kind';
 
 export const UNRECOVERED_FILE = 'unrecovered.json';
 
@@ -18,7 +19,13 @@ const two = (n: number): string => String(n).padStart(2, '0');
 const r2 = (v: number): number => Math.round(v * 100) / 100;
 const quote = (t: string): string => '"' + t.replace(/"/g, "'") + '"';
 
-export interface ReadWith { text?: TextTrack | undefined; transcript?: Transcript | undefined; beats?: readonly Beat[] }
+export interface ReadWith { text?: TextTrack | undefined; transcript?: Transcript | undefined; beats?: readonly Beat[]; speech?: Pick<SpeechFile, 'status' | 'why'> }
+
+/** Why what is said was not read: skipped, failed or no transcriber, never one for another. */
+const notHeard = (speech: ReadWith['speech']): { why: string; settle: string } =>
+  speech?.status === 'skipped' ? { why: 'the transcription was skipped (--no-speech)', settle: 'Take the lines from the captions; the kind of the speech stays unknown, so the re-make has no voice-over unless the user asks for one. Or describe again without --no-speech.' }
+    : speech?.status === 'failed' ? { why: 'the transcription failed' + (speech.why ? ' (' + speech.why + ')' : ''), settle: 'Run describe again: a failed transcription starts a new one. Until then the kind of the speech is unknown, and the re-make has no voice-over unless the user asks for one.' }
+    : { why: 'no transcriber was available', settle: 'Take the lines from the captions; or set a transcriber up (video-tools.md) and describe again.' };
 
 const ofTransitions = (m: Measure): Unrecovered[] => {
   const fps = m.source.fps;
@@ -53,7 +60,7 @@ const ofTools = (m: Measure, r: ReadWith): Unrecovered[] => {
   const look = r.text?.captionLook;
   return [
     ...(r.text ? [] : [{ what: 'the on-screen text: captions, titles, labels, watermarks', where: whole, why: 'no text reader was available', settle: 'Read the words off the pictures; or set a reader up (video-tools.md) and describe again.', by: 'measurement' as const }]),
-    ...(r.transcript || !m.source.hasAudio ? [] : [{ what: 'what is said', where: whole, why: 'no transcriber was available', settle: 'Take the lines from the captions; or set a transcriber up (video-tools.md) and describe again.', by: 'measurement' as const }]),
+    ...(r.transcript || !m.source.hasAudio ? [] : [{ what: 'what is said', where: whole, ...notHeard(r.speech), by: 'measurement' as const }]),
     ...(look && !look.color ? [{ what: 'the colour of the caption letters', where: whole, why: 'the letters gave no single colour that could be measured', settle: 'Take it from the frames of a shot with a caption.', by: 'measurement' as const }] : []),
     ...(r.beats ?? []).flatMap((b, i): Unrecovered[] => (b.confidence >= UNSURE ? [] : [{ what: 'the words of beat ' + i + ' (read as ' + quote(b.text) + ')', where: { time: [r2(b.start / fps), r2(b.end / fps)] },
       why: 'the reader or the recogniser was not sure of them', settle: 'Read the line off the frames of that moment (popost video look <video> --at ' + r2((b.start + b.end) / 2 / fps) + ').', by: 'measurement' }])),

@@ -9,10 +9,13 @@ import { isFile, printJson, readJson } from '../../core/util';
 import type { Runtime } from '../../runtime';
 import { fitsPoorly, joinedShots, transitionFile } from '../describe/frames';
 import { describeReference } from '../describe/index';
-import { INSET_FILE, insetText } from '../describe/inset';
+import { INSET_FILE, insetPlan, insetText } from '../describe/inset';
 import { TRACKS_FILE, tracksFile } from '../describe/paths';
 import { knownOf } from '../describe/known';
 import { UNRECOVERED_FILE, unrecoveredFile } from '../describe/unrecovered';
+import { isSpeechFile, keepConfirmed, middleOf, PHRASES_A_SHEET, phraseSheetFile, SPEECH_FILE, speechOf, withPictures, type SpeechFile, type SpeechStatus } from '../describe/speech-kind';
+import { writeSheets } from '../look/sheets';
+import { probe } from '../media/ffmpeg';
 import { readReference } from '../describe/parts';
 import { buildDraft } from '../draft/build';
 import { measureVideo } from '../measure/index';
@@ -198,6 +201,19 @@ const removeOldPictures = async (rt: Runtime, dir: string): Promise<void> => {
   for (const name of names.filter((n) => n.endsWith('-frames.jpg'))) await rt.fs.rm(rt.path.join(shots, name));
 };
 
+/**
+ * The pictures of the phrases whose kind waits for the frames: one frame per phrase, at its middle, with its time
+ * under it, up to PHRASES_A_SHEET on a sheet. One more pass over the video at the size of the other pictures.
+ */
+const phrasePictures = async (rt: Runtime, video: string, dir: string, speech: SpeechFile): Promise<SpeechFile> => {
+  await rt.fs.rm(rt.path.join(dir, 'speech'));
+  if (speech.confirmed || !speech.phrases.length) return speech;
+  const sheets = Array.from({ length: Math.ceil(speech.phrases.length / PHRASES_A_SHEET) }, (_, k) => ({ file: phraseSheetFile(k + 1), frames: speech.phrases.slice(k * PHRASES_A_SHEET, (k + 1) * PHRASES_A_SHEET).map(middleOf) }));
+  const p = await probe(rt, video);
+  await writeSheets(rt, video, sheets, { width: insetPlan(p).width, outDir: dir, probe: p });
+  return withPictures(speech);
+};
+
 const describe = command(
   'the layered description of a reference for a model: REFERENCE.md, timeline.md, shots/NN.md, the pictures to open (opening.jpg, shots/NN-frames.jpg, transitions/NN.jpg: consecutive frames with their times) and the data under them',
   {
@@ -225,7 +241,14 @@ const describe = command(
     const m = got.measure, read = got.text, spoken = got.transcript, inset = got.inset;
     // text.json keeps the roles the speech gives (and why each cue has its role).
     const cues = read ? rolesWithSpeech(read, spoken) : undefined;
-    const d = describeReference(m, cues, args.string('name') ?? 'reference', spoken, inset, { pictures: true });
+    // Why there is, or is not, a transcript: a failed transcription is not a skipped one, and neither is a missing tool.
+    const status: SpeechStatus = !m.source.hasAudio ? 'silent' : spoken ? 'transcribed' : got.speechFailed !== undefined ? 'failed' : skipped ? 'skipped' : 'no-tool';
+    const boundaries = m.boundaries.map((b) => b.frame);
+    const before = await rt.fs.readText(rt.path.join(dir, SPEECH_FILE)).then((t) => JSON.parse(t) as unknown, () => undefined);
+    const speech = await phrasePictures(rt, video, dir, keepConfirmed(speechOf({
+      status, ...(got.speechFailed !== undefined ? { why: got.speechFailed } : {}), ...(spoken ? { transcript: spoken, phrases: phrasesOf(spoken, { boundaries }) } : {}), fps: m.source.fps, duration: m.source.duration,
+    }), isSpeechFile(before) ? before : undefined));
+    const d = describeReference(m, cues, args.string('name') ?? 'reference', spoken, inset, { pictures: true, speech });
     for (const [name, content] of Object.entries(d.files)) await rt.fs.writeFile(rt.path.join(dir, name), content);
     // measure.json says of each value how it is known (describe/known.ts), as the files a model reads do.
     await writeJsonFile(rt, rt.path.join(dir, 'measure.json'), { ...m, known: knownOf(m) });
@@ -233,19 +256,30 @@ const describe = command(
     await writeJsonFile(rt, rt.path.join(dir, UNRECOVERED_FILE), unrecoveredFile(d.unrecovered));
     if (cues) await writeJsonFile(rt, rt.path.join(dir, 'text.json'), cues);
     if (spoken) await writeJsonFile(rt, rt.path.join(dir, 'transcript.json'), spoken);
+    else await rt.fs.rm(rt.path.join(dir, 'transcript.json'));
+    await writeJsonFile(rt, rt.path.join(dir, SPEECH_FILE), speech);
     // The frame around the content, for template save; a frame an earlier describe found must not outlive this one.
     if (inset) await writeJsonFile(rt, rt.path.join(dir, INSET_FILE), inset);
     else await rt.fs.rm(rt.path.join(dir, INSET_FILE));
     const leftOut = [
       ...(reader ? [] : [{ part: 'on-screen text', because: 'POPOST_OCR_CMD is not set', toAdd: OCR_HINT }]),
-      ...(transcriber ? [] : [skipped ? { part: 'speech', because: '--no-speech was given' } : { part: 'speech', because: NO_TRANSCRIBER, toAdd: ASR_HINT }]),
+      ...(spoken || !m.source.hasAudio ? [] : [
+        skipped ? { part: 'speech', because: '--no-speech was given' }
+          : got.speechFailed !== undefined ? { part: 'speech', because: 'the transcription failed: ' + got.speechFailed, toAdd: 'run the same command again: a failed transcription starts a new one, and nothing was charged for the failed one' }
+          : { part: 'speech', because: NO_TRANSCRIBER, toAdd: ASR_HINT },
+      ]),
     ];
+    const typed = args.req('out');
     printJson(rt, {
       ok: true, dir,
-      files: ['REFERENCE.md', 'timeline.md', 'measure.json', TRACKS_FILE, UNRECOVERED_FILE, ...(cues ? ['text.json'] : []), ...(spoken ? ['transcript.json'] : []), ...(inset ? [INSET_FILE] : [])],
+      files: ['REFERENCE.md', 'timeline.md', 'measure.json', TRACKS_FILE, UNRECOVERED_FILE, SPEECH_FILE, ...(cues ? ['text.json'] : []), ...(spoken ? ['transcript.json'] : []), ...(inset ? [INSET_FILE] : [])],
       shotFiles: m.shots.length, paths: m.tracks?.length ?? 0, notRecovered: d.unrecovered.length,
       tokens: { 'REFERENCE.md': d.tokens['REFERENCE.md'], 'timeline.md': d.tokens['timeline.md'] },
       sound: m.source.hasAudio, text: cues !== undefined, speech: spoken !== undefined, chargedCredits: wallet?.spent ?? 0,
+      // What kind of speech it is decides whether the re-make has a voice-over (describe/speech-kind.ts).
+      speechKind: speech.confirmed
+        ? { status: speech.status, kinds: speech.kinds }
+        : { status: speech.status, kinds: 'unconfirmed', phrases: speech.phrases.length, next: 'popost video speech-kind show ' + typed + ' lists the phrases with their pictures; confirm each kind with popost video speech-kind confirm ' + typed + ' before template save' },
       ...(inset ? { inset: { ...inset, note: insetText(inset, m.shots.length) } } : {}),
       pictures: picturesEntry(rt, dir, m, got.pictures ?? []),
       ...(leftOut.length ? { leftOut } : {}),

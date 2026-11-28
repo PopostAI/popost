@@ -10,6 +10,8 @@ import { referenceBeats } from '../describe/beats';
 import { paceOf } from '../speech/index';
 import type { Transcript } from '../speech/types';
 import type { TextCue, TextTrack } from '../text/types';
+import { DUCK_DB } from '../timeline/mix';
+import type { KindRange } from '../describe/speech-kind';
 import { captionStyle } from './caption-look';
 import { highlightColour, markSpans, unmark } from './marks';
 import { projectFps } from './fps';
@@ -123,7 +125,14 @@ export interface RetargetInput {
    * The beats when they are known already (a template keeps them), in source frames; shown: false for a beat that was
    * only said. Without them they come from text and transcript. The caption band is set from text's captions either way.
    */
-  beats?: { start: number; end: number; shown?: boolean }[];
+  beats?: { start: number; end: number; shown?: boolean; speech?: 'on-camera' }[];
+  /** The confirmed kinds of the reference's speech (describe/speech-kind.ts), for beats read from text and transcript here. */
+  kinds?: readonly KindRange[];
+  /**
+   * The beats whose lines the person of a clip says (dialogue beats a clip's speech covers): the voice never speaks
+   * them, their time is the reference's, and a note says so. Their captions are drawn as the beat's "shown" says.
+   */
+  dialogue?: readonly number[];
   /** How fast the reference's speaker spoke (default: from the transcript), for the warning about lines too long to say. */
   pace?: Pace;
   plan: RetargetPlan;
@@ -145,13 +154,13 @@ export interface RetargetInput {
   wordsFile?: string;
   /**
    * The plan's own sound file when a voice took its place as the plan's sound (--speak): music. It lies under the
-   * voice for the whole video, UNDER_VOICE_DB lower, and fades out like any sound of a plan.
+   * voice for the whole video, lowered while a line is spoken (timeline/mix.ts), and fades out like any sound of a plan.
    */
   music?: string;
 }
 
-/** How far music lies under a voice-over, in dB; without a voice a plan's sound plays at its own level. */
-export const UNDER_VOICE_DB = -18;
+/** How far music lies under a spoken line, in dB (timeline/mix.ts, DUCK_DB); in the pauses and without speech it plays at its own level. */
+export const UNDER_VOICE_DB = -DUCK_DB;
 /** Seconds over which a plan's sound fades out when it is longer than the video (AudioTrack.fadeOut). */
 export const SOUND_FADE_SECONDS = 1;
 /**
@@ -322,7 +331,7 @@ const beatsOf = (input: RetargetInput): { beats: { start: number; end: number; s
     return { beats: input.beats.map((b) => ({ start: b.start, end: b.end, shown: b.shown !== false })), captions, ...(input.text ? { text: input.text } : {}) };
   }
   const m = input.measure;
-  const r = referenceBeats({ ...(input.text ? { text: input.text } : {}), ...(input.transcript ? { transcript: input.transcript } : {}), total: m.source.frames, boundaries: m.boundaries.map((b) => b.frame) });
+  const r = referenceBeats({ ...(input.text ? { text: input.text } : {}), ...(input.transcript ? { transcript: input.transcript } : {}), total: m.source.frames, boundaries: m.boundaries.map((b) => b.frame), ...(input.kinds ? { kinds: input.kinds } : {}) });
   return { beats: r.beats, captions: r.captions, ...(r.text ? { text: r.text } : {}) };
 };
 
@@ -434,16 +443,20 @@ export const retarget = (input: RetargetInput): RetargetOutput => {
     const material = materials.find((x) => x.id === id);
     if (material && input.wordsFile) material.words = input.wordsFile;
     // The voice the engine mixed is as long as the video; a file of the plan's own may be longer and then ends softly.
-    tracks.push({ id: 'sound', type: 'audio', material: id, ...(input.wordsFile ? {} : { fadeOut: SOUND_FADE_SECONDS }) });
+    // The layers of the mix (timeline/mix.ts): the voice with the frames its lines are spoken on, or the plan's sound as music.
+    const spokenLines = flow && input.spoken ? input.spoken.frames.flatMap((n, i): [number, number][] => (n > 0 ? [[flow.starts[i] ?? 0, Math.min(total, (flow.starts[i] ?? 0) + n)]] : [])) : [];
+    tracks.push(input.wordsFile ? { id: 'sound', type: 'audio', material: id, role: 'voice', lines: spokenLines } : { id: 'sound', type: 'audio', material: id, role: 'music', fadeOut: SOUND_FADE_SECONDS });
   }
   if (input.music && input.music !== plan.sound) {
-    tracks.push({ id: 'music', type: 'audio', material: use(input.music, 'audio'), gain: UNDER_VOICE_DB, fadeOut: SOUND_FADE_SECONDS });
-    notes.push('The fill\'s sound (' + input.music + ') lies under the voice, ' + -UNDER_VOICE_DB + ' dB lower.');
+    tracks.push({ id: 'music', type: 'audio', material: use(input.music, 'audio'), role: 'music', fadeOut: SOUND_FADE_SECONDS });
+    notes.push('The fill\'s sound (' + input.music + ') lies under the voice: ' + -UNDER_VOICE_DB + ' dB lower while a line is spoken, at its own level in the pauses.');
   }
+  const dialogue = (input.dialogue ?? []).filter((i) => (lines[i] ?? '').trim());
+  if (dialogue.length) notes.push(dialogue.length + ' line(s) are said by the person of a clip (' + dialogue.map((i) => 'captions[' + i + ']').join(', ') + '): the voice-over does not read them, and their clips are heard at full level.');
   if ((plan.captionSpoken || plan.captionReveal) && !input.wordsFile) notes.push('captionSpoken and captionReveal need a voice with words; they were left out. Use --speak.');
   const kept = plan.shots.filter((s) => 'keep' in s).length;
   if (kept) notes.push(kept + ' shot(s) keep the reference\'s own footage; copy the reference to assets/reference.mp4 in the project.');
-  const unshown = lines.flatMap((l, i) => (l.trim() && beats[i] && !beats[i]?.shown ? [i] : []));
+  const unshown = lines.flatMap((l, i) => (l.trim() && beats[i] && !beats[i]?.shown && !(input.dialogue ?? []).includes(i) ? [i] : []));
   if (unshown.length) notes.push(unshown.length + ' line(s) belong to beats the reference only said (' + unshown.map((i) => 'captions[' + i + ']').join(', ') + '): ' + (input.spoken ? 'they are spoken and not drawn.' : 'without a voice (--speak) they are neither shown nor heard.'));
   const marks = [...new Set((read.text?.cues ?? []).filter((c) => c.role === 'watermark').map((c) => c.text))];
   if (marks.length) notes.push('The reference\'s watermark (' + marks.slice(0, 3).join(', ') + ') is not re-created.');

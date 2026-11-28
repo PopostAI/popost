@@ -5,6 +5,7 @@
  * fill ends up with, for scoring a render of the fill.
  */
 import { referenceBeats, type ReferenceBeats } from '../describe/beats';
+import type { KindRange } from '../describe/speech-kind';
 import { cameraAim } from '../describe/aim';
 import type { Inset } from '../describe/inset';
 import { shotLooks } from '../describe/kind';
@@ -70,8 +71,8 @@ const transitionOf = (b: Boundary | undefined, toFrames: (n: number) => number):
 };
 
 /** The beats of a described reference (src/describe/beats.ts), in its own frames: what templateFrom, slots and the card share. */
-export const sourceBeats = (m: Measure, text: TextTrack | undefined, transcript: Transcript | undefined): ReferenceBeats =>
-  referenceBeats({ ...(text ? { text } : {}), ...(transcript ? { transcript } : {}), total: m.source.frames, boundaries: m.boundaries.map((b) => b.frame) });
+export const sourceBeats = (m: Measure, text: TextTrack | undefined, transcript: Transcript | undefined, kinds?: readonly KindRange[]): ReferenceBeats =>
+  referenceBeats({ ...(text ? { text } : {}), ...(transcript ? { transcript } : {}), total: m.source.frames, boundaries: m.boundaries.map((b) => b.frame), ...(kinds ? { kinds } : {}) });
 
 /**
  * Where a caption line sits when the source showed none (every beat was only said): low in the frame, at an ordinary
@@ -100,21 +101,21 @@ const captionsOf = (m: Measure, read: ReferenceBeats, toFrames: (n: number) => n
     box: band.box,
     style: band.style as TextStyle,
     line: { centre: median(placed.map((c) => c.box[1] + c.box[3] / 2)), size: median(placed.map((c) => c.size)) },
-    beats: read.beats.map((b) => ({ start: toFrames(b.start), end: Math.min(toFrames(b.end), total), ...(b.shown ? {} : { shown: false as const }) })),
+    beats: read.beats.map((b) => ({ start: toFrames(b.start), end: Math.min(toFrames(b.end), total), ...(b.shown ? {} : { shown: false as const }), ...(b.speech ? { speech: b.speech } : {}) })),
     script: scriptOf(read.captions.length ? read.captions.map((c) => c.text).join('') : read.beats.map((b) => b.text).join('')),
     ...(look ? { look } : {}),
   };
 };
 
 /** The template of a measured reference (and its on-screen text and speech, and the frame around its content, when they were read). */
-export const templateFrom = (o: { measure: Measure; text?: TextTrack; transcript?: Transcript; inset?: Inset; name: string; label: string; hash: string }): Template => {
+export const templateFrom = (o: { measure: Measure; text?: TextTrack; transcript?: Transcript; inset?: Inset; name: string; label: string; hash: string; kinds?: readonly KindRange[] }): Template => {
   const m = o.measure;
   const fps = projectFps(m.source.fps);
   const ratio = fps / m.source.fps;
   const toFrames = (n: number): number => Math.round(n * ratio);
   const total = toFrames(m.source.frames);
   const starts = m.shots.map((s) => toFrames(s.start));
-  const read = sourceBeats(m, o.text, o.transcript);
+  const read = sourceBeats(m, o.text, o.transcript, o.kinds);
   // Where the source laid words over each shot, on the template's clock from the shot's start.
   const places = titlePlaces(m, read.text);
   const shots = m.shots.map((s, k): TemplateShot => {
@@ -208,7 +209,7 @@ const measureOf = (t: Template, starts: number[], total: number, boundaries: Bou
  * with the source's median size, so that retarget derives exactly the band it derived from the reference. The places
  * of laid-on words are title cues without words, each inside its shot, so that retarget finds the same places.
  */
-export const retargetInputs = (t: Template): { measure: Measure; text?: TextTrack; beats?: { start: number; end: number; shown: boolean }[] } => {
+export const retargetInputs = (t: Template): { measure: Measure; text?: TextTrack; beats?: { start: number; end: number; shown: boolean; speech?: 'on-camera' }[] } => {
   const starts = startsOf(t);
   // An effect of its own is a cut where the scene that draws it covers it (fillStarts); "in" is absent there.
   const cuts = fillStarts(t);
@@ -226,7 +227,7 @@ export const retargetInputs = (t: Template): { measure: Measure; text?: TextTrac
   if (!c) return titles.length ? { measure, text: { step: 1, sampled: 0, cues: titles }, beats: [] } : { measure };
   const box: Box = [0.08, c.line.centre, 0.84, 0];
   const cues: TextCue[] = c.beats.filter((b) => b.shown !== false).map((b) => ({ text: '', start: b.start, end: b.end, box, role: 'caption', size: c.line.size, samples: 1, confidence: 1 }));
-  return { measure, text: { step: 1, sampled: 0, cues: [...cues, ...titles], ...(c.look ? { captionLook: c.look } : {}) }, beats: c.beats.map((b) => ({ start: b.start, end: b.end, shown: b.shown !== false })) };
+  return { measure, text: { step: 1, sampled: 0, cues: [...cues, ...titles], ...(c.look ? { captionLook: c.look } : {}) }, beats: c.beats.map((b) => ({ start: b.start, end: b.end, shown: b.shown !== false, ...(b.speech ? { speech: b.speech } : {}) })) };
 };
 
 /**

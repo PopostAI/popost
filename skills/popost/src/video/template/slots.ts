@@ -39,6 +39,7 @@ const captionSlots = (tpl: Template, cap: Capacity, beats: SourceBeat[], pace: S
       at: 'captions[' + i + ']', beat: [b.start, b.end], seconds, max: { cjk: cap.cjk, latin: cap.latin },
       ...(line ? { example: { text: line, chars: charsOf(line).length } } : {}),
       ...(b.shown === false ? { shown: false as const } : {}),
+      ...(b.speech ? { speech: b.speech } : {}),
       ...((beats[i]?.confidence ?? 1) < UNSURE ? { unsure: true as const } : {}),
       ...(pace ? { spoken: Math.round(pace.charactersPerSecond * seconds) } : {}),
     };
@@ -88,7 +89,7 @@ export const slotsOf = (tpl: Template, capacity: Capacity | undefined, o: { text
     ...(tpl.bar ? { bar: barSlot(tpl, o.bar) } : {}),
     voice: {
       optional: true, keys: ['voice', 'speed', 'say'],
-      note: 'With speech (template fill --speak) every line is spoken and its beat takes the spoken length (a beat with shown: false is spoken and not drawn); the pauses between beats stay and every shot moves with the beat it falls in. Shots then get longer or shorter, so give footage some room.',
+      note: 'A voice belongs to a fill only when the source had narration (TEMPLATE.md says its speech kind). With speech (template fill --speak) every line is spoken and its beat takes the spoken length (a beat with shown: false is spoken and not drawn; a beat with speech: "on-camera" is never spoken by the voice: the person of a generated clip says it); the pauses between beats stay and every shot moves with the beat it falls in. Shots then get longer or shorter, so give footage some room.',
       ...(pace ? { pace } : {}),
     },
     colours: { optional: true, keys: ['captionColor', 'captionOutline'], defaults: { captionColor: '#ffffff', captionOutline: '#111111' } },

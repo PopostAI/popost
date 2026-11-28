@@ -355,7 +355,14 @@ export interface VideoTrack extends ItemCommon, FootageSpec { type: 'video'; mat
  * fadeOut: seconds over which the sound fades out where the video (or its span) cuts it off; a sound that has ended by
  * itself before that is left as it is. A fill's "sound" has one (retarget), so music longer than the video ends softly.
  */
-export interface AudioTrack { id: string; type: 'audio'; material: string; gain?: number; during?: Span; note?: string; bed?: true; in?: number; fadeOut?: number }
+/**
+ * role: what the track is in the layered mix (timeline/mix.ts). 'voice': the voice-over; lines are the frames its
+ * lines are spoken on, counted from the track's start, and other sound gives way on them. 'music': it lies under
+ * everything and gives way to every speech, unless "gain" fixes its level. A project whose audio tracks (beds apart)
+ * all have a role is mixed in layers: its clips keep their own sound. A track without a role is a sound of the
+ * project's own as before: it keeps footage silent unless a use says "audio".
+ */
+export interface AudioTrack { id: string; type: 'audio'; material: string; gain?: number; during?: Span; note?: string; bed?: true; in?: number; fadeOut?: number; role?: 'voice' | 'music'; lines?: [number, number][] }
 
 /** One caption: shown on its span (which may run past its segment), in the track's box, style, entrance and exit. */
 export interface CaptionCue { text: string; during: Span; spans?: TextSpanStyle[]; note?: string }
@@ -397,7 +404,13 @@ export interface Project {
  * What the build step reads from the file of a video material with probe() and gives to check and resolve: the size,
  * the frame rate and exact frame count, and whether it has sound. { error } when the file is not a video ffmpeg reads.
  */
-export type FootageFacts = Pick<Probe, 'width' | 'height' | 'fps' | 'frames' | 'hasAudio'>;
+export type FootageFacts = Pick<Probe, 'width' | 'height' | 'fps' | 'frames' | 'hasAudio'> & {
+  /**
+   * A clip made with speech (its receipt, <file>.speech.json): the seconds of the file on which a person in it speaks,
+   * a span per line, or the whole clip when the receipt has no lines. Such a clip is never muted by itself.
+   */
+  speech?: [number, number][];
+};
 export type FootageInfo = FootageFacts | { error: string };
 
 /** One problem found by check: where, what, what is allowed, and one way to fix it. */
@@ -541,6 +554,12 @@ export interface ResolvedItem {
   reveal?: 'words';
 }
 
+/**
+ * How a sound gives way to speech (timeline/mix.ts): lowered by db on the spans (timeline frames, start .. end-1), its
+ * level going down over ramp frames before a span and coming back over ramp frames after it.
+ */
+export interface Duck { spans: [number, number][]; db: number; ramp: number }
+
 export interface ResolvedAudio {
   id: string;
   src: string;
@@ -553,6 +572,8 @@ export interface ResolvedAudio {
   speed?: number;
   /** Seconds of fade-out before the place the video cuts the sound off (AudioTrack.fadeOut); the render drops it for a sound that ends before. */
   fadeOut?: number;
+  /** The sound gives way to speech on these spans; absent: it plays at its gain throughout. */
+  duck?: Duck;
 }
 
 export interface Resolved {
@@ -568,6 +589,11 @@ export interface Resolved {
   fonts?: { family: string; src: string }[];
   /** The words of every audio track that has them, in timeline frames (for the preview). Written only when there are any. */
   words?: { track: string; tokens: { text: string; start: number; end: number; confidence: number }[] }[];
+  /**
+   * When speech is heard, in timeline frames: the lines of the voice-over, and the lines the people of clips say (by
+   * the id of the clip's sound). Written only when there is any; the checks hold one against the other.
+   */
+  speech?: { voice: [number, number][]; dialogue: { id: string; spans: [number, number][] }[] };
 }
 
 // ---------------------------------------------------------------------------------------------------------------------

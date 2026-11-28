@@ -43,7 +43,12 @@ import { FIT_TEMPO, fitTempoOf, looping } from './loop-shared';
 import { briefOf } from './make';
 import { materials } from './materials';
 import { briefTitle, captionTitle, command, userPath, VideoCommandError, type Commands } from './shared';
-import { templateCommands } from './template';
+import { templateCommands, VOICE_ASKED } from './template';
+import { speechIn } from './speech-kind';
+import { factsOfSpeech, kindRanges } from '../describe/speech-kind';
+import { soundProblems } from '../music/provenance';
+import { recordVoiceAsked, voiceAskedOf, voiceProblems, voiceWanted } from '../template/speech-rules';
+import { sourceBeats } from '../template/structure';
 
 const TEMPLATE: PositionalSpec = { name: 'template-dir', help: 'a directory written by template save' };
 const TTS_HINT = 'connect a popost.ai account with popost auth login (recommended: popost: voices need no local tool; they are priced first and charged only with --confirm --max-credits N), or set POPOST_TTS_CMD to a speaker of your own (skills/popost/tools/video/ has examples)';
@@ -112,6 +117,7 @@ const plan = command(
       { flag: '--shots', metavar: 'FILE', help: 'one line per shot saying what the source showed (default: shots.txt beside the template)' },
       { flag: '--voice', help: 'the voice that will speak the lines, such as popost:default-female: timed once (a popost.ai voice is priced first: without --confirm the price is printed with exit code 3), every line gets the most characters it can say in its beat, and the fill names it' },
       { flag: '--speed', kind: 'number', help: 'the speed of that voice (1 is normal)' },
+      VOICE_ASKED,
       { flag: '--pace', kind: 'number', help: 'characters a second of the voice, instead of timing it' },
       ...CREDIT_OPTIONS,
       { ...FIT_TEMPO, help: 'the most a line may be sped up to fit its beat (template fill --fit-tempo, 1.12 is hardly heard): every budget grows by it' },
@@ -133,6 +139,12 @@ const plan = command(
     const voice = args.string('voice');
     const speed = args.number('speed');
     const pace = args.number('pace');
+    // A voice the reference gives no reason for is refused before it is timed (timing a popost.ai voice is paid).
+    const noVoice = voiceProblems(pkg.template.speech, voice ? ['--voice'] : [], await voiceAskedOf(rt, args.string('voice-asked'), assetsDir));
+    if (noVoice.length) {
+      printJson(rt, { ok: false, error: noVoice[0]?.message + ' ' + noVoice[0]?.fix, errors: noVoice.length, problems: noVoice });
+      return 2;
+    }
     const timed = await voicePace(rt, args, { brief, ...(voice ? { voice } : {}), ...(speed ? { speed } : {}), ...(pace === undefined ? {} : { pace }), ...(language ? { language } : {}) });
     const tempo = fitTempoOf(args);
     const budgets = paceBudgets(pkg, timed.pace, tempo);
@@ -195,6 +207,7 @@ const retargetCommand = command(
       { flag: '--plan', required: true, metavar: 'FILE', help: 'the plan: {"shots": [...], "captions": [...]}' },
       { flag: '--out', required: true, metavar: 'DIR', help: 'the project directory to write' },
       { flag: '--speak', kind: 'flag', help: 'speak the captions and re-flow the timing to them' },
+      VOICE_ASKED,
       { flag: '--keep-length', kind: 'flag', help: 'with --speak: a beat keeps its reference length when its line is shorter' },
       FIT_TEMPO,
       { flag: '--language', help: 'what the voice speaks, such as zh, for the transcriber that times its words when the voice gives no word times' },
@@ -213,15 +226,27 @@ const retargetCommand = command(
     const planFile = userPath(rt, args.req('plan'));
     const given = await optionalJson<RetargetPlan>(rt, planFile);
     if (!given) throw new VideoCommandError('The plan file ' + planFile + ' could not be read as JSON.');
-    const reference = { measure, ...(text ? { text } : {}), ...(transcript ? { transcript } : {}) };
+    // The kind of the reference's speech (speech.json): confirmed before its beats are used, and what was not asked for is refused.
+    const speech = await speechIn(rt, ref);
+    if (speech && !speech.confirmed) throw new VideoCommandError('The kind of the reference\'s speech is not confirmed. Run popost video speech-kind show ' + args.req('reference-dir') + ', then popost video speech-kind confirm, and run this again.');
+    const kinds = kindRanges(speech);
+    const dialogue = kinds ? sourceBeats(measure, text, transcript, kinds).beats.flatMap((b, i) => (b.speech === 'on-camera' ? [i] : [])) : [];
+    const reference = { measure, ...(text ? { text } : {}), ...(transcript ? { transcript } : {}), ...(kinds ? { kinds } : {}), ...(dialogue.length ? { dialogue } : {}) };
     const first = retarget({ ...reference, plan: given });
-    if (!first.project) {
-      printJson(rt, { ok: false, error: 'The plan has ' + errorsIn(first.problems) + ' error(s); nothing was written.', problems: first.problems, notes: first.notes });
+    const askedVoice = await voiceAskedOf(rt, args.string('voice-asked'), outDir);
+    const refusedSound = [
+      ...voiceProblems(speech ? factsOfSpeech(speech) : undefined, voiceWanted(given, { speak: args.flag('speak') }), askedVoice),
+      ...(typeof given.sound === 'string' ? await soundProblems(rt, outDir, given.sound, 'sound') : []),
+    ];
+    if (!first.project || refusedSound.length) {
+      const problems = [...first.problems, ...refusedSound];
+      printJson(rt, { ok: false, error: 'The plan has ' + errorsIn(problems) + ' error(s); nothing was written.', problems, notes: first.notes });
       return 2;
     }
     // The lines a popost.ai voice speaks are priced before anything is written: without --confirm the price is all there is.
-    const wallet = args.flag('speak') ? await walletFor(rt, args, await spokenPrice(rt, given)) : undefined;
+    const wallet = args.flag('speak') ? await walletFor(rt, args, await spokenPrice(rt, given, dialogue)) : undefined;
     await rt.fs.mkdir(outDir);
+    if (askedVoice && speech && !factsOfSpeech(speech).kinds.includes('narration') && voiceWanted(given, { speak: args.flag('speak') }).length) await recordVoiceAsked(rt, outDir, askedVoice);
     const speaker = args.flag('speak') ? commandSpeaker(rt, wallet) : undefined;
     if (args.flag('speak') && !speaker) throw new VideoCommandError('--speak needs a speaker: ' + TTS_HINT + '.');
     const transcriber = commandTranscriber(rt, wallet);

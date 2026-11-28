@@ -199,8 +199,8 @@ writeFileSync(out, JSON.stringify({ language: language || 'en', words: [{ text: 
       expect(rt.json()).toMatchObject({ ok: true, text: true, speech: true });
       written[cpus] = await filesUnder(rt.path.join(rt.dir, 'budget-' + cpus));
     }
-    // The pictures too (two shots joined by a cut: no transition picture), byte for byte.
-    expect(Object.keys(written['1'] ?? {}).sort()).toEqual(['REFERENCE.md', 'measure.json', 'opening.jpg', 'shots/01-frames.jpg', 'shots/01.md', 'shots/02-frames.jpg', 'shots/02.md', 'text.json', 'timeline.md', 'tracks.json', 'transcript.json', 'unrecovered.json']);
+    // The pictures too (two shots joined by a cut: no transition picture; the phrases whose kind waits for the frames), byte for byte.
+    expect(Object.keys(written['1'] ?? {}).sort()).toEqual(['REFERENCE.md', 'measure.json', 'opening.jpg', 'shots/01-frames.jpg', 'shots/01.md', 'shots/02-frames.jpg', 'shots/02.md', 'speech.json', 'speech/phrases-01.jpg', 'text.json', 'timeline.md', 'tracks.json', 'transcript.json', 'unrecovered.json']);
     expect(written['1']).toEqual(written['4']);
     expect((await rt.fs.readText(threadsFile())).trim().split('\n')).toEqual(['1', '4']);
   }, 60_000);

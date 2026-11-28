@@ -5,12 +5,15 @@
  * - a phrase of speech that no caption covers (said, not shown): its new line is spoken (--speak) and never drawn, so
  *   the reference's look is kept;
  * - without speech, every caption line (shown), as before beats existed.
+ * With the kinds of the speech (speech-kind.ts): words that are sung or fragments make no beat of their own, and a
+ * beat whose words a visible person says is a dialogue beat (speech: 'on-camera'), which no voice-over reads.
  * Frames are the source's. Pure functions; no file access.
  */
 import { joinWords, MIN_PHRASE_SECONDS, paceFramesOf, phrasesOf, syllablesOf } from '../speech/index';
 import type { SpokenWord, Transcript } from '../speech/types';
 import { rolesWithSpeech, SAID } from '../text/speech';
 import type { TextCue, TextTrack } from '../text/types';
+import type { KindRange } from './speech-kind';
 
 export interface Beat {
   /** Source frames: the beat lasts start .. end-1. */
@@ -24,6 +27,8 @@ export interface Beat {
   said: boolean;
   /** 0..1. A said caption: the share of its words heard; a caption without speech: the reader's confidence; speech: the recogniser's. */
   confidence: number;
+  /** 'on-camera': a visible person says its words (a dialogue beat). Absent: narration, or no confirmed kind. */
+  speech?: 'on-camera';
 }
 
 export interface ReferenceBeats {
@@ -128,21 +133,39 @@ export interface BeatOptions {
   total: number;
   /** Frames at which the shots begin: speech beats are cut there (phrasesOf). */
   boundaries?: number[];
+  /** The confirmed kinds of the speech (speech-kind.ts, kindRanges); without them every heard word is read as before. */
+  kinds?: readonly KindRange[];
 }
+
+/** Frames of a span that lie in ranges of a kind. */
+const covered = (b: { start: number; end: number }, kinds: readonly KindRange[], kind: KindRange['kind']): number =>
+  kinds.reduce((n, k) => n + (k.kind === kind ? Math.max(0, Math.min(b.end, k.end) - Math.max(b.start, k.start)) : 0), 0);
+
+/** A beat is a dialogue beat when more of it lies in on-camera speech than in narration. */
+const withKind = (b: Beat, kinds: readonly KindRange[] | undefined): Beat => {
+  if (!kinds) return b;
+  const seen = covered(b, kinds, 'on-camera');
+  return seen > 0 && seen > covered(b, kinds, 'narration') ? { ...b, speech: 'on-camera' } : b;
+};
 
 /** The beats of a reference from its text and its speech; with neither, no beats. */
 export const referenceBeats = (o: BeatOptions): ReferenceBeats => {
   const text = o.text ? rolesWithSpeech(o.text, o.transcript) : undefined;
   const captions = (text?.cues ?? []).filter((c) => c.role === 'caption').sort((a, b) => a.start - b.start);
   const shown = shownBeats(captions, o.text?.step ?? 1, o.total);
-  const words = o.transcript?.words ?? [];
-  if (!o.transcript || !words.length) return { ...(text ? { text } : {}), beats: shown, captions };
+  const kinds = o.kinds;
+  // Sung words and fragments are no lines: they make no beat of their own (a caption shown over them stays a shown beat).
+  const silent = (w: SpokenWord): boolean => (kinds ?? []).some((k) => (k.kind === 'sung' || k.kind === 'fragments') && mid(w) >= k.start && mid(w) < k.end);
+  const words = (o.transcript?.words ?? []).filter((w) => !silent(w));
+  if (!o.transcript || !words.length) return { ...(text ? { text } : {}), beats: shown.map((b) => withKind(b, kinds)), captions };
   const t = o.transcript;
   const pace = paceFramesOf(words);
   const runs = uncoveredRuns(words, shown, coverTolerance(o.text)).filter((run) => !isStray(run, shown, t.fps));
-  const spoken = runs.flatMap((run) => phrasesOf({ ...t, words: run }, { pace, minFrames: Math.round(MIN_PHRASE_SECONDS * t.fps), ...(o.boundaries ? { boundaries: o.boundaries } : {}) }))
+  // A spoken beat is also cut where the kind of the speech changes, so that it is narration or dialogue, never both.
+  const cuts = [...(o.boundaries ?? []), ...(kinds ?? []).map((k) => k.start)].sort((a, b) => a - b);
+  const spoken = runs.flatMap((run) => phrasesOf({ ...t, words: run }, { pace, minFrames: Math.round(MIN_PHRASE_SECONDS * t.fps), ...(cuts.length ? { boundaries: cuts } : {}) }))
     .map((p): Beat => ({ start: p.start, end: Math.min(p.end, o.total), text: p.text, shown: false, said: true, confidence: p.confidence }));
-  return { ...(text ? { text } : {}), beats: ordered([...shown, ...spoken]), captions };
+  return { ...(text ? { text } : {}), beats: ordered([...shown, ...spoken]).map((b) => withKind(b, kinds)), captions };
 };
 
 /**

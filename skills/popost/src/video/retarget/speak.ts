@@ -20,6 +20,7 @@ import { overrunNotes } from './pace';
 import { unmark } from './marks';
 import { fitTempo } from './tempo';
 import { voiceWords, type VoiceWords } from './words';
+import { writeVoiceReceipt } from '../project/check-sound';
 
 export const VOICE_FILE = 'assets/voice.m4a';
 export const WORDS_FILE = 'assets/voice.words.json';
@@ -61,12 +62,15 @@ export interface SpeakOptions {
   fitTempo?: number;
 }
 
-/** The lines a plan has spoken, as the voice says them: without their marks (marks.ts; retarget draws them), in their spoken form. */
-export const spokenLinesOf = (plan: RetargetPlan): string[] => (plan.captions ?? []).map((l) => spokenForm(unmark(l).text, plan.say));
+/**
+ * The lines a plan has spoken, as the voice says them: without their marks (marks.ts; retarget draws them), in their
+ * spoken form. dialogue: the beats the person of a clip says, which the voice leaves out ("": not spoken).
+ */
+export const spokenLinesOf = (plan: RetargetPlan, dialogue: readonly number[] = []): string[] => (plan.captions ?? []).map((l, i) => (dialogue.includes(i) ? '' : spokenForm(unmark(l).text, plan.say)));
 
 /** What speaking a plan costs with popost.ai (free quotes): nothing when a speaker of the user's own speaks its voice. */
-export const spokenPrice = (rt: Runtime, plan: RetargetPlan): Promise<PriceItem[]> =>
-  speaksHosted(rt, plan.voice) ? speechPrice(rt, spokenLinesOf(plan), plan.voice) : Promise.resolve([]);
+export const spokenPrice = (rt: Runtime, plan: RetargetPlan, dialogue: readonly number[] = []): Promise<PriceItem[]> =>
+  speaksHosted(rt, plan.voice) ? speechPrice(rt, spokenLinesOf(plan, dialogue), plan.voice) : Promise.resolve([]);
 
 export const speakRetarget = async (rt: Runtime, o: SpeakOptions): Promise<SpokenRetarget> => {
   const { measure, plan } = o.input;
@@ -75,7 +79,7 @@ export const speakRetarget = async (rt: Runtime, o: SpeakOptions): Promise<Spoke
   // What is said and timed is the line without its marks (marks.ts); retarget draws the marks.
   const captions = (plan.captions ?? []).map((l) => unmark(l).text);
   const said = await speakLines(rt, {
-    lines: spokenLinesOf(plan), dir: rt.path.join(o.outDir, 'assets', 'voice'), speaker: o.speaker, fps,
+    lines: spokenLinesOf(plan, o.input.dialogue), dir: rt.path.join(o.outDir, 'assets', 'voice'), speaker: o.speaker, fps,
     ...(plan.voice ? { voice: plan.voice } : {}), ...(plan.speed ? { speed: plan.speed } : {}),
   });
   const flow = (ls: VoiceLine[]): RetargetOutput => retarget({ ...o.input, plan: { ...plan, sound: VOICE_FILE }, ...(plan.sound ? { music: plan.sound } : {}), spoken: { frames: ls.map((l) => l.frames), ...(o.hold ? { hold: true } : {}) }, wordsFile: WORDS_FILE });
@@ -89,6 +93,8 @@ export const speakRetarget = async (rt: Runtime, o: SpeakOptions): Promise<Spoke
   const t = result.timing;
   notes.push(...overrunNotes({ lines: captions, slots: t.slots, spoken: lines.map((l) => l.frames), reference: t.reference, total: t.total, fps, ...(plan.speed ? { speed: plan.speed } : {}) }));
   await mixLines(rt, { lines, starts: result.timing.starts, fps, totalFrames: result.timing.total, out: rt.path.join(o.outDir, VOICE_FILE) });
+  // The record that this voice is the one the engine spoke and mixed (project/check-sound.ts).
+  await writeVoiceReceipt(rt, rt.path.join(o.outDir, VOICE_FILE), lines.filter((l) => l.file).length);
   const own = spokenTranscript(lines, result.timing.starts, fps);
   const transcript = own ?? (o.transcriber ? await hear(rt, rt.path.join(o.outDir, VOICE_FILE), fps, o.transcriber, o.language, notes) : undefined);
   const words = voiceWords({ lines: captions, starts: result.timing.starts, frames: lines.map((l) => l.frames), fps, ...(plan.say ? { say: plan.say } : {}), ...(transcript ? { transcript } : {}) });

@@ -10,7 +10,8 @@ plug in through an environment variable. `popost video doctor` says what is ther
 
 `"popost.ai"`: the connected account does it (the default once `popost auth login` has run); a variable name: a tool
 of the user's own, which goes first; `null`: neither. Without an account `doctor` says under `connect` to connect
-first. `music` (generated background music) has no tool of the user's own: `"popost.ai"` with an account, else `null`.
+first. `music` (generated background music) is off by default, `null`: `"popost.ai"` only with an account and
+`POPOST_VIDEO_MUSIC=on` ("Generated music").
 
 ## Programs
 
@@ -40,20 +41,22 @@ terminated through that owned process handle. Screenshot capture waits for the b
 | `POPOST_CHROME` | the Chrome or Chromium that draws frames and records pages | found in the usual places |
 | `POPOST_RENDER_PAGES` | how many browser pages draw frames side by side | by the size of the job |
 | `POPOST_VIDEO_WORK` | where caches and scratch files go (a voice's measured pace, test renders) | `.popost/video` under the working directory |
+| `POPOST_VIDEO_MUSIC` | `on`: background music may be generated on popost.ai ("Generated music") | off: no music is generated |
 | `TMPDIR` | temporary files (frames, audio); point it at a disk when `/tmp` is small | the system's |
 
 ## Paying for popost.ai: one budget per video
 
-With a connected account, voice-over and transcription are done on popost.ai by default, generated background music
-too ("Generated music"), and generated clips and pictures with the built-in generator; tools of the user's own (below) remain an option and go first when set. Each
+With a connected account, voice-over and transcription are done on popost.ai by default, and generated clips and
+pictures with the built-in generator (generated background music only when it is switched on: "Generated music"); tools of the user's own (below) remain an option and go first when set. Each
 call costs at least 1 credit; any plan can use them while the balance covers the price (creating a personal voice
 needs a paid plan). They are paid as images are, under one money rule:
 
-- Before the work, one cost overview: the exact transcription price (`popost video transcript reference.mp4
-  --quote`, free), the voice-over estimate (`popost video voice quote --voice <voice> --text "<script>"`, free), a
-  little for pace calibration, the generated music of the music plan (`popost video music quote --video
-  reference.mp4`, free), the generated clips and pictures (`popost video generate --models` has the credits),
-  the total, and the balance (`popost account`). The user agrees one budget for the whole video.
+- Before the reference is read, the exact transcription price (`popost video transcript reference.mp4 --quote`,
+  free), which the user agrees to on its own. Once it is read (video.md, the end of step 1), one cost overview: the
+  voice-over estimate when the reference has narration (`popost video voice quote --voice <voice> --text
+  "<script>"`, free), a little for pace calibration, the generated clips and pictures (`popost video generate
+  --models` has the credits; a person who speaks on camera is a clip with speech), the total, and the balance
+  (`popost account`). The user agrees one budget for the whole video.
 - What is spent is what popost.ai counts. Every Open API call made for a project carries the project's task (its id,
   kept in `production/task.json` of a video project or the `projectId` of an image project; its title; the agent's
   session), and the account page shows the project as one line, "Task: <title>", item by item. The title is the one
@@ -132,9 +135,50 @@ https://github.com/PopostAI/popost/tree/main/skills/popost/tools/video
 
 ## Generated music
 
-Background music made on popost.ai from a description, for a video whose user agreed to it (video.md, step 0: the
-music plan). It costs credits by its length, about 1.8 a second (15 s about 27, 30 s about 54, 60 s about 108); the
-quote is the price.
+Off by default: a video's sound is its voice-over, a sound file the user gave (`"sound"`), or the sound its clips
+came with, and users usually pick the music themselves when they post. Never offer or make generated music while
+`popost video doctor` says `"music": null`; the commands below refuse then. The user switches it on with
+`POPOST_VIDEO_MUSIC=on` (and a connected account); `doctor` then says `"music": "popost.ai"`.
+
+When it is on: background music made on popost.ai from a description, for a video whose user agreed to it. It costs
+credits by its length, about 1.8 a second (15 s about 27, 30 s about 54, 60 s about 108); the quote is the price, and
+`music make` is one more paid command of the money rule (`--confirm --max-credits <left>`).
+
+In the cost overview of video.md (the end of step 1), add `popost video music quote --video reference.mp4` and show
+the user a music plan with the other items, before they agree the budget:
+
+- Music: generated, or none. Propose none, at no cost, when the reference has no sound (`transcript --quote` prints
+  `"sound": false`) or the user says it has no music, and when the user gave a sound file of their own; unless the
+  request asks for generated music.
+- Style, in plain words: genre, mood, tempo, instruments. Take it from what the user says about the reference's
+  music; the programs do not hear music, so otherwise propose a style that fits the reference's subject and pace,
+  say that it is your proposal, and let the user change it. Never the name of an artist, a band, a song, an album or
+  a label, and no lyrics: such a description is refused.
+- Length: the video's, which is about the reference's (`seconds` of the quote).
+- With a voice-over: instrumental, under the voice (18 dB lower). Without one: at its own level.
+- A video made of generated clips: when the reference has music, propose one generated track over the whole video.
+  Clips made one by one each bring music of their own, which changes at every cut; with one track the clips are
+  asked for without music (below).
+- Price: `credits` of the quote.
+
+The user may say no to the music and still have the video. No music is generated that the user did not agree to
+there, or later with a clear yes to its style and price; step 1 is done only when they agreed the music plan, or no
+music. Record the plan before any clip is made:
+
+```bash
+popost video music plan --project project --music generated --style "<the agreed style>"   # or --music own, or --music none
+```
+
+`materials` reads it. With `generated` or `own` (and whenever a recorded sound already lies in `assets/`), it adds to
+the prompt of every clip that the clip has no background music, only ambience, effects and dialogue, and says so in
+`notes`; a video of one generated clip keeps that clip's own continuous soundtrack. Clips made before the music was
+decided are not made again (that is a purchase): the track is mixed under them as they are. Never take the music out
+of the reference. In step 6, once `template fill` has given the video its length, run `make` (it takes the length from the
+project), add `"sound": "assets/music.mp3"` to fill.json and run the same `template fill` again (lines already spoken
+are not paid again). A refused description may be rewritten and run once more without asking, at the same price;
+another style, or a new track because the length changed, is a new purchase to confirm, as for a generated clip. In
+the delivery notes say which music was made (the prompt's words, its length, under the voice or alone), what it
+cost, and that the user can swap or remove `assets/music.mp3` in the Studio or their editor.
 
 ```bash
 popost video music quote --video reference.mp4                 # or --seconds N, or --project project; free
@@ -158,8 +202,8 @@ popost video music make --project project --prompt "<genre, mood, tempo, instrum
   job, so the file that is there is kept (`"kept": true`, `"chargedCredits": 0`) and a deleted one is downloaded
   again. Another prompt, length or `--vocals` is another track, priced and agreed as a new one. A track that failed
   (`popost.ai could not make the music`) was refunded; the same command again asks for a new one.
-- In the video: `"sound": "assets/music.mp3"` in the fill (video-templates.md). With `--speak` it lies under the
-  voice, 18 dB lower; without a voice at its own level. It starts with the video; a track longer than the video is
+- In the video: `"sound": "assets/music.mp3"` in the fill (video-templates.md). It lies under everything: 18 dB
+  lower while a line of the voice-over or a person of a clip speaks, at its own level in the pauses and without speech. It starts with the video; a track longer than the video is
   cut at the video's end with a 1 s fade-out; a shorter one ends where it ends and is not repeated, so a video longer
   than 300 s has music for its first 300 s only (say so in the delivery, or leave the music to the user's editor).
   A video that became a little longer or shorter after the track was made keeps it.
@@ -167,8 +211,9 @@ popost video music make --project project --prompt "<genre, mood, tempo, instrum
 
 ## Generated clips
 
-`popost video materials requests.json --out project --confirm --max-credits <left>` makes the clips and
-pictures of a list through the generator (`POPOST_GEN_CMD`), one after another; `--check` only reads the list. A file
+`popost video materials requests.json --out project --template template --confirm --max-credits <left>` makes the clips and
+pictures of a list through the generator (`POPOST_GEN_CMD`), one after another; `--check` only reads the list.
+`--template` gives the lines people say their times (below) and holds the list to the template's on-camera beats. A file
 that exists is never made again, so running it twice costs once, and what each file shows goes to
 `project/materials.json`. Paid generation follows the money rule ("Paying for popost.ai") and the agreed clips ("The
 built-in generator").
@@ -186,6 +231,35 @@ built-in generator").
   between frames 1/15 s apart, the measure `describe` gives every reference shot (`shots/NN.md`, `Motion amount`).
   A clip far under its shot's amount moves too little for it: ask again with the action and the pace of the shot in
   the prompt before building on it. `popost video compare` gives the same pair for every shot of the finished video.
+
+**Lines a person says.** A clip in which a person speaks names the lines, not their times:
+
+```json
+{ "file": "assets/host-01.mp4", "prompt": "a presenter at a desk talks to the camera, medium shot", "seconds": 6, "aspect": "9:16", "cast": ["host"],
+  "speech": { "mode": "native", "language": "en-US",
+              "lines": [{ "speaker": "host", "text": "The exact words of beat 3.", "beat": 3 },
+                        { "speaker": "host", "text": "The exact words of beat 4.", "beat": 4 }] } }
+```
+
+- `language`: a tag such as `en-US`, `zh-CN`, `ja`; the lines are written in it. `speaker`: a role of the clip's
+  `cast`; several speakers are several roles. `beat`: the template's beat the line re-makes (TEMPLATE.md marks them
+  "on camera").
+- The program takes each line's time from its beat. The clip starts where a shot of the template starts: `"shot": N`
+  (from 1) in `speech`, else the shot in which the first named beat begins; a line's slot is its beat's time counted
+  from there. Fill that shot with the clip from `"in": 0`. Never write seconds: `"at"` and `"to"` are only for a
+  project without a template's beats.
+- The program writes the dialogue into the prompt: the language in plain words, native lip-synced speech, each line
+  with its slot (`0.5-2.8 s host says "..."`), nobody speaking outside the slots, no captions, no dubbing. Write the
+  picture into `prompt` and leave the speech to `speech`.
+- Refused before anything is paid: no language, a line not in its language's script, a speaker outside the cast, a
+  beat that is not said on camera, lines out of order or past the clip's `seconds`, a line too long to say in its
+  slot (more than 1.25 times the reference speaker's pace, or 1.25 times 5 full-width or 15 Latin characters a
+  second), a beat two clips say, and an on-camera beat no clip says.
+- The clip's receipt (`<file>.speech.json`) keeps the lines, the language and the times; the mix keeps such a clip at
+  full level. A project with a registered voice still speaks natively: the voice is passed as the timbre reference
+  when it is registered `--mode native-reference` and the clip is made from references, else the clip has the
+  model's voice and `notes` says so.
+- `{"mode", "speaker", "text"}` without times still works for one speaker's words over a whole clip.
 
 **One anchor picture keeps the clips alike.** Words do not: "the same woman" gives another woman in every clip. With
 two or more clips in the list, one of them is made first (the first that is not a close-up), a frame of it is saved
@@ -370,7 +444,11 @@ under the band). Pointer, boxes and zoom are drawn into the recording, the same 
 |---|---|
 | `doctor`: `ffmpeg was not found` | Install ffmpeg or set `POPOST_FFMPEG` to its path. |
 | `doctor`: a browser message | Install Chrome or Chromium, or set `POPOST_CHROME` to it. |
-| `describe`: `leftOut` lists on-screen text or speech | The reader or transcriber is not set up (no account connected and no tool of the user's own), or `--no-speech` was given: the template has no caption or spoken beats. Go on; look at the pictures. `toAdd` says how to add it (`popost auth login` first). |
+| `describe`: `leftOut` lists on-screen text or speech | The reader or transcriber is not set up (no account connected and no tool of the user's own), `--no-speech` was given, or the transcription failed (`because` says which): the template has no caption or spoken beats, and the speech kind is `unknown`, so the video gets no voice-over. A failed transcription: run the same command again. Otherwise go on; look at the pictures. `toAdd` says how to add it (`popost auth login` first). |
+| `template save`: the speech kind is unconfirmed | `popost video speech-kind show ref`, open the pictures, then `popost video speech-kind confirm ref` with a kind for every phrase (video.md, step 1). |
+| `template check` or `template fill`: the reference has no narration | Leave the voice out, as the fix says. `--voice-asked "<the user's words>"` only when the user asked for a narration. |
+| `"sound"` or an audio track has no record of where it came from | A sound is a file the user gave (`popost video music own`) or generated music the user agreed to. Remove anything else; never mix a narration by hand or take sound from the reference. |
+| An on-camera beat is said by no clip | Make the clip of that shot with `speech.lines` naming the beat ("Lines a person says"). When it costs more than is left, stop and tell the user the price. |
 | A paid command ends with exit code 3 and `confirm` | Nothing was made or charged. Within what is left of the agreed budget: run it again with `--confirm --max-credits <left>`. Above it, or the scope changed: show the user `confirm` and ask. `"reason": "unplanned"`: "The built-in generator". |
 | `describe`: `while decoding frames for the sheets`, `Error initializing filters`, `Cannot allocate memory` on a longer reference | Earlier video test builds made a deeply nested FFmpeg selection expression. Update to a build with balanced frame selection, rebuild the matching CLI, and retry the same reference. This error alone does not prove missing dependencies or insufficient physical memory. |
 | `music make`: `problems` at `--prompt` (the description was refused) | Not charged. Describe the music by genre, mood, tempo and instruments, without names or lyrics, or take `suggestion`; run it again. |

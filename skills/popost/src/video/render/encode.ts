@@ -2,7 +2,7 @@
  * ffmpeg arguments of a render: screenshots on stdin -> H.264 (yuv420p, BT.709 matrix, limited range, tagged as such),
  * and the audio mix.
  */
-import type { ResolvedAudio } from '../types';
+import type { Duck, ResolvedAudio } from '../types';
 import type { ImageFormat } from './session';
 
 export interface EncodeJob {
@@ -29,6 +29,24 @@ const RATE = 48000;
 const s6 = (v: number): string => String(Math.round(v * 1e6) / 1e6);
 
 interface AudioInput { file: string; chain: string }
+
+/**
+ * The envelope of a sound that gives way to speech (timeline/mix.ts) as a volume filter, evaluated for every block of
+ * samples: the gain in dB falls linearly from 0 to -db over the ramp before a span, holds through it and comes back
+ * over the ramp after it. Times are seconds of the rendered range (offset: its first frame). '' when no span is heard
+ * in the range.
+ */
+export const duckFilter = (duck: Duck | undefined, fps: number, offset = 0, duration = Infinity): string => {
+  if (!duck) return '';
+  const ramp = duck.ramp / fps;
+  const terms = duck.spans
+    .map(([start, end]) => [(start - offset) / fps, (end - offset) / fps] as const)
+    .filter(([a, b]) => b + ramp > 0 && a - ramp < duration)
+    .map(([a, b]) => 'min(clip((t-' + s6(a - ramp) + ')/' + s6(ramp) + ',0,1),clip((' + s6(b + ramp) + '-t)/' + s6(ramp) + ',0,1))');
+  if (!terms.length) return '';
+  const depth = terms.reduce((x, y) => 'max(' + x + ',' + y + ')');
+  return ",volume=volume='pow(10,-" + s6(duck.db) + '/20*' + depth + ")':eval=frame";
+};
 
 /**
  * atempo filters that play a sound at a rate (pitch kept); one filter takes 0.5 to 2, so a rate outside that is two
@@ -60,7 +78,7 @@ const audioInputs = (job: EncodeJob): AudioInput[] => {
     const delay = Math.round(Math.max(0, start) * RATE);
     const length = end - Math.max(0, start);
     const chain = 'aresample=' + RATE + ',aformat=sample_fmts=fltp:channel_layouts=stereo,atrim=start=' + s6(skip) + ':duration=' + s6(length * rate) +
-      ',asetpts=PTS-STARTPTS' + tempoChain(rate) + ',adelay=delays=' + delay + 'S:all=1,volume=' + s6(a.gain) + 'dB';
+      ',asetpts=PTS-STARTPTS' + tempoChain(rate) + ',adelay=delays=' + delay + 'S:all=1,volume=' + s6(a.gain) + 'dB' + duckFilter(a.duck, job.fps, job.from, duration);
     // The fade ends where the item ends in the video, which a part of the video being rendered may not reach.
     const whole = a.end === undefined ? end : (a.end - job.from) / job.fps;
     const fade = Math.min(a.fadeOut ?? 0, (a.end === undefined ? length : (a.end - a.start) / job.fps) / 2);

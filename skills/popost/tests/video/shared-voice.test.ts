@@ -19,13 +19,15 @@ describe.skipIf(!available)('project-wide voice identity',()=>{
   await rt.fs.writeFile(rt.path.join(dir,profile.reference),new Uint8Array([9]));
   await expect(voiceProfile(rt,dir,'host')).rejects.toThrow('changed');
  });
- it('does not silently switch a shared audio-first voice to unconstrained native speech',async()=>{
+ it('lets a person speak natively in a project with a registered audio-first voice, and says which voice the clip has',async()=>{
   const dir=rt.path.join(rt.cwd,'shared-native'),sample=rt.path.join(dir,'voice.wav');await rt.fs.mkdir(dir);
   await runFfmpegOk(rt,['-y','-loglevel','error','-f','lavfi','-i','sine=frequency=440:duration=0.3',sample]);
   await registerVoice(rt,dir,'host',sample,'audio-first');
   await rt.fs.writeFile(rt.path.join(dir,'cast.json'),JSON.stringify({version:1,roles:[{id:'host',description:'A fictional presenter'}]}));
   let sent=0;
   const result=await makeMaterials(rt,{dir,requests:[{file:'assets/host.mp4',prompt:'A presenter',cast:['host'],speech:{mode:'native',speaker:'host',text:'Example'}}],generator:{make:async()=>{sent++;return{};}}});
-  expect(sent).toBe(0);expect(result.problems.some(p=>p.at.endsWith('.speech.voice'))).toBe(true);
+  // The registered voice no longer refuses native speech: the request is sent, with a note and no problem about the voice.
+  expect(sent).toBe(1);expect(result.problems.some(p=>p.at.endsWith('.speech.voice'))).toBe(false);
+  expect(result.notes?.join(' ')).toContain('speaks with the video model\'s own voice');
  });
 });

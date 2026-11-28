@@ -76,11 +76,11 @@ export const runsText = (xs: number[]): string => {
 };
 
 /** One beat: its index as the fill writes it, its time, whether it was only said, what was there, and a mark when unsure. */
-const beatLine = (tpl: Template, slot: CaptionSlot | undefined, b: { start: number; end: number; shown?: false }, i: number, d: Detail): string => {
+const beatLine = (tpl: Template, slot: CaptionSlot | undefined, b: { start: number; end: number; shown?: false; speech?: 'on-camera' }, i: number, d: Detail): string => {
   const fps = tpl.canvas.fps;
   const was = slot?.example?.text;
   const what = was ? (d.example ? ': ' + quote(clip(was, d.example)) + ' (' + charsOf(was).length + ')' : ' (' + charsOf(was).length + ')') : '';
-  return '- captions[' + i + ']' + (d.times ? ' ' + s1(b.start, fps) + '-' + s1(b.end, fps) + ' s' : '') + (b.shown === false ? ', spoken only' : '') + what + (slot?.unsure ? ' (unsure)' : '');
+  return '- captions[' + i + ']' + (d.times ? ' ' + s1(b.start, fps) + '-' + s1(b.end, fps) + ' s' : '') + (b.shown === false ? ', spoken only' : '') + (b.speech === 'on-camera' ? ', on camera' : '') + what + (slot?.unsure ? ' (unsure)' : '');
 };
 
 /** The numbered beats; without room for them, one line in the header says where they are (beatsSummary). */
@@ -208,6 +208,19 @@ const fillPart = (tpl: Template, slots: Slots): string[] => {
     ...(slots.shots.some((s) => s.words?.length) ? ['- shots[k].words: ["..."], a line per place in its "words", set as the source\'s.'] : []),
     ...(tpl.shots.some((s) => s.effect) ? ['- custom in: a scene draws the effect (both pictures and the moving object, as its frames show); fill cuts there and lets that scene cover the whole effect.'] : []),
     '- Optional: voice, speed, say (spoken with --speak: beats take the spoken length), captionColor, captionOutline, sound.',
+    ...speechRule(tpl),
+  ];
+};
+
+/** What the kind of the source's speech means for a fill: whether it has a voice, and which beats a person says in a clip. */
+const speechRule = (tpl: Template): string[] => {
+  const s = tpl.speech;
+  if (!s) return [];
+  const dialogue = (tpl.captions?.beats ?? []).flatMap((b, i) => (b.speech === 'on-camera' ? [i] : []));
+  const voice = s.kinds.includes('narration') ? 'the narration is re-made as a voice-over ("voice")' : 'no narration, so no "voice" and no --speak unless the user asks for one (--voice-asked "<their words>")';
+  return [
+    '- Speech of the source: ' + s.kinds.join(', ') + ': ' + voice + '.'
+      + (dialogue.length ? ' Beats ' + runsText(dialogue) + ' are said on camera: the person of a generated clip says each line (its request\'s speech.lines names the beat); the voice-over never reads them.' : ''),
   ];
 };
 

@@ -168,6 +168,22 @@ of your own, see `tools/`; when set, the transcriber and the speaker go before t
 `POPOST_LLM_MODEL`, `POPOST_LLM_KEY`, `POPOST_LLM_JSON` (the model of the plan step, see `src/plan/model.ts`; a key
 is never written to a file, a log or a test); `POPOST_RENDER_PAGES`; `POPOST_VIDEO_DATA`, `POPOST_VIDEO_WORK`.
 
+Speech and sound follow what the reference has, and what was not asked for is refused, as an error with its fix:
+
+- `describe` writes `speech.json` (`src/video/describe/speech-kind.ts`): the kind of the speech. A program decides
+  `none`, `unknown` (skipped, failed or no transcriber, each said as it is) and `fragments` (`FRAGMENT_SHARE`,
+  `FRAGMENT_SYLLABLES`); narration, on-camera and sung are confirmed per range of phrases from the frames
+  (`popost video speech-kind show|confirm`). `template save` keeps the kinds; sung words and fragments make no beat,
+  an on-camera beat is a dialogue beat.
+- A voice-over needs narration in the reference or the user's own words (`--voice-asked`, kept in the project):
+  `src/video/template/speech-rules.ts`. A fill's `"sound"` and every audio track of a project made from a reference
+  need a record of where the sound came from: `src/video/music/provenance.ts`, `src/video/project/check-sound.ts`.
+- A person who speaks in a generated clip: `speech.lines` with a language and the beat of each line; the program
+  takes the times from the template and writes the dialogue block of the prompt (`src/video/generate/dialogue.ts`).
+- The mix is layered from known times, no level detection (`src/video/timeline/mix.ts`): `resolve` gives a sound
+  that gives way to speech a `duck` (spans, dB, ramp), the render writes it as an ffmpeg volume expression
+  (`render/encode.ts`, `duckFilter`), the Studio applies it per frame, and a draft export bakes it into the audio file.
+
 ## 5. The evaluation loop
 
 The loop exists so that a change is kept because a number moved, not because it looked better. `popost video` is the

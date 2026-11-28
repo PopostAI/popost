@@ -20,6 +20,7 @@ import { pictureSheets } from './frames';
 import { frameOf, insetPlan, insetSamples, type Inset, type InsetSamples } from './inset';
 import { watchProgress, type OnStage } from '../progress';
 import { transcribe, type Transcriber, type Transcript } from '../speech/index';
+import { ToolError } from '../tool';
 import { cuesOf, readSamples, withCaptionLook, type TextReader, type TextTrack } from '../text/index';
 import type { Measure } from '../types';
 
@@ -33,8 +34,12 @@ export interface ReadReferenceOptions {
   pictures?: { dir: string };
 }
 
-/** inset: the frame around the content when the shots show one (inset.ts). pictures: the sheets written, when asked for. */
-export interface ReferenceReading { measure: Measure; text?: TextTrack; transcript?: Transcript; inset?: Inset; pictures?: SheetResult[] }
+/**
+ * inset: the frame around the content when the shots show one (inset.ts). pictures: the sheets written, when asked for.
+ * speechFailed: the transcriber failed (its message, first line); the rest of the reading stands, and the speech is
+ * then unknown, not absent.
+ */
+export interface ReferenceReading { measure: Measure; text?: TextTrack; transcript?: Transcript; inset?: Inset; pictures?: SheetResult[]; speechFailed?: string }
 
 /** The inset's samples and describe's pictures, from one pass over the video once the measurement is known. */
 const samplesAndPictures = async (rt: Runtime, video: string, measure: Measure, dir: string): Promise<{ samples: InsetSamples; pictures: SheetResult[] }> => {
@@ -82,7 +87,14 @@ export const readReference = async (rt: Runtime, video: string, o: ReadReference
     onStage?.('measuring what is behind the caption letters');
     return withCaptionLook(rt, video, track);
   }) : Promise.resolve(undefined);
-  const hearIt = (): Promise<Transcript | undefined> => transcriber ? part('speech', (onStage) => transcribe(rt, video, transcriber, o.language, onStage)) : Promise.resolve(undefined);
+  // A transcriber that fails (a tool's error, a job the platform could not finish) does not take the measurement and
+  // the pictures with it: the reading goes on and says that the speech is unknown. A price or a refusal still stops it.
+  const failure: { speech?: string } = {};
+  const hearIt = (): Promise<Transcript | undefined> => transcriber ? part('speech', (onStage) => transcribe(rt, video, transcriber, o.language, onStage).catch((e: unknown) => {
+    if (!(e instanceof ToolError)) throw e;
+    failure.speech = e.message.split('\n')[0] ?? 'the transcriber failed';
+    return undefined;
+  })) : Promise.resolve(undefined);
   const dir = o.pictures?.dir;
   type Looked = { samples: InsetSamples; pictures?: SheetResult[] };
   const samplesOnly = (): Promise<Looked> => insetSamples(rt, video).then((samples) => ({ samples }));
@@ -109,7 +121,7 @@ export const readReference = async (rt: Runtime, video: string, o: ReadReference
     const inset = frameOf(looked.samples, measure, text);
     return {
       measure: withShotFills(measure, looked.samples), ...(text ? { text } : {}), ...(transcript ? { transcript } : {}), ...(inset ? { inset } : {}),
-      ...(looked.pictures ? { pictures: looked.pictures } : {}),
+      ...(looked.pictures ? { pictures: looked.pictures } : {}), ...(failure.speech !== undefined ? { speechFailed: failure.speech } : {}),
     };
   } finally {
     progress?.stop();

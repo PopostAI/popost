@@ -2,7 +2,8 @@
  * `popost video music quote` and `make`: generated background music, paid as speech is. The price first (exit code 3
  * without --confirm or above --max-credits, nothing asked for), then one job per order under the project's task,
  * waited for while it runs and downloaded as an MP3; the same command again pays nothing twice; a refused description
- * and a failed generator charge nothing and say what to do. The platform is the in-memory fake.
+ * and a failed generator charge nothing and say what to do. All of it is off unless POPOST_VIDEO_MUSIC=on. The platform
+ * is the in-memory fake.
  */
 import { describe, expect, it } from 'vitest';
 import { createTestRuntime, runCli } from '../../src/testing/memory';
@@ -16,7 +17,7 @@ const setup = (o: FakeOptions = {}) => {
   const platform = fakePlatform({ balance: 500, ...o });
   const sleeps: number[] = [];
   let t = Date.UTC(2026, 10, 27);
-  const rt = createTestRuntime({ env: ENV, fetchHandler: platform.handler, now: () => new Date(t), sleep: async (ms) => { sleeps.push(ms); t += ms; } });
+  const rt = createTestRuntime({ env: { ...ENV, POPOST_VIDEO_MUSIC: 'on' }, fetchHandler: platform.handler, now: () => new Date(t), sleep: async (ms) => { sleeps.push(ms); t += ms; } });
   const make = (...more: string[]) => runCli(rt, ['video', 'music', 'make', '--project', '/work/p', '--prompt', PROMPT, '--seconds', '30', '--out', OUT, ...more]);
   const posts = () => platform.sent.filter((s) => s.method === 'POST' && s.path === '/music');
   return { rt, platform, sleeps, make, posts };
@@ -45,8 +46,15 @@ describe('popost video music quote', () => {
     expect(String(rt.json().error)).toContain('--seconds N');
   });
 
-  it('needs a connected account', async () => {
-    const offline = createTestRuntime();
+  it('is off by default: without the switch, or without an account, nothing is priced or made', async () => {
+    const platform = fakePlatform({ balance: 500 });
+    const plain = createTestRuntime({ env: ENV, fetchHandler: platform.handler });
+    expect((await runCli(plain, ['video', 'music', 'quote', '--seconds', '30'])).code).toBe(2);
+    expect(String(plain.json().error)).toContain('off by default');
+    expect((await runCli(plain, ['video', 'music', 'make', '--prompt', PROMPT, '--seconds', '30', '--out', OUT, '--confirm', '--max-credits', '60'])).code).toBe(2);
+    expect(String(plain.json().error)).toContain('POPOST_VIDEO_MUSIC=on');
+    expect(platform.sent).toHaveLength(0);
+    const offline = createTestRuntime({ env: { POPOST_VIDEO_MUSIC: 'on' } });
     expect((await runCli(offline, ['video', 'music', 'quote', '--seconds', '30'])).code).toBe(2);
     expect(String(offline.json().error)).toContain('popost auth login');
   });
@@ -187,11 +195,15 @@ describe('popost video music make', () => {
     expect((await runCli(rt, ['video', 'music', '--help'])).stdout).toContain('make');
   });
 
-  it('video doctor says whether music can be generated', async () => {
+  it('video doctor says music is not generated unless it is switched on', async () => {
     const { rt } = setup();
     await runCli(rt, ['video', 'doctor']);
     expect(rt.json()).toMatchObject({ tools: { music: 'popost.ai' }, hosted: { music: expect.stringContaining('popost video music make') } });
-    const offline = createTestRuntime();
+    const plain = createTestRuntime({ env: ENV });
+    await runCli(plain, ['video', 'doctor']);
+    expect(plain.json()).toMatchObject({ tools: { music: null, speak: 'popost.ai' } });
+    expect((plain.json().hosted as Record<string, unknown>).music).toBeUndefined();
+    const offline = createTestRuntime({ env: { POPOST_VIDEO_MUSIC: 'on' } });
     await runCli(offline, ['video', 'doctor']);
     expect(offline.json()).toMatchObject({ tools: { music: null } });
   });

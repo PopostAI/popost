@@ -32,7 +32,9 @@ import type { Problem } from '../types';
 import { sha256 } from '../../core/util';
 import { requestHash, startPlan, type UnplannedClip } from './approved';
 import { castImages, personPrompt, readCast } from './cast';
-import { finalizeSpeech, isVisibleSpeech, speechPrompt, type VisibleSpeech } from './speech';
+import { finalizeSpeech, isVisibleSpeech, speakersOf, speechAudio, speechPrompt, type SentSpeech, type VisibleSpeech } from './speech';
+import { coverageProblems, dialogueProblems, isDialogue, NO_MUSIC, timedDialogue, type BeatTimes } from './dialogue';
+import { readClipRecord } from './approved';
 import { voiceProfile, type VoiceProfile } from '../voice/profile';
 import { audioSeconds } from '../voice/index';
 
@@ -160,7 +162,14 @@ export interface MadeMaterial { file: string; kind: GenerateKind; made: boolean;
  * clips got as a reference, and where it came from. A material with waiting was not made because the anchor clip is
  * not there yet: priced only (confirm) when the anchor clip's price waits for the user, not sent at all when it failed.
  */
-export interface MaterialsReport { materials: MadeMaterial[]; credits: number; chargedCredits: number; problems: Problem[]; anchor?: { picture: string; from: AnchorSource }; toConfirm?: { credits: number; materials: number } }
+export interface MaterialsReport { materials: MadeMaterial[]; credits: number; chargedCredits: number; problems: Problem[]; anchor?: { picture: string; from: AnchorSource }; toConfirm?: { credits: number; materials: number }; notes?: string[] }
+
+/**
+ * What the requests are held to beyond their own shape. times: the template's shots and beats, which give lines that
+ * name a beat their times (dialogue.ts); with them, every beat the reference said on camera must be said by one clip
+ * of the list, or by a clip the project already has (covered).
+ */
+export interface RequestPolicy { selectedIdentity?: boolean; times?: BeatTimes; covered?: ReadonlySet<number> }
 
 const VIDEOS = ['.mp4', '.mov', '.webm'];
 const PICTURES = ['.png', '.jpg', '.jpeg', '.webp'];
@@ -233,7 +242,7 @@ export const groupingAdvice = (requests: unknown): Problem[] => {
 };
 
 /** What is wrong with a list of requests, before anything is paid for. */
-export const checkRequests = async (rt: Runtime, requests: unknown, dir: string, policy: { selectedIdentity?: boolean } = {}): Promise<Problem[]> => {
+export const checkRequests = async (rt: Runtime, requests: unknown, dir: string, policy: RequestPolicy = {}): Promise<Problem[]> => {
   if (!Array.isArray(requests)) return [error('(root)', 'The requests are a JSON list: one entry per material to make.', 'Write [{ "file": "assets/desk.mp4", "prompt": "...", "seconds": 5 }].')];
   const seen = new Set<string>();
   // The reference files that exist, looked up first: the checks below stay one pass over the list.
@@ -241,20 +250,22 @@ export const checkRequests = async (rt: Runtime, requests: unknown, dir: string,
     const list = r[k];
     return Array.isArray(list) ? list : [];
   };
-  const named = requests.flatMap((r: Partial<MaterialRequest> | null) => (r && typeof r === 'object' ? [...LISTS.flatMap((k) => listed(r, k)), r.firstFrame, r.lastFrame, r.continues,r.speech?.audio].filter((p): p is string => typeof p === 'string') : []));
+  const named = requests.flatMap((r: Partial<MaterialRequest> | null) => (r && typeof r === 'object' ? [...LISTS.flatMap((k) => listed(r, k)), r.firstFrame, r.lastFrame, r.continues,speechAudio(r.speech)].filter((p): p is string => typeof p === 'string') : []));
   const clips = new Map(requests.flatMap((r: Partial<MaterialRequest> | null) => (r && typeof r === 'object' && typeof r.file === 'string' && kindOf(r.file) === 'video' ? [[r.file, r] as const] : [])));
   const found = new Set<string>();
   for (const p of named) if ((await rt.fs.stat(rt.path.resolve(dir, p))) !== null) found.add(p);
   const durations=new Map<string,number>();
-  for(const r of requests as Partial<MaterialRequest>[])if(isVisibleSpeech(r?.speech)&&r.speech.mode==='lip-sync'&&r.speech.audio&&found.has(r.speech.audio)) {
-    try {durations.set(r.speech.audio,await audioSeconds(rt,rt.path.resolve(dir,r.speech.audio)));}catch{durations.set(r.speech.audio,NaN);}
+  for(const r of requests as Partial<MaterialRequest>[]){
+    const audio=isVisibleSpeech(r?.speech)&&r.speech.mode==='lip-sync'?speechAudio(r.speech):undefined;
+    if(!audio||!found.has(audio))continue;
+    try {durations.set(audio,await audioSeconds(rt,rt.path.resolve(dir,audio)));}catch{durations.set(audio,NaN);}
   }
   const preserved=new Set<string>();
   if(requests.some((r:Partial<MaterialRequest>|null)=>r?.cast?.length && r.videos?.length)) {
     try { for(const role of (await readCast(rt,dir)).roles)if(role.identity==='user'||role.identity==='reference')preserved.add(role.id); }
     catch { /* The cast preflight reports missing or invalid manifests before generation. */ }
   }
-  return requests.flatMap((r: Partial<MaterialRequest> | null, i): Problem[] => {
+  const each = requests.flatMap((r: Partial<MaterialRequest> | null, i): Problem[] => {
     const at = '[' + i + ']';
     if (!r || typeof r !== 'object') return [error(at, 'A request is an object with "file" and "prompt".', 'Write { "file": "assets/desk.mp4", "prompt": "..." }.')];
     const out: Problem[] = [];
@@ -271,9 +282,12 @@ export const checkRequests = async (rt: Runtime, requests: unknown, dir: string,
     if (r.cast !== undefined && (!Array.isArray(r.cast) || r.cast.some(id => typeof id !== 'string' || !id.trim()) || new Set(r.cast).size !== r.cast.length)) out.push(error(at + '.cast', 'Cast is a list of unique role ids.', 'Use role ids from cast.json, or [] for a shot without people.'));
     if (!policy.selectedIdentity && typeof r.prompt === 'string' && personPrompt.test(r.prompt) && r.cast === undefined && kindOf(String(r.file)) === 'video') out.push(error(at + '.cast', 'This clip describes visible people but has no identity policy.', 'Prepare and complete cast.json, then list its role ids in "cast". Use [] only when no person is visible. New identities are the default.'));
     if (Array.isArray(r.cast) && r.cast.length && r.videos?.length && r.cast.some(id=>!preserved.has(id))) out.push(error(at + '.videos', 'A raw reference video can copy its creator’s face even when a cast image is supplied.', 'Use measured motion and shot descriptions with the locked cast images; reference video is allowed only when all visible identities are explicitly user-selected or preserved.'));
-    if (r.speech !== undefined && (!isVisibleSpeech(r.speech) || !r.cast?.includes(r.speech.speaker))) out.push(error(at + '.speech', 'Visible speech needs native or lip-sync mode, final text and a speaker listed in this clip’s cast.', 'Set speech: {"mode":"native","speaker":"host","text":"Exact spoken words"}. Replacement voices require mode lip-sync and audio.'));
-    if (r.speech?.mode === 'lip-sync' && (!r.speech.audio || !toolCommand(rt, 'POPOST_LIPSYNC_CMD'))) out.push(error(at + '.speech', 'Replacement dialogue needs a final audio file and a real lip-sync tool.', 'Configure POPOST_LIPSYNC_CMD, or keep native speech and its original audio.'));
-    if(r.speech?.mode==='lip-sync'&&r.speech.audio){const seconds=durations.get(r.speech.audio);if(!found.has(r.speech.audio)||!Number.isFinite(seconds))out.push(error(at+'.speech.audio','The final voice is missing or unreadable.','Generate/import the final audio before requesting the visible performance.'));else if(r.seconds===undefined||r.seconds<(seconds??0))out.push(error(at+'.seconds','The performance must be at least as long as the final voice.','Set seconds to at least '+Math.ceil(seconds??0)+'; do not stretch mouth motion independently.'));}
+    // Timed lines (dialogue.ts) are held to their language, their beats and their slots; the first form to its one speaker.
+    if (isDialogue(r.speech)) out.push(...dialogueProblems(r.speech, { at, cast: Array.isArray(r.cast) ? r.cast : [], ...(typeof r.seconds === 'number' ? { seconds: r.seconds } : {}), ...(policy.times ? { times: policy.times } : {}) }));
+    else if (r.speech !== undefined && (!isVisibleSpeech(r.speech) || !r.cast?.includes(r.speech.speaker))) out.push(error(at + '.speech', 'Visible speech needs native or lip-sync mode, final text and a speaker listed in this clip’s cast.', 'Set speech: {"mode":"native","language":"en-US","lines":[{"speaker":"host","text":"Exact spoken words","beat":3}]} (timed lines), or {"mode":"native","speaker":"host","text":"Exact spoken words"}. Replacement voices require mode lip-sync and audio.'));
+    const audio = speechAudio(r.speech);
+    if (r.speech?.mode === 'lip-sync' && (!audio || !toolCommand(rt, 'POPOST_LIPSYNC_CMD'))) out.push(error(at + '.speech', 'Replacement dialogue needs a final audio file and a real lip-sync tool.', 'Configure POPOST_LIPSYNC_CMD, or keep native speech and its original audio.'));
+    if(r.speech?.mode==='lip-sync'&&audio){const seconds=durations.get(audio);if(!found.has(audio)||!Number.isFinite(seconds))out.push(error(at+'.speech.audio','The final voice is missing or unreadable.','Generate/import the final audio before requesting the visible performance.'));else if(r.seconds===undefined||r.seconds<(seconds??0))out.push(error(at+'.seconds','The performance must be at least as long as the final voice.','Set seconds to at least '+Math.ceil(seconds??0)+'; do not stretch mouth motion independently.'));}
     if (r.seconds !== undefined && !(Number.isInteger(r.seconds) && r.seconds >= 1 && r.seconds <= 30)) out.push(error(at + '.seconds', '"seconds" is a whole number from 1 to 30; it is ' + JSON.stringify(r.seconds) + '.', 'Write "seconds": 5.'));
     if (r.anchor !== undefined && typeof r.anchor !== 'boolean') out.push(error(at + '.anchor', '"anchor" is false for a clip that shares nothing with the others; it is ' + JSON.stringify(r.anchor) + '.', 'Write "anchor": false, or remove it.'));
     if (r.aspect !== undefined && !(typeof r.aspect === 'string' && ASPECT.test(r.aspect))) out.push(error(at + '.aspect', '"aspect" is a ratio such as "16:9", "9:16" or "1:1", or "adaptive"; it is ' + JSON.stringify(r.aspect) + '.', 'Write "aspect": "16:9".', ['16:9', '9:16', '1:1', 'adaptive']));
@@ -285,6 +299,27 @@ export const checkRequests = async (rt: Runtime, requests: unknown, dir: string,
     }
     return out;
   });
+  // With the template: every beat the reference said on camera is said by exactly one clip (dialogue.ts).
+  const whole = policy.times ? coverageProblems(requests.filter((r): r is Partial<MaterialRequest> => r !== null && typeof r === 'object'), policy.times, policy.covered) : [];
+  return [...each, ...whole];
+};
+
+/** The beats the clips a project already has say: the lines of their speech receipts (<clip>.speech.json) that name a beat. */
+export const beatsSaid = async (rt: Runtime, dir: string, files: readonly string[]): Promise<Map<number, string[]>> => {
+  const out = new Map<number, string[]>();
+  for (const file of new Set(files)) {
+    const receipt = await rt.fs.readText(rt.path.resolve(dir, file) + '.speech.json').then((t) => JSON.parse(t) as { lines?: { beat?: unknown }[] }, () => undefined);
+    for (const l of Array.isArray(receipt?.lines) ? receipt.lines : []) if (Number.isInteger(l?.beat)) out.set(l.beat as number, [...(out.get(l.beat as number) ?? []), file]);
+  }
+  return out;
+};
+
+/** The beats said by clips of the project that this list does not ask for: its agreed clips' receipts. */
+const saidBefore = async (rt: Runtime, dir: string, requests: readonly MaterialRequest[]): Promise<Set<number>> => {
+  const record = await readClipRecord(rt, dir).catch(() => undefined);
+  const listed = new Set(requests.map((r) => r.file));
+  const others = [...(record?.plan ?? []), ...(record?.clips ?? [])].map((c) => c.file).filter((f): f is string => typeof f === 'string' && !listed.has(f));
+  return new Set((await beatsSaid(rt, dir, others)).keys());
 };
 
 /** The picture that carries what the clips share (a person, a product, a place) from one clip to the others, beside the clips. */
@@ -413,9 +448,18 @@ const afterFailure = (message: string): string =>
  * to (approved.ts). o.plan (materials --confirm): the clips of
  * this list become the agreed clips when the project has none yet.
  */
-export const makeMaterials = async (rt: Runtime, o: { requests: MaterialRequest[]; dir: string; generator: Generator; anchor?: boolean; picture?: AnchorPicture; plan?: boolean; onStep?: (file: string, done: number, total: number) => void }): Promise<MaterialsReport> => {
-  const problems = await checkRequests(rt, o.requests, o.dir, {selectedIdentity:!!o.picture});
+export const makeMaterials = async (rt: Runtime, o: { requests: MaterialRequest[]; dir: string; generator: Generator; anchor?: boolean; picture?: AnchorPicture; plan?: boolean; times?: BeatTimes; music?: boolean; onStep?: (file: string, done: number, total: number) => void }): Promise<MaterialsReport> => {
+  const before = Array.isArray(o.requests) && o.times ? await saidBefore(rt, o.dir, o.requests) : undefined;
+  const problems = await checkRequests(rt, o.requests, o.dir, {selectedIdentity:!!o.picture, ...(o.times ? { times: o.times } : {}), ...(before ? { covered: before } : {})});
   if (problems.length) return { materials: [], credits: 0, chargedCredits: 0, problems };
+  const said: string[] = [];
+  // The video's music is one separate track (o.music): its clips are asked for without music of their own, unless the
+  // video is one generated clip, whose own continuous soundtrack may stay.
+  const clipFiles = new Set([...o.requests.filter((r) => kindOf(r.file) === 'video').map((r) => r.file), ...((await readClipRecord(rt, o.dir).catch(() => undefined))?.plan ?? []).map((c) => c.file)]);
+  const noMusic = o.music === true && clipFiles.size > 1;
+  if (o.music && clipFiles.size) said.push(noMusic
+    ? 'The video has a music track of its own, so every clip was asked for without background music: only ambience, effects and dialogue. A clip that exists already was not made again; the track is mixed under it as it is.'
+    : 'The video is one generated clip: it keeps its own continuous soundtrack, and no sentence about music was added to its prompt.');
   const locked = new Map<string, Awaited<ReturnType<typeof castImages>>>();
   const voices = new Map<string, VoiceProfile>();
   const uses = new Map<string, number>();
@@ -431,17 +475,25 @@ export const makeMaterials = async (rt: Runtime, o: { requests: MaterialRequest[
     catch (e) { problems.push(error(r.file + '.cast', String(e), 'Complete every identity image before generating any clip.')); }
   }
   for (const r of o.requests) if (r.speech) {
-    try {
-      const profile = await voiceProfile(rt,o.dir,r.speech.speaker);
+    const speaker = speakersOf(r.speech)[0] ?? '';
+    if (r.speech.mode === 'native') {
+      // A person who speaks in a clip speaks natively whatever voice the project registered: the registered voice is
+      // the timbre reference where it can be one (native-reference, a clip made from references), and otherwise the
+      // clip speaks with the model's voice, which is said, never refused.
+      const profile = await voiceProfile(rt,o.dir,speaker).catch(() => undefined);
       if (!profile) continue;
-      if(r.speech.mode==='native' && usesFrames(r))throw new Error('Native voice references need reference mode, which cannot be combined with first/last frames. Use audio-first lip sync for a frame-conditioned clip.');
-      if (r.speech.mode === 'native' && profile.mode !== 'native-reference') throw new Error('This project locks a shared voice. Generate its final audio with video voice speak, then use speech.mode lip-sync for visible mouths. Native-reference is an explicit alternative only for models with voice conditioning.');
-      if (r.speech.mode === 'lip-sync') {
-        const receipt = JSON.parse(await rt.fs.readText(rt.path.resolve(o.dir,r.speech.audio ?? '')+'.voice.json')) as {speaker?:string;voiceReferenceHash?:string;audioSha256?:string};
-        if (receipt.speaker!==profile.id || receipt.voiceReferenceHash!==profile.sha256 || receipt.audioSha256!==sha256(await rt.fs.readFile(rt.path.resolve(o.dir,r.speech.audio ?? '')))) throw new Error('The final dialogue does not match this project’s shared voice. Generate it with video voice speak.');
-      }
+      if (profile.mode === 'native-reference' && !usesFrames(r)) { voices.set(r.file,profile); continue; }
+      said.push(r.file + ': ' + speaker + ' speaks with the video model\'s own voice; the voice registered for the project is not passed as a reference (' + (profile.mode === 'native-reference' ? 'this clip starts from a frame, and a clip made from frames takes no references' : 'it is registered audio-first; register it with --mode native-reference to pass it as the timbre reference where the model takes one') + '). Listen to the clip beside the voice-over.');
+      continue;
+    }
+    try {
+      const profile = await voiceProfile(rt,o.dir,speaker);
+      if (!profile) continue;
+      const audio = speechAudio(r.speech) ?? '';
+      const receipt = JSON.parse(await rt.fs.readText(rt.path.resolve(o.dir,audio)+'.voice.json')) as {speaker?:string;voiceReferenceHash?:string;audioSha256?:string};
+      if (receipt.speaker!==profile.id || receipt.voiceReferenceHash!==profile.sha256 || receipt.audioSha256!==sha256(await rt.fs.readFile(rt.path.resolve(o.dir,audio)))) throw new Error('The final dialogue does not match this project’s shared voice. Generate it with video voice speak.');
       voices.set(r.file,profile);
-    } catch(e) { problems.push(error(r.file+'.speech.voice',String(e),'Use the registered voice for every visible speaking shot and voice-over.')); }
+    } catch(e) { problems.push(error(r.file+'.speech.voice',String(e),'Use the registered voice for every lip-synced shot and the voice-over.')); }
   }
   if (problems.length) return { materials: [], credits: 0, chargedCredits: 0, problems };
   if (o.plan) await startPlan(rt, o.dir, o.requests.filter((r) => kindOf(r.file) === 'video').map((r) => ({ file: r.file, request: requestHash(rt, r) })));
@@ -462,8 +514,10 @@ export const makeMaterials = async (rt: Runtime, o: { requests: MaterialRequest[
     const voice = voices.get(original.file);
     const withCast = cast ? { ...original, ...(!usesFrames(original) ? { images: [...(original.images ?? []), ...cast.images] } : {}), prompt: original.prompt + ' ' + cast.instruction } : original;
     const asked = voice && original.speech?.mode === 'native' ? { ...withCast, audios:[...(withCast.audios??[]),voice.reference], prompt:withCast.prompt+' @audio'+((withCast.audios?.length??0)+1)+' defines the voice identity and timbre only. Speak the exact new dialogue with that voice, never the reference recording’s words. Keep the speaker’s voice stable across all shots.' } : withCast;
-    const dependencies=[...LISTS.flatMap(k=>asked[k]??[]),asked.firstFrame,asked.lastFrame,asked.continues,asked.speech?.audio].filter((p):p is string=>typeof p==='string');
-    const signature = sha256(JSON.stringify({ request: asked, voiceHash: voice?.sha256, dependencies:await Promise.all(dependencies.map(async p=>[p,await rt.fs.readFile(rt.path.resolve(o.dir,p)).then(sha256,()=>null)])) }));
+    // Speech as it is sent: timed lines get their slots from the template here (checkRequests made sure each has one).
+    const sent: SentSpeech | undefined = isDialogue(original.speech) ? timedDialogue(original.speech, o.times) : original.speech;
+    const dependencies=[...LISTS.flatMap(k=>asked[k]??[]),asked.firstFrame,asked.lastFrame,asked.continues,speechAudio(asked.speech)].filter((p):p is string=>typeof p==='string');
+    const signature = sha256(JSON.stringify({ request: asked, voiceHash: voice?.sha256, dependencies:await Promise.all(dependencies.map(async p=>[p,await rt.fs.readFile(rt.path.resolve(o.dir,p)).then(sha256,()=>null)])), ...(sent && 'lines' in sent ? { lines: sent.lines } : {}) }));
     const isAnchor = first >= 0 && i === 0;
     const takes = source !== undefined && takesAnchor(asked) && !isAnchor;
     const needs = [...(takes && anchorFile ? [anchorFile] : []), ...(asked.continues ? [asked.continues] : [])];
@@ -492,7 +546,7 @@ export const makeMaterials = async (rt: Runtime, o: { requests: MaterialRequest[
         const references = Object.fromEntries(LISTS.flatMap((k) => (r[k]?.length ? [[k, (r[k] ?? []).map(at)]] : [])));
         const start = priceOnly ? undefined : asked.continues ? await lastFrameOf(rt, o.dir, asked.continues) : asked.firstFrame ? at(asked.firstFrame) : undefined;
         const frames = { ...(start ? { firstFrame: start } : {}), ...(start && asked.lastFrame ? { lastFrame: at(asked.lastFrame) } : {}) };
-        const request: GenerateRequest = { prompt: r.prompt + (r.speech ? speechPrompt(r.speech) : ''), ...(r.seconds ? { seconds: r.seconds } : {}), ...(r.aspect ? { aspect: r.aspect } : {}), ...references, ...frames, ...(priceOnly ? { priceOnly: true as const } : {}) };
+        const request: GenerateRequest = { prompt: r.prompt + (sent ? speechPrompt(sent) : '') + (noMusic && kind === 'video' ? NO_MUSIC : ''), ...(r.seconds ? { seconds: r.seconds } : {}), ...(r.aspect ? { aspect: r.aspect } : {}), ...references, ...frames, ...(priceOnly ? { priceOnly: true as const } : {}) };
         // The project (its task, for pictures too) and, for a clip, which agreed clip it is.
         const agreement: Record<string, string> = { POPOST_GEN_PROJECT: o.dir, ...(kind === 'video' ? { POPOST_GEN_FILE: original.file, POPOST_GEN_REQUEST: requestHash(rt, original) } : {}) };
         const made = await o.generator.make(kind, request, partial, agreement);
@@ -500,7 +554,7 @@ export const makeMaterials = async (rt: Runtime, o: { requests: MaterialRequest[
         if(made.credits!==undefined)entry={...entry,credits:made.credits};
         if (charged !== undefined) entry = { ...entry, chargedCredits: charged };
         if (!(await exists(partial))) throw new Error('The generator finished without writing the file.');
-        if (asked.speech) await finalizeSpeech(rt, partial, asked.speech, o.dir, target);
+        if (sent) await finalizeSpeech(rt, partial, sent, o.dir, target);
         await rt.fs.rename(partial, target);
         if (asked.speech) for (const ext of ['.speech.wav','.speech.json']) await rt.fs.rename(partial + ext, target + ext);
         if (cast || asked.speech) await rt.fs.writeFile(target + '.generation.json', signature);
@@ -547,5 +601,5 @@ export const makeMaterials = async (rt: Runtime, o: { requests: MaterialRequest[
   const loose = materials.filter((m) => m.unanchored).map((m) => warning(m.file, 'It was made without ' + (o.requests.some((r) => r.file === m.file && r.continues) ? 'the frame it should start from' : 'the anchor picture') + ': the generator was asked for its price only ("priceOnly": true in the request) while ' + m.waitsFor + ' waited for the user\'s agreement, and made the clip.', 'Look at it beside the other clips; when it does not match them, delete the file and run the command again once ' + m.waitsFor + ' exists.'));
   const asked = materials.filter((m) => m.confirm);
   const toConfirm = asked.length ? { toConfirm: { credits: asked.reduce((n, m) => n + (m.confirm?.credits ?? 0), 0), materials: asked.length } } : {};
-  return { materials, credits: materials.reduce((n, m) => n + (m.credits ?? 0), 0), chargedCredits: materials.reduce((n, m) => n + (m.chargedCredits ?? 0), 0), problems: [...failed, ...held, ...loose], ...(source && picture ? { anchor: { picture, from: source } } : {}), ...toConfirm };
+  return { materials, credits: materials.reduce((n, m) => n + (m.credits ?? 0), 0), chargedCredits: materials.reduce((n, m) => n + (m.chargedCredits ?? 0), 0), problems: [...failed, ...held, ...loose], ...(source && picture ? { anchor: { picture, from: source } } : {}), ...toConfirm, ...(said.length ? { notes: said } : {}) };
 };

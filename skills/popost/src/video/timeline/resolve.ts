@@ -12,6 +12,7 @@ import { fillColor, isGradient } from '../presets/fill';
 import { fullMove } from '../presets/camera';
 import { spanFrames, timelineOf, wholeVideo, type Timeline } from './spans';
 import { resolveItems } from './items';
+import { duckOf, heardSpan, joinSpans } from './mix';
 import { trackWords, type TrackWords, type WordsTable } from './words';
 
 export { resolveMotion } from './items';
@@ -86,49 +87,93 @@ const resolveSegment = (ctx: Ctx, s: Segment, k: number): ResolvedSegment => {
   return { id: s.id, index: k, start, end: start + (ctx.tl.lengths[k] ?? 0), base: resolveBase(ctx, s, start), ...(transition ? { transition } : {}) };
 };
 
-const resolveAudio = (ctx: Ctx, items: readonly ResolvedItem[]): ResolvedAudio[] => {
-  const tracks = ctx.project.tracks.flatMap((t): ResolvedAudio[] => {
+/** An audio track on the timeline, with what the mix needs to know of it. */
+interface TrackSound { sound: ResolvedAudio; role?: 'voice' | 'music'; bed: boolean; fixed: boolean; lines: [number, number][]; material: string }
+
+const trackSounds = (ctx: Ctx): TrackSound[] =>
+  ctx.project.tracks.flatMap((t): TrackSound[] => {
     if (t.type !== 'audio') return [];
     const span = t.during ? spanFrames(ctx.tl, t.during) : wholeVideo(ctx.tl);
     if (!span) throw new Error('resolve: audio "' + t.id + '" is placed in a segment that does not exist.');
     const from = t.bed ? { from: { frame: t.in ?? 0, fps: factsOf(ctx, t.material).fps } } : t.in ? {from:{frame:t.in,fps:ctx.fps}} : {};
-    return [{ id: t.id, src: materialSrc(material(ctx, t.material)), start: span.start, ...(t.during ? { end: span.end } : {}), gain: t.gain ?? 0, ...from, ...(t.fadeOut ? { fadeOut: t.fadeOut } : {}) }];
+    const sound: ResolvedAudio = { id: t.id, src: materialSrc(material(ctx, t.material)), start: span.start, ...(t.during ? { end: span.end } : {}), gain: t.gain ?? 0, ...from, ...(t.fadeOut ? { fadeOut: t.fadeOut } : {}) };
+    // A voice's lines are counted from the track's start; what lies past its end is not heard.
+    const lines = t.role === 'voice' ? (t.lines ?? []).flatMap(([a, b]): [number, number][] => { const x: [number, number] = [span.start + a, Math.min(span.end, span.start + b)]; return x[1] > x[0] ? [x] : []; }) : [];
+    return [{ sound, ...(t.role ? { role: t.role } : {}), bed: t.bed === true, fixed: t.gain !== undefined, lines, material: t.material }];
   });
+
+const itemSounds = (ctx: Ctx, items: readonly ResolvedItem[]): ResolvedAudio[] => {
   const byId = new Map(items.map((it) => [it.id, it] as const));
-  const sounds = ctx.project.tracks.flatMap((t): ResolvedAudio[] => {
+  return ctx.project.tracks.flatMap((t): ResolvedAudio[] => {
     if (t.type === 'audio' || t.type === 'caption' || t.sound === undefined) return [];
     const item = byId.get(t.id);
     return item ? [{ id: t.id + '.sound', src: materialSrc(material(ctx, t.sound)), start: item.start, gain: 0 }] : [];
   });
-  return [...tracks, ...sounds];
 };
 
 /**
- * The footage's own sound of every base and video item: at the gain its "audio" gives, never with false, and with
- * no "audio" at 0 dB when the project has no audio track (FootageSpec.audio). It plays at the footage's speed.
+ * A use of footage that sounds: its sound, whether its level is the fill's own ("audio"), and when a person in it
+ * speaks. carried: a bed plays its sound, so the use itself adds none (its person is still heard, through the bed).
  */
-const footageAudio = (ctx: Ctx, segments: readonly ResolvedSegment[], items: readonly ResolvedItem[]): ResolvedAudio[] => {
+interface ClipSound { sound: ResolvedAudio; fixed: boolean; speech: [number, number][]; carried?: true }
+
+/**
+ * The footage's own sound of every base and video item. "audio" gives its gain, false none. Without "audio": under a
+ * bed the bed carries the sound; else a clip made with speech always sounds (its person is heard), and another clip
+ * sounds unless a sound of the project's own (an audio track without a role) lies over it. It plays at the footage's
+ * speed.
+ */
+const clipSounds = (ctx: Ctx, segments: readonly ResolvedSegment[], items: readonly ResolvedItem[], tracks: readonly TrackSound[]): ClipSound[] => {
   const fromBases = segments.flatMap((s, k) => {
     const spec = ctx.project.segments[k]?.base;
     return s.base.kind === 'video' && spec && 'material' in spec ? [{ id: s.id, spec: spec as FootageSpec, play: s.base.play, end: s.end }] : [];
   });
-  // A project with a sound of its own (a voice-over, music) keeps footage silent unless a use says otherwise.
-  const ownSound = ctx.project.tracks.some((t) => t.type === 'audio' && !t.bed);
+  // A sound of the project's own (an audio track that is neither a bed nor a layer of the mix) keeps footage silent unless a use says otherwise.
+  const ownSound = tracks.some((t) => !t.bed && !t.role);
   // Under a bed (the sound of a clip running on under the shots cut from it) those shots do not sound a second time.
-  const beds = ctx.project.tracks.flatMap((t) => { const s = t.type === 'audio' && t.bed ? (t.during ? spanFrames(ctx.tl, t.during) : wholeVideo(ctx.tl)) : undefined; return s ? [s] : []; });
+  const beds = tracks.filter((t) => t.bed).map((t) => ({ start: t.sound.start, end: t.sound.end ?? ctx.tl.total }));
   const bedded = (frame: number): boolean => beds.some((s) => frame >= s.start && frame < s.end);
   const byId = new Map(items.map((it) => [it.id, it] as const));
   const fromItems = ctx.project.tracks.flatMap((t) => {
     const it = byId.get(t.id);
     return t.type === 'video' && it?.play ? [{ id: t.id, spec: t as FootageSpec, play: it.play, end: it.end }] : [];
   });
-  return [...fromBases, ...fromItems].flatMap((u): ResolvedAudio[] => {
-    const gain = u.spec.audio ?? (ownSound || bedded(u.play.start) ? false : 0);
+  return [...fromBases, ...fromItems].flatMap((u): ClipSound[] => {
     const facts = factsOf(ctx, u.play.material);
-    if (gain === false || !facts.hasAudio) return [];
+    const use = { start: u.play.start, end: u.end, inSeconds: u.play.in / facts.fps, speed: u.play.speed };
+    const speech = (facts.speech ?? []).flatMap((line) => { const span = heardSpan(line, use, ctx.fps); return span ? [span] : []; });
+    const carried = u.spec.audio === undefined && bedded(u.play.start);
+    const gain = u.spec.audio ?? (carried ? false : speech.length ? 0 : ownSound ? false : 0);
+    if (!facts.hasAudio || (gain === false && !(carried && speech.length))) return [];
     const src = materialSrc(material(ctx, u.play.material));
-    return [{ id: u.id + '.audio', src, start: u.play.start, end: u.end, gain, from: { frame: u.play.in, fps: facts.fps }, ...(u.play.speed !== 1 ? { speed: u.play.speed } : {}) }];
+    return [{ sound: { id: u.id + '.audio', src, start: u.play.start, end: u.end, gain: gain === false ? 0 : gain, from: { frame: u.play.in, fps: facts.fps }, ...(u.play.speed !== 1 ? { speed: u.play.speed } : {}) }, fixed: u.spec.audio !== undefined, speech, ...(gain === false ? { carried: true as const } : {}) }];
   });
+};
+
+/**
+ * The sound of the timeline, in layers (mix.ts). A clip in which a person speaks is heard at its level and gives way
+ * to nothing. Every other clip's own sound, and a bed, gives way to the lines of the voice-over and to the lines other
+ * clips say; music (an audio track with that role) gives way to every speech. A level a fill or a track fixes itself
+ * ("audio", "gain") stays as it is.
+ */
+const mixedAudio = (ctx: Ctx, segments: readonly ResolvedSegment[], items: readonly ResolvedItem[]): Pick<Resolved, 'audio' | 'speech'> => {
+  const tracks = trackSounds(ctx);
+  const clips = clipSounds(ctx, segments, items, tracks);
+  const voice = joinSpans(tracks.flatMap((t) => t.lines));
+  const dialogue = clips.filter((c) => c.speech.length).map((c) => ({ id: c.sound.id, spans: joinSpans(c.speech) }));
+  const under = (spans: readonly (readonly [number, number])[], a: ResolvedAudio): ResolvedAudio => {
+    const duck = duckOf(spans.filter(([s, e]) => e > a.start && s < (a.end ?? ctx.tl.total)), ctx.fps);
+    return duck ? { ...a, duck } : a;
+  };
+  const saidBy = (not?: string): [number, number][] => dialogue.filter((d) => d.id !== not).flatMap((d) => d.spans);
+  const fromTracks = tracks.map((t) => {
+    const speaks = t.bed && (factsOf(ctx, t.material).speech?.length ?? 0) > 0;
+    if (t.fixed || t.role === 'voice' || speaks || !(t.role === 'music' || t.bed)) return t.sound;
+    return under([...voice, ...saidBy()], t.sound);
+  });
+  const fromClips = clips.filter((c) => !c.carried).map((c) => (c.fixed || c.speech.length ? c.sound : under([...voice, ...saidBy(c.sound.id)], c.sound)));
+  const heard = voice.length || dialogue.length ? { speech: { voice, dialogue } } : {};
+  return { audio: [...fromTracks, ...itemSounds(ctx, items), ...fromClips], ...heard };
 };
 
 /** The video materials the timeline shows, with their source rate and length. */
@@ -170,7 +215,7 @@ export const resolve = (project: Project, footage: FootageTable = {}, words: Wor
     frames: ctx.tl.total,
     segments,
     items,
-    audio: [...resolveAudio(ctx, items), ...footageAudio(ctx, segments, items)],
+    ...mixedAudio(ctx, segments, items),
     footage: footageTable(ctx, segments, items),
     fonts: project.materials.flatMap((m) => (m.kind === 'font' && m.file ? [{ family: m.id, src: materialSrc(m) }] : [])),
     ...(heard.length ? { words: heard } : {}),
