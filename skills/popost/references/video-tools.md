@@ -266,8 +266,10 @@ charged (0 when it was paid before) and its request key.
 - **Failures** print one line on stderr and exit with 1 (2: the setup or the request needs fixing): no account
   connected, video generation not available for the account (`VIDEO_GENERATION_DISABLED`), not enough credits, a
   setting the model does not take (`VIDEO_OPTION_UNSUPPORTED`; frames together with references are refused before
-  anything is sent), content rejected (`CONTENT_REJECTED`, refunded), or
-  still being made after `POPOST_GEN_WAIT_MIN` (run the same command again later).
+  anything is sent), content rejected (`CONTENT_REJECTED`, refunded; the same request would be refused again, so
+  change the prompt or the reference pictures first, for example leave out the names of brands, characters and
+  well-known works), a failure of the service (`UPSTREAM_ERROR`, refunded; the same request may be sent again later),
+  or still being made after `POPOST_GEN_WAIT_MIN` (run the same command again later).
 
 ## Collecting a source
 

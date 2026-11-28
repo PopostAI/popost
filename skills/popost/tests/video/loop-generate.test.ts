@@ -77,6 +77,21 @@ describe('generate: making materials', () => {
     expect(r.problems[0]?.message).toContain('over the spending limit');
     expect(existsSync(path.join(dir, 'assets', 'a.png'))).toBe(false);
     expect(JSON.parse(await readFile(path.join(dir, 'materials.json'), 'utf8'))).toEqual({ 'assets/b.png': 'a green field' });
+    expect(r.problems[0]?.fix).toContain('Run the command again to make only what is missing');
+  });
+
+  it('asks for a changed request, not the same one again, when its content was refused', async () => {
+    const dir = path.join(root, 'refused');
+    const refusing: Generator = {
+      make: async () => {
+        throw new Error('The clip could not be made: The content did not pass popost.ai moderation [CONTENT_REJECTED]. Its credits were refunded');
+      },
+    };
+    const r = await makeMaterials(rt, { requests: [{ file: 'assets/a.png', prompt: 'a cartoon mouse' }], dir, generator: refusing });
+    expect(r.problems).toHaveLength(1);
+    expect(r.problems[0]?.fix).toContain('the same request would be refused again');
+    expect(r.problems[0]?.fix).toContain('Change the prompt or the reference pictures of this request');
+    expect(r.problems[0]?.fix).not.toContain('make only what is missing');
   });
 
   it.skipIf(!ffmpeg)('measures a clip it made', async () => {

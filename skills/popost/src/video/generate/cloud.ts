@@ -417,11 +417,18 @@ const waitFor = async (rt: Runtime, client: PopostClient, first: Task, minutes: 
   return task;
 };
 
+/** What to do after a failed clip: a refused request is changed before it is sent again; any other may be sent as it is. */
+const NEXT_AFTER: Readonly<Record<string, string>> = {
+  CONTENT_REJECTED:
+    'the same request would be refused again, so change its prompt or its reference pictures before asking for the clip again: for example, leave out the names of brands, characters and well-known works, and pictures of them.',
+};
+
 const ended = (task: Task): GenerateError => {
   if (task.status === 'expired')
     return new GenerateError('The clip of task ' + task.id + ' was kept 7 days on popost.ai and has been deleted. Run the command again to make it again (it is priced again).');
   const code = text(task.error?.code) ?? 'GENERATION_FAILED';
-  return new GenerateError('The clip could not be made: ' + describeError(code, task.error?.message) + '. Its credits were refunded; running the command again makes a new attempt, priced again.');
+  const next = NEXT_AFTER[code] ?? 'running the command again makes a new attempt, priced again.';
+  return new GenerateError('The clip could not be made: ' + describeError(code, task.error?.message) + '. Its credits were refunded; ' + next);
 };
 
 const fetchClip = async (rt: Runtime, client: PopostClient, done: Task, out: string): Promise<void> => {

@@ -214,10 +214,21 @@ describe('popost video generate fails with one line on stderr and a non-zero exi
     const r = await generate(rt, 'video', req, '/work/out.mp4');
     expect(r.code).toBe(1);
     expect(oneLine(r.stderr)).toMatch(/moderation.*the prompt was flagged.*\[CONTENT_REJECTED\].*refunded/);
+    // the same request would be refused again: it is changed first, not sent again as it is
+    expect(oneLine(r.stderr)).toContain('the same request would be refused again, so change its prompt or its reference pictures');
+    expect(oneLine(r.stderr)).not.toContain('running the command again makes a new attempt');
     api.failWith = null;
     expect((await generate(rt, 'video', req, '/work/out.mp4')).code).toBe(0);
     const keys = stub.calls('POST', '/videos/generations').map((c) => c.json?.idempotencyKey);
     expect(keys).toEqual([keys[0], keys[0] + '.2']);
+  });
+
+  it('when the service failed; the same request may be sent again', async () => {
+    const { rt, api } = await scene({ POPOST_GEN_MAX_CREDITS: '100' });
+    api.failWith = { code: 'UPSTREAM_ERROR', message: 'The service is temporarily unavailable.' };
+    const r = await generate(rt, 'video', await request(rt, { prompt: 'a desk', seconds: 5 }), '/work/out.mp4');
+    expect(r.code).toBe(1);
+    expect(oneLine(r.stderr)).toMatch(/\[UPSTREAM_ERROR\].*refunded; running the command again makes a new attempt/);
   });
 
   it('for a request it cannot read, and a reference that is not what its list says', async () => {

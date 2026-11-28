@@ -381,6 +381,15 @@ const lastFrameOf = async (rt: Runtime, dir: string, clip: string): Promise<stri
 };
 
 /**
+ * The advice for a material that could not be made. A refusal of its content (the built-in generator's message ends
+ * its reason with [CONTENT_REJECTED]) comes back for the same request: the request has to change, not be sent again.
+ */
+const afterFailure = (message: string): string =>
+  message.includes('[CONTENT_REJECTED]')
+    ? 'Its content was refused, and the same request would be refused again (it cost nothing). Change the prompt or the reference pictures of this request (for example, leave out the names of brands, characters and well-known works, and pictures of them), then run the command again.'
+    : 'Read the message; a request that was refused cost nothing. Run the command again to make only what is missing.';
+
+/**
  * Makes every requested material that does not exist yet, one after another, and records what each shows. A request
  * that fails is reported and the others go on: what was made stays made.
  *
@@ -530,7 +539,7 @@ export const makeMaterials = async (rt: Runtime, o: { requests: MaterialRequest[
       ? m.confirm.reason === 'unplanned'
         ? error(m.file, 'It was not made: it is not one of the clips the user agreed to (a new clip, a regeneration or variant, or a changed request), and it costs ' + m.confirm.credits + ' credits. Nothing was charged.', 'Show the user the clip, why it is needed and its price. Only after a yes, run again with --approve-unplanned ' + (m.confirm.clip?.key ?? '<key>') + '.')
         : error(m.file, 'It was not made: it costs ' + m.confirm.credits + ' credits, and the user has not agreed to that price. Nothing was charged.', 'Show the user the price (confirm has the total). Only after they agree, or when it fits what is left of the agreed budget, run again with --confirm --max-credits N.')
-      : error(m.file, 'It could not be made: ' + m.error, 'Read the message; a request that was refused cost nothing. Run the command again to make only what is missing.' + (source && m.file !== anchorFile && takesAnchor(o.requests.find((r) => r.file === m.file) as MaterialRequest) ? ' It was sent with the anchor picture as a reference picture: a generator that takes none needs --no-anchor.' : '')),
+      : error(m.file, 'It could not be made: ' + m.error, afterFailure(m.error ?? '') + (source && m.file !== anchorFile && takesAnchor(o.requests.find((r) => r.file === m.file) as MaterialRequest) ? ' It was sent with the anchor picture as a reference picture: a generator that takes none needs --no-anchor.' : '')),
   );
   const held = materials.filter((m) => m.waiting && !m.confirm).map((m) =>
     error(m.file, 'It was not sent: it waits for ' + m.waitsFor + ' (' + why(m) + '), and that clip is not there' + (materials.some((x) => x.file === m.waitsFor && !x.error && !x.waiting) ? ' as a file a frame can be read from' : '') + '. Nothing was charged for it.',
