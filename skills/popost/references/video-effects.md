@@ -46,29 +46,29 @@ Ported entries come from the registry of [HyperFrames](https://github.com/heygen
 | `blur-in` | An Operator Black word-level content reveal that resolves its own text from controlled blur | 4 | gsap | fit, size, tone, align | tick 0.3 |
 | `blur-out-up` | Words arrive clean and depart upward with increasing blur for airy exits. | 5 | gsap | fit, direction, distance, blur, tone | tick 0.5 |
 | `bottom-up-letters` | Splits text into letters and reveals each glyph from below with deterministic staggered timing | 1.33 | gsap | fit, unit, direction, travel | tick 0.45 |
-| `echo-smear` | Distance-adaptive streak — records each element's real trajectory (position, rotation, scale, opacity), then trails time-offset copies behind it in proportion to its speed, comb... | 5 | gsap | fit | tick 0 |
+| `echo-smear` | Distance-adaptive streak — records each element's real trajectory (position, rotation, scale, opacity), then trails time-offset copies behind it in proportion to its speed, comb... | 5 | gsap | fit | tick 0.233 |
 | `headline-slam` | A heavyweight headline scales down into frame, lands with a deterministic three-frame shake, holds with subtle drift, and whips upward on exit. | 3.5 | gsap | fit, text, accent_word_index, accent, shadow | impact 0 |
 | `matrix-decode` | Random scramble resolves left-to-right into the target text. | 5 | gsap | fit, text, accent, size, glow | tick 0.5 |
 | `mk-emphasis-type` | Oversized low-contrast background word drifting slowly behind the subject — typography as texture | 3.98 | gsap | fit | type 0.3 |
 | `notes-typing` | The notes-app confession as a mountable scene: a bold title, then body lines typed character by character on the measured human keystroke rhythm, the caret riding every landed c... | 10 | gsap | fit, title, lines, speed | type 0 |
-| `per-word-crossfade` | Words gently fade into place with a short vertical drift for calm keynote rhythm. | 5 | gsap | fit, text, drift, blur, tone | tick 0.5 |
+| `per-word-crossfade` | Words gently fade into place with a short vertical drift for calm keynote rhythm. | 5 | gsap | fit, text, drift, blur, tone | tick 0.6 |
 | `per-word-rise` | Words or characters rise into place in a controlled blur-to-sharp cascade, settle softly on landing, and hold still until the cut (optional fade or up exit). | 1.36 | gsap | fit, text, split, cues, accent, exit | tick 0 |
 | `shimmer-sweep` | Animated light sweep across text or elements using a CSS gradient mask — ideal for AI accents and premium reveals | 4.7 | gsap | fit | shimmer 0.3 |
-| `slot-machine-roll` | A vertical reel scrolls characters from one value to another. | 5 | gsap | fit, result, direction, size, tone | tick 0.5 |
+| `slot-machine-roll` | A vertical reel scrolls characters from one value to another. | 5 | gsap | fit, result, direction, size, tone | tick 0.6 |
 | `soft-blur-in` | A soft opacity, blur, and lift reveal for headlines, captions, and product UI callouts | 1.39 | gsap | fit, distance, direction, blur | tick 0.35 |
 | `stagger-cascade` | A responsive grid of tile cards that fades and travels into place with an evenly spaced per-item GSAP stagger. The ordered cascade is the only visual mechanic. | 4 | gsap | fit, itemCount, stagger, direction | tick 0.1 |
 | `stagger-lattice` | A staggered grid reveal inspired by Anime.js v4 stagger utilities, implemented with GSAP for HyperFrames. | 5 | gsap | fit | tick 0.5 |
 | `staggered-fade-up` | Words fade in and slide up one after another with configurable delay. | 5 | gsap | fit, direction, distance, tone, words | tick 0.4 |
 | `streaming-text` | Words arrive the way an AI answer streams - in uneven bursts on a measured token rhythm, each word landing grey and inking to full colour - rather than the even tick of a typewr... | 5.5 | gsap | fit, size, tone | type 0.8 |
 | `strikethrough-replace` | Draw a strike line across old text, then reveal the replacement. | 5 | gsap | fit, origin, thickness, tint, tone | whoosh 0.5 |
-| `text-shimmer` | A static headline receives one clean specular gradient sweep through its glyphs, then returns to its ordinary text color. | 3 | gsap | fit, text, accent, sweep_at | shimmer 0.8 |
+| `text-shimmer` | A static headline receives one clean specular gradient sweep through its glyphs, then returns to its ordinary text color. | 3 | gsap | fit, text, accent, sweep_at | shimmer 1 |
 | `text-stagger` | A transitions.dev-inspired text stagger primitive with enter, shimmer, and exit-ready words | 5 | gsap | fit, text, size, tone, accent | tick 0.35 |
 | `top-down-letters` | Letters descend from above in a pronounced staircase with zero blur. | 5 | gsap | fit, text, distance, tone | tick 0.5 |
 | `tracking-in` | A precise letter-spacing reveal for premium headings and interface labels | 1.51 | gsap | fit, tracking, rise, tone | tick 0.45 |
 | `typed-prompt` | A prompt line types itself in chunked human cadence behind a deterministic blinking caret, with optional backspace-and-retype correction of the final word. | 3.7 | gsap | fit, text, prompt_glyph, cadence, caret, correction, cues, accent, +1 | type 0 |
 | `typewriter` | Character-by-character text reveal with a deterministic blinking cursor. | 5 | gsap | fit, text, tone, caret | type 0.5 |
 | `typing-indicator` | The three-dot chat bubble that says someone is writing: it pops in at the thread's edge exactly as messaging apps do, holds while the reply is coming, and vanishes when the mess... | 4.5 | gsap | fit, size, tone, tail | type 0.7 |
-| `variable-font-flex` | A word lands while its variable-font weight and width axes flex from hairline-condensed to black-wide with per-character stagger; font-size eases inversely so the letterforms ga... *Stand-ins: 1 CSS picture as a gradient.* | 3.5 | gsap | fit, text, axis, stagger, accent, exit | tick 0 |
+| `variable-font-flex` | A word lands while its variable-font weight and width axes flex from hairline-condensed to black-wide with per-character stagger; font-size eases inversely so the letterforms ga... *Stand-ins: 1 CSS picture as a gradient.* | 3.5 | gsap | fit, text, axis, stagger, accent, exit | tick 0.167 |
 | `kinetic-type` | A line of type that arrives piece by piece: by word, by character or by line, each piece rising, dropping, sharpening out of a blur, scaling, popping or slamming in. The line la... | 2.6 | motion | text, by, enter, each, order, size, color, accent, +2 | tick 0.2 |
 | `slam-title` | A title slams in from large on an accelerating ease, the frame flashes white on the landing frame, the ground shakes and a ring spreads; then the title stays dead still while st... | 2.2 | motion | title, from, duration, flash, shake, ring, color, ground, +2 | whoosh 0.2; impact 0.42 |
 | `type-on` | Text that is typed character by character with a cursor, or that settles out of changing characters from left to right. The typing has a cue every third character; the decode on... | 2.6 | motion | text, mode, cps, cursor, font, size, seed, color, +2 | type 0.2, 0.388, 0.575, 0.763, ... |
@@ -92,13 +92,13 @@ Ported entries come from the registry of [HyperFrames](https://github.com/heygen
 | `caption-pill-karaoke` | Pill-shaped container with per-word karaoke color highlight *Stand-ins: web fonts are replaced by the fonts of the machine.* | 8 | gsap | fit | tick 0.25 |
 | `caption-weight-shift` | Elegant font-weight transition between caption lines *Stand-ins: web fonts are replaced by the fonts of the machine.* | 8 | gsap | fit | tick 0 |
 | `lt-accent-underline` | Cardless lower third for footage overlay: name rises, an accent rule draws left-to-right, role fades in; text-shadowed for legibility | 4.75 | gsap | fit | draw 0.1 |
-| `lt-bold-block` | High-energy podcast lower third: solid dark block wipes in, uppercase name slams up, accent tag pops | 4.75 | gsap | fit | swish 0.1, 4.3 |
+| `lt-bold-block` | High-energy podcast lower third: solid dark block wipes in, uppercase name slams up, accent tag pops | 4.75 | gsap | fit | swish 0.1, 4.433 |
 | `lt-clean-bar` | Minimal white-card lower third for podcasts/interviews: accent tab, name + role, clip-wipe entrance | 4.75 | gsap | fit | swish 0.1 |
 | `lt-color-block` | High-energy lower third: bold accent-color block slides in with overshoot, condensed name + mono role | 4.75 | gsap | fit | tick 0.1 |
 | `lt-dark-card` | Charcoal card lower third for bright footage: name, drawn accent underline, role; slide-up entrance | 4.75 | gsap | fit | tick 0.1 |
 | `lt-kicker-name` | Cardless lower third with an accent eyebrow/kicker tag, heavy name, and a drawn baseline; for footage | 4.75 | gsap | fit | tick 0.1 |
-| `lt-mask-reveal` | Cardless lower third: an accent sweep crosses and clip-path-reveals a heavy name, role fades up; for footage | 4.75 | gsap | fit | whoosh 0.12; swish 0.16, 4.3 |
-| `lt-neon-border` | Two arcs of light travel the edge of a rounded panel and snap corner to corner, trailing a soft three-layer bloom. A lower third for a name and role. | 4.8 | gsap | fit, name, role, accent, movement, speed, cornerRadius, thickness, +2 | tick 0 |
+| `lt-mask-reveal` | Cardless lower third: an accent sweep crosses and clip-path-reveals a heavy name, role fades up; for footage | 4.75 | gsap | fit | whoosh 0.12; swish 0.16, 4.4 |
+| `lt-neon-border` | Two arcs of light travel the edge of a rounded panel and snap corner to corner, trailing a soft three-layer bloom. A lower third for a name and role. | 4.8 | gsap | fit, name, role, accent, movement, speed, cornerRadius, thickness, +2 | tick 0.1 |
 | `lt-side-rule` | Cardless lower third with a vertical accent bar; condensed display name + mono role, text-shadowed for footage | 4.75 | gsap | fit | tick 0.1 |
 | `lt-soft-pill` | Rounded white pill lower third for podcasts/interviews: status dot, name + role, scale-pop entrance | 4.75 | gsap | fit | tick 0.1 |
 | `lt-stack-bars` | Two stacked bars: a dark name bar wipes from the left, an accent role bar wipes from the right | 4.75 | gsap | fit | swish 0.1, 0.34, 4.25 |
@@ -109,32 +109,32 @@ Ported entries come from the registry of [HyperFrames](https://github.com/heygen
 |---|---|---|---|---|---|
 | `card-flip` | A 3D card flip: a card turns half a turn about its middle, in depth, from its front to its back. | 1.6 | - | x, y, width, height, radius, axis, toward, depth, +5 | none |
 | `folding-doors` | Folding doors: the old picture splits down the middle and its panels fold away to both sides in depth, showing the next picture behind them. | 1.7 | - | panels, axis, swing, depth, shade, duration, delay, ease | none |
-| `ascii-trail-reveal` | An authored S-curve sweeps through a deterministic ASCII grid, flipping cells away to reveal a labeled panel. | 4 | gsap | fit, label, accent, trail_width | whoosh 0 |
+| `ascii-trail-reveal` | An authored S-curve sweeps through a deterministic ASCII grid, flipping cells away to reveal a labeled panel. | 4 | gsap | fit, label, accent, trail_width | whoosh 0.367 |
 | `beat-freeze-cut` | A beat-driven speed ramp, freeze-frame hit, and hard-cut sequence for music-led promos and montages. *Stand-ins: web fonts are replaced by the fonts of the machine.* | 6 | gsap | fit | whoosh 3, 3.16 |
 | `before-after-wipe` | Two full-bleed content slots compare before and after states as a persistent divider wipes the after layer over the before layer and rests at a configurable split. Callers fill ... | 1.85 | gsap | fit, label_a, label_b, rest_split, wipe_at, accent, exit | whoosh 0 |
 | `chromatic-radial-split` | Shader transition with chromatic aberration radial split *Stand-ins: web fonts are replaced by the fonts of the machine.* | 4 | gsap | fit | whoosh 0 |
-| `code-shader-dissolve` | The code compiles into existence: a GPU fragment shader resolves it out of seeded noise with a chromatic dissolve front and edge glow, then holds crisp. | 7 | gsap, three | fit | type 0 |
-| `colorama-wipe` | Headline reveal through a feathered, leaning wipe front that is blurred and colour-mapped as it passes, then settles to clean type and wipes off again — the After Effects masked... | 3.6 | gsap | fit | whoosh 0.25 |
+| `code-shader-dissolve` | The code compiles into existence: a GPU fragment shader resolves it out of seeded noise with a chromatic dissolve front and edge glow, then holds crisp. | 7 | gsap, three | fit | type 0.567 |
+| `colorama-wipe` | Headline reveal through a feathered, leaning wipe front that is blurred and colour-mapped as it passes, then settles to clean type and wipes off again — the After Effects masked... | 3.6 | gsap | fit | whoosh 0.633 |
 | `comparison-split` | Two full-bleed panels compare before and after states as a persistent divider wipes the vivid after layer over the muted before layer and rests at a configurable split. | 4 | gsap | fit, split, orientation, labelA, labelB | whoosh 0 |
 | `constellation-hub` | Feature nodes brighten in narration order as real-length SVG connectors draw outward from a fixed central hub, then settle into one lockup. | 4.26 | gsap | fit, hub_label, nodes, cues, accent, exit | draw 0.34, 0.66, 0.98, 1.3, ... |
-| `curtain-reveal` | Two pleated stage curtains gather outward from center, the way real velvet bunches at the tieback, revealing the stage underneath. A static pelmet frames the top; a soft spotlig... | 2.4 | gsap | fit, tone, pelmet, spotlight | whoosh 0 |
+| `curtain-reveal` | Two pleated stage curtains gather outward from center, the way real velvet bunches at the tieback, revealing the stage underneath. A static pelmet frames the top; a soft spotlig... | 2.4 | gsap | fit, tone, pelmet, spotlight | whoosh 0.1 |
 | `cut-the-curve` | A velocity-matched directional hard cut: the outgoing subject accelerates with power4.in, swaps at peak velocity, and the incoming subject continues in the same direction with p... | 1 | gsap | fit, subject, direction, cutFraction, blurPx, exit | whoosh 0 |
-| `domain-warp-dissolve` | Shader transition with fractal noise domain warping *Stand-ins: web fonts are replaced by the fonts of the machine.* | 4 | gsap | fit | whoosh 0 |
-| `extended-keyframe` | The never-fully-lands arrival: an element covers most of its move in the first fifth of the duration and creeps the rest to the last frame, exits along its arrival vector, and c... | 4.75 | gsap | fit | whoosh 1.75, 3.75 |
+| `domain-warp-dissolve` | Shader transition with fractal noise domain warping *Stand-ins: web fonts are replaced by the fonts of the machine.* | 4 | gsap | fit | whoosh 1.367 |
+| `extended-keyframe` | The never-fully-lands arrival: an element covers most of its move in the first fifth of the duration and creeps the rest to the last frame, exits along its arrival vector, and c... | 4.75 | gsap | fit | whoosh 1.9, 3.9 |
 | `fade-through` | A calm transition primitive that fades one layer out, passes through a wash, and reveals the next layer | 2.2 | gsap | fit, wash, strength, shape | whoosh 1.3 |
-| `flash-through-white` | Shader transition with white flash crossfade *Stand-ins: web fonts are replaced by the fonts of the machine.* | 4 | gsap | fit | whoosh 0 |
+| `flash-through-white` | Shader transition with white flash crossfade *Stand-ins: web fonts are replaced by the fonts of the machine.* | 4 | gsap | fit | whoosh 1.433 |
 | `focus-swap` | Moves attention between two side-by-side cards as one recedes with scale, blur, and dimming while the other advances to full focus. | 0.9 | gsap | fit, focus, blurPx, dim | whoosh 0.2 |
 | `glitch` | Shader transition with digital glitch artifacts *Stand-ins: web fonts are replaced by the fonts of the machine.* | 4 | gsap | fit | glitch 0 |
-| `gravitational-lens` | Shader transition with gravitational lensing distortion *Stand-ins: web fonts are replaced by the fonts of the machine.* | 4 | gsap | fit | whoosh 0 |
-| `grid-pixelate-wipe` | Transition effect where the screen dissolves into a grid of squares that fade out with staggered timing — use between scenes | 7.3 | gsap | fit | whoosh 2 |
-| `halftone-dissolve` | Scene A dissolves into scene B through a growing halftone dot field: accent ink dots pop onto a fixed grid smallest-first, each opens into a window onto B, until the windows mer... | 3.5 | gsap | fit, dot_size, direction, dissolve_at, accent, exit | whoosh 0 |
-| `hw-scribble-transition` | Overlay transition, scribble bands accumulate to cover the frame with a solid backstop, the host cuts beneath, and the scribble clears | 2.17 | gsap | fit | draw 0, 1.63; type 1.42, 1.53 |
+| `gravitational-lens` | Shader transition with gravitational lensing distortion *Stand-ins: web fonts are replaced by the fonts of the machine.* | 4 | gsap | fit | whoosh 1 |
+| `grid-pixelate-wipe` | Transition effect where the screen dissolves into a grid of squares that fade out with staggered timing — use between scenes | 7.3 | gsap | fit | whoosh 2.133 |
+| `halftone-dissolve` | Scene A dissolves into scene B through a growing halftone dot field: accent ink dots pop onto a fixed grid smallest-first, each opens into a window onto B, until the windows mer... | 3.5 | gsap | fit, dot_size, direction, dissolve_at, accent, exit | whoosh 1.033 |
+| `hw-scribble-transition` | Overlay transition, scribble bands accumulate to cover the frame with a solid backstop, the host cuts beneath, and the scribble clears | 2.17 | gsap | fit | draw 0.133, 1.433; type 1.42, 1.53 |
 | `icon-swap` | A scale-and-blur icon swap primitive for toolbar and action state changes | 5 | gsap | fit, tone, size, shape, blur | whoosh 0.5 |
 | `ink-bleed-reveal` | Liquid ink blooms through paper under a gooey blur-plus-threshold filter, merges, then contracts as a crisp slotted mark resolves beneath it, with static seeded paper grain ridi... | 4 | gsap | fit, blobs, accent, exit | draw 0 |
 | `iris-reveal` | A circle clip-path opens from an authored origin revealing state B over state A in one confident pass, then holds on B. Classic register dims and desaturates the before state so... | 1.7 | gsap | fit, iris_x, iris_y, open_at, register, accent, exit | whoosh 0 |
-| `kinetic-type-swap` | A held sentence keeps its fixed text in place while one widest-word masked slot rolls through alternatives and settles on the final option. | 3.25 | gsap | fit, prefix, options, suffix, cues, accent, exit | whoosh 0.48, 1.61 |
+| `kinetic-type-swap` | A held sentence keeps its fixed text in place while one widest-word masked slot rolls through alternatives and settles on the final option. | 3.25 | gsap | fit, prefix, options, suffix, cues, accent, exit | whoosh 0.567, 1.7 |
 | `line-by-line-slide` | Each line enters from the left with staggered slide and exits to the right. | 5 | gsap | fit, size, tone, density, direction | whoosh 0.5 |
-| `line-swap` | A masked full-line beat replacement: line A holds center then exits up through an overflow-hidden mask as line B enters bottom-up on the same beat, with an optional accent under... | 2.62 | gsap | fit, line_a, line_b, swap_at, underline_word, accent, exit | whoosh 0, 1.3, 1.52; swish 2.17 |
+| `line-swap` | A masked full-line beat replacement: line A holds center then exits up through an overflow-hidden mask as line B enters bottom-up on the same beat, with an optional accent under... | 2.62 | gsap | fit, line_a, line_b, swap_at, underline_word, accent, exit | whoosh 0.1, 1.3, 1.52; swish 1.667 |
 | `match-cut` | A circle accelerates into a hard single-frame scene swap, matches the incoming circle exactly, and continues into a smaller resting pose. | 4 | gsap | fit, accent, label_a, label_b | whoosh 0 |
 | `micro-transitions` | A transitions.dev-inspired pack of badge, dropdown, modal, tabs, tooltip, and success-check micro transitions | 3.74 | gsap | fit, badge, tooltip, tone, travel | whoosh 0.55 |
 | `mk-clone-wall-transition` | Overlay transition, a tiled word wall covers the frame, inverts via difference blending, and clears — hard-cut the content beneath while covered | 2.36 | gsap | fit | whoosh 0.2 |
@@ -147,15 +147,15 @@ Ported entries come from the registry of [HyperFrames](https://github.com/heygen
 | `pendulum-swing` | Content hangs from a fixed pivot and swings into rest with gravity-damped oscillation, like a hanging sign settling on its hook. | 5 | gsap | fit, pivot, amplitude, direction, tone | whoosh 0.4 |
 | `physical-exit` | A card exits with physical momentum in toss, drop, or slide mode, carrying acceleration and rotation through the final offscreen pose without fading. | 3 | gsap | fit, mode, text, accent | whoosh 0 |
 | `pull-back-reveal` | A tight stat detail holds, then one decelerating camera pull-back reveals the headline and supporting cards that recontextualize it. | 4.5 | gsap | fit, detail_text, headline, accent | whoosh 0.55 |
-| `ridged-burn` | Shader transition with ridged turbulence burn effect *Stand-ins: web fonts are replaced by the fonts of the machine.* | 4 | gsap | fit | whoosh 0 |
+| `ridged-burn` | Shader transition with ridged turbulence burn effect *Stand-ins: web fonts are replaced by the fonts of the machine.* | 4 | gsap | fit | whoosh 1 |
 | `ripple-waves` | Shader transition with concentric ripple wave distortion *Stand-ins: web fonts are replaced by the fonts of the machine.* | 4 | gsap | fit | whoosh 0 |
 | `rubber-band-bumper` | An outgoing panel pulls against increasing resistance, holds at tension, then snaps past an edge with overshoot as the incoming panel settles behind it. | 2.35 | gsap | fit, direction, accent | whoosh 0 |
 | `scramble-reveal` | A deterministic hacker-style text reveal that cycles fixed glyph rows and locks the target string from left to right. | 2.7 | gsap | fit, text, accent, style, exit | glitch 0 |
-| `sdf-iris` | Shader transition with signed distance field iris reveal *Stand-ins: web fonts are replaced by the fonts of the machine.* | 4 | gsap | fit | whoosh 0 |
+| `sdf-iris` | Shader transition with signed distance field iris reveal *Stand-ins: web fonts are replaced by the fonts of the machine.* | 4 | gsap | fit | whoosh 1.1 |
 | `shared-axis-y` | Per-word vertical shared-axis transition for sharp editorial swaps. | 5 | gsap | fit, direction, distance, tone | whoosh 0.5 |
 | `shared-axis-z` | Scale-based shared-axis transition for focus shifts and context depth. | 5 | gsap | fit, direction, depth, tone | whoosh 0.5 |
-| `skeleton-reveal` | A skeleton loader transition that pulses, then cross-fades into content | 5 | gsap | fit, name, detail, tone | whoosh 0.5 |
-| `slit-scan-reveal` | The frame's rows sample an authored subject at offset times: a canvas painter draws row slices of one pure position function evaluated at t minus offset(row), smearing arrival t... | 4 | gsap | fit, axis, spread, resolve_at, accent, exit | whoosh 0 |
+| `skeleton-reveal` | A skeleton loader transition that pulses, then cross-fades into content | 5 | gsap | fit, name, detail, tone | whoosh 1.3 |
+| `slit-scan-reveal` | The frame's rows sample an authored subject at offset times: a canvas painter draws row slices of one pure position function evaluated at t minus offset(row), smearing arrival t... | 4 | gsap | fit, axis, spread, resolve_at, accent, exit | whoosh 0.8 |
 | `hf-spring-pop` | A badge pops in from a visible near-rest scale, overshoots full size once, and settles cleanly. | 0.6 | gsap | fit, overshoot, fromScale, text | pop 0 |
 | `sticky-mock-swap` | A pinned product mock cross-fades through accent-tinted feature states while matching captions rise, hold, and exit beside it. | 6 | gsap | fit, captions, accent | whoosh 0 |
 | `svg-mask-reveal` | A soft token-colored sweep reveals media only through an editable SVG wordmark mask. | 4 | gsap | fit, text, revealProgress, featherPx | whoosh 0.08 |
@@ -165,17 +165,17 @@ Ported entries come from the registry of [HyperFrames](https://github.com/heygen
 | `text-state-swap` | A text state swap primitive with outgoing blur and incoming lift | 5 | gsap | fit, from-text, to-text, distance, tone | whoosh 0.5 |
 | `thermal-distortion` | Shader transition with heat haze thermal distortion *Stand-ins: web fonts are replaced by the fonts of the machine.* | 4 | gsap | fit | whoosh 0 |
 | `torn-paper-rip` | A fibrous paper tear runs across the frame: the torn sheet shows its white paper core along the edge and lifts away on a soft shadow, leaving the next scene standing. *Stand-ins: 1 picture as slots (picture-1 ...) with a drawn stand-in.* | 1 | gsap | fit, direction, tone, roughness | whoosh 0 |
-| `transitions-blur` | Showcase of blur-based transitions between scenes | 19.3 | gsap | fit | tick 0.6, 9.15, 17.1; swish 3, 7.5, 12 |
+| `transitions-blur` | Showcase of blur-based transitions between scenes | 19.3 | gsap | fit | tick 0.6, 9.15, 17.1; swish 3.233, 7.5, 12 |
 | `transitions-cover` | Showcase of cover/uncover slide transitions | 19.2 | gsap | fit | whoosh 3, 4.99, 5.28, 8, ... |
-| `transitions-dissolve` | Showcase of dissolve and fade transitions | 23.8 | gsap | fit | tick 0.6, 21.6; swish 3, 7.5, 12, 16.5 |
+| `transitions-dissolve` | Showcase of dissolve and fade transitions | 23.8 | gsap | fit | tick 0.6, 21.6; swish 3.233, 7.5, 12, 16.5 |
 | `transitions-distortion` | Showcase of warp and distortion transitions | 20.9 | gsap | fit | tick 0.4, 0.8, 18.3, 18.7 |
 | `transitions-grid` | Showcase of grid-based tile transitions | 10.9 | gsap | fit | tick 0.4, 0.8, 8.3, 8.7 |
-| `transitions-light` | Showcase of light-based glow and flash transitions | 19.2 | gsap | fit | whoosh 5.05, 5.5, 15 |
-| `transitions-mechanical` | Showcase of mechanical shutter and iris transitions | 14.8 | gsap | fit | tick 0.6, 12.6; swish 3, 7.5, 9, 9.3, ...; whoosh 4.5 |
-| `transitions-other` | Showcase of miscellaneous creative transitions | 19.3 | gsap | fit | tick 0.6, 17.1; swish 3, 7.5, 12; whoosh 9 |
-| `transitions-push` | Showcase of push and slide transitions | 23.8 | gsap | fit | tick 0.6, 21.6; swish 3, 7.5, 12, 16.5, ...; whoosh 4.5, 9, 13.5 |
+| `transitions-light` | Showcase of light-based glow and flash transitions | 19.2 | gsap | fit | whoosh 5.2, 5.5, 15.2 |
+| `transitions-mechanical` | Showcase of mechanical shutter and iris transitions | 14.8 | gsap | fit | tick 0.6, 12.6; swish 3.233, 7.5, 9, 9.3, ...; whoosh 4.5 |
+| `transitions-other` | Showcase of miscellaneous creative transitions | 19.3 | gsap | fit | tick 0.6, 17.1; swish 3.233, 7.5, 12; whoosh 9 |
+| `transitions-push` | Showcase of push and slide transitions | 23.8 | gsap | fit | tick 0.6, 21.6; swish 3.233, 7.5, 12, 16.5, ...; whoosh 4.5, 9, 13.5 |
 | `transitions-radial` | Showcase of radial wipe and reveal transitions | 16.5 | gsap | fit | swish 3, 4.5, 5.05, 6.5, ... |
-| `transitions-scale` | Showcase of scale and zoom transitions | 14.8 | gsap | fit | tick 0.6, 12.6; swish 3, 7.5 |
+| `transitions-scale` | Showcase of scale and zoom transitions | 14.8 | gsap | fit | tick 0.6, 12.6; swish 3.233, 7.5 |
 | `whip-pan-cut` | A full-frame whip pan: scene A whips off laterally with capped directional motion blur while scene B enters in the same direction at matched velocity, on a speed-ramp profile wi... | 0.9 | gsap | fit, direction, whip_at, accent, exit | whoosh 0.35 |
 | `whip-pan` | Shader transition simulating a fast camera whip pan *Stand-ins: web fonts are replaced by the fonts of the machine.* | 4 | gsap | fit | whoosh 0 |
 | `object-reveal` | An object-led reveal: an object travels from start to end and the next picture opens behind it, then fills the frame. Set the values from the measured path of the reference (sho... | 2.3 | - | startX, startY, endX, endY, object, objectSize, objectLength, objectColor, +6 | none |
@@ -192,7 +192,7 @@ Ported entries come from the registry of [HyperFrames](https://github.com/heygen
 | `particle-image-reveal` | A seeded deterministic particle field converges and settles while a slotted image reveals beneath it, the trail thinning until the image holds clean. | 4 | gsap | fit, density, direction, accent, exit | swish 0.62 |
 | `particle-text-dissolve` | Text assembles from a seeded particle cloud (or dissolves into it): per-particle targets sampled once from the rendered text bitmap at mount, table-driven particles, zero per-pa... | 4 | gsap | fit, text, direction, density, accent, exit | swish 0.5 |
 | `starfield` | Seek-safe night-sky overlay: sparse or dense stars in three size tiers that twinkle and drift in two parallax layers, radial-masked to keep the frame center clear | 6 | gsap | fit, density, tone, speed | swish 0 |
-| `transitions-destruction` | Showcase of destructive break-apart transitions | 13.3 | gsap | fit | tick 0.6, 11.1; swish 3, 8 |
+| `transitions-destruction` | Showcase of destructive break-apart transitions | 13.3 | gsap | fit | tick 0.6, 11.1; swish 3.233, 8 |
 | `particle-burst` | A burst from a point: dots or stars that fly out, slow and fall; confetti that is thrown up, flutters and falls; sparks thrown one way; and a ring that spreads from the same poi... | 2.6 | motion | kind, x, y, count, speed, gravity, spread, angle, +5 | pop 0.2; shimmer 0.45 |
 
 ## 3D
@@ -207,7 +207,7 @@ Ported entries come from the registry of [HyperFrames](https://github.com/heygen
 | `split-tilt-cards` | Two equal-weight cards arrive from opposite wings with mirrored rotateY book-open tilts under one shared perspective, pill badges spring-pop at each inner edge, and the pair hol... | 4.15 | gsap | fit, label_a, label_b, badge_a, badge_b, accent, exit | swish 0 |
 | `tilt-card` | A transitions.dev-inspired tilt card primitive with depth layers and hover-style parallax | 5 | gsap | fit, eyebrow, headline, glow, accent | tick 0.3 |
 | `transitions-3d` | Showcase of 3D perspective flip and rotate transitions | 9.5 | gsap | fit | swish 3 |
-| `ui-3d-reveal` | Perspective 3D reveal animation for UI elements *Stand-ins: web fonts are replaced by the fonts of the machine.* | 13.3 | gsap | fit | draw 0, 7.9, 8.05, 8.2, ...; whoosh 7.3 |
+| `ui-3d-reveal` | Perspective 3D reveal animation for UI elements *Stand-ins: web fonts are replaced by the fonts of the machine.* | 13.3 | gsap | fit | draw 0.1, 7.9, 8.05, 8.2, ...; whoosh 7.3 |
 | `three-chrome-knot` | A polished metal knot (or ring) that turns and shows its surroundings in its surface: true 3D with reflections, lit by a drawn environment. For a glossy logo mark or an object a... | 4 | three | shape, roughness, metalness, spinX, spinY, distance, color, tint, +4 | shimmer 0.2 |
 | `three-clay` | Matte, rounded objects as if made of clay, on a soft floor under one large light: soft shadows, no gloss. They settle in one after another on a spring and then bob gently, each ... | 4 | three | objects, bob, each, seed, a, b, c, floorColor, +2 | pop 0.2, 0.34, 0.48, 0.62, ... |
 | `three-cube-wave` | A field of cubes that rise and fall as a wave travels through them from the middle, drawn as one instanced mesh, while the camera circles: depth, light and shadow that a flat dr... | 5 | three | grid, height, speed, length, orbit, elevation, color, peak, +2 | swish 0.2 |
@@ -236,7 +236,7 @@ Ported entries come from the registry of [HyperFrames](https://github.com/heygen
 
 | Name | What it shows | Seconds | Libraries | Parameters | Cues (seconds) |
 |---|---|---|---|---|---|
-| `counter-stat` | A figure counts up to its value on a long ease-out while a bar grows beside it, ticks while it runs and pops when it lands. The value is a slot: give the number of the new subject. | 2.4 | motion | value, label, prefix, suffix, decimals, separator, duration, ease, +5 | tick 0.2, 0.585, 0.9, 1.145, ...; pop 1.6 |
+| `counter-stat` | A figure counts up to its value on a long ease-out while a bar grows beside it, ticks while it runs and pops when it lands. The value is a slot: give the number of the new subject. | 2.4 | motion | value, label, prefix, suffix, decimals, separator, duration, ease, +5 | pop 0.2; tick 0.2, 0.585, 0.9, 1.145, ... |
 | `animated-bar-chart` | A compact data card with deterministic bar growth and value callouts. | 5 | gsap | fit | tick 0.5 |
 | `bar-chart-race` | Ranked bars grow and overtake each other as a time series advances, with the axis rescaling as values climb and the accent handing over to whoever leads | 10 | gsap | fit, title, subtitle, periods, series, barCount, periodDuration, valuePrefix, +3 | tick 0 |
 | `chart-story` | One chart builds from data in reading order and lands the exact supplied values: staggered bars, a left-to-right line with area fill, a sweeping donut, or filling progress bars,... | 4.7 | gsap | fit, type, data, labels, emphasize, unit, accent, exit | draw 0.15 |
@@ -250,12 +250,12 @@ Ported entries come from the registry of [HyperFrames](https://github.com/heygen
 | `mk-line-graph` | One or two SVG series draw on with dots popping and value labels riding the draw front; dim baseline axis, x-labels, color-dot legend | 6.98 | gsap | fit | draw 0.5, 0.85 |
 | `mk-progress-stat` | Big-numeral statistic with count-up, label, thin progress track filling to value/max, and caption; light and dark schemes | 6.98 | gsap | fit | tick 0.3 |
 | `mk-usage-arc` | Thin circular gauge that draws on while its percentage counts up; one helper call drives both | 3.98 | gsap | fit | draw 0.55 |
-| `news-ticker` | Premium broadcast-style lower-third ticker with live label, headline ribbon, and scrolling news crawl. | 6.96 | gsap | fit | swish 0.18; whoosh 0.34, 3.42 |
+| `news-ticker` | Premium broadcast-style lower-third ticker with live label, headline ribbon, and scrolling news crawl. | 6.96 | gsap | fit | swish 0.033; whoosh 0.34, 3.42 |
 | `number-pop-in` | A transitions.dev-inspired digit pop-in with blur, lift, and staggered value reveal | 5 | gsap | fit, value, unit, lift, tone | pop 0.5 |
 | `number-wheel` | A rolling digit counter primitive for metrics, prices, counts, and scoreboards | 2.09 | gsap | fit, spin, spacing, tone | tick 0.2 |
 | `star-rating-fill` | A token-driven star row whose colored layer sweeps to a rating, preserves the fractional final star, and can count the value in sync. | 4 | gsap | fit, rating, starCount, showValue | swish 0.2 |
 | `ticker-takeover` | A mono ticker rolls through options, locks on a final word with an accent flash, and promotes it into a full-frame headline. | 4.5 | gsap | fit, options, final_word, accent | tick 2.25 |
-| `us-map-hex` | Animated hexagonal tile grid map — each state as an equal-weight hex with data fill and abbreviation label *Stand-ins: web fonts are replaced by the fonts of the machine.* | 8.74 | gsap | fit | swish 0; pop 0.83 |
+| `us-map-hex` | Animated hexagonal tile grid map — each state as an equal-weight hex with data fill and abbreviation label *Stand-ins: web fonts are replaced by the fonts of the machine.* | 8.74 | gsap | fit | swish 0.1; pop 0.83 |
 
 ## UI mock-ups
 
@@ -264,7 +264,7 @@ Ported entries come from the registry of [HyperFrames](https://github.com/heygen
 | `ai-answer-rank` | Is your brand in the AI answer? A question types into a chat card, the assistant answers with a ranked list of three picks, then re-ranks: the promoted brand slides into its slo... | 9 | gsap | fit, prompt, lead, rowA, rowB, rowC, brand, brandRank, +3 | tick 0.1, 4.41, 4.57, 4.73, ...; pop 3.84, 7.11; draw 7.23 |
 | `app-showcase` | Fitness app product showcase with three floating smartphone screens *Stand-ins: web fonts are replaced by the fonts of the machine.* | 5.5 | gsap | fit | draw 1.8, 2 |
 | `avatar-cloud` | Lettermark avatars populate a loose elliptical cloud while fine SVG links draw between the community and its central proof label. | 5 | gsap | fit, avatarCount, showLinks, label | draw 1.02, 1.4; type 1.15 |
-| `card-resize` | A transitions.dev-inspired card resize primitive that expands a compact card into a detail panel | 5 | gsap | fit, surface, accent, elevation | tick 0.35, 0.82 |
+| `card-resize` | A transitions.dev-inspired card resize primitive that expands a compact card into a detail panel | 5 | gsap | fit, surface, accent, elevation | tick 0.533 |
 | `chat-message` | One message arrives on the measured entry - scale 0.75, 0.12s, growing from its sender's corner. The type is an enum switched like marker-highlight's style: a received or sent b... | 12 | gsap | fit, type, text, cardTitle, cardDomain, tail, delivered | swish 0.5 |
 | `chat-thread` | The measured conversation as one mountable scene at full fidelity: status bar, back badge, avatar and name pill, bubbles with real iMessage tails, a Delivered receipt, large emo... | 12 | gsap | fit, contact, unread, messages, beat, dots, receipt | whoosh 0.4, 2.1, 4.57, 5.5, ... |
 | `code-diff` | An edit shown as a colored diff — removed lines collapse in red, added lines expand in green. | 6 | gsap | fit | type 0 |
@@ -272,8 +272,8 @@ Ported entries come from the registry of [HyperFrames](https://github.com/heygen
 | `code-morph` | One snippet transforms into another — tokens glide between positions, leavers fade out, enterers fade in. Shiki Magic Move re-driven as a paused GSAP timeline. | 7 | gsap | fit | type 0 |
 | `code-terminal-run` | A token-chrome terminal panel runs one command: the prompt line types deterministically behind an integer-cycle caret, executes after a beat, and output lines print one per cue ... | 4.17 | gsap | fit, prompt_glyph, cadence, cues, accent, exit | type 0 |
 | `code-typing` | Token-streamed typing reveal with a caret that tracks the frontier — deterministic, no CSS animation. | 5 | gsap | fit | whoosh 1.32, 2.24, 2.89, 4.32; type 1.38, 2.38, 3.42, 4.4 |
-| `device-frame-stage` | A phone or tablet mockup staged as a physical scene prop with a screen slot for arbitrary reconstructed UI, rising onto the stage, settling, and holding an idle float | 5 | gsap | fit, device, cutout, body | swish 0 |
-| `freeze-frame-dressing` | Timeline-driven paper, tape, and flash dressing for a freeze-frame or background-removed subject *Stand-ins: 2 pictures as slots (picture-1 ...) with a drawn stand-in.* | 4 | gsap | fit | swish 0 |
+| `device-frame-stage` | A phone or tablet mockup staged as a physical scene prop with a screen slot for arbitrary reconstructed UI, rising onto the stage, settling, and holding an idle float | 5 | gsap | fit, device, cutout, body | swish 0.2 |
+| `freeze-frame-dressing` | Timeline-driven paper, tape, and flash dressing for a freeze-frame or background-removed subject *Stand-ins: 2 pictures as slots (picture-1 ...) with a drawn stand-in.* | 4 | gsap | fit | swish 1.033 |
 | `grid-card-assemble` | N capability cards (thin-line icon that draws on, mono label, optional muted body) stagger-assemble into a grid or vertical list with a fade plus short slide into slot, then hol... | 2.7 | gsap | fit, items, layout, columns, cues, accent, exit | swish 0.15 |
 | `input-feedback` | A transitions.dev-inspired input feedback primitive with shake, clear affordance, and success state | 5 | gsap | fit, status, value, hint | tick 0.3; pop 1.21 |
 | `marker-checklist-card` | A hand-lettered paper card: marker headline with an underline and a drawn ellipse around one word, then three checklist rows whose checks draw themselves on - typewriter labels,... *Stand-ins: 2 CSS pictures as a gradient.* | 4.5 | gsap | fit, top, mid, circled, rest, l1, v1, l2, +3 | draw 1.3, 2.15, 2.7, 3.25 |
@@ -281,14 +281,14 @@ Ported entries come from the registry of [HyperFrames](https://github.com/heygen
 | `modal-morph` | A small card expands into a full panel, shared-element style: both layouts measured once at mount, the container morphs by transform only (never width/height tweens) while keyed... | 4 | gsap | fit, from_scale, expand_at, register, accent, exit | whoosh 0 |
 | `multi-device-splay` | Phone, tablet, and desktop product mockups fan from a centered stack into a proud splayed arrangement with a subtle idle float. | 4.5 | gsap | fit, accent | swish 0 |
 | `native-notification-pop` | One system-faithful notification banner (iOS or macOS) drops in over any scene on an accurate interruptible spring: fast arrival, soft overshoot, settled mass, backdrop blur, ap... | 1.35 | gsap | fit, title, body, app_label, os, at, accent, exit | pop 0.45 |
-| `notification-pileup` | Mobile notification cards arrive faster and faster, each new alert pushing the existing stack downward into a dense, anxious tower. | 8 | gsap | fit, count, speed, showBadges | pop 0 |
+| `notification-pileup` | Mobile notification cards arrive faster and faster, each new alert pushing the existing stack downward into a dense, anxious tower. | 8 | gsap | fit, count, speed, showBadges | pop 0.167 |
 | `notification-stack` | 1 to 5 token notification cards slide-settle into a vertical stack on cues, newest on top; one card grows slightly and brightens as the focus while the rest dim by position. | 3.15 | gsap | fit, titles, bodies, expand, cues, accent, exit | tick 0.2, 0.8, 1.4, 2 |
 | `onboarding-stepper-flow` | A composed onboarding flow with milestone rail, active step card, and next-action button | 5 | gsap | fit | tick 0.62 |
 | `overwhelm-surround` | Tasks, tabs, pings, and notification bubbles accelerate inward around a calm central subject, turning overload into visible spatial pressure. | 4.5 | gsap | fit, count, centerLabel, intensity | swish 0 |
 | `settings-toggle-flow` | A composed settings flow with preference rows, toggle switches, and active-state feedback | 5 | gsap | fit | tick 0.28, 0.55 |
 | `sheet-spring-up` | A bottom sheet rushes up from below the frame on a real spring sampled frame by frame from reference footage, overshooting its resting place and settling back without an approxi... | 4 | gsap | fit, width, radius, tone | whoosh 0.6 |
 | `signup-flow` | A composed signup flow with social action, email field, password field, and submit button | 5 | gsap | fit | tick 0.25, 0.48 |
-| `social-proof-card` | The app-store close as one mountable scene: wordmark, five stars, a proof line, three feature icons and a CTA capsule build in a quiet stagger and hold - measured from reference... | 4 | gsap | fit, brand, proof, cta, f1, f2, f3 | pop 0.58 |
+| `social-proof-card` | The app-store close as one mountable scene: wordmark, five stars, a proof line, three feature icons and a CTA capsule build in a quiet stagger and hold - measured from reference... | 4 | gsap | fit, brand, proof, cta, f1, f2, f3 | pop 0.367 |
 | `spotlight-card` | A card with a scripted cursor spotlight and lit border. | 5 | gsap | fit | shimmer 0.5 |
 | `terminal-simulator` | A terminal window types commands and streams log output. | 5 | gsap | fit | tick 0.98 |
 | `testimonial-card` | Reveals a customer quote at reading pace, then settles its avatar, author name, and handle beneath as a clean proof beat. | 4 | gsap | fit, quote, author, handle, rating | tick 0.12, 0.82 |
@@ -339,7 +339,7 @@ Ported entries come from the registry of [HyperFrames](https://github.com/heygen
 | `marker-highlight` | Display text settles in, then one hand-drawn marker stroke (highlight, circle, underline, or scribble) draws over the emphasized word on cue. | 1.84 | gsap | fit, text, emphasis_word, style, draw_at, accent, exit | draw 1.1 |
 | `mk-callout-highlight` | A sentence whose word-by-word emphasis is driven by a single scalar — tween it to sync the highlight with a voiceover | 7.98 | gsap | fit | shimmer 0.3 |
 | `scan-band` | A diagonal distortion band sweeps once across a clean wordmark, revealing clipped red and cyan offsets only inside the moving band. | 3.5 | gsap | fit, wordmark, band_angle | swish 0 |
-| `segmentation-flood` | Machine-vision read of a slotted subject: translucent accent segmentation masks flood on in quantized scanline steps, each region gets a thin bracket and mono label chip, a dete... | 4.5 | gsap | fit, regions, flood_at, flicker, accent, exit | swish 0 |
+| `segmentation-flood` | Machine-vision read of a slotted subject: translucent accent segmentation masks flood on in quantized scanline steps, each region gets a thin bracket and mono label chip, a dete... | 4.5 | gsap | fit, regions, flood_at, flicker, accent, exit | swish 0.767 |
 | `separator` | A one-pixel structural separator with horizontal and vertical variants plus a seek-safe progress reveal | 4 | gsap | fit, orientation, thickness, tone | swish 0.6 |
 | `telemetry-hud` | Quiet mono debug-HUD readouts frame a slotted subject: corner brackets draw on, label:value lines tick their values on cues, one readout emphasized in accent. The subject never ... | 2.4 | gsap | fit, readouts, emphasize, cues, accent, exit | swish 0 |
 | `vox-annotate` | The Vox-style annotate gesture: a keyword in a held sentence gets a hand-drawn marker while a thin connector draws up to a mono callout label, all as one choreographed beat on t... | 2.15 | gsap | fit, text, keyword, note, style, draw_at, accent, exit | draw 1.2, 1.56 |
@@ -361,7 +361,7 @@ Ported entries come from the registry of [HyperFrames](https://github.com/heygen
 
 | Name | What it shows | Seconds | Libraries | Parameters | Cues (seconds) |
 |---|---|---|---|---|---|
-| `camera-dolly-zoom` | Camera tracks toward or away from the subject while the field of view changes the opposite way, so the subject holds its frame size while the background collapses behind it or r... | 4 | gsap | fit, direction, strength, subjectDistance, easing | whoosh 0 |
+| `camera-dolly-zoom` | Camera tracks toward or away from the subject while the field of view changes the opposite way, so the subject holds its frame size while the background collapses behind it or r... | 4 | gsap | fit, direction, strength, subjectDistance, easing | whoosh 0.2 |
 | `camera-rig-depth-stack` | A 3D camera-rig-style card stack with depth, parallax, and focus shift. | 5 | gsap | fit | whoosh 0.5 |
 | `camera-scan-gate` | A camera and QR recognition moment with a viewfinder sweep, bracket lock, confirmation pulse, and verified next beat. | 4 | gsap | fit, scanColor, targetLabel, sweepSpeed | whoosh 0.14 |
 | `camera-shake` | Procedural handheld, telephoto and rig camera shake for any wrapper: nine measured profiles with per-lens projection, closed-form and seek-safe | 6 | gsap | fit, shakeProfile, shakeIntensity, shakeFrequency, shakeRotation | whoosh 0 |
@@ -371,11 +371,11 @@ Ported entries come from the registry of [HyperFrames](https://github.com/heygen
 | `focus-rack` | Focus shifts once between two cards at different apparent depths through synchronized blur, dimming, scale, and parallax. | 3.5 | gsap | fit, label_a, label_b, accent | whoosh 0 |
 | `pan-stations` | A lateral camera move across a continuous row of labeled feature stations, with a steady dwell at each stop before the next pan. | 4 | gsap | fit, stationCount, labels, dwell | whoosh 0 |
 | `parallax-device-dive` | A canonical phone rises into view before the camera pushes through its screen and layered app UI expands to fill the frame. | 4.5 | gsap | fit, accent, app_title | tick 0 |
-| `parallax-unzoom` | Reveal transition — focus card scales down from full frame as siblings parallax in to form a grid (reverse of parallax-zoom) *Stand-ins: web fonts are replaced by the fonts of the machine.* | 3.76 | gsap | fit | whoosh 0.3 |
+| `parallax-unzoom` | Reveal transition — focus card scales down from full frame as siblings parallax in to form a grid (reverse of parallax-zoom) *Stand-ins: web fonts are replaced by the fonts of the machine.* | 3.76 | gsap | fit | whoosh 1.467 |
 | `parallax-zoom` | Center card scales up to fill the frame while siblings parallax outward — inspired by the eBay Playbook hero transition *Stand-ins: web fonts are replaced by the fonts of the machine.* | 4.9 | gsap | fit | whoosh 0 |
 | `pull-to-refresh` | A mobile list pulls through nonlinear rubber-band resistance, arms at a threshold, commits to a bounded loading indicator, then snaps exactly back to rest. | 4 | gsap | fit, pullDistance, spinnerStyle | whoosh 0.12 |
 | `push-in` | A centered headline gains focus through one slow, continuous camera push and a gentle fade out. | 4 | gsap | fit, text, intensity | whoosh 0 |
-| `rack-focus` | A focus pull with real aperture bokeh: the focal plane travels from a near subject to a far one, so one resolves as the other blows into hard-edged polygon discs that clip to a ... | 6 | gsap | fit, nearfocus, farfocus, focallength, aperture, blades, catseye, pullstart, +4 | whoosh 0 |
+| `rack-focus` | A focus pull with real aperture bokeh: the focal plane travels from a near subject to a far one, so one resolves as the other blows into hard-edged polygon discs that clip to a ... | 6 | gsap | fit, nearfocus, farfocus, focallength, aperture, blades, catseye, pullstart, +4 | whoosh 1.633 |
 | `scroll-camera-story` | A compressed forced-scroll cinematic pass: a tall scene of slotted sections travels past the camera top to bottom, depth layers parallax at different rates, each section rises a... | 4 | gsap | fit, sections, travel, cues, accent, exit | tick 0.1, 0.95, 2.15, 3.25 |
 | `scroll-feed` | A loop-friendly column of varied skeleton post cards scrolls upward with subtle motion trails and an agitated pace. | 3.8 | gsap | fit, speed, card_count, cues, exit | whoosh 3.5 |
 | `vector-editor-rig` | A dark design-tool app chrome with a live vector pen path, sequential anchor points, bezier handles, a selection frame, and theme-driven blue accents. | 4.5 | gsap | fit, tool, pathLabel | draw 0.1 |
@@ -387,12 +387,12 @@ Ported entries come from the registry of [HyperFrames](https://github.com/heygen
 | Name | What it shows | Seconds | Libraries | Parameters | Cues (seconds) |
 |---|---|---|---|---|---|
 | `goo-blobs` | Blobs that melt into one another where they come close and pull apart with a neck between them, as thick liquid does: circles under an SVG blur-and-threshold filter, each on its... | 4 | motion | blobs, size, reach, speed, blur, seed, color, ground, +1 | swish 0.2 |
-| `cross-warp-morph` | Shader transition with cross-warped morphing *Stand-ins: web fonts are replaced by the fonts of the machine.* | 4 | gsap | fit | whoosh 0 |
+| `cross-warp-morph` | Shader transition with cross-warped morphing *Stand-ins: web fonts are replaced by the fonts of the machine.* | 4 | gsap | fit | whoosh 1.667 |
 | `facet-morph` | A faceted low-poly mass of 36 triangles continuously reshapes between three authored silhouettes (blob, mark, badge) with per-facet flat shading that recomputes as the vertices ... | 5 | gsap | fit, forms, hold_last, accent, exit | whoosh 0 |
 | `offset-path-traveler` | A slotted traveler follows an authored path with tangent rotation, curved entry, and curved exit. | 4 | gsap | fit, path, traveler_label, accent | swish 0 |
 | `outline-draw` | A rounded outline that proves a callout by drawing clockwise as a hollow conic-gradient border with a clean closure. | 4 | gsap | fit, progress, thickness, radius | draw 0 |
 | `radial-surround` | Labeled hairline chips assemble around a centered subject on an elliptical ring, then optionally converge inward with a subtle edge dim. The center never moves: surrounded, not ... | 4.15 | gsap | fit, center_label, chips, close_in, cues, accent, exit | swish 0.05 |
-| `stitched-text-draw` | Text drawn as thread stitches: a single-stroke display alphabet draws via attribute-driven dashoffset with stitch-tuned dash patterns, seeded angle jitter, needle-hole dots, a l... | 4 | gsap | fit, text, stitch, accent, exit | draw 0 |
+| `stitched-text-draw` | Text drawn as thread stitches: a single-stroke display alphabet draws via attribute-driven dashoffset with stitch-tuned dash patterns, seeded angle jitter, needle-hole dots, a l... | 4 | gsap | fit, text, stitch, accent, exit | draw 0.167 |
 | `svg-line-draw-loader` | An Anime.js-style path drawing loader implemented as a seekable GSAP stroke timeline. | 5 | gsap | fit | draw 0.5 |
 | `svg-stroke-trace` | An authored SVG path draws from its measured length, holds with subtle drift, and optionally fills when the path is closed. | 3.5 | gsap | fit, path, stroke_width, accent, exit | draw 0 |
 | `tracing-beam` | A glowing dash follows one SVG path through three UI elements, lifting and brightening each element in sequence. | 4.5 | gsap | fit, labels, accent | draw 0.35, 3.95 |
@@ -412,7 +412,7 @@ Ported entries come from the registry of [HyperFrames](https://github.com/heygen
 | `gesture-tap` | A contact circle taps a mobile pill button, releases it into a new labeled accent state, and lifts away. | 3 | gsap | fit, tap_label, response_label, accent | click 0 |
 | `multiplayer-cursors` | Labeled collaborator cursors with token-derived colors and soft glows drift from spread positions into a shared center zone, proving live multiplayer presence. | 6 | gsap | fit, cursorCount, labels | click 0 |
 | `oversized-cursor` | The look-here pointer for a video: the macOS arrow at 3.5x its normal size lands its tip on one control, clicks it on, settles just below it so the result stays in view, then ex... | 2.6 | gsap | fit, cursor_variant, target_x, target_y, click_label, exit | whoosh 0, 1.02, 2.2 |
-| `press-ripple` | A cursor decel-arrives from off-stage, lands slightly off-center on a caller-positioned target, compresses with it in lockstep, releases with two small click rings while the lab... | 1.7 | gsap | fit, label, done_label, target_x, target_y, press_at, cursor, accent, +1 | whoosh 0.3, 1.3 |
+| `press-ripple` | A cursor decel-arrives from off-stage, lands slightly off-center on a caller-positioned target, compresses with it in lockstep, releases with two small click rings while the lab... | 1.7 | gsap | fit, label, done_label, target_x, target_y, press_at, cursor, accent, +1 | whoosh 0.3, 1 |
 | `swipe-rail` | A contact circle leads a horizontal card rail through a fast drag, momentum carry, and settled snap to the next card. | 4 | gsap | fit, card_count, accent, card_label_prefix | pop 1.59 |
 | `touch-indicator` | A translucent contact-circle gesture actor for mobile UI scenes: it touches the glass on the frame the host target responds, then lifts. Tap or swipe, picked by variable. | 0.78 | gsap | fit, gesture, polarity, targetX, targetY | swish 0.47 |
 | `yt-circle-pointer` | Draw-on annotation ellipse around a target plus a countdown chip that pulses each tick | 4.98 | gsap | fit | draw 1 |
@@ -433,7 +433,7 @@ Ported entries come from the registry of [HyperFrames](https://github.com/heygen
 | `screen-flow-carousel` | Two to five app screens ride a horizontal rail: one primary at center, neighbors receded, advancing on cues with a velocity-matched throw and a smooth long-tail catch while a mo... | 4.34 | gsap | fit, screens, captions, cues, accent, exit | whoosh 0 |
 | `spring-stack-shuffle` | A stack of 3 to 5 slotted cards reshuffles on cues: the back card throws over the top and lands at the front with real mass, the rest compress and resettle; cues that land mid-f... | 3.78 | gsap | fit, cards, cues, accent, exit | whoosh 1.24, 2.09, 2.94 |
 | `state-chip-rail` | A rail of mono status chips advances a seek-safe data-state snap machine on a cue schedule: active chip ink on surface, done chips dim, pending chips hollow, optional badges pop... | 3.7 | gsap | fit, states, times, badge_state, badges, accent, exit | swish 0.12 |
-| `stop-motion-cadence` | The stepped-time law as a demo primitive: one driver quantizes timeline time to floor(t * fps) / fps and feeds ALL motion; four token paper-cut shapes throw-and-land with squash... | 4 | gsap | fit, fps, boil, accent, exit | swish 0 |
+| `stop-motion-cadence` | The stepped-time law as a demo primitive: one driver quantizes timeline time to floor(t * fps) / fps and feeds ALL motion; four token paper-cut shapes throw-and-land with squash... | 4 | gsap | fit, fps, boil, accent, exit | swish 0.267 |
 | `success-check` | A success check primitive with ring pop, path draw, and subtle rotate blur | 5 | gsap | fit, tint, size, ring, spin | swish 0.5 |
 | `velocity-throw-snap` | A five-shot rail whips past on a fast decaying curve, then overshoots and snaps the selected hero shot exactly to center. | 4 | gsap | fit, hero_index, accent, card_label_prefix | pop 0.81 |
 | `motion-blur-streak` | A fast mover drawn with motion blur: the moments between two frames are drawn on top of one another on a canvas, so the smear follows the real path and is longest at the fastest... | 1.8 | motion | samples, shutter, duration, ease, arc, size, color, ground, +1 | whoosh 0.445 |
