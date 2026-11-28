@@ -35,8 +35,26 @@ const arg = (name) => { const i = process.argv.indexOf(name); return i < 0 ? und
 const flag = (name) => process.argv.includes(name);
 
 const MAX_BYTES = 400 * 1024;
-const PIXEL = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
-const STAND_IN = 'linear-gradient(135deg, #3d5a80, #98c1d9)';
+/**
+ * Stand-ins for pictures, one per slot and each its own picture (two colours, stripes, a ring and a letter), so that a
+ * transition from one picture to the next shows, and a shader that reads a picture's pixels gets some: a CSS background
+ * behind an empty image gives a shader nothing, and one gradient for every slot makes a transition invisible.
+ */
+const STAND_COLOURS = [['#3d5a80', '#98c1d9'], ['#9c4f2e', '#f2b880'], ['#2f6b4f', '#a8d8b9'], ['#5b3f86', '#c9b6e4'], ['#8a2f4f', '#f0a6bf'], ['#6b6224', '#e6dc8c']];
+const colours = (k) => STAND_COLOURS[(k - 1) % STAND_COLOURS.length];
+/** The CSS stand-in of picture k (1, 2, ...): stripes of its two colours, one value with no top-level comma. */
+const standInCss = (k) => 'repeating-linear-gradient(45deg, ' + colours(k)[0] + ' 0 40px, ' + colours(k)[1] + ' 40px 80px)';
+/** The picture stand-in of slot k as an SVG data address (parentheses escaped: the url() rewrite below must not see it). */
+const standInSvg = (k) => {
+  const [a, b] = colours(k), letter = String.fromCharCode(65 + ((k - 1) % 26));
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid slice">'
+    + '<defs><linearGradient id="g" x2="1" y2="1"><stop offset="0" stop-color="' + a + '"/><stop offset="1" stop-color="' + b + '"/></linearGradient>'
+    + '<pattern id="s" width="96" height="96" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="48" height="96" fill="#fff" fill-opacity=".14"/></pattern></defs>'
+    + '<rect width="1280" height="720" fill="url(#g)"/><rect width="1280" height="720" fill="url(#s)"/>'
+    + '<circle cx="640" cy="360" r="210" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="28"/>'
+    + '<text x="640" y="440" font-family="Arial, Helvetica, sans-serif" font-size="240" font-weight="700" text-anchor="middle" fill="#fff" fill-opacity=".9">' + letter + '</text></svg>';
+  return 'data:image/svg+xml,' + encodeURIComponent(svg).replace(/\(/g, '%28').replace(/\)/g, '%29');
+};
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Classes: one per entry, from the registry item's tags and name, the first rule that fits.
@@ -190,11 +208,11 @@ const convert = (item, kind, html, commit, sibling) => {
     if (src.startsWith('data:')) return tag;
     pictures++;
     const rest = (a + b).replace(/\bdata-slot=["'][^"']*["']/i, '');
-    const styled = /\bstyle=["']/i.test(rest) ? rest.replace(/\bstyle=["']/i, (m) => m + 'background: ' + STAND_IN + '; ') : rest + ' style="background: ' + STAND_IN + ';"';
-    return '<img' + styled + ' src="' + PIXEL + '" data-slot="picture-' + pictures + '">';
+    const styled = /\bstyle=["']/i.test(rest) ? rest.replace(/\bstyle=["']/i, (m) => m + 'background: ' + standInCss(pictures) + '; ') : rest + ' style="background: ' + standInCss(pictures) + ';"';
+    return '<img' + styled + ' src="' + standInSvg(pictures) + '" data-slot="picture-' + pictures + '">';
   });
   let urls = 0;
-  s = s.replace(/url\(\s*(["']?)([^)"']+)\1\s*\)/gi, (m, _q, u) => { if (u.startsWith('#') || u.startsWith('data:')) return m; urls++; return STAND_IN; });
+  s = s.replace(/url\(\s*(["']?)([^)"']+)\1\s*\)/gi, (m, _q, u) => { if (u.startsWith('#') || u.startsWith('data:')) return m; urls++; return standInCss(urls); });
   if (pictures || urls) { placeholders.push((pictures ? pictures + ' picture' + (pictures === 1 ? '' : 's') + ' as slots (picture-1 ...) with a drawn stand-in' : '') + (pictures && urls ? ', ' : '') + (urls ? urls + ' CSS picture' + (urls === 1 ? '' : 's') + ' as a gradient' : '')); changes.push('pictures replaced by slots and drawn stand-ins'); }
   if (/["'`][^"'`\n]*\.(?:jpe?g|png|webp|avif|gif|mp4|webm|mov|mp3|wav|ogg|woff2?|ttf|otf|glb|gltf|hdr)["'`]|__hyperframes\.assetUrl/i.test(s)) return { skip: 'loads picture, footage, sound or font files from its script or its data (material the Skill does not ship)' };
   if (/\bsrc\s*=\s*["']?\s*(?:https?:)?\/\//i.test(s) || /\bhref\s*=\s*["']?\s*(?:https?:)?\/\//i.test(s)) return { skip: 'still loads something from the network after the rewrite' };
