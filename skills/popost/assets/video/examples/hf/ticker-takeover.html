@@ -1,0 +1,467 @@
+<!doctype html>
+<!--
+  Adapted from HyperFrames (https://github.com/heygen-com/hyperframes), registry/components/ticker-takeover, commit a8332860c396e9224d42b7ea2a9cc8f42918c961.
+  Copyright 2026 HeyGen, Inc. Licensed under the Apache License, Version 2.0; the licence text is in the popost
+  Skill's THIRD_PARTY_NOTICES. Changed for the popost Skill (tools/video/port-hyperframes.mjs): its comments removed; the composition it mounts (ticker-takeover.html) put into the page; GSAP loaded from the project (../lib/gsap.min.js) instead of a CDN; scaled into the canvas; the 1920x1080 composition scaled into the scene's canvas (parameter "fit"); HyperFrames variables declared as parameters; its clips shown and hidden from the scene's time; sound cues derived from its tweens.
+-->
+
+<html data-composition-variables='[
+    { "id": "options", "type": "string", "role": "content", "label": "Options", "description": "Comma-separated words shown by the ticker.", "default": "faster,smarter,together,everywhere" },
+    { "id": "final_word", "type": "string", "role": "content", "label": "Final word", "description": "Word the ticker locks on and promotes.", "default": "together" },
+    { "id": "accent", "type": "enum", "role": "style", "label": "Accent", "description": "Color used for the lock flash and promoted word.", "default": "green", "options": [{ "value": "green", "label": "Green" }, { "value": "blue", "label": "Blue" }, { "value": "violet", "label": "Violet" }] }
+  ]' lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>Ticker Takeover Demo</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #0b0c0e;
+      }
+
+      #root {
+        --bg: #0b0c0e;
+        --fg: #f8fafc;
+        --muted: #94a3b8;
+        --surface: #17191f;
+        --font-display: Inter, system-ui, sans-serif;
+        --font-body: Inter, system-ui, sans-serif;
+        --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: radial-gradient(ellipse at 50% 45%, #171a21 0%, #0b0c0e 72%);
+      }
+
+      .mount-card {
+        width: 70%;
+        height: 64%;
+        left: 15%;
+        top: 18%;
+        container-type: size;
+        overflow: hidden;
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        border-radius: 32px;
+        background: rgba(17, 19, 24, 0.82);
+        box-shadow: 0 48px 120px rgba(0, 0, 0, 0.45);
+      }
+    </style>
+  <style id="popost-fit">
+  html, body { margin: 0 !important; width: 1280px; height: 720px; overflow: hidden !important; background: #000000; }
+  #popost-stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden; }
+</style>
+<script type="application/json" id="popost-params">
+{
+ "about": "A mono ticker rolls through options, locks on a final word with an accent flash, and promotes it into a full-frame headline.",
+ "class": "chart",
+ "tags": [
+  "motion-primitive",
+  "typography",
+  "ticker",
+  "slot-machine",
+  "headline",
+  "reveal"
+ ],
+ "seconds": 4.5,
+ "params": [
+  {
+   "name": "fit",
+   "type": "choice",
+   "default": "contain",
+   "options": [
+    "contain",
+    "cover"
+   ],
+   "what": "how the 1920x1080 composition is fitted into the canvas: whole with bars, or filling it and cropped"
+  },
+  {
+   "name": "options",
+   "type": "text",
+   "default": "faster,smarter,together,everywhere",
+   "maxLength": 200,
+   "what": "Comma-separated words shown by the ticker."
+  },
+  {
+   "name": "final_word",
+   "type": "text",
+   "default": "together",
+   "maxLength": 200,
+   "what": "Word the ticker locks on and promotes."
+  },
+  {
+   "name": "accent",
+   "type": "choice",
+   "default": "green",
+   "options": [
+    "green",
+    "blue",
+    "violet"
+   ],
+   "what": "Color used for the lock flash and promoted word."
+  }
+ ],
+ "values": {}
+}
+</script>
+<script>
+  /* popost: the scene's parameters stand in for HyperFrames variables; random numbers are seeded; the composition is
+     scaled into the canvas; clips are shown and hidden from the scene's time. */
+  (function () {
+    var block = document.getElementById('popost-params');
+    var values = block ? (JSON.parse(block.textContent).values || {}) : {};
+    var vars = {"options":"build,shape,launch,repeat,scale","final_word":"launch","accent":"violet"};
+    Object.keys(values).forEach(function (k) { if (k !== 'fit') vars[k] = values[k] === 'true' ? true : values[k] === 'false' ? false : values[k]; });
+    window.__hyperframes = { getVariables: function () { return vars; } };
+    var seed = 20240229;
+    window.__popostRandom = function () { seed = (seed + 0x6d2b79f5) >>> 0; var t = seed; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+    window.__popostFit = function () {
+      // The canvas, from the size this file declares: a scene of a later shot loads in a layer that is not displayed, where the page measures 0.
+      var size = /width: (\d+)px; height: (\d+)px;/.exec(document.getElementById('popost-fit').textContent);
+      var W = 1920, H = 1080, s = document.getElementById('popost-stage'), cw = Number(size[1]), ch = Number(size[2]);
+      var k = (values.fit === 'cover' ? Math.max : Math.min)(cw / W, ch / H);
+      s.style.transform = 'translate(' + (cw - W * k) / 2 + 'px,' + (ch - H * k) / 2 + 'px) scale(' + k + ')';
+      var clips = Array.prototype.slice.call(s.querySelectorAll('.clip[data-start]')).filter(function (c) { return isFinite(parseFloat(c.getAttribute('data-start'))) && c.parentNode !== s; });
+      // A mounted composition that starts later in its host runs on its own time.
+      [].forEach(function (m) {
+        var tl = window.__timelines && window.__timelines[m.id];
+        if (tl) window.__timelines[m.id] = { pause: function () { tl.pause(); }, seek: function (t) { tl.seek(Math.max(0, t - m.start)); }, duration: function () { return tl.duration() + m.start; } };
+      });
+      var scene = (window.__popostScene = window.__popostScene || {}), before = scene.render;
+      scene.render = function (seconds, fps) {
+        if (before) before(seconds, fps);
+        for (var i = 0; i < clips.length; i++) {
+          var a = parseFloat(clips[i].getAttribute('data-start')), d = parseFloat(clips[i].getAttribute('data-duration'));
+          clips[i].style.visibility = seconds >= a && (!isFinite(d) || seconds < a + d) ? 'visible' : 'hidden';
+        }
+      };
+    };
+  })();
+</script>
+<script type="application/json" id="popost-cues">[{"at":2.25,"cue":"tick","gain":0.3}]</script>
+</head>
+  <body>
+<div id="popost-stage">
+    <div
+      id="root"
+      data-composition-id="ticker-takeover-demo"
+      data-start="0"
+      data-width="1920"
+      data-height="1080"
+      data-duration="4.5"
+      data-fps="30"
+    >
+      <div
+        id="ticker-takeover-mount"
+        class="mount-card clip"
+        data-composition-id="ticker-takeover"
+       
+        data-variable-values='{"options":"build,shape,launch,repeat,scale","final_word":"launch","accent":"violet"}'
+        data-start="0"
+        data-duration="4.5"
+        data-track-index="0"
+        data-width="1344"
+        data-height="691"
+      >
+      <div id="root" data-composition-id="ticker-takeover" data-duration="4.5" data-fps="30">
+        <style>
+          *,
+          *::before,
+          *::after {
+            box-sizing: border-box;
+          }
+
+          #root {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            container-type: size;
+            isolation: isolate;
+            color: var(--fg, #f8fafc);
+            font-family: var(--font-body, Inter, system-ui, sans-serif);
+            pointer-events: none;
+          }
+
+          .tt-clip {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+          }
+
+          .tt-ticker {
+            position: absolute;
+            top: 55cqh;
+            left: 12cqw;
+            width: 76cqw;
+            height: 18cqh;
+            display: grid;
+            grid-template-columns: 18cqw 1fr;
+            align-items: center;
+            overflow: hidden;
+            border: 0.12cqw solid color-mix(in srgb, var(--muted, #94a3b8) 38%, transparent);
+            border-radius: 3cqh;
+            background: color-mix(in srgb, var(--surface, #172033) 92%, transparent);
+            box-shadow: 0 3cqh 9cqh color-mix(in srgb, var(--bg, #0b0c0e) 52%, transparent);
+            will-change: transform, opacity;
+          }
+
+          .tt-label {
+            display: grid;
+            place-items: center;
+            height: 12cqh;
+            border-right: 0.12cqw solid color-mix(in srgb, var(--muted, #94a3b8) 30%, transparent);
+            color: var(--muted, #94a3b8);
+            font-family: var(--font-mono, ui-monospace, "SF Mono", Menlo, Consolas, monospace);
+            font-size: 2.4cqh;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+          }
+
+          .tt-window {
+            position: relative;
+            height: 12cqh;
+            overflow: hidden;
+          }
+
+          .tt-reel {
+            width: 100%;
+            will-change: transform;
+          }
+
+          .tt-item {
+            display: flex;
+            align-items: center;
+            height: 12cqh;
+            padding: 0 4cqw;
+            color: var(--fg, #f8fafc);
+            font-family: var(--font-mono, ui-monospace, "SF Mono", Menlo, Consolas, monospace);
+            font-size: 4.2cqh;
+            font-weight: 650;
+            letter-spacing: -0.025em;
+            white-space: nowrap;
+            will-change: transform, color;
+          }
+
+          .tt-flash {
+            position: absolute;
+            inset: 0;
+            background: var(--tt-accent, #22c55e);
+            opacity: 0;
+          }
+
+          .tt-headline {
+            position: absolute;
+            top: 30cqh;
+            left: 7cqw;
+            width: 86cqw;
+            height: 30cqh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            color: var(--tt-accent, #22c55e);
+            font-family: var(--font-display, Inter, system-ui, sans-serif);
+            font-size: 15cqh;
+            font-weight: 820;
+            line-height: 0.9;
+            letter-spacing: -0.065em;
+            text-align: center;
+            white-space: nowrap;
+            transform-origin: 50% 50%;
+            will-change: transform, opacity;
+          }
+        </style>
+
+        <div
+          id="ticker-takeover-clip"
+          class="tt-clip clip"
+          data-start="0"
+          data-duration="4.5"
+          data-track-index="0"
+        >
+          <div class="tt-ticker">
+            <div class="tt-label">signal</div>
+            <div class="tt-window">
+              <div class="tt-reel"></div>
+            </div>
+            <div class="tt-flash" aria-hidden="true"></div>
+          </div>
+          <div class="tt-headline"></div>
+        </div>
+
+        <script src="../lib/gsap.min.js"></script>
+        <script>
+          (function () {
+            "use strict";
+
+            var root = document.getElementById("root");
+            var ticker = root.querySelector(".tt-ticker");
+            var reel = root.querySelector(".tt-reel");
+            var flash = root.querySelector(".tt-flash");
+            var headline = root.querySelector(".tt-headline");
+            var vars =
+              window.__hyperframes && window.__hyperframes.getVariables
+                ? window.__hyperframes.getVariables()
+                : {};
+
+            var defaultOptions = ["faster", "smarter", "together", "everywhere"];
+            var finalWord = vars.final_word == null ? "together" : String(vars.final_word).trim();
+            if (!finalWord) finalWord = "together";
+
+            var rawOptions = vars.options == null ? defaultOptions.join(",") : String(vars.options);
+            var candidates = rawOptions
+              .split(",")
+              .map(function (word) {
+                return word.trim();
+              })
+              .filter(Boolean);
+            var options = [];
+            var finalKey = finalWord.toLowerCase();
+
+            function addOption(word) {
+              var normalized = word.toLowerCase();
+              var isFinal = normalized === finalKey;
+              var isDuplicate = options.some(function (option) {
+                return option.toLowerCase() === normalized;
+              });
+              if (!isFinal && !isDuplicate && options.length < 5) options.push(word);
+            }
+
+            candidates.forEach(addOption);
+            defaultOptions.forEach(function (word) {
+              if (options.length < 3) addOption(word);
+            });
+            options.push(finalWord);
+
+            options.forEach(function (word) {
+              var item = document.createElement("span");
+              item.className = "tt-item";
+              item.textContent = word;
+              reel.appendChild(item);
+            });
+
+            var finalItem = reel.lastElementChild;
+            var accentColors = {
+              green: "var(--brand, #22c55e)",
+              blue: "var(--accent, #38bdf8)",
+              violet: "var(--accent-2, #a78bfa)",
+            };
+            var accentName = Object.prototype.hasOwnProperty.call(accentColors, vars.accent)
+              ? vars.accent
+              : "green";
+            var accentColor = accentColors[accentName];
+
+            root.style.setProperty("--tt-accent", accentColor);
+            headline.textContent = finalWord;
+
+            var IN_BASE = 3.15;
+            var OUT_BASE = 0.45;
+            var duration = Math.max(0.001, parseFloat(root.dataset.duration || "4.5"));
+            var envelopeScale = duration < IN_BASE + OUT_BASE ? duration / (IN_BASE + OUT_BASE) : 1;
+            var IN = IN_BASE * envelopeScale;
+            var OUT = OUT_BASE * envelopeScale;
+            var HOLD = Math.max(0, duration - IN - OUT);
+            var OUT_START = IN + HOLD;
+
+            var TICKER_IN = 0.35 * envelopeScale;
+            var ROLL_START = 0.32 * envelopeScale;
+            var ACCEL_DURATION = 0.82 * envelopeScale;
+            var DECEL_DURATION = 0.93 * envelopeScale;
+            var LOCK_AT = ROLL_START + ACCEL_DURATION + DECEL_DURATION;
+            var PROMOTE_AT = LOCK_AT + 0.18 * envelopeScale;
+            var PROMOTE_DURATION = Math.max(0.001, IN - PROMOTE_AT);
+            var finalOffset = -(options.length - 1) * 12;
+            var accelOffset = finalOffset * 0.72;
+
+            var tl = gsap.timeline({ paused: true });
+
+            tl.fromTo(
+              ticker,
+              { opacity: 0, scale: 0.97 },
+              { opacity: 1, scale: 1, duration: TICKER_IN, ease: "power2.out" },
+              0,
+            );
+            tl.fromTo(
+              reel,
+              { y: "0cqh" },
+              { y: accelOffset + "cqh", duration: ACCEL_DURATION, ease: "power4.in" },
+              ROLL_START,
+            );
+            tl.to(
+              reel,
+              { y: finalOffset + "cqh", duration: DECEL_DURATION, ease: "power4.out" },
+              ROLL_START + ACCEL_DURATION,
+            );
+            tl.fromTo(
+              finalItem,
+              { scale: 1.14, color: accentColor },
+              { scale: 1, color: accentColor, duration: 0.3 * envelopeScale, ease: "expo.out" },
+              LOCK_AT,
+            );
+            tl.fromTo(
+              flash,
+              { opacity: 0.82 },
+              { opacity: 0, duration: 0.34 * envelopeScale, ease: "power2.out" },
+              LOCK_AT,
+            );
+            tl.fromTo(
+              headline,
+              { opacity: 0, scale: 0.22, y: "20cqh" },
+              {
+                opacity: 1,
+                scale: 1,
+                y: "0cqh",
+                duration: PROMOTE_DURATION,
+                ease: "power3.out",
+              },
+              PROMOTE_AT,
+            );
+            tl.to(
+              ticker,
+              { opacity: 0, scale: 0.96, duration: PROMOTE_DURATION * 0.68, ease: "power2.in" },
+              PROMOTE_AT,
+            );
+
+            if (HOLD > 0) {
+              tl.to(
+                headline,
+                { y: "-0.7cqh", duration: HOLD / 2, ease: "sine.inOut", yoyo: true, repeat: 1 },
+                IN,
+              );
+            }
+
+            tl.to(
+              headline,
+              { opacity: 0, y: "-3cqh", duration: OUT, ease: "power2.in" },
+              OUT_START,
+            );
+
+            tl.seek(0);
+            window.__timelines = window.__timelines || {};
+            window.__timelines["ticker-takeover"] = tl;
+          })();
+        </script>
+      </div>
+    </div>
+    </div>
+
+    <script src="../lib/gsap.min.js"></script>
+    <script>
+      window.__timelines = window.__timelines || {};
+      window.__timelines["ticker-takeover-demo"] = gsap.timeline({ paused: true });
+    </script>
+  </div>
+<script>window.__popostFit();</script>
+</body>
+</html>

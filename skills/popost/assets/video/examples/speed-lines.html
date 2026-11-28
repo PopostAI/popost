@@ -1,0 +1,123 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Speed lines and a whip</title>
+<style>
+  html, body { margin: 0; width: 1280px; height: 720px; overflow: hidden; }
+  #card { position: absolute; left: 30%; top: 26%; width: 40%; height: 48%; border-radius: 28px; overflow: hidden; }
+  #card img { position: absolute; left: 0; top: 0; width: 100%; height: 100%; object-fit: cover; }
+</style></head>
+<body>
+<div id="card"><img data-slot="picture" alt="" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="></div>
+  <script type="application/json" id="popost-params">
+{
+ "about": "Streaks rush past in one direction while a card whips across and lands blurred, then sharpens: what a fast move looks like at its fastest frames.",
+ "class": "transition",
+ "seconds": 1.8,
+ "tags": [
+  "speed lines",
+  "whip",
+  "whoosh",
+  "fast",
+  "anime",
+  "streak",
+  "transition"
+ ],
+ "params": [
+  {
+   "name": "angle",
+   "type": "number",
+   "default": 0,
+   "min": -180,
+   "max": 180,
+   "what": "the direction of the rush: 0 is to the right, 90 down",
+   "unit": "degrees"
+  },
+  {
+   "name": "duration",
+   "type": "number",
+   "default": 0.45,
+   "min": 0.1,
+   "max": 4,
+   "what": "the length of the whip",
+   "unit": "seconds"
+  },
+  {
+   "name": "lines",
+   "type": "number",
+   "default": 30,
+   "min": 4,
+   "max": 120,
+   "what": "how many streaks"
+  },
+  {
+   "name": "blur",
+   "type": "number",
+   "default": 22,
+   "min": 0,
+   "max": 80,
+   "what": "how blurred the card is at its fastest",
+   "unit": "pixels at 720 high"
+  },
+  {
+   "name": "ease",
+   "type": "choice",
+   "default": "expo.out",
+   "options": [
+    "power3.out",
+    "power4.out",
+    "expo.out",
+    "back.out(1.2)"
+   ],
+   "what": "how the card arrives"
+  },
+  {
+   "name": "seed",
+   "type": "number",
+   "default": 21,
+   "min": 1,
+   "max": 999,
+   "what": "which streaks"
+  },
+  {
+   "name": "card",
+   "type": "colour",
+   "default": "#f72585",
+   "what": "the card"
+  },
+  {
+   "name": "line",
+   "type": "colour",
+   "default": "#ffffff",
+   "what": "the streaks"
+  },
+  {
+   "name": "ground",
+   "type": "colour",
+   "default": "#240046",
+   "what": "the background"
+  },
+  {
+   "name": "delay",
+   "type": "number",
+   "default": 0.2,
+   "min": 0,
+   "max": 20,
+   "unit": "seconds",
+   "what": "when the effect starts, from the start of the shot"
+  }
+ ],
+ "values": {}
+}
+  </script>
+  <script src="../lib/popost-motion.js"></script>
+  <script>
+    // The parameters of this copy: the declared defaults, then what "values" sets.
+    var P = (function () { var b = JSON.parse(document.getElementById('popost-params').textContent), v = {}; b.params.forEach(function (p) { v[p.name] = p['default']; }); for (var k in b.values) v[k] = b.values[k]; return v; })();
+    // The canvas, from the size this file declares for html and body: a scene of a later shot loads in a layer that
+    // is not displayed, where the page itself measures 0 until its first frame.
+    var SIZE = /html, body \{ margin: 0; width: (\d+)px; height: (\d+)px;/.exec(document.querySelector('style').textContent), W = Number(SIZE[1]), H = Number(SIZE[2]), U = Math.min(W, H) / 720;
+    var M = popostMotion, a = (P.angle * Math.PI) / 180, far = Math.hypot(W, H) * 0.8;
+    document.body.style.background = P.ground; document.getElementById('card').style.background = P.card;
+    M.speedLines({ at: P.delay, 'for': P.duration * 1.3, count: P.lines, angle: P.angle, color: P.line, seed: P.seed });
+    M.tween('#card', { at: P.delay, 'for': P.duration, ease: P.ease, from: { x: -Math.cos(a) * far, y: -Math.sin(a) * far, blur: P.blur * U }, to: {} });
+  </script>
+</body></html>

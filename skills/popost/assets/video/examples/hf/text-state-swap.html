@@ -1,0 +1,355 @@
+<!doctype html>
+<!--
+  Adapted from HyperFrames (https://github.com/heygen-com/hyperframes), registry/components/text-state-swap, commit a8332860c396e9224d42b7ea2a9cc8f42918c961.
+  Copyright 2026 HeyGen, Inc. Licensed under the Apache License, Version 2.0; the licence text is in the popost
+  Skill's THIRD_PARTY_NOTICES. Changed for the popost Skill (tools/video/port-hyperframes.mjs): its comments removed; GSAP loaded from the project (../lib/gsap.min.js) instead of a CDN; scaled into the canvas; the 1920x1080 composition scaled into the scene's canvas (parameter "fit"); HyperFrames variables declared as parameters; its clips shown and hidden from the scene's time; sound cues derived from its tweens.
+-->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>Text State Swap - Demo</title>
+    <script src="../lib/gsap.min.js"></script>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+      }
+      #demo {
+        width: 1920px;
+        height: 1080px;
+        display: grid;
+        place-items: center;
+        background: #f5f5f4;
+        font-family: Inter, system-ui, sans-serif;
+      }
+      /* ponytail: scale on non-GSAP wrapper, safe to use transform here */
+      .demo-frame {
+        display: grid;
+        place-items: center;
+        transform: scale(2.6);
+        transform-origin: center center;
+      }
+      .demo-card {
+        background: #ffffff;
+        border: 1px solid #e4e4e7;
+        border-radius: 14px;
+        box-shadow: 0 24px 70px rgba(0, 0, 0, 0.08);
+        padding: 32px 40px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        width: 340px;
+      }
+      .demo-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .demo-card-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: #71717a;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+      }
+      .demo-card-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #22c55e;
+      }
+      .demo-card-body {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .demo-card-line {
+        height: 10px;
+        border-radius: 5px;
+        background: #f4f4f5;
+      }
+      .demo-card-line.w-full {
+        width: 100%;
+      }
+      .demo-card-line.w-3q {
+        width: 75%;
+      }
+      .demo-card-line.w-half {
+        width: 50%;
+      }
+      .demo-card-footer {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding-top: 4px;
+        border-top: 1px solid #f4f4f5;
+      }
+      .hf-transition-text-state-swap {
+        position: relative;
+        width: 140px;
+        height: 22px;
+        overflow: hidden;
+        color: #18181b;
+        font:
+          700 14px/1 Inter,
+          system-ui,
+          sans-serif;
+      }
+      .hf-transition-text-state-swap span {
+        position: absolute;
+        left: 0;
+        top: 0;
+        filter: blur(var(--hf-text-blur, 0px));
+        transform: translateY(var(--hf-text-y, 0px));
+        will-change: transform, filter, opacity;
+      }
+      .hf-transition-text-state-swap .to {
+        opacity: 0;
+      }
+    </style>
+  <style id="popost-fit">
+  html, body { margin: 0 !important; width: 1280px; height: 720px; overflow: hidden !important; background: #000000; }
+  #popost-stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden; }
+</style>
+<script type="application/json" id="popost-params">
+{
+ "about": "A text state swap primitive with outgoing blur and incoming lift",
+ "class": "transition",
+ "tags": [
+  "video-primitive",
+  "transition-primitive",
+  "transitions-dev-port",
+  "text",
+  "swap"
+ ],
+ "seconds": 5,
+ "params": [
+  {
+   "name": "fit",
+   "type": "choice",
+   "default": "contain",
+   "options": [
+    "contain",
+    "cover"
+   ],
+   "what": "how the 1920x1080 composition is fitted into the canvas: whole with bars, or filling it and cropped"
+  },
+  {
+   "name": "from-text",
+   "type": "text",
+   "default": "Saving draft",
+   "maxLength": 200,
+   "what": "The outgoing label, on screen before the swap."
+  },
+  {
+   "name": "to-text",
+   "type": "text",
+   "default": "Saved",
+   "maxLength": 200,
+   "what": "The incoming label, on screen after the swap. It rests hidden until the timeline reveals it."
+  },
+  {
+   "name": "distance",
+   "type": "choice",
+   "default": "standard",
+   "options": [
+    "close",
+    "standard",
+    "far"
+   ],
+   "what": "Scales the vertical offset the timeline drives, so each label covers a shorter or longer run in the same time."
+  },
+  {
+   "name": "tone",
+   "type": "choice",
+   "default": "ink",
+   "options": [
+    "ink",
+    "paper",
+    "accent"
+   ],
+   "what": "Label colour: ink for light frames, paper for dark ones, accent rides --brand."
+  }
+ ],
+ "values": {}
+}
+</script>
+<script>
+  /* popost: the scene's parameters stand in for HyperFrames variables; random numbers are seeded; the composition is
+     scaled into the canvas; clips are shown and hidden from the scene's time. */
+  (function () {
+    var block = document.getElementById('popost-params');
+    var values = block ? (JSON.parse(block.textContent).values || {}) : {};
+    var vars = {};
+    Object.keys(values).forEach(function (k) { if (k !== 'fit') vars[k] = values[k] === 'true' ? true : values[k] === 'false' ? false : values[k]; });
+    window.__hyperframes = { getVariables: function () { return vars; } };
+    var seed = 20240229;
+    window.__popostRandom = function () { seed = (seed + 0x6d2b79f5) >>> 0; var t = seed; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+    window.__popostFit = function () {
+      // The canvas, from the size this file declares: a scene of a later shot loads in a layer that is not displayed, where the page measures 0.
+      var size = /width: (\d+)px; height: (\d+)px;/.exec(document.getElementById('popost-fit').textContent);
+      var W = 1920, H = 1080, s = document.getElementById('popost-stage'), cw = Number(size[1]), ch = Number(size[2]);
+      var k = (values.fit === 'cover' ? Math.max : Math.min)(cw / W, ch / H);
+      s.style.transform = 'translate(' + (cw - W * k) / 2 + 'px,' + (ch - H * k) / 2 + 'px) scale(' + k + ')';
+      var clips = Array.prototype.slice.call(s.querySelectorAll('.clip[data-start]')).filter(function (c) { return isFinite(parseFloat(c.getAttribute('data-start'))) && c.parentNode !== s; });
+      // A mounted composition that starts later in its host runs on its own time.
+      [].forEach(function (m) {
+        var tl = window.__timelines && window.__timelines[m.id];
+        if (tl) window.__timelines[m.id] = { pause: function () { tl.pause(); }, seek: function (t) { tl.seek(Math.max(0, t - m.start)); }, duration: function () { return tl.duration() + m.start; } };
+      });
+      var scene = (window.__popostScene = window.__popostScene || {}), before = scene.render;
+      scene.render = function (seconds, fps) {
+        if (before) before(seconds, fps);
+        for (var i = 0; i < clips.length; i++) {
+          var a = parseFloat(clips[i].getAttribute('data-start')), d = parseFloat(clips[i].getAttribute('data-duration'));
+          clips[i].style.visibility = seconds >= a && (!isFinite(d) || seconds < a + d) ? 'visible' : 'hidden';
+        }
+      };
+    };
+  })();
+</script>
+<script type="application/json" id="popost-cues">[{"at":0.5,"cue":"whoosh","gain":0.5}]</script>
+</head>
+  <body>
+<div id="popost-stage">
+    <div
+      id="demo"
+      data-composition-id="text-state-swap-demo"
+      data-start="0"
+      data-width="1920"
+      data-height="1080"
+      data-duration="5"
+    >
+      <div class="demo-frame">
+        <div class="demo-card">
+          <div class="demo-card-header">
+            <span class="demo-card-title">Draft</span>
+            <span class="demo-card-dot"></span>
+          </div>
+          <div class="demo-card-body">
+            <div class="demo-card-line w-full"></div>
+            <div class="demo-card-line w-3q"></div>
+            <div class="demo-card-line w-full"></div>
+            <div class="demo-card-line w-half"></div>
+          </div>
+          <div class="demo-card-footer">
+            <div
+              class="hf-transition-text-state-swap"
+              data-composition-variables='[
+    {"id": "from-text", "type": "string", "role": "content", "label": "From text", "description": "The outgoing label, on screen before the swap.", "default": "Saving draft"},
+    {"id": "to-text", "type": "string", "role": "content", "label": "To text", "description": "The incoming label, on screen after the swap. It rests hidden until the timeline reveals it.", "default": "Saved"},
+    {"id": "distance", "type": "enum", "role": "motion", "label": "Distance", "description": "Scales the vertical offset the timeline drives, so each label covers a shorter or longer run in the same time.", "default": "standard", "options": [{"value": "close", "label": "Close"}, {"value": "standard", "label": "Standard"}, {"value": "far", "label": "Far"}]},
+    {"id": "tone", "type": "enum", "role": "style", "label": "Tone", "description": "Label colour: ink for light frames, paper for dark ones, accent rides --brand.", "default": "ink", "options": [{"value": "ink", "label": "Ink"}, {"value": "paper", "label": "Paper"}, {"value": "accent", "label": "Accent"}]}
+  ]'
+            >
+              <span class="from">Saving draft…</span><span class="to">Saved</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <script>
+        (function () {
+          "use strict";
+
+          var vars =
+            window.__hyperframes && window.__hyperframes.getVariables
+              ? window.__hyperframes.getVariables()
+              : {};
+
+          // Unrecognised overrides return to their declared defaults.
+          var reaches = { close: 0.5, standard: 1, far: 1.85 };
+          var tones = {
+            ink: "#18181b",
+            paper: "#fafafa",
+            accent: "var(--brand, #34d399)",
+          };
+
+          function pick(table, value, fallback) {
+            return Object.prototype.hasOwnProperty.call(table, value) ? value : fallback;
+          }
+
+          function text(value, fallback) {
+            var resolved = value == null ? "" : String(value).trim();
+            return resolved.length > 0 ? resolved : fallback;
+          }
+
+          var fromText = text(vars["from-text"], "Saving draft");
+          var toText = text(vars["to-text"], "Saved");
+          var reach = reaches[pick(reaches, vars.distance, "standard")];
+          var tone = tones[pick(tones, vars.tone, "ink")];
+
+          var roots = document.querySelectorAll(".hf-transition-text-state-swap");
+          for (var i = 0; i < roots.length; i += 1) {
+            var root = roots[i];
+            root.style.setProperty("--hf-text-reach", String(reach));
+            root.style.setProperty("--hf-text-color", tone);
+            root.querySelector(".from").textContent = fromText;
+            root.querySelector(".to").textContent = toText;
+          }
+        })();
+      </script>
+      <script>
+        const tl = gsap.timeline({ paused: true });
+        const startTime = 0.5;
+        tl.to(
+          ".hf-transition-text-state-swap .from",
+          {
+            opacity: 0,
+            "--hf-text-y": "-18px",
+            "--hf-text-blur": "8px",
+            duration: 0.18,
+            ease: "power2.in",
+          },
+          startTime,
+        );
+        tl.fromTo(
+          ".hf-transition-text-state-swap .to",
+          { opacity: 0, "--hf-text-y": "18px", "--hf-text-blur": "8px" },
+          {
+            opacity: 1,
+            "--hf-text-y": "0px",
+            "--hf-text-blur": "0px",
+            duration: 0.26,
+            ease: "power2.out",
+          },
+          startTime + 0.12,
+        );
+        tl.set({}, {}, 5);
+        window.__timelines = window.__timelines || {};
+        window.__timelines["text-state-swap-demo"] = tl;
+      </script>
+    </div>
+    <style>
+      .hf-transition-text-state-swap {
+        position: relative;
+        width: 250px;
+        height: 36px;
+        color: var(--hf-text-color, #18181b);
+        font:
+          900 28px/1 Inter,
+          system-ui,
+          sans-serif;
+      }
+      .hf-transition-text-state-swap span {
+        position: absolute;
+        left: 0;
+        top: 0;
+        filter: blur(var(--hf-text-blur, 0px));
+        transform: translateY(calc(var(--hf-text-y, 0px) * var(--hf-text-reach, 1)));
+        will-change: transform, filter, opacity;
+      }
+      .hf-transition-text-state-swap .to {
+        opacity: 0;
+      }
+    </style>
+  </div>
+<script>window.__popostFit();</script>
+</body>
+</html>

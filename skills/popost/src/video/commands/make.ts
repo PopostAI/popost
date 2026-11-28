@@ -16,6 +16,7 @@ import { ProjectError } from '../render/session';
 import { BrowserStepTimeoutError } from '../render/browser-step';
 import type { SceneText } from '../scene/author';
 import { checkScenes, shotFileName } from '../scene/check';
+import { readCues } from '../scene/cues';
 import { sourcePictureProblems } from '../source/used';
 import { addLibrary, LIBRARIES, LibraryError } from '../scene/library';
 import { writeScenes } from '../scene/write';
@@ -285,8 +286,8 @@ const sceneWrite = command(
 export const makeCommands: Commands = { check, frame, render, capture, preview };
 
 const sceneLibrary = command(
-  'put a script file into the project for its scenes to load, under lib/ (' + Object.keys(LIBRARIES).join(', ') + '): gsap, the unchanged file of the installed package; screen, the Skill\'s helper that shows a still of a page under a camera, with highlight, pointer, click and typing',
-  { positionals: [PROJECT], options: [{ flag: '--name', default: 'gsap', choices: Object.keys(LIBRARIES), help: 'which library: gsap (timelines) or screen (a still of a page driven by steps)' }] },
+  'put a script file into the project for its scenes to load, under lib/ (' + Object.keys(LIBRARIES).join(', ') + '): gsap, the unchanged file of the installed package; screen, the Skill\'s helper that shows a still of a page under a camera, with highlight, pointer, click and typing; motion, the Skill\'s motion helper (easings, springs, seeded randomness and effects that are functions of the time, each with its sound cues)',
+  { positionals: [PROJECT], options: [{ flag: '--name', default: 'gsap', choices: Object.keys(LIBRARIES), help: 'which library: gsap (timelines), screen (a still of a page driven by steps), or motion (effects as functions of the time, with sound cues)' }] },
   async (args, rt) => {
     const typed = args.req('project-dir');
     try {
@@ -294,6 +295,8 @@ const sceneLibrary = command(
       printJson(rt, { ok: true, library: added.name, version: added.version, file: rt.path.join(typed, added.file), bytes: added.bytes, tag: added.tag, use: added.use, licence: added.licence,
         next: (added.name === 'screen'
           ? 'In a scene (a file in scenes/): an element that is the window onto the still, the tag, then popostScreen(...) as "use" shows (references/video-scenes.md, "A screen inside a scene").'
+          : added.name === 'motion'
+          ? 'In a scene (a file in scenes/): load it with the tag and call its effects as "use" shows; every effect is a function of the shot\'s time and declares its sound cues (references/video-motion.md; popost video scene cues <project> lists them).'
           : 'In a scene (a file in scenes/): load it with the tag, build one paused timeline, hand it over as "use" shows.') + ' Then: popost video scene check ' + typed });
     } catch (e) {
       if (e instanceof LibraryError) throw new VideoCommandError(e.message);
@@ -302,5 +305,22 @@ const sceneLibrary = command(
   },
 );
 
+const sceneCues = command(
+  'the sound cues the scenes of a project declare, in the project\'s time, without rendering: at which second which kind of sound belongs (whoosh, swish, pop, click, tick, type, impact, riser, shimmer, glitch, ding, rumble, draw, sparkle) and how loud against the others (gain 0..1); the motion helper declares one for every effect, and a scene can write its own as JSON in <script type="application/json" id="popost-cues">',
+  { positionals: [PROJECT] },
+  making(async (args, rt) => {
+    const r = await readCues(rt, args.req('project-dir'));
+    const errors = errorsIn(r.problems);
+    const kinds: Record<string, number> = {};
+    for (const c of r.cues) kinds[c.cue] = (kinds[c.cue] ?? 0) + 1;
+    printJson(rt, {
+      ok: errors === 0, ...(errors ? { errors, problems: r.problems } : {}), from: r.from, total: r.cues.length, kinds, cues: r.cues, scenes: r.scenes,
+      ...(r.from === 'static' ? { note: 'No browser was found, so only the cues written as JSON in the scenes were read; the cues the motion helper declares need the scenes opened.' } : {}),
+      contract: 'cues[]: { at: seconds of the video, frame, cue: the kind of sound, gain: 0..1 (1 the loudest hit of its shot), effect: what declared it, segment, scene, local: seconds inside the scene }. A sound is placed so that its peak falls on "at" (references/video-motion.md, "Sound cues").',
+    });
+    return errors ? 2 : 0;
+  }),
+);
+
 /** Command groups with commands of their own, e.g. `popost video scene check`. */
-export const makeGroups: Readonly<Record<string, Commands>> = { scene: { check: sceneCheck, write: sceneWrite, library: sceneLibrary, example: sceneExample } };
+export const makeGroups: Readonly<Record<string, Commands>> = { scene: { check: sceneCheck, write: sceneWrite, library: sceneLibrary, example: sceneExample, cues: sceneCues } };

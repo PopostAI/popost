@@ -12,6 +12,7 @@ import { withTempDir } from '../host';
 import { writeSheets } from '../look/sheets';
 import { error } from '../project/check-common';
 import { renderVideo } from '../render/index';
+import { addLibrary, libraryOfFile } from './library';
 import type { Problem } from '../types';
 
 export const EXAMPLES = ['object-reveal', 'card-flip', 'folding-doors', 'streak-wipe'] as const;
@@ -19,7 +20,9 @@ export type ExampleName = (typeof EXAMPLES)[number];
 
 export interface ExampleParam {
   name: string;
-  type: 'number' | 'choice' | 'colour';
+  /** text: any text of the scene (a headline, a number as written), up to maxLength characters. */
+  type: 'number' | 'choice' | 'colour' | 'text';
+  maxLength?: number;
   default: number | string;
   /** number: its range and its unit. */
   min?: number;
@@ -42,11 +45,63 @@ const SIZE = 'width: 1280px; height: 720px;';
 
 export const exampleFile = (name: string): string => 'assets/video/examples/' + name + '.html';
 
-/** An example of the Skill with its declared parameters. */
+/** The catalogue of every example scene and effect of the Skill (references/video-effects.md is written from it). */
+export const CATALOGUE_FILE = 'assets/video/examples/catalogue.json';
+
+/** One entry of the catalogue: an example scene with what it shows, what it needs and where its sounds belong. */
+export interface CatalogueEntry {
+  name: string;
+  /** Its file in the Skill, from the Skill's root. */
+  file: string;
+  /** text, caption, transition, particles, 3d, background, chart, ui, logo, overlay, audio, camera, shape, cursor, card. */
+  class: string;
+  about: string;
+  /** How long the example's own motion runs, in seconds. */
+  seconds: number;
+  /** The script files it loads (scene library names): gsap, motion, three. */
+  libraries: string[];
+  params: string[];
+  /** Its sound cues in seconds of the scene. */
+  cues: { at: number; cue: string; gain: number }[];
+  /** Where it was ported from, when it was: "hyperframes:components/badge-pop". */
+  source?: string;
+  /** What stands in for material the original loaded (pictures, fonts, footage), when anything does. */
+  placeholders?: string;
+  tags?: string[];
+}
+
+export interface Catalogue { version: 1; /** Where the ported entries come from: the project, its commit, its licence, and how many items were found, ported and skipped. */ source?: { project: string; url: string; commit: string; licence: string; copyright: string; found: number; ported: number; skipped: number }; entries: CatalogueEntry[]; skipped?: { name: string; source: string; class: string; reason: string }[] }
+
+export const readCatalogue = async (rt: Runtime): Promise<Catalogue> =>
+  rt.fs.readText(rt.path.join(rt.skillRoot, CATALOGUE_FILE)).then((t) => JSON.parse(t) as Catalogue, () => ({ version: 1 as const, entries: [] }));
+
+/**
+ * The entries that match every word typed (in the name, the class, the tags or what it shows), the best first: a
+ * word in the name counts most. No words: all of them.
+ */
+export const searchCatalogue = (c: Catalogue, words: string): CatalogueEntry[] => {
+  const typed = words.toLowerCase().split(/[^a-z0-9\u4e00-\u9fff]+/).filter(Boolean);
+  if (!typed.length) return c.entries;
+  const score = (e: CatalogueEntry): number => {
+    const name = e.name.toLowerCase(), rest = (e.class + ' ' + (e.tags ?? []).join(' ') + ' ' + e.about + ' ' + e.cues.map((x) => x.cue).join(' ')).toLowerCase();
+    let total = 0;
+    for (const w of typed) {
+      const hit = name.includes(w) ? 3 : rest.includes(w) ? 1 : 0;
+      if (!hit) return 0;
+      total += hit;
+    }
+    return total;
+  };
+  return c.entries.map((e) => ({ e, s: score(e) })).filter((x) => x.s > 0).sort((a, b) => b.s - a.s || a.e.name.localeCompare(b.e.name)).map((x) => x.e);
+};
+
+/** An example of the Skill with its declared parameters: one of EXAMPLES, or any entry of the catalogue. */
 export const readExample = async (rt: Runtime, name: string): Promise<SceneExample> => {
-  if (!(EXAMPLES as readonly string[]).includes(name)) throw new ExampleError('There is no example scene named "' + name + '". Known: ' + EXAMPLES.join(', ') + '.');
-  const file = rt.path.join(rt.skillRoot, exampleFile(name));
-  const html = await rt.fs.readText(file).catch(() => { throw new ExampleError('The file ' + exampleFile(name) + ' of the popost Skill is missing. Reinstall popost (npm install -g popost).'); });
+  const entry = (EXAMPLES as readonly string[]).includes(name) ? undefined : (await readCatalogue(rt)).entries.find((e) => e.name === name);
+  if (!(EXAMPLES as readonly string[]).includes(name) && !entry) throw new ExampleError('There is no example scene named "' + name + '". Known: ' + EXAMPLES.join(', ') + ', and the entries of the catalogue: popost video scene example --search "<words>" finds one.');
+  const path = entry?.file ?? exampleFile(name);
+  const file = rt.path.join(rt.skillRoot, path);
+  const html = await rt.fs.readText(file).catch(() => { throw new ExampleError('The file ' + path + ' of the popost Skill is missing. Reinstall popost (npm install -g popost).'); });
   const block = BLOCK.exec(html)?.[1];
   const parsed = block ? (JSON.parse(block) as { about?: string; params?: ExampleParam[] }) : undefined;
   if (!parsed || !Array.isArray(parsed.params) || !VALUES.test(html) || !html.includes(SIZE)) throw new ExampleError('The example ' + exampleFile(name) + ' has no parameter block the Skill can read. Reinstall popost.');
@@ -68,6 +123,11 @@ const valueOf = (p: ExampleParam, typed: string): { value: number | string } | {
     const hit = (p.options ?? []).find((o) => String(o) === typed.trim());
     if (hit === undefined) return { problem: error(at, '"' + p.name + '" is one of the values listed: ' + p.what + '. Got "' + typed + '".', 'Write for example --set ' + p.name + '=' + p.default + '.', (p.options ?? []).map(String)) };
     return { value: hit };
+  }
+  if (p.type === 'text') {
+    const most = p.maxLength ?? 200;
+    if (Array.from(typed).length > most) return { problem: error(at, '"' + p.name + '" is a text of at most ' + most + ' characters: ' + p.what + '. Got ' + Array.from(typed).length + '.', 'Shorten it.') };
+    return { value: typed };
   }
   if (typed.trim() !== String(p.default) && !COLOUR.test(typed.trim())) return { problem: error(at, '"' + p.name + '" is a colour such as #ffffff, or "' + p.default + '": ' + p.what + '. Got "' + typed + '".', 'Write for example --set ' + p.name + '=#ffffff.') };
   return { value: typed.trim() };
@@ -109,6 +169,10 @@ export interface PreviewOptions {
 
 export const PREVIEW_FPS = 30;
 
+/** The libraries (scene library names) a scene's HTML loads from ../lib/. */
+export const librariesOf = (html: string): string[] =>
+  [...new Set([...html.matchAll(/<script\b[^>]*\bsrc\s*=\s*["']([^"']+)["']/gi)].flatMap((m) => { const name = libraryOfFile(m[1] as string); return name ? [name] : []; }))];
+
 /**
  * One sheet of frames of a scene on its own: a project of one shot is written into a temporary directory, rendered and
  * removed. The frames are spread evenly over the seconds asked for, the first and the last included, each with its time.
@@ -118,6 +182,8 @@ export const previewScene = (rt: Runtime, o: PreviewOptions): Promise<{ file: st
     const total = Math.max(2, Math.round(o.seconds * PREVIEW_FPS) + 1);
     await rt.fs.mkdir(rt.path.join(dir, 'scenes'));
     await rt.fs.writeFile(rt.path.join(dir, 'scenes', 'example.html'), o.html);
+    // The script files the scene loads from ../lib/ (an animation library, a helper of the Skill).
+    for (const name of librariesOf(o.html)) await addLibrary(rt, dir, name);
     await rt.fs.writeFile(rt.path.join(dir, 'video.json'), JSON.stringify({
       version: 1, canvas: { width: o.size[0], height: o.size[1], fps: PREVIEW_FPS }, materials: [],
       segments: [{ id: 'example', frames: total, base: { scene: 'scenes/example.html' } }], tracks: [],

@@ -1,0 +1,16 @@
+{
+ "caption-gradient-fill": "not the same picture when drawn again",
+ "chromatic-aberration-wipe": "not the same picture when drawn again",
+ "directional-wipe": "not the same picture when drawn again",
+ "lower-third-bild": "the same picture at three times",
+ "magnetic-cursor": "error: Error: <rect> attribute x: Expected length, \"NaN\".",
+ "morph-text": "the same picture at three times",
+ "rgb-glitch-text": "the same picture at three times",
+ "snow": "the same picture at three times",
+ "texture-mask-text": "the same picture at three times",
+ "type-match-cut": "not the same picture when drawn again",
+ "variable-axis-type": "the same picture at three times",
+ "vfx-text-cursor": "not the same picture when drawn again",
+ "week-in-merges": "the same picture at three times",
+ "zoom-through-transition": "not the same picture when drawn again"
+}

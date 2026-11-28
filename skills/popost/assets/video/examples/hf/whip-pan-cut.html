@@ -1,0 +1,599 @@
+<!doctype html>
+<!--
+  Adapted from HyperFrames (https://github.com/heygen-com/hyperframes), registry/components/whip-pan-cut, commit a8332860c396e9224d42b7ea2a9cc8f42918c961.
+  Copyright 2026 HeyGen, Inc. Licensed under the Apache License, Version 2.0; the licence text is in the popost
+  Skill's THIRD_PARTY_NOTICES. Changed for the popost Skill (tools/video/port-hyperframes.mjs): its comments removed; the composition it mounts (whip-pan-cut.html) put into the page; GSAP loaded from the project (../lib/gsap.min.js) instead of a CDN; scaled into the canvas; the 1920x1080 composition scaled into the scene's canvas (parameter "fit"); HyperFrames variables declared as parameters; its clips shown and hidden from the scene's time; sound cues derived from its tweens.
+-->
+
+<html data-composition-variables='[
+    { "id": "direction", "type": "enum", "role": "motion", "label": "Direction", "description": "Shared travel direction for the outgoing and incoming scenes.", "default": "left", "options": [{ "value": "left", "label": "Left" }, { "value": "right", "label": "Right" }] },
+    { "id": "whip_at", "type": "number", "role": "timing", "label": "Whip start", "description": "Seconds after mount start when the whip begins.", "default": 0.25, "min": 0, "max": 8, "step": 0.05, "unit": "s" },
+    { "id": "accent", "type": "enum", "role": "style", "label": "Accent", "description": "Seam hairline and default after art tint.", "default": "green", "options": [{ "value": "green", "label": "Green" }, { "value": "blue", "label": "Blue" }, { "value": "violet", "label": "Violet" }] },
+    { "id": "exit", "type": "enum", "role": "timing", "label": "Exit", "description": "Optional departure of the landed scene. Default none: it rests until the frame cuts.", "default": "none", "options": [{ "value": "none", "label": "None" }, { "value": "fade", "label": "Fade" }, { "value": "up", "label": "Up" }] }
+  ]' lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>whip-pan-cut Demo</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: var(--bg, #05070d);
+      }
+
+      #root {
+        --bg: #080b14;
+        --fg: #f8fafc;
+        --muted: #94a3b8;
+        --surface: #182033;
+        --border: #3b4863;
+        --brand: #22c55e;
+        --accent: #38bdf8;
+        --accent-2: #c5a3ff;
+        --font-display: Inter, system-ui, sans-serif;
+        --font-body: Inter, system-ui, sans-serif;
+        --radius: 22px;
+        --space-1: 8px;
+        --space-2: 16px;
+        --space-3: 32px;
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: radial-gradient(ellipse at 50% 42%, #10182b 0%, var(--bg, #080b14) 72%);
+      }
+
+      .mount-stage {
+        width: 100%;
+        height: 100%;
+        left: 0;
+        top: 0;
+        container-type: size;
+        overflow: hidden;
+      }
+    </style>
+  <style id="popost-fit">
+  html, body { margin: 0 !important; width: 1280px; height: 720px; overflow: hidden !important; background: #000000; }
+  #popost-stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden; }
+</style>
+<script type="application/json" id="popost-params">
+{
+ "about": "A full-frame whip pan: scene A whips off laterally with capped directional motion blur while scene B enters in the same direction at matched velocity, on a speed-ramp profile with a decelerating catch. Both scenes ride one strip, so seam velocity is exact by construction. Callers fill the named before/after slot panels; token-styled defaults render when a slot is left empty.",
+ "class": "transition",
+ "tags": [
+  "transition",
+  "whip-pan",
+  "motion-blur",
+  "velocity-match",
+  "speed-ramp",
+  "bridge",
+  "slots"
+ ],
+ "seconds": 0.9,
+ "params": [
+  {
+   "name": "fit",
+   "type": "choice",
+   "default": "contain",
+   "options": [
+    "contain",
+    "cover"
+   ],
+   "what": "how the 1920x1080 composition is fitted into the canvas: whole with bars, or filling it and cropped"
+  },
+  {
+   "name": "direction",
+   "type": "choice",
+   "default": "left",
+   "options": [
+    "left",
+    "right"
+   ],
+   "what": "Shared travel direction for the outgoing and incoming scenes."
+  },
+  {
+   "name": "whip_at",
+   "type": "number",
+   "default": 0.25,
+   "min": 0,
+   "max": 8,
+   "unit": "s",
+   "what": "Seconds after mount start when the whip begins."
+  },
+  {
+   "name": "accent",
+   "type": "choice",
+   "default": "green",
+   "options": [
+    "green",
+    "blue",
+    "violet"
+   ],
+   "what": "Seam hairline and default after art tint."
+  },
+  {
+   "name": "exit",
+   "type": "choice",
+   "default": "none",
+   "options": [
+    "none",
+    "fade",
+    "up"
+   ],
+   "what": "Optional departure of the landed scene. Default none: it rests until the frame cuts."
+  }
+ ],
+ "values": {}
+}
+</script>
+<script>
+  /* popost: the scene's parameters stand in for HyperFrames variables; random numbers are seeded; the composition is
+     scaled into the canvas; clips are shown and hidden from the scene's time. */
+  (function () {
+    var block = document.getElementById('popost-params');
+    var values = block ? (JSON.parse(block.textContent).values || {}) : {};
+    var vars = {"direction":"right","whip_at":0.35,"accent":"violet"};
+    Object.keys(values).forEach(function (k) { if (k !== 'fit') vars[k] = values[k] === 'true' ? true : values[k] === 'false' ? false : values[k]; });
+    window.__hyperframes = { getVariables: function () { return vars; } };
+    var seed = 20240229;
+    window.__popostRandom = function () { seed = (seed + 0x6d2b79f5) >>> 0; var t = seed; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+    window.__popostFit = function () {
+      // The canvas, from the size this file declares: a scene of a later shot loads in a layer that is not displayed, where the page measures 0.
+      var size = /width: (\d+)px; height: (\d+)px;/.exec(document.getElementById('popost-fit').textContent);
+      var W = 1920, H = 1080, s = document.getElementById('popost-stage'), cw = Number(size[1]), ch = Number(size[2]);
+      var k = (values.fit === 'cover' ? Math.max : Math.min)(cw / W, ch / H);
+      s.style.transform = 'translate(' + (cw - W * k) / 2 + 'px,' + (ch - H * k) / 2 + 'px) scale(' + k + ')';
+      var clips = Array.prototype.slice.call(s.querySelectorAll('.clip[data-start]')).filter(function (c) { return isFinite(parseFloat(c.getAttribute('data-start'))) && c.parentNode !== s; });
+      // A mounted composition that starts later in its host runs on its own time.
+      [].forEach(function (m) {
+        var tl = window.__timelines && window.__timelines[m.id];
+        if (tl) window.__timelines[m.id] = { pause: function () { tl.pause(); }, seek: function (t) { tl.seek(Math.max(0, t - m.start)); }, duration: function () { return tl.duration() + m.start; } };
+      });
+      var scene = (window.__popostScene = window.__popostScene || {}), before = scene.render;
+      scene.render = function (seconds, fps) {
+        if (before) before(seconds, fps);
+        for (var i = 0; i < clips.length; i++) {
+          var a = parseFloat(clips[i].getAttribute('data-start')), d = parseFloat(clips[i].getAttribute('data-duration'));
+          clips[i].style.visibility = seconds >= a && (!isFinite(d) || seconds < a + d) ? 'visible' : 'hidden';
+        }
+      };
+    };
+  })();
+</script>
+<script type="application/json" id="popost-cues">[{"at":0.35,"cue":"whoosh","gain":0.5}]</script>
+</head>
+  <body>
+<div id="popost-stage">
+    <div
+      id="root"
+      data-composition-id="whip-pan-cut-demo"
+      data-start="0"
+      data-width="1920"
+      data-height="1080"
+      data-duration="1.2"
+      data-fps="30"
+    >
+      <div
+        id="whip-pan-cut-mount"
+        class="mount-stage clip"
+        data-composition-id="whip-pan-cut"
+       
+        data-variable-values='{"direction":"right","whip_at":0.35,"accent":"violet"}'
+        data-start="0"
+        data-duration="1.2"
+        data-track-index="0"
+        data-width="1920"
+        data-height="1080"
+      >
+      <div id="root" data-composition-id="whip-pan-cut" data-duration="1.2" data-fps="30">
+        <style>
+          *,
+          *::before,
+          *::after {
+            box-sizing: border-box;
+          }
+
+          /* Root fills the host-owned box. Internal measurements use cqw/cqh
+             and every painted color comes from a contract token. */
+          #root {
+            position: absolute;
+            inset: 0;
+            container-type: size;
+            isolation: isolate;
+            overflow: hidden;
+            background: var(--bg, #07111f);
+            color: var(--fg, #f8fafc);
+            font-family: var(--font-body, Inter, system-ui, sans-serif);
+          }
+
+          .wpc-clip,
+          .wpc-strip,
+          .wpc-panel,
+          .wpc-slot {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+          }
+
+          .wpc-clip {
+            overflow: hidden;
+          }
+
+          /* The strip is the ONE mover: it carries both scenes, the transform
+             tween, and the directional blur filter. No 3D lives on it, so the
+             filter has nothing to flatten. */
+          .wpc-strip {
+            filter: url("#wpc-blur");
+            will-change: transform, filter;
+          }
+
+          .wpc-panel {
+            overflow: hidden;
+          }
+
+          /* Scene B docks one frame-width beyond scene A along the travel
+             direction, so the pan crosses one continuous surface. */
+          #root[data-direction="left"] .wpc-after {
+            left: 100%;
+          }
+
+          #root[data-direction="right"] .wpc-after {
+            left: -100%;
+          }
+
+          /* The seam hairline rides the boundary between the two scenes and
+             is timeline-owned: visible only while the whip runs. */
+          .wpc-seam {
+            position: absolute;
+            z-index: 3;
+            top: 0;
+            bottom: 0;
+            width: 0.35cqw;
+            transform: translateX(-50%);
+            background: var(--wpc-accent, #22c55e);
+            pointer-events: none;
+          }
+
+          #root[data-direction="left"] .wpc-seam {
+            left: 100%;
+          }
+
+          #root[data-direction="right"] .wpc-seam {
+            left: 0;
+          }
+
+          /* Caller-supplied media covers its panel edge to edge. */
+          .wpc-slot > img,
+          .wpc-slot > video {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+
+          /* Token-styled default slot content: a wireframe card that reads
+             muted on the before layer and brand-tinted on the after layer.
+             Callers replacing slot children never see any of this. */
+          .wpc-default {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-items: center;
+          }
+
+          .wpc-before .wpc-default {
+            background:
+              linear-gradient(
+                  color-mix(in srgb, var(--border, #334155) 34%, transparent) 0.12cqw,
+                  transparent 0.12cqw
+                )
+                0 0 / 5cqw 5cqw,
+              linear-gradient(
+                  90deg,
+                  color-mix(in srgb, var(--border, #334155) 34%, transparent) 0.12cqw,
+                  transparent 0.12cqw
+                )
+                0 0 / 5cqw 5cqw,
+              var(--surface, #172033);
+          }
+
+          .wpc-after .wpc-default {
+            background: linear-gradient(
+              135deg,
+              color-mix(in srgb, var(--brand, #22c55e) 32%, var(--surface, #172033)) 0%,
+              var(--surface, #172033) 58%,
+              color-mix(in srgb, var(--wpc-accent, #22c55e) 22%, var(--surface, #172033)) 100%
+            );
+          }
+
+          .wpc-card {
+            width: 56cqw;
+            height: 56cqh;
+            padding: var(--space-3, 4cqh) var(--space-3, 4cqw);
+            border: 0.16cqw solid var(--border, #334155);
+            border-radius: var(--radius, 2.4cqmin);
+            background: color-mix(in srgb, var(--surface, #172033) 88%, var(--bg, #07111f));
+            box-shadow: 0 2cqh 5cqw color-mix(in srgb, var(--bg, #07111f) 45%, transparent);
+          }
+
+          .wpc-after .wpc-card {
+            border-color: color-mix(
+              in srgb,
+              var(--wpc-accent, #22c55e) 52%,
+              var(--border, #334155)
+            );
+            background: color-mix(in srgb, var(--surface, #172033) 86%, var(--brand, #22c55e));
+          }
+
+          .wpc-bar {
+            width: 34%;
+            height: 4.4cqh;
+            margin-bottom: var(--space-3, 4cqh);
+            border-radius: 1.2cqh;
+            background: var(--muted, #94a3b8);
+            opacity: 0.5;
+          }
+
+          .wpc-after .wpc-bar {
+            background: var(--wpc-accent, #22c55e);
+            opacity: 0.92;
+          }
+
+          .wpc-line {
+            height: 2.4cqh;
+            margin-bottom: var(--space-2, 2.6cqh);
+            border-radius: 1.2cqh;
+            background: var(--muted, #94a3b8);
+            opacity: 0.4;
+          }
+
+          .wpc-line:nth-of-type(2) {
+            width: 92%;
+          }
+
+          .wpc-line:nth-of-type(3) {
+            width: 68%;
+          }
+
+          .wpc-line:nth-of-type(4) {
+            width: 44%;
+          }
+
+          .wpc-after .wpc-line {
+            background: color-mix(in srgb, var(--brand, #22c55e) 70%, var(--fg, #f8fafc));
+            opacity: 0.75;
+          }
+        </style>
+
+        <div
+          id="whip-pan-cut-clip"
+          class="wpc-clip clip"
+          data-start="0"
+          data-duration="1.2"
+          data-track-index="0"
+        >
+          <svg width="0" height="0" aria-hidden="true" style="position: absolute">
+            <defs>
+              <filter id="wpc-blur" x="-50%" y="-20%" width="200%" height="140%">
+                <feGaussianBlur class="wpc-blur-node" in="SourceGraphic" stdDeviation="0 0" />
+              </filter>
+            </defs>
+          </svg>
+
+          <div class="wpc-strip">
+            <section class="wpc-panel wpc-before" aria-label="Outgoing scene">
+              <div class="wpc-slot" data-slot="before">
+                
+                <div class="wpc-default" aria-hidden="true">
+                  <div class="wpc-card">
+                    <div class="wpc-bar"></div>
+                    <div class="wpc-line"></div>
+                    <div class="wpc-line"></div>
+                    <div class="wpc-line"></div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section class="wpc-panel wpc-after" aria-label="Incoming scene">
+              <div class="wpc-slot" data-slot="after">
+                
+                <div class="wpc-default" aria-hidden="true">
+                  <div class="wpc-card">
+                    <div class="wpc-bar"></div>
+                    <div class="wpc-line"></div>
+                    <div class="wpc-line"></div>
+                    <div class="wpc-line"></div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <div class="wpc-seam" aria-hidden="true"></div>
+          </div>
+        </div>
+
+        <script src="../lib/gsap.min.js"></script>
+        <script>
+          (function () {
+            "use strict";
+
+            var root = document.getElementById("root");
+            // Literal id: mount flattening strips data-composition-id from the
+            // live root before this timeline registers.
+            var compositionId = "whip-pan-cut";
+            var strip = root.querySelector(".wpc-strip");
+            var seam = root.querySelector(".wpc-seam");
+            var blurNode = root.querySelector(".wpc-blur-node");
+
+            var vars =
+              window.__hyperframes && window.__hyperframes.getVariables
+                ? window.__hyperframes.getVariables()
+                : {};
+
+            var direction = vars.direction === "right" ? "right" : "left";
+            var rawWhipAt = vars.whip_at == null ? 0.25 : Number(vars.whip_at);
+            var whipAt = Number.isFinite(rawWhipAt) ? Math.max(0, Math.min(8, rawWhipAt)) : 0.25;
+            // Each enum choice routes to a DIFFERENT contract token so the
+            // variable stays meaningful under a theme.
+            var accentColors = {
+              green: "var(--brand, #22c55e)",
+              blue: "var(--accent, #38bdf8)",
+              violet: "var(--accent-2, #c5a3ff)",
+            };
+            var accent = Object.prototype.hasOwnProperty.call(accentColors, vars.accent)
+              ? vars.accent
+              : "green";
+            // The bundler mirrors composition variables as scoped CSS custom
+            // props, so this unit's own accent variable can shadow the
+            // contract --accent token inside the subtree ("blue" is a valid
+            // CSS color and would render pure blue). When the shadow is
+            // present, fall back to the literal contract value.
+            var computedAccent = getComputedStyle(root).getPropertyValue("--accent").trim();
+            if (
+              computedAccent === "green" ||
+              computedAccent === "blue" ||
+              computedAccent === "violet"
+            ) {
+              accentColors.blue = "#38bdf8";
+            }
+            // INVARIANT: only none | fade | up reaches the timeline.
+            var exit = vars.exit === "fade" || vars.exit === "up" ? vars.exit : "none";
+
+            root.dataset.direction = direction;
+            root.style.setProperty("--wpc-accent", accentColors[accent]);
+
+            // Travel measured in px ONCE at mount (cq units inside tweened
+            // transform values are a seek trap). One frame-width lands scene
+            // B exactly where scene A stood.
+            var travel = root.clientWidth || 1920;
+            var sign = direction === "left" ? -1 : 1;
+
+            // RETIME RANGE: 0.6s to 3s. LEAD and WHIP scale together only when
+            // D is too short. REST absorbs any remainder; this is a transition
+            // profile (cut-the-curve precedent), so a short clip window may
+            // end while the catch is still decelerating. Never timeScale().
+            var WHIP_DURATION_BASE = 0.55;
+            var duration = Math.max(0.001, parseFloat(root.dataset.duration || "1.2"));
+            var EXIT = exit === "none" ? 0 : Math.min(0.35, duration * 0.25);
+            var scale =
+              duration - EXIT < whipAt + WHIP_DURATION_BASE
+                ? (duration - EXIT) / (whipAt + WHIP_DURATION_BASE)
+                : 1;
+            var WHIP_AT = whipAt * scale;
+            var WHIP_DURATION = WHIP_DURATION_BASE * scale;
+            var WHIP_END = WHIP_AT + WHIP_DURATION;
+            var CUT_AT = WHIP_AT + WHIP_DURATION / 2;
+            var OUT_START = duration - EXIT;
+
+            // Blur cap per the motion-blur-streak recipe: peak stdDeviation
+            // stays well under the 30px readability ceiling.
+            var PEAK_BLUR = 16;
+            var blurProxy = { v: 0 };
+            function writeBlur() {
+              blurNode.setAttribute("stdDeviation", blurProxy.v + " 0");
+            }
+            // Seed frame 0 so a seek to t=0 renders sharp, not a stale blur.
+            writeBlur();
+
+            function fireSfx(id, t) {
+              root.dispatchEvent(
+                new CustomEvent("hf:sfx", { detail: { id: id, t: t }, bubbles: true }),
+              );
+            }
+
+            // Explicit both-endpoints state makes tl.seek(0) deterministic.
+            gsap.set(strip, { x: 0, y: 0, opacity: 1 });
+            gsap.set(seam, { autoAlpha: 0 });
+
+            var tl = gsap.timeline({ paused: true });
+
+            // WHIP: one strip, one speed-ramp tween. Both scenes share the
+            // transform, so seam velocity is matched by construction.
+            tl.fromTo(
+              strip,
+              { x: 0 },
+              { x: sign * travel, duration: WHIP_DURATION, ease: "power3.inOut" },
+              WHIP_AT,
+            );
+
+            // Blur envelope: peaks at mid-whip (peak velocity), zero at both
+            // ends. power3.in up / power3.out down mirrors the inOut ramp.
+            tl.to(
+              blurProxy,
+              { v: PEAK_BLUR, duration: WHIP_DURATION / 2, ease: "power3.in", onUpdate: writeBlur },
+              WHIP_AT,
+            );
+            tl.to(
+              blurProxy,
+              { v: 0, duration: WHIP_DURATION / 2, ease: "power3.out", onUpdate: writeBlur },
+              WHIP_AT + WHIP_DURATION / 2,
+            );
+
+            // Seam hairline: alive only while the whip runs.
+            tl.fromTo(
+              seam,
+              { autoAlpha: 0 },
+              {
+                autoAlpha: 1,
+                duration: Math.min(0.1 * scale, WHIP_DURATION),
+                ease: "power1.out",
+                immediateRender: false,
+              },
+              WHIP_AT,
+            );
+            tl.to(
+              seam,
+              { autoAlpha: 0, duration: 0.15 * scale, ease: "power1.in" },
+              Math.max(WHIP_AT, WHIP_END - 0.15 * scale),
+            );
+
+            tl.call(
+              function () {
+                fireSfx("whip-cut", CUT_AT);
+              },
+              [],
+              CUT_AT,
+            );
+
+            // REST: dead still on scene B until the frame cuts.
+
+            // EXIT: only when the exit variable asks for one; exit none holds
+            // the landed scene (frame roots own transitions).
+            if (exit !== "none") {
+              tl.to(strip, { opacity: 0, duration: EXIT, ease: "power2.in" }, OUT_START);
+              if (exit === "up") {
+                tl.to(strip, { y: "-6cqh", duration: EXIT, ease: "power2.in" }, OUT_START);
+              }
+            }
+
+            tl.seek(0);
+
+            window.__timelines = window.__timelines || {};
+            window.__timelines[compositionId] = tl;
+          })();
+        </script>
+      </div>
+    </div>
+    </div>
+
+    <script src="../lib/gsap.min.js"></script>
+    <script>
+      window.__timelines = window.__timelines || {};
+      window.__timelines["whip-pan-cut-demo"] = gsap.timeline({ paused: true });
+    </script>
+  </div>
+<script>window.__popostFit();</script>
+</body>
+</html>

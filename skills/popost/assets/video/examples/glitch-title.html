@@ -1,0 +1,120 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Glitch and RGB split</title>
+<style>
+  html, body { margin: 0; width: 1280px; height: 720px; overflow: hidden; }
+  #wrap { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
+  #title { position: absolute; left: 0; width: 100%; text-align: center; font: 900 130px/1 "Noto Sans", "Noto Sans CJK SC", sans-serif; letter-spacing: 0.02em; }
+</style></head>
+<body>
+<div id="wrap"><div id="title" data-slot="title"></div></div>
+  <script type="application/json" id="popost-params">
+{
+ "about": "A title breaks up in bursts: a red and a cyan copy pull apart, bands of it jump sideways and it skews, then it is whole again. Seeded: the same breaks on every render.",
+ "class": "text",
+ "seconds": 2.2,
+ "tags": [
+  "glitch",
+  "rgb",
+  "chromatic",
+  "split",
+  "distortion",
+  "digital",
+  "tear"
+ ],
+ "params": [
+  {
+   "name": "title",
+   "type": "text",
+   "default": "SIGNAL LOST",
+   "maxLength": 32,
+   "what": "the text"
+  },
+  {
+   "name": "duration",
+   "type": "number",
+   "default": 0.5,
+   "min": 0.1,
+   "max": 5,
+   "what": "how long it breaks up",
+   "unit": "seconds"
+  },
+  {
+   "name": "amount",
+   "type": "number",
+   "default": 18,
+   "min": 2,
+   "max": 120,
+   "what": "how far it tears",
+   "unit": "pixels at 720 high"
+  },
+  {
+   "name": "bursts",
+   "type": "number",
+   "default": 2,
+   "min": 1,
+   "max": 6,
+   "what": "how many times it breaks up"
+  },
+  {
+   "name": "gap",
+   "type": "number",
+   "default": 0.5,
+   "min": 0.05,
+   "max": 5,
+   "what": "the calm between two bursts",
+   "unit": "seconds"
+  },
+  {
+   "name": "rate",
+   "type": "number",
+   "default": 24,
+   "min": 6,
+   "max": 60,
+   "what": "how often the tear changes",
+   "unit": "times a second"
+  },
+  {
+   "name": "seed",
+   "type": "number",
+   "default": 17,
+   "min": 1,
+   "max": 999,
+   "what": "which tears"
+  },
+  {
+   "name": "color",
+   "type": "colour",
+   "default": "#f8f9fa",
+   "what": "the text"
+  },
+  {
+   "name": "ground",
+   "type": "colour",
+   "default": "#0a0a0a",
+   "what": "the background"
+  },
+  {
+   "name": "delay",
+   "type": "number",
+   "default": 0.2,
+   "min": 0,
+   "max": 20,
+   "unit": "seconds",
+   "what": "when the effect starts, from the start of the shot"
+  }
+ ],
+ "values": {}
+}
+  </script>
+  <script src="../lib/popost-motion.js"></script>
+  <script>
+    // The parameters of this copy: the declared defaults, then what "values" sets.
+    var P = (function () { var b = JSON.parse(document.getElementById('popost-params').textContent), v = {}; b.params.forEach(function (p) { v[p.name] = p['default']; }); for (var k in b.values) v[k] = b.values[k]; return v; })();
+    // The canvas, from the size this file declares for html and body: a scene of a later shot loads in a layer that
+    // is not displayed, where the page itself measures 0 until its first frame.
+    var SIZE = /html, body \{ margin: 0; width: (\d+)px; height: (\d+)px;/.exec(document.querySelector('style').textContent), W = Number(SIZE[1]), H = Number(SIZE[2]), U = Math.min(W, H) / 720;
+    var M = popostMotion, title = document.getElementById('title');
+    document.body.style.background = P.ground; title.textContent = P.title; title.style.color = P.color; title.style.fontSize = 0.17 * H + 'px'; title.style.top = 0.4 * H + 'px';
+    for (var i = 0; i < P.bursts; i++) M.glitch('#title', { at: P.delay + i * (P.duration + P.gap), 'for': P.duration, amount: P.amount * U, seed: P.seed + i * 31, rate: P.rate });
+  </script>
+</body></html>

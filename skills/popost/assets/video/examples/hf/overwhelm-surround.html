@@ -1,0 +1,490 @@
+<!doctype html>
+<!--
+  Adapted from HyperFrames (https://github.com/heygen-com/hyperframes), registry/components/overwhelm-surround, commit a8332860c396e9224d42b7ea2a9cc8f42918c961.
+  Copyright 2026 HeyGen, Inc. Licensed under the Apache License, Version 2.0; the licence text is in the popost
+  Skill's THIRD_PARTY_NOTICES. Changed for the popost Skill (tools/video/port-hyperframes.mjs): its comments removed; the composition it mounts (overwhelm-surround.html) put into the page; GSAP loaded from the project (../lib/gsap.min.js) instead of a CDN; scaled into the canvas; the 1920x1080 composition scaled into the scene's canvas (parameter "fit"); HyperFrames variables declared as parameters; its clips shown and hidden from the scene's time; sound cues derived from its tweens.
+-->
+
+<html data-composition-variables='[
+    { "id": "count", "type": "number", "role": "content", "label": "Chip count", "description": "Number of tasks and notifications crowding the center.", "default": 16, "min": 8, "max": 24, "step": 1 },
+    { "id": "centerLabel", "type": "string", "role": "content", "label": "Center label", "description": "Text inside the calm central subject. Blank hides the text.", "default": "You" },
+    { "id": "intensity", "type": "number", "role": "layout", "label": "Intensity", "description": "How tightly and quickly the chips crowd the center.", "default": 1, "min": 0.5, "max": 2, "step": 0.1 }
+  ]' lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>Overwhelm Surround - Demo</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #05070d;
+      }
+
+      #root {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: radial-gradient(ellipse at 50% 40%, #0d1526 0%, #05070d 70%);
+      }
+
+      /* The 60%-of-frame card gives the mounted primitive a definite CSS box.
+         The mounted internals size from cqw/cqh, and a shrink-to-fit host can
+         otherwise collapse under size containment. data-width/data-height
+         stay in sync below for tooling that reads per-instance dimensions. */
+      .mount-card {
+        --bg: #101827;
+        --fg: #f8fafc;
+        --surface: #1e293b;
+        --brand: #f97316;
+        --accent: #38bdf8;
+        --border: #475569;
+        --muted: #94a3b8;
+        width: 60%;
+        height: 60%;
+        left: 20%;
+        top: 20%;
+        border-radius: 32px;
+        border: 1px solid rgba(148, 163, 184, 0.24);
+        box-shadow: 0 44px 110px rgba(0, 0, 0, 0.48);
+        overflow: hidden;
+      }
+    </style>
+  <style id="popost-fit">
+  html, body { margin: 0 !important; width: 1280px; height: 720px; overflow: hidden !important; background: #000000; }
+  #popost-stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden; }
+</style>
+<script type="application/json" id="popost-params">
+{
+ "about": "Tasks, tabs, pings, and notification bubbles accelerate inward around a calm central subject, turning overload into visible spatial pressure.",
+ "class": "ui",
+ "tags": [
+  "effects",
+  "agitate",
+  "overwhelm",
+  "pressure",
+  "notifications"
+ ],
+ "seconds": 4.5,
+ "params": [
+  {
+   "name": "fit",
+   "type": "choice",
+   "default": "contain",
+   "options": [
+    "contain",
+    "cover"
+   ],
+   "what": "how the 1920x1080 composition is fitted into the canvas: whole with bars, or filling it and cropped"
+  },
+  {
+   "name": "count",
+   "type": "number",
+   "default": 16,
+   "min": 8,
+   "max": 24,
+   "what": "Number of tasks and notifications crowding the center."
+  },
+  {
+   "name": "centerLabel",
+   "type": "text",
+   "default": "You",
+   "maxLength": 200,
+   "what": "Text inside the calm central subject. Blank hides the text."
+  },
+  {
+   "name": "intensity",
+   "type": "number",
+   "default": 1,
+   "min": 0.5,
+   "max": 2,
+   "what": "How tightly and quickly the chips crowd the center."
+  }
+ ],
+ "values": {}
+}
+</script>
+<script>
+  /* popost: the scene's parameters stand in for HyperFrames variables; random numbers are seeded; the composition is
+     scaled into the canvas; clips are shown and hidden from the scene's time. */
+  (function () {
+    var block = document.getElementById('popost-params');
+    var values = block ? (JSON.parse(block.textContent).values || {}) : {};
+    var vars = {"count":22,"centerLabel":"Focus","intensity":1.7};
+    Object.keys(values).forEach(function (k) { if (k !== 'fit') vars[k] = values[k] === 'true' ? true : values[k] === 'false' ? false : values[k]; });
+    window.__hyperframes = { getVariables: function () { return vars; } };
+    var seed = 20240229;
+    window.__popostRandom = function () { seed = (seed + 0x6d2b79f5) >>> 0; var t = seed; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+    window.__popostFit = function () {
+      // The canvas, from the size this file declares: a scene of a later shot loads in a layer that is not displayed, where the page measures 0.
+      var size = /width: (\d+)px; height: (\d+)px;/.exec(document.getElementById('popost-fit').textContent);
+      var W = 1920, H = 1080, s = document.getElementById('popost-stage'), cw = Number(size[1]), ch = Number(size[2]);
+      var k = (values.fit === 'cover' ? Math.max : Math.min)(cw / W, ch / H);
+      s.style.transform = 'translate(' + (cw - W * k) / 2 + 'px,' + (ch - H * k) / 2 + 'px) scale(' + k + ')';
+      var clips = Array.prototype.slice.call(s.querySelectorAll('.clip[data-start]')).filter(function (c) { return isFinite(parseFloat(c.getAttribute('data-start'))) && c.parentNode !== s; });
+      // A mounted composition that starts later in its host runs on its own time.
+      [].forEach(function (m) {
+        var tl = window.__timelines && window.__timelines[m.id];
+        if (tl) window.__timelines[m.id] = { pause: function () { tl.pause(); }, seek: function (t) { tl.seek(Math.max(0, t - m.start)); }, duration: function () { return tl.duration() + m.start; } };
+      });
+      var scene = (window.__popostScene = window.__popostScene || {}), before = scene.render;
+      scene.render = function (seconds, fps) {
+        if (before) before(seconds, fps);
+        for (var i = 0; i < clips.length; i++) {
+          var a = parseFloat(clips[i].getAttribute('data-start')), d = parseFloat(clips[i].getAttribute('data-duration'));
+          clips[i].style.visibility = seconds >= a && (!isFinite(d) || seconds < a + d) ? 'visible' : 'hidden';
+        }
+      };
+    };
+  })();
+</script>
+<script type="application/json" id="popost-cues">[{"at":0,"cue":"swish","gain":0.4}]</script>
+</head>
+  <body>
+<div id="popost-stage">
+    <div
+      id="root"
+      data-composition-id="overwhelm-surround-demo"
+      data-start="0"
+      data-width="1920"
+      data-height="1080"
+      data-duration="4.5"
+      data-fps="30"
+    >
+      <div
+        id="overwhelm-surround-mount"
+        class="mount-card clip"
+        data-composition-id="overwhelm-surround"
+       
+        data-variable-values='{"count":22,"centerLabel":"Focus","intensity":1.7}'
+        data-start="0"
+        data-duration="4.5"
+        data-track-index="0"
+        data-width="1152"
+        data-height="648"
+      >
+      <div id="root" data-composition-id="overwhelm-surround" data-duration="4.5" data-fps="30">
+        <style>
+          *,
+          *::before,
+          *::after {
+            box-sizing: border-box;
+          }
+
+          /* Root: sized off the HOST box, never a fixed stage. inset:0 fills
+             whatever box the host clip gives it. container-type establishes
+             the cqw/cqh basis for every internal measurement below. Styled by
+             #root, never a class, see the mount-contract note above. */
+          #root {
+            position: absolute;
+            inset: 0;
+            container-type: size;
+            isolation: isolate;
+            overflow: hidden;
+            background: var(--bg, #0b1120);
+            color: var(--fg, #f8fafc);
+            font-family: var(--font-body, Inter, system-ui, sans-serif);
+          }
+
+          .os-clip {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+          }
+
+          .os-crowd {
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+          }
+
+          .os-chip {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            min-width: clamp(7cqw, 9.5cqw, 12cqw);
+            min-height: clamp(5.5cqh, 7cqh, 9cqh);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-1, 1cqw);
+            padding: var(--space-2, 1.4cqh) var(--space-3, 2cqw);
+            border: 0.14cqw solid color-mix(in srgb, var(--border, #334155) 72%, transparent);
+            border-radius: clamp(1.4cqw, 2.4cqw, 3.2cqw);
+            background: color-mix(in srgb, var(--surface, #1e293b) 94%, var(--bg, #0b1120));
+            color: var(--fg, #f8fafc);
+            box-shadow:
+              0 0.8cqh 2.4cqh color-mix(in srgb, var(--bg, #0b1120) 48%, transparent),
+              inset 0 0 0 0.08cqw color-mix(in srgb, var(--fg, #f8fafc) 6%, transparent);
+            font-family: var(--font-display, Inter, system-ui, sans-serif);
+            font-size: clamp(1.8cqw, 2.4cqw, 3.2cqw);
+            font-weight: 700;
+            letter-spacing: 0.01em;
+            line-height: 1;
+            white-space: nowrap;
+            transform-origin: 50% 50%;
+            will-change: transform, opacity;
+          }
+
+          .os-chip::before {
+            content: "";
+            width: clamp(1.2cqw, 1.7cqw, 2.2cqw);
+            aspect-ratio: 1;
+            flex: 0 0 auto;
+            border-radius: 50%;
+            background: var(--accent, #38bdf8);
+            box-shadow: 0 0 1.5cqw color-mix(in srgb, var(--accent, #38bdf8) 62%, transparent);
+          }
+
+          .os-chip[data-kind="alert"] {
+            border-color: color-mix(in srgb, var(--brand, #22c55e) 62%, var(--border, #334155));
+          }
+
+          .os-chip[data-kind="alert"]::before {
+            background: var(--brand, #22c55e);
+            box-shadow: 0 0 1.5cqw color-mix(in srgb, var(--brand, #22c55e) 62%, transparent);
+          }
+
+          .os-chip[data-kind="ping"] {
+            border-radius: 50%;
+            min-width: clamp(6cqw, 7.5cqw, 9cqw);
+            min-height: auto;
+            aspect-ratio: 1;
+            padding: var(--space-2, 1.4cqh);
+            color: var(--accent, #38bdf8);
+          }
+
+          .os-chip[data-kind="ping"]::before {
+            display: none;
+          }
+
+          .os-center {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            z-index: 5;
+            width: clamp(13cqw, 16cqw, 20cqw);
+            aspect-ratio: 1.4 / 1;
+            display: grid;
+            place-items: center;
+            border: 0.2cqw solid
+              color-mix(in srgb, var(--accent, #38bdf8) 78%, var(--border, #334155));
+            border-radius: clamp(2.2cqw, 3.4cqw, 4.5cqw);
+            background: var(--surface, #1e293b);
+            color: var(--fg, #f8fafc);
+            box-shadow:
+              0 0 0 0.75cqw color-mix(in srgb, var(--bg, #0b1120) 82%, transparent),
+              0 1.2cqh 3.8cqh color-mix(in srgb, var(--accent, #38bdf8) 22%, transparent);
+            font-family: var(--font-display, Inter, system-ui, sans-serif);
+            font-size: clamp(2.5cqw, 3.6cqw, 4.8cqw);
+            font-weight: 760;
+            letter-spacing: -0.02em;
+            line-height: 1;
+            text-align: center;
+            transform: translate(-50%, -50%);
+          }
+
+          .os-center-label:empty {
+            display: none;
+          }
+        </style>
+
+        <div
+          id="overwhelm-surround-clip"
+          class="os-clip clip"
+          data-start="0"
+          data-duration="4.5"
+          data-track-index="0"
+        >
+          <div class="os-crowd" aria-hidden="true"></div>
+          <div class="os-center" data-anchor="overwhelm-surround">
+            <span class="os-center-label"></span>
+          </div>
+        </div>
+
+        <script src="../lib/gsap.min.js"></script>
+        <script>
+          (function () {
+            "use strict";
+
+            var root = document.getElementById("root");
+            // Literal, not read off the DOM: once mounted, the framework's
+            // flattening step strips data-composition-id from the mounted
+            // root (see FLATTENED_INNER_ROOT_STRIP_ATTRS in
+            // packages/core/src/runtime/flattenedRoot.ts), so
+            // root.getAttribute("data-composition-id") would read null post-
+            // mount and silently register the timeline under the key "null"
+            // instead of "overwhelm-surround". Matches the convention in
+            // sub-compositions.md and empty.html: hardcode the id this file is
+            // always mounted under.
+            var compositionId = "overwhelm-surround";
+            var clipEl = root.querySelector(".os-clip");
+            var crowdEl = root.querySelector(".os-crowd");
+            var centerEl = root.querySelector(".os-center");
+            var centerLabelEl = root.querySelector(".os-center-label");
+
+            var vars =
+              window.__hyperframes && window.__hyperframes.getVariables
+                ? window.__hyperframes.getVariables()
+                : {};
+
+            // INVARIANT: one clamped value owns each visual decision. Empty
+            // centerLabel remains distinct from a missing value.
+            var countValue = Number(vars.count);
+            var count = Math.round(
+              Math.max(8, Math.min(24, Number.isFinite(countValue) ? countValue : 16)),
+            );
+            var centerLabel = vars.centerLabel == null ? "You" : String(vars.centerLabel);
+            var intensityValue = Number(vars.intensity);
+            var intensity = Math.max(
+              0.5,
+              Math.min(2, Number.isFinite(intensityValue) ? intensityValue : 1),
+            );
+
+            centerLabelEl.textContent = centerLabel;
+
+            var labels = [
+              "Inbox",
+              "99+",
+              "Due",
+              "@you",
+              "ASAP",
+              "12",
+              "Review",
+              "!",
+              "Call",
+              "3 pings",
+              "Sync",
+              "Today",
+              "Reply",
+              "8 tabs",
+              "Update",
+              "Now",
+              "Draft",
+              "4 alerts",
+              "Fix",
+              "Follow up",
+              "Queue",
+              "2 min",
+              "Waiting",
+              "+7",
+            ];
+            var chips = [];
+
+            for (var i = 0; i < count; i += 1) {
+              var chip = document.createElement("div");
+              chip.className = "os-chip";
+              chip.dataset.kind = i % 5 === 1 ? "ping" : i % 3 === 0 ? "alert" : "task";
+              chip.textContent = labels[i];
+              crowdEl.appendChild(chip);
+              chips.push(chip);
+            }
+
+            // RETIME RANGE: these constants own global phase pacing. HOLD is
+            // the only elastic phase. IN and OUT scale together only when the
+            // composition duration is shorter than their combined base time.
+            var IN_BASE = 2.2;
+            var OUT_BASE = 0.5;
+            var TRAVEL_BASE = 0.54;
+            var duration = Math.max(0.001, parseFloat(root.dataset.duration || "4.5"));
+            var totalBase = IN_BASE + OUT_BASE;
+            var scale = duration < totalBase ? duration / totalBase : 1;
+            var IN = IN_BASE * scale;
+            var OUT = OUT_BASE * scale;
+            var HOLD = Math.max(0, duration - (IN + OUT));
+            var OUT_START = IN + HOLD;
+            var travelDuration = Math.min(IN, (TRAVEL_BASE * scale) / Math.sqrt(intensity));
+            var arrivalSpan = Math.max(0, IN - travelDuration);
+            var arrivalPower = 1.7 + intensity * 0.45;
+            var pressure = (intensity - 0.5) / 1.5;
+
+            // Explicit both-endpoints state (gsap.set, never gsap.from()) so a
+            // seek to t=0 is always correct without playing the timeline.
+            gsap.set(centerEl, { xPercent: -50, yPercent: -50, opacity: 1, scale: 1 });
+            gsap.set(clipEl, { opacity: 1 });
+
+            var tl = gsap.timeline({ paused: true });
+
+            chips.forEach(function (chip, index) {
+              // Even angular distribution keeps every count deterministic and
+              // balanced. Index-derived banding creates a compact cluster
+              // without any random state.
+              var angle = -Math.PI / 2 + (Math.PI * 2 * index) / count;
+              var directionX = Math.cos(angle);
+              var directionY = Math.sin(angle);
+              var edgeScale = 0.64 / Math.max(Math.abs(directionX), Math.abs(directionY));
+              var entryX = directionX * edgeScale * 100;
+              var entryY = directionY * edgeScale * 100;
+              var band = ((index * 5) % 7) / 6;
+              var radiusX = 27 + band * 9 - pressure * (12 + band * 6);
+              var radiusY = 25 + band * 10 - pressure * (11 + band * 6);
+              var restX = directionX * radiusX;
+              var restY = directionY * radiusY;
+              var progress = index / (count - 1);
+              var arrivalT = arrivalSpan * (1 - Math.pow(1 - progress, arrivalPower));
+              var restRotation = ((index * 29) % 17) - 8;
+
+              gsap.set(chip, {
+                x: entryX + "cqw",
+                y: entryY + "cqh",
+                xPercent: -50,
+                yPercent: -50,
+                scale: 0.94,
+                opacity: 0,
+                rotation: restRotation * 1.8,
+              });
+
+              tl.to(
+                chip,
+                {
+                  x: restX + "cqw",
+                  y: restY + "cqh",
+                  scale: 1,
+                  opacity: 1,
+                  rotation: restRotation,
+                  duration: travelDuration,
+                  ease: "power2.out",
+                },
+                arrivalT,
+              );
+            });
+
+            // HOLD: the peak-density crowd is deliberately still. The calm
+            // center remains unchanged, making the surrounding pressure easy
+            // to read even at the highest count and intensity.
+
+            tl.to(clipEl, { opacity: 0, duration: OUT, ease: "power2.in" }, OUT_START);
+
+            tl.seek(0);
+
+            window.__timelines = window.__timelines || {};
+            window.__timelines[compositionId] = tl;
+          })();
+        </script>
+      </div>
+    </div>
+    </div>
+
+    <script src="../lib/gsap.min.js"></script>
+    <script>
+      // No motion of its own: this demo is a static host for the mounted
+      // primitive, which owns and registers its own timeline. Register an
+      // empty paused timeline under this file's own composition id so the
+      // runtime timeline-registry check is satisfied without inventing motion.
+      window.__timelines = window.__timelines || {};
+      window.__timelines["overwhelm-surround-demo"] = gsap.timeline({ paused: true });
+    </script>
+  </div>
+<script>window.__popostFit();</script>
+</body>
+</html>

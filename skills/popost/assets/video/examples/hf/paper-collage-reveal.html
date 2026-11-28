@@ -1,0 +1,670 @@
+<!doctype html>
+<!--
+  Adapted from HyperFrames (https://github.com/heygen-com/hyperframes), registry/components/paper-collage-reveal, commit a8332860c396e9224d42b7ea2a9cc8f42918c961.
+  Copyright 2026 HeyGen, Inc. Licensed under the Apache License, Version 2.0; the licence text is in the popost
+  Skill's THIRD_PARTY_NOTICES. Changed for the popost Skill (tools/video/port-hyperframes.mjs): its comments removed; the composition it mounts (paper-collage-reveal.html) put into the page; GSAP loaded from the project (../lib/gsap.min.js) instead of a CDN; scaled into the canvas; the 1920x1080 composition scaled into the scene's canvas (parameter "fit"); HyperFrames variables declared as parameters; its clips shown and hidden from the scene's time; sound cues derived from its tweens.
+-->
+
+<html data-composition-variables='[
+    { "id": "panels", "type": "number", "role": "content", "label": "Panels", "description": "How many torn paper scraps cover the frame.", "default": 6, "min": 4, "max": 8, "step": 1 },
+    { "id": "tone", "type": "enum", "role": "style", "label": "Paper tone", "description": "Color per scrap. Mixed seeds a different tone per scrap for a real scrapbook mix.", "default": "mixed", "options": [{ "value": "cream", "label": "Cream" }, { "value": "kraft", "label": "Kraft" }, { "value": "mixed", "label": "Mixed" }] },
+    { "id": "spread", "type": "enum", "role": "motion", "label": "Spread", "description": "Outward sends each scrap away from the frame center. Scatter sends every scrap the same general direction with seeded variance.", "default": "outward", "options": [{ "value": "outward", "label": "Outward" }, { "value": "scatter", "label": "Scatter" }] }
+  ]' lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>Paper Collage Reveal Demo</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #111318;
+      }
+      #root {
+        --bg: #111318;
+        --fg: #f2ede2;
+        --surface: #fffdf8;
+        --accent-2: #b98a4e;
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: var(--bg);
+      }
+      .mount-bleed {
+        position: absolute;
+        inset: 0;
+        container-type: size;
+        overflow: hidden;
+      }
+      .demo-card {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        background: #16241d;
+        color: #efe7d6;
+      }
+      .demo-topo {
+        position: absolute;
+        inset: 0;
+      }
+      .demo-topo path {
+        fill: none;
+        stroke: #c8a86b;
+        stroke-opacity: 0.3;
+        stroke-width: 1.5;
+      }
+      .demo-topo .demo-topo-index {
+        stroke-opacity: 0.55;
+        stroke-width: 2.25;
+      }
+      .demo-peak {
+        position: absolute;
+        left: 1402px;
+        top: 412px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        font-family: Inter, sans-serif;
+        font-size: 20px;
+        font-weight: 500;
+        letter-spacing: 0.04em;
+        color: #c8a86b;
+      }
+      .demo-peak::before {
+        content: "";
+        width: 12px;
+        height: 12px;
+        border: 2px solid currentColor;
+        transform: rotate(45deg);
+      }
+      .demo-copy {
+        position: absolute;
+        left: 160px;
+        bottom: 150px;
+      }
+      .demo-eyebrow {
+        font-family: Inter, sans-serif;
+        font-size: 24px;
+        font-weight: 600;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: #c8a86b;
+      }
+      .demo-title {
+        margin-top: 36px;
+        font-family: "EB Garamond", serif;
+        font-size: 160px;
+        font-weight: 500;
+        line-height: 0.95;
+        letter-spacing: -0.015em;
+      }
+      .demo-meta {
+        display: flex;
+        gap: 56px;
+        width: 760px;
+        margin-top: 52px;
+        padding-top: 28px;
+        border-top: 1px solid rgba(239, 231, 214, 0.28);
+        font-family: Inter, sans-serif;
+        font-size: 26px;
+        font-weight: 500;
+        color: rgba(239, 231, 214, 0.72);
+      }
+    </style>
+  <style id="popost-fit">
+  html, body { margin: 0 !important; width: 1280px; height: 720px; overflow: hidden !important; background: #000000; }
+  #popost-stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden; }
+</style>
+<script type="application/json" id="popost-params">
+{
+ "about": "A scrapbook patchwork of torn paper scraps, each with its own texture and tilt, flutters away in a staggered scatter to reveal the content underneath.",
+ "class": "transition",
+ "tags": [
+  "collage",
+  "scrapbook",
+  "torn paper",
+  "reveal",
+  "transition",
+  "motion-primitive"
+ ],
+ "seconds": 2.6,
+ "params": [
+  {
+   "name": "fit",
+   "type": "choice",
+   "default": "contain",
+   "options": [
+    "contain",
+    "cover"
+   ],
+   "what": "how the 1920x1080 composition is fitted into the canvas: whole with bars, or filling it and cropped"
+  },
+  {
+   "name": "panels",
+   "type": "number",
+   "default": 6,
+   "min": 4,
+   "max": 8,
+   "what": "How many torn paper scraps cover the frame."
+  },
+  {
+   "name": "tone",
+   "type": "choice",
+   "default": "mixed",
+   "options": [
+    "cream",
+    "kraft",
+    "mixed"
+   ],
+   "what": "Color per scrap. Mixed seeds a different tone per scrap for a real scrapbook mix."
+  },
+  {
+   "name": "spread",
+   "type": "choice",
+   "default": "outward",
+   "options": [
+    "outward",
+    "scatter"
+   ],
+   "what": "Outward sends each scrap away from the frame center. Scatter sends every scrap the same general direction with seeded variance."
+  }
+ ],
+ "values": {}
+}
+</script>
+<script>
+  /* popost: the scene's parameters stand in for HyperFrames variables; random numbers are seeded; the composition is
+     scaled into the canvas; clips are shown and hidden from the scene's time. */
+  (function () {
+    var block = document.getElementById('popost-params');
+    var values = block ? (JSON.parse(block.textContent).values || {}) : {};
+    var vars = {"panels":7,"tone":"mixed","spread":"scatter"};
+    Object.keys(values).forEach(function (k) { if (k !== 'fit') vars[k] = values[k] === 'true' ? true : values[k] === 'false' ? false : values[k]; });
+    window.__hyperframes = { getVariables: function () { return vars; } };
+    var seed = 20240229;
+    window.__popostRandom = function () { seed = (seed + 0x6d2b79f5) >>> 0; var t = seed; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+    window.__popostFit = function () {
+      // The canvas, from the size this file declares: a scene of a later shot loads in a layer that is not displayed, where the page measures 0.
+      var size = /width: (\d+)px; height: (\d+)px;/.exec(document.getElementById('popost-fit').textContent);
+      var W = 1920, H = 1080, s = document.getElementById('popost-stage'), cw = Number(size[1]), ch = Number(size[2]);
+      var k = (values.fit === 'cover' ? Math.max : Math.min)(cw / W, ch / H);
+      s.style.transform = 'translate(' + (cw - W * k) / 2 + 'px,' + (ch - H * k) / 2 + 'px) scale(' + k + ')';
+      var clips = Array.prototype.slice.call(s.querySelectorAll('.clip[data-start]')).filter(function (c) { return isFinite(parseFloat(c.getAttribute('data-start'))) && c.parentNode !== s; });
+      // A mounted composition that starts later in its host runs on its own time.
+      [].forEach(function (m) {
+        var tl = window.__timelines && window.__timelines[m.id];
+        if (tl) window.__timelines[m.id] = { pause: function () { tl.pause(); }, seek: function (t) { tl.seek(Math.max(0, t - m.start)); }, duration: function () { return tl.duration() + m.start; } };
+      });
+      var scene = (window.__popostScene = window.__popostScene || {}), before = scene.render;
+      scene.render = function (seconds, fps) {
+        if (before) before(seconds, fps);
+        for (var i = 0; i < clips.length; i++) {
+          var a = parseFloat(clips[i].getAttribute('data-start')), d = parseFloat(clips[i].getAttribute('data-duration'));
+          clips[i].style.visibility = seconds >= a && (!isFinite(d) || seconds < a + d) ? 'visible' : 'hidden';
+        }
+      };
+    };
+  })();
+</script>
+<script type="application/json" id="popost-cues">[{"at":0.1,"cue":"whoosh","gain":0.5}]</script>
+</head>
+  <body>
+<div id="popost-stage">
+    <template data-slot="paper-collage-reveal-content">
+      <div class="demo-card">
+        <div class="demo-topo" id="demo-topo"></div>
+        <div class="demo-peak">Slættaratindur 880 m</div>
+        <div class="demo-copy">
+          <p class="demo-eyebrow">Field Notes · Episode 03</p>
+          <h1 class="demo-title">Forty days<br />on the Faroes</h1>
+          <p class="demo-meta"><span>A film by Maren Holm</span><span>18 min</span></p>
+        </div>
+      </div>
+    </template>
+
+    <div
+      id="root"
+      data-composition-id="paper-collage-reveal-demo"
+      data-start="0"
+      data-width="1920"
+      data-height="1080"
+      data-duration="2.6"
+      data-fps="30"
+    >
+      <div
+        id="paper-collage-reveal-mount"
+        class="mount-bleed clip"
+        data-composition-id="paper-collage-reveal"
+       
+        data-variable-values='{"panels":7,"tone":"mixed","spread":"scatter"}'
+        data-start="0"
+        data-duration="2.6"
+        data-track-index="0"
+        data-width="1920"
+        data-height="1080"
+      >
+      <div id="root" data-composition-id="paper-collage-reveal" data-duration="2.6" data-fps="30">
+        <style>
+          *,
+          *::before,
+          *::after {
+            box-sizing: border-box;
+          }
+
+          #root {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            container-type: size;
+            isolation: isolate;
+            color: var(--fg, #1d1b16);
+            font-family: var(--font-display, "Inter", system-ui, sans-serif);
+          }
+
+          .pcr-clip {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            background: var(--bg, transparent);
+          }
+
+          .pcr-content {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+          }
+
+          .pcr-content > img,
+          .pcr-content > video {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+
+          .pcr-content-default {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            background: var(--bg, #111318);
+          }
+
+          .pcr-content-default-mark {
+            font-size: 4.5cqmin;
+            font-weight: 700;
+            letter-spacing: 0.28em;
+            text-transform: uppercase;
+            color: var(--surface, #fffdf8);
+          }
+
+          .pcr-scraps {
+            position: absolute;
+            inset: 0;
+          }
+
+          /* Drop-shadow sits outside the clip-path so it is not clipped away;
+             --lift (0 resting, 1 gone) grows it as the scrap rises. */
+          .pcr-panel {
+            --lift: 0;
+            position: absolute;
+            filter: drop-shadow(
+              0 calc(0.3cqmin + var(--lift) * 2.4cqmin) calc(0.4cqmin + var(--lift) * 2.8cqmin)
+                rgba(20, 14, 6, calc(0.42 - var(--lift) * 0.14))
+            );
+          }
+
+          .pcr-panel-arc,
+          .pcr-panel-fill,
+          .pcr-panel-grain {
+            position: absolute;
+            inset: 0;
+          }
+
+          .pcr-panel-arc {
+            filter: url(#pcr-deckle-filter);
+          }
+
+          .pcr-panel-fill {
+            background: var(--pcr-panel-color, #f3ecda);
+          }
+
+          .pcr-panel-grain {
+            filter: url(#pcr-grain-filter);
+            mix-blend-mode: multiply;
+          }
+        </style>
+
+        <div
+          id="paper-collage-reveal-clip"
+          class="pcr-clip clip"
+          data-start="0"
+          data-duration="2.6"
+          data-track-index="0"
+        >
+          <svg aria-hidden="true" width="0" height="0" style="position: absolute">
+            <defs>
+              
+              <filter
+                id="pcr-grain-filter"
+                x="0%"
+                y="0%"
+                width="100%"
+                height="100%"
+                color-interpolation-filters="sRGB"
+              >
+                <feTurbulence
+                  type="fractalNoise"
+                  baseFrequency="0.75"
+                  numOctaves="3"
+                  seed="41"
+                  stitchTiles="stitch"
+                />
+                <feColorMatrix
+                  type="matrix"
+                  values="0.33 0.33 0.33 0 0  0.33 0.33 0.33 0 0  0.33 0.33 0.33 0 0  0 0 0 0 1"
+                />
+                <feComponentTransfer>
+                  <feFuncR type="linear" slope="0.7" intercept="0.6" />
+                  <feFuncG type="linear" slope="0.7" intercept="0.6" />
+                  <feFuncB type="linear" slope="0.7" intercept="0.6" />
+                </feComponentTransfer>
+              </filter>
+              
+              <filter id="pcr-deckle-filter" x="-4%" y="-4%" width="108%" height="108%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="4" seed="7" />
+                <feDisplacementMap
+                  in="SourceGraphic"
+                  scale="16"
+                  xChannelSelector="R"
+                  yChannelSelector="G"
+                />
+              </filter>
+            </defs>
+          </svg>
+
+          <div class="pcr-content" id="pcr-content">
+            <div class="pcr-content-default">
+              <span class="pcr-content-default-mark" aria-hidden="true">Revealed</span>
+            </div>
+          </div>
+          <div class="pcr-scraps" id="pcr-scraps"></div>
+        </div>
+
+        <script src="../lib/gsap.min.js"></script>
+        <script>
+          (function () {
+            "use strict";
+
+            var root = document.getElementById("root");
+            var content = document.getElementById("pcr-content");
+            var scrapsHost = document.getElementById("pcr-scraps");
+
+            var vars =
+              window.__hyperframes && window.__hyperframes.getVariables
+                ? window.__hyperframes.getVariables()
+                : {};
+
+            var panelsValue = parseInt(vars.panels, 10);
+            var PANEL_COUNT = Number.isFinite(panelsValue)
+              ? Math.min(8, Math.max(4, panelsValue))
+              : 6;
+
+            var tone = vars.tone === "cream" || vars.tone === "kraft" ? vars.tone : "mixed";
+            var spread = vars.spread === "scatter" ? "scatter" : "outward";
+
+            var toneColors = {
+              cream: "color-mix(in srgb, var(--surface, #fffdf8) 72%, #e8d9ae)",
+              kraft: "color-mix(in srgb, var(--accent-2, #b98a4e) 55%, #7d5a34)",
+              white: "var(--surface, #fffdf8)",
+            };
+            var toneKeys = ["cream", "kraft", "white"];
+
+            // Slot. Caller templates live at the host document level (the
+            // mount wipes host-clip children, and templates never render).
+            var hostDoc = root.ownerDocument;
+            var slotTemplate = null;
+            try {
+              slotTemplate = hostDoc.querySelector(
+                'template[data-slot="paper-collage-reveal-content"]',
+              );
+            } catch (error) {
+              slotTemplate = null;
+            }
+            if (slotTemplate) {
+              var defaultMark = content.querySelector(".pcr-content-default");
+              if (defaultMark) defaultMark.remove();
+              content.appendChild(hostDoc.importNode(slotTemplate.content, true));
+            }
+
+            // Envelope: fixed IN, elastic HOLD, never time-scaled.
+            var IN_BASE = 1.35;
+            var duration = Math.max(0.001, parseFloat(root.dataset.duration || "2.6"));
+            var squeeze = Math.min(1, duration / IN_BASE);
+            var FIRST_LIFT = 0.1 * squeeze;
+            var PANEL_TRAVEL = 0.45 * squeeze;
+            var LAST_START = IN_BASE * squeeze - PANEL_TRAVEL;
+
+            // Everything a scrap needs lives in this table, computed once
+            // during synchronous timeline construction from a fixed seed.
+            var state = 0x2c6b8f19;
+            function next() {
+              state = (Math.imul(1664525, state) + 1013904223) >>> 0;
+              return state / 4294967296;
+            }
+            function range(lo, hi) {
+              return lo + next() * (hi - lo);
+            }
+
+            var COLS_BY_COUNT = { 4: 2, 5: 3, 6: 3, 7: 4, 8: 4 };
+            var cols = COLS_BY_COUNT[PANEL_COUNT];
+            var rows = Math.ceil(PANEL_COUNT / cols);
+            var OVERSCAN = 3.2;
+
+            var scatterBaseAngle = range(75, 105);
+
+            // Torn silhouette: each side wanders by up to TORN_AMP % of the
+            // frame at SIDE_STEPS points, so no edge runs straight.
+            var TORN_AMP = 1.1;
+            var SIDE_STEPS = 6;
+            var SIDES = [
+              [0, 0, 100, 0, 0, 1],
+              [100, 0, 100, 100, -1, 0],
+              [100, 100, 0, 100, 0, -1],
+              [0, 100, 0, 0, 1, 0],
+            ];
+            function tornPolygon(w, h) {
+              var pts = [];
+              SIDES.forEach(function (s) {
+                for (var k = 0; k < SIDE_STEPS; k += 1) {
+                  var t = (k === 0 ? 0 : k + range(-0.3, 0.3)) / SIDE_STEPS;
+                  var d = range(-TORN_AMP, TORN_AMP);
+                  var px = s[0] + (s[2] - s[0]) * t + (s[4] * d * 100) / w;
+                  var py = s[1] + (s[3] - s[1]) * t + (s[5] * d * 100) / h;
+                  pts.push(px.toFixed(2) + "% " + py.toFixed(2) + "%");
+                }
+              });
+              return pts.join(", ");
+            }
+
+            var startGap = (LAST_START - FIRST_LIFT) / Math.max(1, PANEL_COUNT - 1);
+            var panels = [];
+            for (var i = 0; i < PANEL_COUNT; i += 1) {
+              var row = Math.floor(i / cols);
+              var panelsInRow = Math.min(cols, PANEL_COUNT - row * cols);
+              var colInRow = i % cols;
+              var cellW = 100 / panelsInRow;
+              var cellH = 100 / rows;
+
+              var jitterX = range(-1, 1);
+              var jitterY = range(-1, 1);
+              var x = colInRow * cellW - OVERSCAN + jitterX;
+              var y = row * cellH - OVERSCAN + jitterY;
+              var w = cellW + OVERSCAN * 2;
+              var h = cellH + OVERSCAN * 2;
+
+              var poly = tornPolygon(w, h);
+
+              var panelTone =
+                tone === "mixed" ? toneKeys[Math.floor(next() * toneKeys.length)] : tone;
+
+              var cx = x + w / 2;
+              var cy = y + h / 2;
+              var angleDeg;
+              if (spread === "outward") {
+                var dx = cx - 50;
+                var dy = cy - 50;
+                angleDeg = (Math.atan2(dy, dx) * 180) / Math.PI;
+              } else {
+                angleDeg = scatterBaseAngle + range(-45, 45);
+              }
+              var rad = (angleDeg * Math.PI) / 180;
+              var ux = Math.cos(rad);
+              var uy = Math.sin(rad);
+              var travelPct = 130;
+              // The arc: a sideways hop perpendicular to the exit, biased
+              // upward, that eases out while the exit eases in.
+              var arcAmp = ux > 0 ? -9 : 9;
+              var rotation = range(8, 15) * (next() < 0.5 ? -1 : 1);
+
+              // Monotonic starts: the first scrap lifts at FIRST_LIFT, the
+              // rest follow in index order with a seeded offset.
+              var startAt = i === 0 ? FIRST_LIFT : FIRST_LIFT + (i - range(0, 0.4)) * startGap;
+
+              panels.push({
+                x: x,
+                y: y,
+                w: w,
+                h: h,
+                poly: poly,
+                tone: panelTone,
+                exitX: ux * travelPct,
+                exitY: uy * travelPct,
+                arcX: -uy * arcAmp,
+                arcY: ux * arcAmp,
+                rotation: rotation,
+                startAt: startAt,
+              });
+            }
+
+            // DOM per scrap: panel (exit, tilt, shadow) > arc (hop, deckle) >
+            var panelFrag = document.createDocumentFragment();
+            var panelEls = panels.map(function (p, idx) {
+              var el = document.createElement("div");
+              el.className = "pcr-panel";
+              el.style.left = p.x + "%";
+              el.style.top = p.y + "%";
+              el.style.width = p.w + "%";
+              el.style.height = p.h + "%";
+              el.style.zIndex = String(PANEL_COUNT - idx);
+
+              var arc = document.createElement("div");
+              arc.className = "pcr-panel-arc";
+              var fill = document.createElement("div");
+              fill.className = "pcr-panel-fill";
+              fill.style.clipPath = "polygon(" + p.poly + ")";
+              fill.style.setProperty("--pcr-panel-color", toneColors[p.tone]);
+              var grain = document.createElement("div");
+              grain.className = "pcr-panel-grain";
+              fill.appendChild(grain);
+              arc.appendChild(fill);
+              el.appendChild(arc);
+
+              panelFrag.appendChild(el);
+              return el;
+            });
+            scrapsHost.appendChild(panelFrag);
+
+            var tl = gsap.timeline({ paused: true });
+            panels.forEach(function (p, idx) {
+              tl.fromTo(
+                panelEls[idx],
+                { x: 0, y: 0, rotation: 0, "--lift": 0 },
+                {
+                  x: p.exitX + "cqw",
+                  y: p.exitY + "cqh",
+                  rotation: p.rotation,
+                  "--lift": 1,
+                  duration: PANEL_TRAVEL,
+                  ease: "power2.in",
+                  // 2D transforms only: a composited layer caches the filtered
+                  // raster by seek history, so the same t can give different pixels.
+                  force3D: false,
+                },
+                p.startAt,
+              );
+              tl.fromTo(
+                panelEls[idx].firstChild,
+                { x: 0, y: 0 },
+                {
+                  x: p.arcX + "cqmin",
+                  y: p.arcY + "cqmin",
+                  duration: PANEL_TRAVEL,
+                  ease: "power1.out",
+                  force3D: false,
+                },
+                p.startAt,
+              );
+            });
+            tl.set({}, {}, duration);
+            tl.seek(0);
+
+            window.__timelines = window.__timelines || {};
+            window.__timelines["paper-collage-reveal"] = tl;
+          })();
+        </script>
+      </div>
+    </div>
+    </div>
+
+    <script src="../lib/gsap.min.js"></script>
+    <script>
+      (function () {
+        // Contour lines of one summit: nested closed rings whose radius
+        // wanders with a few fixed sines, so the drawing is deterministic.
+        function contours() {
+          var paths = "";
+          for (var k = 0; k < 16; k += 1) {
+            var d = "";
+            for (var a = 0; a <= 120; a += 1) {
+              var th = (a / 120) * Math.PI * 2;
+              var r =
+                (34 + k * 46) *
+                (1 +
+                  0.2 * Math.sin(2 * th + 0.6 + k * 0.09) +
+                  0.1 * Math.sin(3 * th + 1.9 - k * 0.07) +
+                  0.05 * Math.sin(5 * th + k * 0.35));
+              d +=
+                (a ? "L" : "M") +
+                (1390 + r * Math.cos(th)).toFixed(1) +
+                " " +
+                (420 + r * 0.82 * Math.sin(th)).toFixed(1);
+            }
+            paths +=
+              '<path d="' + d + 'Z"' + (k % 5 === 4 ? ' class="demo-topo-index"' : "") + "/>";
+          }
+          return '<svg width="1920" height="1080" viewBox="0 0 1920 1080">' + paths + "</svg>";
+        }
+        // Elements inside an inert <template> are not in the live document,
+        // so they must be reached through the template's own content
+        // fragment, never document.getElementById.
+        document
+          .querySelector('template[data-slot="paper-collage-reveal-content"]')
+          .content.getElementById("demo-topo").innerHTML = contours();
+
+        window.__timelines = window.__timelines || {};
+        window.__timelines["paper-collage-reveal-demo"] = gsap.timeline({ paused: true });
+      })();
+    </script>
+  </div>
+<script>window.__popostFit();</script>
+</body>
+</html>

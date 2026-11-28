@@ -38,6 +38,8 @@ export interface SceneSummary {
   fill?: number;
   /** The video and image items laid over the scene in the half-way picture: how many, and the share of the canvas they cover, 0..1; absent when none is. */
   items?: { count: number; cover: number };
+  /** How many sound cues the scene declares (popost video scene cues lists them in the project's time); absent when none. */
+  cues?: number;
   /** The same share of the middle of the reference shot it re-creates, from the project's record (template/facts.ts); absent without one. */
   referenceFill?: number;
   /** With options.shotsDir: the three pictures' files there, as typed, in the order of frames. */
@@ -277,6 +279,7 @@ export const checkScenes = async (rt: Runtime, projectDir: string, only?: number
       const shotsDir = o.shotsDir;
       const summary: SceneSummary = { at: 'segments[' + s.k + ']', id: shot.id, scene: s.src, seconds: Math.round(shot.seconds * 100) / 100, frames, ...(shotsDir ? { pictures: frames.map((f) => rt.path.join(shotsDir, shotFileName(s.k, f))) } : {}) };
       scenes.push(summary);
+      if (fact?.cues.length) summary.cues = fact.cues.length;
       if (!fact || fact.elements === 0) { problems.push(error(at(s.k), 'The scene "' + s.src + '" has nothing in its <body>.', 'Write the elements of the picture into the page.')); continue; }
       if (fact.width > width + 1 || fact.height > height + 1) problems.push(warning(at(s.k), 'The content of "' + s.src + '" needs ' + fact.width + 'x' + fact.height + ' pixels; the canvas is ' + width + 'x' + height + ', so what lies outside is cut off.', 'Give html and body exactly ' + width + 'px by ' + height + 'px with overflow: hidden, and keep every element inside.'));
       for (const sp of [...fact.overflowing, ...fact.clipped].slice(0, 6)) problems.push(spillProblem(s.k, s.src, sp));

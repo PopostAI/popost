@@ -6,7 +6,7 @@
  * text that fits its element can still be cut off by an element around it that hides what lies outside it (a card
  * with a height and overflow: hidden); that is reported too, naming the element and by how many pixels.
  */
-import type { SceneFact, SceneSpill, Side } from './contract';
+import type { SceneCue, SceneFact, SceneSpill, Side } from './contract';
 import type { StageNodes } from './dom';
 import { sceneTexts } from './texts';
 
@@ -117,6 +117,22 @@ const spills = (doc: Document): { overflowing: SceneSpill[]; clipped: SceneSpill
  * Every scene base as it is drawn now, or only the one of a segment; a scene whose segment is not on screen has no
  * layout and says little.
  */
+/** One cue as a scene wrote it, when it has a time and a name. */
+const cueOf = (raw: unknown): SceneCue[] => {
+  const c = raw as { at?: unknown; cue?: unknown; gain?: unknown; effect?: unknown } | null;
+  if (!c || typeof c.at !== 'number' || !Number.isFinite(c.at) || c.at < 0 || typeof c.cue !== 'string' || !c.cue) return [];
+  const gain = typeof c.gain === 'number' && Number.isFinite(c.gain) ? Math.min(1, Math.max(0, c.gain)) : 0.7;
+  return [{ at: Math.round(c.at * 1000) / 1000, cue: c.cue, gain: Math.round(gain * 1000) / 1000, ...(typeof c.effect === 'string' ? { effect: c.effect } : {}) }];
+};
+
+/** The cues a scene declares: window.__popostScene.cues and the JSON of #popost-cues, by time. */
+export const sceneCues = (doc: Document): SceneCue[] => {
+  const live = (doc.defaultView as (Window & { __popostScene?: { cues?: unknown } }) | null)?.__popostScene?.cues;
+  let written: unknown = [];
+  try { written = JSON.parse(doc.getElementById('popost-cues')?.textContent ?? '[]'); } catch { written = []; }
+  return [...(Array.isArray(live) ? live : []), ...(Array.isArray(written) ? written : [])].flatMap(cueOf).sort((a, b) => a.at - b.at);
+};
+
 export const sceneFacts = (nodes: StageNodes, segment?: number): SceneFact[] =>
   nodes.segments.flatMap((s) => {
     const doc = s.scene?.frame.contentDocument;
@@ -130,5 +146,6 @@ export const sceneFacts = (nodes: StageNodes, segment?: number): SceneFact[] =>
       ...spills(doc),
       elements: doc.body ? doc.body.querySelectorAll('*').length : 0,
       texts: sceneTexts(doc),
+      cues: sceneCues(doc),
     }];
   });

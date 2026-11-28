@@ -1,0 +1,413 @@
+<!doctype html>
+<!--
+  Adapted from HyperFrames (https://github.com/heygen-com/hyperframes), registry/blocks/reddit-post, commit a8332860c396e9224d42b7ea2a9cc8f42918c961.
+  Copyright 2026 HeyGen, Inc. Licensed under the Apache License, Version 2.0; the licence text is in the popost
+  Skill's THIRD_PARTY_NOTICES. Changed for the popost Skill (tools/video/port-hyperframes.mjs): its comments removed; GSAP loaded from the project (../lib/gsap.min.js) instead of a CDN; web font links removed; scaled into the canvas; the 1920x1080 composition scaled into the scene's canvas (parameter "fit"); HyperFrames variables declared as parameters; its clips shown and hidden from the scene's time; sound cues derived from its tweens.
+-->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <script src="../lib/gsap.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        background: transparent;
+        overflow: hidden;
+      }
+      body {
+        width: 1920px;
+        height: 1080px;
+        font-family: "DM Sans", sans-serif;
+      }
+
+      [data-composition-id="reddit-post"] .reddit-card {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 860px;
+        background: #1a1a2e;
+        border-radius: 16px;
+        padding: 32px;
+        box-shadow: 0 12px 60px rgba(0, 0, 0, 0.6);
+      }
+
+      /* Header */
+      [data-composition-id="reddit-post"] .post-header {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 24px;
+      }
+
+      [data-composition-id="reddit-post"] .subreddit-icon {
+        width: 48px;
+        height: 48px;
+        flex-shrink: 0;
+      }
+
+      [data-composition-id="reddit-post"] .subreddit-icon svg {
+        width: 48px;
+        height: 48px;
+        display: block;
+      }
+
+      [data-composition-id="reddit-post"] .post-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      [data-composition-id="reddit-post"] .subreddit-name {
+        font-size: 28px;
+        font-weight: 700;
+        color: #d7dadc;
+        line-height: 1.3;
+      }
+
+      [data-composition-id="reddit-post"] .post-author {
+        font-size: 24px;
+        font-weight: 400;
+        color: #818384;
+        line-height: 1.3;
+      }
+
+      /* Content */
+      [data-composition-id="reddit-post"] .post-title {
+        font-size: 38px;
+        font-weight: 700;
+        color: #d7dadc;
+        line-height: 1.35;
+        margin-bottom: 16px;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      [data-composition-id="reddit-post"] .post-body {
+        font-size: 28px;
+        font-weight: 400;
+        color: #818384;
+        line-height: 1.45;
+        margin-bottom: 28px;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      /* Action bar */
+      [data-composition-id="reddit-post"] .action-bar {
+        display: flex;
+        align-items: center;
+        gap: 28px;
+        padding-top: 20px;
+        border-top: 1px solid #343536;
+      }
+
+      [data-composition-id="reddit-post"] .vote-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: #272729;
+        border-radius: 24px;
+        padding: 8px 16px;
+      }
+
+      [data-composition-id="reddit-post"] .vote-btn {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+      }
+
+      [data-composition-id="reddit-post"] .vote-btn svg {
+        width: 28px;
+        height: 28px;
+        display: block;
+      }
+
+      [data-composition-id="reddit-post"] .vote-count {
+        font-size: 26px;
+        font-weight: 700;
+        color: #d7dadc;
+        min-width: 50px;
+        text-align: center;
+      }
+
+      [data-composition-id="reddit-post"] .action-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: #272729;
+        border-radius: 24px;
+        padding: 10px 20px;
+      }
+
+      [data-composition-id="reddit-post"] .action-btn svg {
+        width: 26px;
+        height: 26px;
+        display: block;
+      }
+
+      [data-composition-id="reddit-post"] .action-btn span {
+        font-size: 24px;
+        font-weight: 400;
+        color: #818384;
+      }
+    </style>
+  <style id="popost-fit">
+  html, body { margin: 0 !important; width: 1280px; height: 720px; overflow: hidden !important; background: #000000; }
+  #popost-stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden; }
+</style>
+<script type="application/json" id="popost-params">
+{
+ "about": "Animated Reddit post card overlay with upvotes and comments",
+ "class": "ui",
+ "tags": [
+  "social",
+  "overlay",
+  "reddit"
+ ],
+ "placeholders": "web fonts are replaced by the fonts of the machine",
+ "seconds": 4.5,
+ "params": [
+  {
+   "name": "fit",
+   "type": "choice",
+   "default": "contain",
+   "options": [
+    "contain",
+    "cover"
+   ],
+   "what": "how the 1920x1080 composition is fitted into the canvas: whole with bars, or filling it and cropped"
+  }
+ ],
+ "values": {}
+}
+</script>
+<script>
+  /* popost: the scene's parameters stand in for HyperFrames variables; random numbers are seeded; the composition is
+     scaled into the canvas; clips are shown and hidden from the scene's time. */
+  (function () {
+    var block = document.getElementById('popost-params');
+    var values = block ? (JSON.parse(block.textContent).values || {}) : {};
+    var vars = {};
+    Object.keys(values).forEach(function (k) { if (k !== 'fit') vars[k] = values[k] === 'true' ? true : values[k] === 'false' ? false : values[k]; });
+    window.__hyperframes = { getVariables: function () { return vars; } };
+    var seed = 20240229;
+    window.__popostRandom = function () { seed = (seed + 0x6d2b79f5) >>> 0; var t = seed; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+    window.__popostFit = function () {
+      // The canvas, from the size this file declares: a scene of a later shot loads in a layer that is not displayed, where the page measures 0.
+      var size = /width: (\d+)px; height: (\d+)px;/.exec(document.getElementById('popost-fit').textContent);
+      var W = 1920, H = 1080, s = document.getElementById('popost-stage'), cw = Number(size[1]), ch = Number(size[2]);
+      var k = (values.fit === 'cover' ? Math.max : Math.min)(cw / W, ch / H);
+      s.style.transform = 'translate(' + (cw - W * k) / 2 + 'px,' + (ch - H * k) / 2 + 'px) scale(' + k + ')';
+      var clips = Array.prototype.slice.call(s.querySelectorAll('.clip[data-start]')).filter(function (c) { return isFinite(parseFloat(c.getAttribute('data-start'))) && c.parentNode !== s; });
+      // A mounted composition that starts later in its host runs on its own time.
+      [].forEach(function (m) {
+        var tl = window.__timelines && window.__timelines[m.id];
+        if (tl) window.__timelines[m.id] = { pause: function () { tl.pause(); }, seek: function (t) { tl.seek(Math.max(0, t - m.start)); }, duration: function () { return tl.duration() + m.start; } };
+      });
+      var scene = (window.__popostScene = window.__popostScene || {}), before = scene.render;
+      scene.render = function (seconds, fps) {
+        if (before) before(seconds, fps);
+        for (var i = 0; i < clips.length; i++) {
+          var a = parseFloat(clips[i].getAttribute('data-start')), d = parseFloat(clips[i].getAttribute('data-duration'));
+          clips[i].style.visibility = seconds >= a && (!isFinite(d) || seconds < a + d) ? 'visible' : 'hidden';
+        }
+      };
+    };
+  })();
+</script>
+<script type="application/json" id="popost-cues">[{"at":4.2,"cue":"whoosh","gain":0.5}]</script>
+</head>
+  <body>
+<div id="popost-stage">
+    <div
+      id="root"
+      data-composition-id="reddit-post"
+      data-width="1920"
+      data-height="1080"
+      data-start="0"
+      data-duration="5"
+    >
+      <div id="card" class="clip reddit-card" data-start="0" data-duration="5" data-track-index="0">
+        
+        <div class="post-header">
+          <div class="subreddit-icon">
+            <svg viewBox="0 0 48 48" fill="none">
+              <circle cx="24" cy="24" r="24" fill="#4A90D9" />
+              <text
+                x="24"
+                y="30"
+                text-anchor="middle"
+                font-family="DM Sans, sans-serif"
+                font-size="22"
+                font-weight="700"
+                fill="#fff"
+              >
+                r/
+              </text>
+            </svg>
+          </div>
+          <div class="post-meta">
+            <span class="subreddit-name">r/hyperframes</span>
+            <span class="post-author">u/placeholder_user &middot; 3h</span>
+          </div>
+        </div>
+
+        
+        <div class="post-title">Prompt to change this title to whatever you want</div>
+        <div class="post-body">
+          Prompt to change this body text, the subreddit, username, and vote count to match your
+          content.
+        </div>
+
+        
+        <div class="action-bar">
+          <div class="vote-group">
+            <div id="upvote-btn" class="vote-btn">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path id="upvote-arrow" d="M12 4L3 14h5v6h8v-6h5L12 4z" fill="#818384" />
+              </svg>
+            </div>
+            <span id="vote-count" class="vote-count">4.2k</span>
+            <div class="vote-btn">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M12 20l9-10h-5V4H8v6H3l9 10z" fill="#818384" />
+              </svg>
+            </div>
+          </div>
+
+          <div class="action-btn">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#818384"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+            </svg>
+            <span>328</span>
+          </div>
+
+          <div class="action-btn">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#818384"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8" />
+              <polyline points="16 6 12 2 8 6" />
+              <line x1="12" y1="2" x2="12" y2="15" />
+            </svg>
+            <span>Share</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+
+      var tl = gsap.timeline({ paused: true });
+
+      var card = document.getElementById("card");
+      var upvoteBtn = document.getElementById("upvote-btn");
+      var upvoteArrow = document.getElementById("upvote-arrow");
+      var voteCount = document.getElementById("vote-count");
+
+      // Start off-screen below
+      gsap.set(card, { y: 400, opacity: 0 });
+
+      // Slide in from bottom
+      tl.to(
+        card,
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.6,
+          ease: "power3.out",
+        },
+        0.1,
+      );
+
+      // Upvote press-in
+      tl.to(
+        upvoteBtn,
+        {
+          scale: 0.85,
+          duration: 0.12,
+          ease: "power2.out",
+        },
+        1.5,
+      );
+
+      // Upvote release with spring bounce
+      tl.to(
+        upvoteBtn,
+        {
+          scale: 1,
+          duration: 0.4,
+          ease: "elastic.out(1, 0.4)",
+        },
+        1.62,
+      );
+
+      // Arrow turns orange
+      tl.to(
+        upvoteArrow,
+        {
+          attr: { fill: "#ff4500" },
+          duration: 0.12,
+          ease: "none",
+        },
+        1.62,
+      );
+
+      // Vote count turns orange + increments
+      tl.to(
+        voteCount,
+        {
+          color: "#ff4500",
+          duration: 0.12,
+          ease: "none",
+          onStart: function () {
+            voteCount.textContent = "4.3k";
+          },
+        },
+        1.62,
+      );
+
+      // Slide out to bottom
+      tl.to(
+        card,
+        {
+          y: 400,
+          opacity: 0,
+          duration: 0.3,
+          ease: "power3.in",
+        },
+        4.2,
+      );
+
+      window.__timelines["reddit-post"] = tl;
+    </script>
+  </div>
+<script>window.__popostFit();</script>
+</body>
+</html>

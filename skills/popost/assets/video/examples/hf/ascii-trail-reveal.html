@@ -1,0 +1,528 @@
+<!doctype html>
+<!--
+  Adapted from HyperFrames (https://github.com/heygen-com/hyperframes), registry/components/ascii-trail-reveal, commit a8332860c396e9224d42b7ea2a9cc8f42918c961.
+  Copyright 2026 HeyGen, Inc. Licensed under the Apache License, Version 2.0; the licence text is in the popost
+  Skill's THIRD_PARTY_NOTICES. Changed for the popost Skill (tools/video/port-hyperframes.mjs): its comments removed; the composition it mounts (ascii-trail-reveal.html) put into the page; GSAP loaded from the project (../lib/gsap.min.js) instead of a CDN; scaled into the canvas; the 1920x1080 composition scaled into the scene's canvas (parameter "fit"); HyperFrames variables declared as parameters; its clips shown and hidden from the scene's time; sound cues derived from its tweens.
+-->
+
+<html data-composition-variables='[
+    { "id": "label", "type": "string", "role": "content", "label": "Panel label", "description": "Text shown on the revealed panel.", "default": "The reveal" },
+    { "id": "accent", "type": "enum", "role": "style", "label": "Accent", "description": "Color used by the trail and revealed panel.", "default": "green", "options": [{ "value": "green", "label": "Green" }, { "value": "blue", "label": "Blue" }, { "value": "violet", "label": "Violet" }] },
+    { "id": "trail_width", "type": "enum", "role": "layout", "label": "Trail width", "description": "Width of the cell reveal tail around the authored path.", "default": "narrow", "options": [{ "value": "narrow", "label": "Narrow" }, { "value": "wide", "label": "Wide" }] }
+  ]' lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>ASCII Trail Reveal Demo</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #0b0c0e;
+      }
+
+      #root {
+        --bg: #0b0c0e;
+        --fg: #f8fafc;
+        --surface: #151a22;
+        --border: #334155;
+        --brand: #4ade80;
+        --accent: #a78bfa;
+        --font-display: Inter, system-ui, sans-serif;
+        --font-body: Inter, system-ui, sans-serif;
+        --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: radial-gradient(circle at 50% 45%, #171b24 0%, #0b0c0e 68%);
+      }
+
+      .mount-card {
+        width: 82%;
+        height: 72%;
+        left: 9%;
+        top: 14%;
+        overflow: hidden;
+        container-type: size;
+        border-radius: 32px;
+        background: #10141a;
+        box-shadow: 0 50px 110px rgba(0, 0, 0, 0.48);
+      }
+    </style>
+  <style id="popost-fit">
+  html, body { margin: 0 !important; width: 1280px; height: 720px; overflow: hidden !important; background: #000000; }
+  #popost-stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden; }
+</style>
+<script type="application/json" id="popost-params">
+{
+ "about": "An authored S-curve sweeps through a deterministic ASCII grid, flipping cells away to reveal a labeled panel.",
+ "class": "transition",
+ "tags": [
+  "motion-primitive",
+  "intro",
+  "reveal",
+  "ascii",
+  "trail",
+  "grid"
+ ],
+ "seconds": 4,
+ "params": [
+  {
+   "name": "fit",
+   "type": "choice",
+   "default": "contain",
+   "options": [
+    "contain",
+    "cover"
+   ],
+   "what": "how the 1920x1080 composition is fitted into the canvas: whole with bars, or filling it and cropped"
+  },
+  {
+   "name": "label",
+   "type": "text",
+   "default": "The reveal",
+   "maxLength": 200,
+   "what": "Text shown on the revealed panel."
+  },
+  {
+   "name": "accent",
+   "type": "choice",
+   "default": "green",
+   "options": [
+    "green",
+    "blue",
+    "violet"
+   ],
+   "what": "Color used by the trail and revealed panel."
+  },
+  {
+   "name": "trail_width",
+   "type": "choice",
+   "default": "narrow",
+   "options": [
+    "narrow",
+    "wide"
+   ],
+   "what": "Width of the cell reveal tail around the authored path."
+  }
+ ],
+ "values": {}
+}
+</script>
+<script>
+  /* popost: the scene's parameters stand in for HyperFrames variables; random numbers are seeded; the composition is
+     scaled into the canvas; clips are shown and hidden from the scene's time. */
+  (function () {
+    var block = document.getElementById('popost-params');
+    var values = block ? (JSON.parse(block.textContent).values || {}) : {};
+    var vars = {"label":"Signal restored","accent":"violet","trail_width":"wide"};
+    Object.keys(values).forEach(function (k) { if (k !== 'fit') vars[k] = values[k] === 'true' ? true : values[k] === 'false' ? false : values[k]; });
+    window.__hyperframes = { getVariables: function () { return vars; } };
+    var seed = 20240229;
+    window.__popostRandom = function () { seed = (seed + 0x6d2b79f5) >>> 0; var t = seed; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+    window.__popostFit = function () {
+      // The canvas, from the size this file declares: a scene of a later shot loads in a layer that is not displayed, where the page measures 0.
+      var size = /width: (\d+)px; height: (\d+)px;/.exec(document.getElementById('popost-fit').textContent);
+      var W = 1920, H = 1080, s = document.getElementById('popost-stage'), cw = Number(size[1]), ch = Number(size[2]);
+      var k = (values.fit === 'cover' ? Math.max : Math.min)(cw / W, ch / H);
+      s.style.transform = 'translate(' + (cw - W * k) / 2 + 'px,' + (ch - H * k) / 2 + 'px) scale(' + k + ')';
+      var clips = Array.prototype.slice.call(s.querySelectorAll('.clip[data-start]')).filter(function (c) { return isFinite(parseFloat(c.getAttribute('data-start'))) && c.parentNode !== s; });
+      // A mounted composition that starts later in its host runs on its own time.
+      [].forEach(function (m) {
+        var tl = window.__timelines && window.__timelines[m.id];
+        if (tl) window.__timelines[m.id] = { pause: function () { tl.pause(); }, seek: function (t) { tl.seek(Math.max(0, t - m.start)); }, duration: function () { return tl.duration() + m.start; } };
+      });
+      var scene = (window.__popostScene = window.__popostScene || {}), before = scene.render;
+      scene.render = function (seconds, fps) {
+        if (before) before(seconds, fps);
+        for (var i = 0; i < clips.length; i++) {
+          var a = parseFloat(clips[i].getAttribute('data-start')), d = parseFloat(clips[i].getAttribute('data-duration'));
+          clips[i].style.visibility = seconds >= a && (!isFinite(d) || seconds < a + d) ? 'visible' : 'hidden';
+        }
+      };
+    };
+  })();
+</script>
+<script type="application/json" id="popost-cues">[{"at":0,"cue":"whoosh","gain":0.5}]</script>
+</head>
+  <body>
+<div id="popost-stage">
+    <div
+      id="root"
+      data-composition-id="ascii-trail-reveal-demo"
+      data-start="0"
+      data-width="1920"
+      data-height="1080"
+      data-duration="4"
+      data-fps="30"
+    >
+      <div
+        id="ascii-trail-reveal-mount"
+        class="mount-card clip"
+        data-composition-id="ascii-trail-reveal"
+       
+        data-variable-values='{"label":"Signal restored","accent":"violet","trail_width":"wide"}'
+        data-start="0"
+        data-duration="4"
+        data-track-index="0"
+        data-width="1574"
+        data-height="778"
+      >
+      <div id="root" data-composition-id="ascii-trail-reveal" data-duration="4" data-fps="30">
+        <style>
+          *,
+          *::before,
+          *::after {
+            box-sizing: border-box;
+          }
+
+          #root {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            container-type: size;
+            isolation: isolate;
+            color: var(--fg, #f8fafc);
+            font-family: var(--font-body, Inter, system-ui, sans-serif);
+            pointer-events: none;
+          }
+
+          .atr-clip {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+          }
+
+          .atr-panel {
+            position: relative;
+            width: 88cqw;
+            height: 76cqh;
+            overflow: hidden;
+            border: 0.16cqmin solid color-mix(in srgb, var(--atr-accent) 52%, #475569);
+            border-radius: 3cqmin;
+            background: #111820;
+            box-shadow:
+              0 4cqh 12cqh rgba(0, 0, 0, 0.45),
+              inset 0 0 0 0.12cqmin rgba(255, 255, 255, 0.04);
+            perspective: 80cqmin;
+          }
+
+          .atr-content {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            padding: 8cqw;
+            background:
+              radial-gradient(
+                circle at 50% 45%,
+                color-mix(in srgb, var(--atr-accent) 24%, transparent),
+                transparent 48%
+              ),
+              linear-gradient(145deg, #17212c, #0c1219);
+            transform-origin: 50% 50%;
+          }
+
+          .atr-label {
+            max-width: 76cqw;
+            color: #f8fafc;
+            font-family: var(--font-display, Inter, system-ui, sans-serif);
+            font-size: clamp(24px, 10cqmin, 112px);
+            font-weight: 760;
+            line-height: 0.96;
+            letter-spacing: -0.045em;
+            text-align: center;
+            text-wrap: balance;
+            text-shadow: 0 0 4cqmin color-mix(in srgb, var(--atr-accent) 28%, transparent);
+          }
+
+          .atr-grid {
+            --atr-columns: 24;
+            --atr-rows: 14;
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            display: grid;
+            grid-template-columns: repeat(var(--atr-columns), 1fr);
+            grid-template-rows: repeat(var(--atr-rows), 1fr);
+            overflow: hidden;
+            background: #0b1016;
+            transform-style: preserve-3d;
+          }
+
+          .atr-cell {
+            display: grid;
+            place-items: center;
+            min-width: 0;
+            min-height: 0;
+            overflow: hidden;
+            border-right: 0.06cqmin solid rgba(148, 163, 184, 0.08);
+            border-bottom: 0.06cqmin solid rgba(148, 163, 184, 0.08);
+            background: color-mix(in srgb, #111820 94%, var(--atr-accent));
+            color: color-mix(in srgb, var(--atr-accent) 72%, #dbeafe);
+            font-family: var(--font-mono, ui-monospace, "SF Mono", Menlo, monospace);
+            font-size: clamp(7px, 2.35cqmin, 22px);
+            font-weight: 650;
+            line-height: 1;
+            transform-origin: 50% 50%;
+            backface-visibility: hidden;
+            will-change: transform, opacity;
+          }
+
+          .atr-path-layer {
+            position: absolute;
+            inset: 0;
+            z-index: 3;
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+          }
+
+          .atr-path-guide {
+            fill: none;
+            stroke: color-mix(in srgb, var(--atr-accent) 34%, transparent);
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-dasharray: 3 14;
+          }
+
+          .atr-actor-halo {
+            fill: color-mix(in srgb, var(--atr-accent) 22%, transparent);
+          }
+
+          .atr-actor-core {
+            fill: #f8fafc;
+            stroke: var(--atr-accent);
+            stroke-width: 7;
+            filter: drop-shadow(0 0 18px var(--atr-accent));
+          }
+        </style>
+
+        <div
+          id="ascii-trail-reveal-clip"
+          class="atr-clip clip"
+          data-start="0"
+          data-duration="4"
+          data-track-index="0"
+        >
+          <div class="atr-panel">
+            <div class="atr-content">
+              <div class="atr-label"></div>
+            </div>
+            <div class="atr-grid" aria-hidden="true"></div>
+            <svg
+              class="atr-path-layer"
+              viewBox="0 0 1000 600"
+              preserveAspectRatio="none"
+              aria-hidden="true"
+            >
+              <path class="atr-path-guide"></path>
+              <g id="ascii-trail-reveal-actor">
+                <circle class="atr-actor-halo" r="42"></circle>
+                <circle class="atr-actor-core" r="13"></circle>
+              </g>
+            </svg>
+          </div>
+        </div>
+
+        <script src="../lib/gsap.min.js"></script>
+        <script>
+          (function () {
+            "use strict";
+
+            var root = document.getElementById("root");
+            var content = root.querySelector(".atr-content");
+            var label = root.querySelector(".atr-label");
+            var grid = root.querySelector(".atr-grid");
+            var guide = root.querySelector(".atr-path-guide");
+            var actor = root.querySelector("#ascii-trail-reveal-actor");
+            var vars =
+              window.__hyperframes && window.__hyperframes.getVariables
+                ? window.__hyperframes.getVariables()
+                : {};
+
+            var labelText = vars.label == null ? "The reveal" : String(vars.label);
+            var accent = vars.accent === "blue" || vars.accent === "violet" ? vars.accent : "green";
+            var trailWidth = vars.trail_width === "wide" ? "wide" : "narrow";
+            var accentColors = {
+              green: "var(--brand, #4ade80)",
+              blue: "var(--accent, #38bdf8)",
+              violet: "var(--accent-2, #a78bfa)",
+            };
+
+            label.textContent = labelText;
+            root.style.setProperty("--atr-accent", accentColors[accent]);
+
+            var COLS = 24;
+            var ROWS = 14;
+            var GLYPHS = " .:-=+*#%@01/\\<>[]{}";
+            var PATH_POINTS = [
+              [-80, 460],
+              [340, 460],
+              [660, 140],
+              [1080, 140],
+            ];
+            var cells = [];
+
+            function sCurvePoint(progress) {
+              var inverse = 1 - progress;
+              var startWeight = inverse * inverse * inverse;
+              var firstWeight = 3 * inverse * inverse * progress;
+              var secondWeight = 3 * inverse * progress * progress;
+              var endWeight = progress * progress * progress;
+              return {
+                x:
+                  startWeight * PATH_POINTS[0][0] +
+                  firstWeight * PATH_POINTS[1][0] +
+                  secondWeight * PATH_POINTS[2][0] +
+                  endWeight * PATH_POINTS[3][0],
+                y:
+                  startWeight * PATH_POINTS[0][1] +
+                  firstWeight * PATH_POINTS[1][1] +
+                  secondWeight * PATH_POINTS[2][1] +
+                  endWeight * PATH_POINTS[3][1],
+              };
+            }
+
+            guide.setAttribute(
+              "d",
+              "M " +
+                PATH_POINTS[0].join(" ") +
+                " C " +
+                PATH_POINTS.slice(1)
+                  .map(function (point) {
+                    return point.join(" ");
+                  })
+                  .join(" "),
+            );
+
+            for (var row = 0; row < ROWS; row += 1) {
+              for (var column = 0; column < COLS; column += 1) {
+                var index = row * COLS + column;
+                var cell = document.createElement("span");
+                var glyphIndex = (index * 17 + row * 11 + column * 7) % GLYPHS.length;
+                cell.className = "atr-cell";
+                cell.textContent = GLYPHS.charAt(glyphIndex);
+                grid.appendChild(cell);
+                cells.push({ element: cell, row: row, column: column, index: index });
+              }
+            }
+
+            var IN_BASE = 3.2;
+            var duration = Math.max(0.001, parseFloat(root.dataset.duration || "4"));
+            var IN = Math.min(IN_BASE, duration);
+            var HOLD = Math.max(0, duration - IN);
+            var phaseScale = IN / IN_BASE;
+            var actorState = { progress: 0 };
+
+            function updateActor() {
+              var point = sCurvePoint(actorState.progress);
+              actor.setAttribute("transform", "translate(" + point.x + " " + point.y + ")");
+            }
+
+            gsap.set(content, { scale: 0.985 });
+            gsap.set(guide, { opacity: 0 });
+            gsap.set(actor, { opacity: 0 });
+            updateActor();
+
+            var tl = gsap.timeline({ paused: true });
+
+            tl.to(content, { scale: 1, duration: IN, ease: "power2.out" }, 0);
+            tl.to(
+              guide,
+              { opacity: 0.72, duration: 0.24 * phaseScale, ease: "power2.out" },
+              0.18 * phaseScale,
+            );
+            tl.to(
+              actor,
+              { opacity: 1, duration: 0.24 * phaseScale, ease: "power2.out" },
+              0.22 * phaseScale,
+            );
+            tl.to(
+              actorState,
+              {
+                progress: 1,
+                duration: 2.35 * phaseScale,
+                ease: "power2.out",
+                onUpdate: updateActor,
+              },
+              0.34 * phaseScale,
+            );
+
+            cells.forEach(function (cellData) {
+              var progress = (cellData.column + 0.5) / COLS;
+              var pathPoint = sCurvePoint(progress);
+              var cellY = ((cellData.row + 0.5) / ROWS) * 600;
+              var distanceFromPath = Math.abs(cellY - pathPoint.y) / 600;
+              var distanceLag = distanceFromPath * (trailWidth === "wide" ? 0.5 : 0.8);
+              var indexJitter = ((cellData.index * 37) % 11) * 0.009;
+              var revealAt = (0.42 + progress * 1.92 + distanceLag + indexJitter) * phaseScale;
+              var flipDuration = (0.2 + ((cellData.index * 13) % 5) * 0.018) * phaseScale;
+
+              tl.to(
+                cellData.element,
+                {
+                  rotationY: 88,
+                  scaleX: 0.3,
+                  opacity: 0,
+                  duration: flipDuration,
+                  ease: "power2.in",
+                },
+                revealAt,
+              );
+            });
+
+            tl.to(
+              guide,
+              { opacity: 0, duration: 0.24 * phaseScale, ease: "power2.in" },
+              2.82 * phaseScale,
+            );
+            tl.to(
+              actor,
+              { opacity: 0, duration: 0.24 * phaseScale, ease: "power2.in" },
+              2.92 * phaseScale,
+            );
+
+            if (HOLD > 0) {
+              tl.to(
+                content,
+                {
+                  scale: 1.008,
+                  duration: HOLD / 2,
+                  ease: "sine.inOut",
+                  yoyo: true,
+                  repeat: 1,
+                },
+                IN,
+              );
+            }
+
+            tl.seek(0);
+            window.__timelines = window.__timelines || {};
+            window.__timelines["ascii-trail-reveal"] = tl;
+          })();
+        </script>
+      </div>
+    </div>
+    </div>
+
+    <script src="../lib/gsap.min.js"></script>
+    <script>
+      window.__timelines = window.__timelines || {};
+      window.__timelines["ascii-trail-reveal-demo"] = gsap.timeline({ paused: true });
+    </script>
+  </div>
+<script>window.__popostFit();</script>
+</body>
+</html>

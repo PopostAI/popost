@@ -35,6 +35,13 @@ export const LIBRARIES: Readonly<Record<string, SceneLibrary>> = {
     use: "popostScreen('#window', { still: '../assets/page-01.png', scale: 1, top: 0, steps: [{ at: 0.3, zoom: [x, y, w, h], fill: 0.5 }, { at: 1.2, highlight: [x, y, w, h] }, { at: 1.5, pointer: [x, y, w, h] }, { at: 2.2, click: true }] });  // boxes as --outline prints them; scale and top as --still printed them (stillScale, y)",
     licence: 'Part of the popost Skill (CLIPCAT AI LTD), under the Skill\'s licence.',
   },
+  motion: {
+    from: { skillFile: 'assets/video/motion.js' },
+    file: 'lib/popost-motion.js',
+    tag: '<script src="../lib/popost-motion.js"></script>',
+    use: "var M = popostMotion; M.bounce('#ball', { at: 0.2, for: 1.6, from: [640, 120], floor: 560, bounces: 3, trail: 4, shadow: true }); M.slam('#title', { at: 1.9 });  // times in seconds of the shot; every effect is a function of the time and adds its sound cues to window.__popostScene.cues (references/video-motion.md)",
+    licence: 'Part of the popost Skill (CLIPCAT AI LTD), under the Skill\'s licence.',
+  },
 };
 
 export class LibraryError extends Error {

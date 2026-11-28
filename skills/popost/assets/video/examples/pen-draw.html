@@ -1,0 +1,146 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Pen-tip draw-on</title>
+<style>
+  html, body { margin: 0; width: 1280px; height: 720px; overflow: hidden; }
+  #word { position: absolute; left: 0; top: 38%; width: 100%; text-align: center; font: 800 120px "Noto Sans", "Noto Sans CJK SC", sans-serif; }
+  svg { position: absolute; left: 0; top: 0; }
+  path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+</style></head>
+<body>
+<div id="word" data-slot="word"></div>
+  <svg id="ink" viewBox="0 0 1280 720" width="1280" height="720"><path id="line" d=""></path></svg>
+  <script type="application/json" id="popost-params">
+{
+ "about": "A line is drawn on as a pen would draw it: the stroke grows from its start with a dot riding its tip. An underline, a circle round a word, an arrow or a tick.",
+ "class": "overlay",
+ "seconds": 1.6,
+ "tags": [
+  "draw",
+  "pen",
+  "underline",
+  "circle",
+  "arrow",
+  "handwritten",
+  "stroke",
+  "annotation",
+  "tick"
+ ],
+ "params": [
+  {
+   "name": "shape",
+   "type": "choice",
+   "default": "underline",
+   "options": [
+    "underline",
+    "circle",
+    "arrow",
+    "tick",
+    "scribble"
+   ],
+   "what": "what is drawn"
+  },
+  {
+   "name": "word",
+   "type": "text",
+   "default": "this one",
+   "maxLength": 24,
+   "what": "the word it marks"
+  },
+  {
+   "name": "duration",
+   "type": "number",
+   "default": 0.8,
+   "min": 0.15,
+   "max": 6,
+   "what": "how long the drawing takes",
+   "unit": "seconds"
+  },
+  {
+   "name": "ease",
+   "type": "choice",
+   "default": "power2.inOut",
+   "options": [
+    "linear",
+    "power1.out",
+    "power2.inOut",
+    "power3.out",
+    "power4.inOut"
+   ],
+   "what": "the pen's speed along the line"
+  },
+  {
+   "name": "tip",
+   "type": "choice",
+   "default": "on",
+   "options": [
+    "on",
+    "off"
+   ],
+   "what": "the dot at the pen's tip"
+  },
+  {
+   "name": "weight",
+   "type": "number",
+   "default": 10,
+   "min": 2,
+   "max": 40,
+   "what": "the stroke's width",
+   "unit": "pixels at 720 high"
+  },
+  {
+   "name": "color",
+   "type": "colour",
+   "default": "#e63946",
+   "what": "the stroke"
+  },
+  {
+   "name": "ink",
+   "type": "colour",
+   "default": "#1d1d1f",
+   "what": "the word"
+  },
+  {
+   "name": "ground",
+   "type": "colour",
+   "default": "#f7f3e9",
+   "what": "the background"
+  },
+  {
+   "name": "delay",
+   "type": "number",
+   "default": 0.2,
+   "min": 0,
+   "max": 20,
+   "unit": "seconds",
+   "what": "when the effect starts, from the start of the shot"
+  }
+ ],
+ "values": {}
+}
+  </script>
+  <script src="../lib/popost-motion.js"></script>
+  <script>
+    // The parameters of this copy: the declared defaults, then what "values" sets.
+    var P = (function () { var b = JSON.parse(document.getElementById('popost-params').textContent), v = {}; b.params.forEach(function (p) { v[p.name] = p['default']; }); for (var k in b.values) v[k] = b.values[k]; return v; })();
+    // The canvas, from the size this file declares for html and body: a scene of a later shot loads in a layer that
+    // is not displayed, where the page itself measures 0 until its first frame.
+    var SIZE = /html, body \{ margin: 0; width: (\d+)px; height: (\d+)px;/.exec(document.querySelector('style').textContent), W = Number(SIZE[1]), H = Number(SIZE[2]), U = Math.min(W, H) / 720;
+    var M = popostMotion, word = document.getElementById('word'), svg = document.getElementById('ink'), line = document.getElementById('line');
+    document.body.style.background = P.ground; word.textContent = P.word; word.style.color = P.ink; word.style.fontSize = 0.17 * H + 'px';
+    svg.setAttribute('width', W); svg.setAttribute('height', H); svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    // The word's box is measured once the page is laid out (M.whenShown): the shapes are placed round it.
+    M.whenShown(function () {
+    var r = word.firstChild ? (function () { var g = document.createRange(); g.selectNodeContents(word); return g.getBoundingClientRect(); })() : { left: W * 0.3, right: W * 0.7, top: H * 0.4, bottom: H * 0.55 };
+    var x0 = r.left, x1 = r.right, y0 = r.top, y1 = r.bottom, w = x1 - x0, h = y1 - y0, cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+    var SHAPES = {
+      underline: 'M' + (x0 - 0.02 * w) + ' ' + (y1 + 0.1 * h) + ' C' + (x0 + 0.3 * w) + ' ' + (y1 + 0.22 * h) + ' ' + (x0 + 0.6 * w) + ' ' + (y1 - 0.02 * h) + ' ' + (x1 + 0.03 * w) + ' ' + (y1 + 0.08 * h),
+      circle: 'M' + (cx + 0.1 * w) + ' ' + (y0 - 0.12 * h) + ' C' + (x0 - 0.25 * w) + ' ' + (y0 - 0.3 * h) + ' ' + (x0 - 0.22 * w) + ' ' + (y1 + 0.42 * h) + ' ' + cx + ' ' + (y1 + 0.24 * h) + ' C' + (x1 + 0.3 * w) + ' ' + (y1 + 0.1 * h) + ' ' + (x1 + 0.2 * w) + ' ' + (y0 - 0.34 * h) + ' ' + (cx - 0.08 * w) + ' ' + (y0 - 0.2 * h),
+      arrow: 'M' + (x0 - 0.5 * w) + ' ' + (y0 - 0.6 * h) + ' C' + (x0 - 0.3 * w) + ' ' + (y0 - 0.9 * h) + ' ' + (x0 - 0.1 * w) + ' ' + (y0 - 0.5 * h) + ' ' + (x0 - 0.06 * w) + ' ' + (cy - 0.1 * h) + ' M' + (x0 - 0.2 * w) + ' ' + (cy - 0.32 * h) + ' L' + (x0 - 0.06 * w) + ' ' + (cy - 0.1 * h) + ' L' + (x0 - 0.01 * w) + ' ' + (cy - 0.42 * h),
+      tick: 'M' + (x1 + 0.08 * w) + ' ' + cy + ' L' + (x1 + 0.16 * w) + ' ' + (y1 - 0.05 * h) + ' L' + (x1 + 0.34 * w) + ' ' + (y0 - 0.1 * h),
+      scribble: 'M' + x0 + ' ' + cy + ' ' + [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1].map(function (k, i) { return 'L' + (x0 + k * w) + ' ' + (i % 2 ? y1 + 0.1 * h : y0 - 0.05 * h); }).join(' ')
+    };
+    line.setAttribute('d', SHAPES[P.shape]); line.style.stroke = P.color; line.style.strokeWidth = P.weight * U; svg.style.color = P.color;
+    });
+    M.drawOn('#line', { at: P.delay, 'for': P.duration, ease: P.ease, tip: P.tip === 'on', tipSize: P.weight * U * 0.9 });
+  </script>
+</body></html>

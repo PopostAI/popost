@@ -1,0 +1,648 @@
+<!doctype html>
+<!--
+  Adapted from HyperFrames (https://github.com/heygen-com/hyperframes), registry/components/cut-the-curve, commit a8332860c396e9224d42b7ea2a9cc8f42918c961.
+  Copyright 2026 HeyGen, Inc. Licensed under the Apache License, Version 2.0; the licence text is in the popost
+  Skill's THIRD_PARTY_NOTICES. Changed for the popost Skill (tools/video/port-hyperframes.mjs): its comments removed; the composition it mounts (cut-the-curve.html) put into the page; GSAP loaded from the project (../lib/gsap.min.js) instead of a CDN; scaled into the canvas; the 1920x1080 composition scaled into the scene's canvas (parameter "fit"); HyperFrames variables declared as parameters; its clips shown and hidden from the scene's time; sound cues derived from its tweens.
+-->
+
+<html data-composition-variables='[
+    { "id": "subject", "type": "enum", "role": "content", "label": "Subject", "description": "Visual payload used on both sides of the cut.", "default": "cursor", "options": [{ "value": "cursor", "label": "Cursor" }, { "value": "card", "label": "Card" }, { "value": "scene", "label": "Scene" }] },
+    { "id": "direction", "type": "enum", "role": "motion", "label": "Direction", "description": "Shared screen direction for outgoing and incoming travel.", "default": "left", "options": [{ "value": "left", "label": "Left" }, { "value": "right", "label": "Right" }, { "value": "up", "label": "Up" }, { "value": "down", "label": "Down" }] },
+    { "id": "cutFraction", "type": "number", "role": "timing", "label": "Cut fraction", "description": "Normalized point where the hard cut swaps subjects.", "default": 0.33, "min": 0, "max": 1, "step": 0.01 },
+    { "id": "blurPx", "type": "number", "role": "style", "label": "Cut blur", "description": "Blur in pixels shared by both subjects at the cut seam.", "default": 12, "min": 0, "max": 40, "step": 1, "unit": "px" },
+    { "id": "exit", "type": "enum", "role": "timing", "label": "Exit", "description": "Optional departure of the incoming subject. Default none: it rests until the frame cuts.", "default": "none", "options": [{ "value": "none", "label": "None" }, { "value": "fade", "label": "Fade" }, { "value": "up", "label": "Up" }] }
+  ]' lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>Cut the Curve - Demo</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: var(--bg, #05070d);
+      }
+
+      #root {
+        --bg: #080b14;
+        --fg: #f8fafc;
+        --muted: #94a3b8;
+        --surface: #182033;
+        --border: #3b4863;
+        --brand: #e4e4e7;
+        --accent: #e4e4e7;
+        --transparent: transparent;
+        --font-display: Inter, system-ui, sans-serif;
+        --font-body: Inter, system-ui, sans-serif;
+        --radius: 26px;
+        --space-1: 8px;
+        --space-2: 16px;
+        --space-3: 32px;
+        --dur-beat: 0.4s;
+        --ease-standard: cubic-bezier(0.215, 0.61, 0.355, 1);
+        --ease-whip: cubic-bezier(0.23, 1, 0.32, 1);
+
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: radial-gradient(
+          ellipse at 50% 42%,
+          var(--bg, #151c32) 0%,
+          var(--bg, #05070d) 72%
+        );
+      }
+
+      .mount-card {
+        width: 70%;
+        height: 70%;
+        left: 15%;
+        top: 15%;
+        overflow: hidden;
+        border: 1px solid color-mix(in srgb, var(--border, #94a3b8) 25%, transparent);
+        border-radius: 30px;
+        box-shadow: 0 40px 90px color-mix(in srgb, var(--bg, #000000) 45%, transparent);
+      }
+    </style>
+  <style id="popost-fit">
+  html, body { margin: 0 !important; width: 1280px; height: 720px; overflow: hidden !important; background: #000000; }
+  #popost-stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden; }
+</style>
+<script type="application/json" id="popost-params">
+{
+ "about": "A velocity-matched directional hard cut: the outgoing subject accelerates with power4.in, swaps at peak velocity, and the incoming subject continues in the same direction with power4.out.",
+ "class": "transition",
+ "tags": [
+  "transition",
+  "directional-cut",
+  "velocity-match",
+  "whip",
+  "bridge",
+  "demonstrate"
+ ],
+ "seconds": 1,
+ "params": [
+  {
+   "name": "fit",
+   "type": "choice",
+   "default": "contain",
+   "options": [
+    "contain",
+    "cover"
+   ],
+   "what": "how the 1920x1080 composition is fitted into the canvas: whole with bars, or filling it and cropped"
+  },
+  {
+   "name": "subject",
+   "type": "choice",
+   "default": "cursor",
+   "options": [
+    "cursor",
+    "card",
+    "scene"
+   ],
+   "what": "Visual payload used on both sides of the cut."
+  },
+  {
+   "name": "direction",
+   "type": "choice",
+   "default": "left",
+   "options": [
+    "left",
+    "right",
+    "up",
+    "down"
+   ],
+   "what": "Shared screen direction for outgoing and incoming travel."
+  },
+  {
+   "name": "cutFraction",
+   "type": "number",
+   "default": 0.33,
+   "min": 0,
+   "max": 1,
+   "what": "Normalized point where the hard cut swaps subjects."
+  },
+  {
+   "name": "blurPx",
+   "type": "number",
+   "default": 12,
+   "min": 0,
+   "max": 40,
+   "unit": "px",
+   "what": "Blur in pixels shared by both subjects at the cut seam."
+  },
+  {
+   "name": "exit",
+   "type": "choice",
+   "default": "none",
+   "options": [
+    "none",
+    "fade",
+    "up"
+   ],
+   "what": "Optional departure of the incoming subject. Default none: it rests until the frame cuts."
+  }
+ ],
+ "values": {}
+}
+</script>
+<script>
+  /* popost: the scene's parameters stand in for HyperFrames variables; random numbers are seeded; the composition is
+     scaled into the canvas; clips are shown and hidden from the scene's time. */
+  (function () {
+    var block = document.getElementById('popost-params');
+    var values = block ? (JSON.parse(block.textContent).values || {}) : {};
+    var vars = {"subject":"card","direction":"left","cutFraction":0.33,"blurPx":12};
+    Object.keys(values).forEach(function (k) { if (k !== 'fit') vars[k] = values[k] === 'true' ? true : values[k] === 'false' ? false : values[k]; });
+    window.__hyperframes = { getVariables: function () { return vars; } };
+    var seed = 20240229;
+    window.__popostRandom = function () { seed = (seed + 0x6d2b79f5) >>> 0; var t = seed; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+    window.__popostFit = function () {
+      // The canvas, from the size this file declares: a scene of a later shot loads in a layer that is not displayed, where the page measures 0.
+      var size = /width: (\d+)px; height: (\d+)px;/.exec(document.getElementById('popost-fit').textContent);
+      var W = 1920, H = 1080, s = document.getElementById('popost-stage'), cw = Number(size[1]), ch = Number(size[2]);
+      var k = (values.fit === 'cover' ? Math.max : Math.min)(cw / W, ch / H);
+      s.style.transform = 'translate(' + (cw - W * k) / 2 + 'px,' + (ch - H * k) / 2 + 'px) scale(' + k + ')';
+      var clips = Array.prototype.slice.call(s.querySelectorAll('.clip[data-start]')).filter(function (c) { return isFinite(parseFloat(c.getAttribute('data-start'))) && c.parentNode !== s; });
+      // A mounted composition that starts later in its host runs on its own time.
+      [].forEach(function (m) {
+        var tl = window.__timelines && window.__timelines[m.id];
+        if (tl) window.__timelines[m.id] = { pause: function () { tl.pause(); }, seek: function (t) { tl.seek(Math.max(0, t - m.start)); }, duration: function () { return tl.duration() + m.start; } };
+      });
+      var scene = (window.__popostScene = window.__popostScene || {}), before = scene.render;
+      scene.render = function (seconds, fps) {
+        if (before) before(seconds, fps);
+        for (var i = 0; i < clips.length; i++) {
+          var a = parseFloat(clips[i].getAttribute('data-start')), d = parseFloat(clips[i].getAttribute('data-duration'));
+          clips[i].style.visibility = seconds >= a && (!isFinite(d) || seconds < a + d) ? 'visible' : 'hidden';
+        }
+      };
+    };
+  })();
+</script>
+<script type="application/json" id="popost-cues">[{"at":0,"cue":"whoosh","gain":0.5}]</script>
+</head>
+  <body>
+<div id="popost-stage">
+    <div
+      id="root"
+      data-composition-id="cut-the-curve-demo"
+      data-start="0"
+      data-width="1920"
+      data-height="1080"
+      data-duration="1"
+      data-fps="30"
+    >
+      <div
+        id="cut-the-curve-mount"
+        class="mount-card clip"
+        data-composition-id="cut-the-curve"
+       
+        data-variable-values='{"subject":"card","direction":"left","cutFraction":0.33,"blurPx":12}'
+        data-start="0"
+        data-duration="1"
+        data-track-index="0"
+        data-width="1344"
+        data-height="756"
+      >
+      <div id="root" data-composition-id="cut-the-curve" data-duration="1" data-fps="30">
+        <style>
+          *,
+          *::before,
+          *::after {
+            box-sizing: border-box;
+          }
+
+          #root {
+            position: absolute;
+            inset: 0;
+            container-type: size;
+            isolation: isolate;
+            overflow: hidden;
+            color: var(--fg, #f8fafc);
+            font-family: var(--font-body, Inter, system-ui, sans-serif);
+          }
+
+          .ctc-clip,
+          .ctc-backdrop,
+          .ctc-subject {
+            position: absolute;
+            inset: 0;
+          }
+
+          .ctc-clip {
+            overflow: hidden;
+          }
+
+          .ctc-backdrop {
+            background:
+              radial-gradient(
+                circle at var(--ctc-glow-x, 24%) var(--ctc-glow-y, 28%),
+                color-mix(
+                  in srgb,
+                  var(--fg, #f8fafc) var(--ctc-glow-strength, 18%),
+                  var(--transparent, transparent)
+                ),
+                var(--transparent, transparent) var(--ctc-glow-radius, 42%)
+              ),
+              var(--bg, #0b1120);
+          }
+
+          .ctc-subject {
+            display: grid;
+            place-items: center;
+            opacity: 0;
+            will-change: transform, filter, opacity;
+          }
+
+          .ctc-subject.is-outgoing {
+            opacity: 1;
+            --ctc-primary: color-mix(in srgb, var(--fg, #f8fafc) 45%, transparent);
+            --ctc-secondary: color-mix(in srgb, var(--fg, #f8fafc) 18%, transparent);
+          }
+
+          .ctc-subject.is-incoming {
+            --ctc-primary: color-mix(in srgb, var(--fg, #f8fafc) 72%, transparent);
+            --ctc-secondary: color-mix(in srgb, var(--fg, #f8fafc) 45%, transparent);
+          }
+
+          .ctc-art {
+            display: none;
+          }
+
+          #root[data-subject="cursor"] .ctc-cursor,
+          #root[data-subject="card"] .ctc-card,
+          #root[data-subject="scene"] .ctc-scene {
+            display: block;
+          }
+
+          .ctc-cursor {
+            position: relative;
+            width: var(--ctc-cursor-width, 15cqw);
+            height: var(--ctc-cursor-height, 24cqh);
+          }
+
+          .ctc-cursor svg {
+            width: var(--ctc-cursor-svg-width, 100%);
+            height: var(--ctc-cursor-svg-height, 100%);
+            overflow: visible;
+            filter: drop-shadow(
+              var(--ctc-shadow-x, 0cqw) var(--ctc-shadow-y, 1cqh) var(--ctc-shadow-blur, 1.6cqw)
+                color-mix(
+                  in srgb,
+                  var(--bg, #0b1120) var(--ctc-shadow-strength, 65%),
+                  var(--transparent, transparent)
+                )
+            );
+          }
+
+          .ctc-cursor-shape {
+            fill: var(--ctc-primary, var(--fg, #f8fafc));
+            stroke: var(--fg, #f8fafc);
+            stroke-width: var(--ctc-cursor-stroke, 1.8);
+            stroke-linejoin: round;
+          }
+
+          .ctc-cursor-pulse {
+            position: absolute;
+            left: var(--ctc-pulse-left, -5cqw);
+            top: var(--ctc-pulse-top, -5cqh);
+            width: var(--ctc-pulse-size, 11cqw);
+            aspect-ratio: var(--ctc-pulse-ratio, 1);
+            border: var(--ctc-pulse-border, 0.25cqw) solid
+              color-mix(
+                in srgb,
+                var(--ctc-secondary, var(--fg, #f8fafc)) var(--ctc-pulse-strength, 58%),
+                var(--transparent, transparent)
+              );
+            border-radius: var(--ctc-round, 50%);
+          }
+
+          .ctc-card {
+            width: var(--ctc-card-width, 42cqw);
+            min-height: var(--ctc-card-height, 34cqh);
+            padding: var(--ctc-card-padding-y, var(--space-3, 4.5cqh))
+              var(--ctc-card-padding-x, var(--space-3, 4cqw));
+            border: var(--ctc-border-width, 0.22cqw) solid var(--border, #334155);
+            border-radius: var(--radius, 2cqw);
+            background: var(--surface, #1e293b);
+            box-shadow: var(--ctc-shadow-x, 0cqw) var(--ctc-card-shadow-y, 2.4cqh)
+              var(--ctc-card-shadow-blur, 5cqw)
+              color-mix(
+                in srgb,
+                var(--bg, #0b1120) var(--ctc-card-shadow-strength, 55%),
+                var(--transparent, transparent)
+              );
+          }
+
+          .ctc-card-chip {
+            width: var(--ctc-chip-width, 9cqw);
+            height: var(--ctc-chip-height, 2.2cqh);
+            border-radius: var(--ctc-pill-radius, 99cqw);
+            background: var(--ctc-primary, var(--fg, #f8fafc));
+            margin-bottom: var(--ctc-card-gap, var(--space-3, 3.2cqh));
+          }
+
+          .ctc-card-line,
+          .ctc-scene-line {
+            height: var(--ctc-line-height, 1.8cqh);
+            border-radius: var(--ctc-pill-radius, 99cqw);
+            background: var(--fg, #f8fafc);
+          }
+
+          .ctc-card-line + .ctc-card-line {
+            margin-top: var(--ctc-line-gap, var(--space-2, 2.2cqh));
+          }
+
+          .ctc-card-line:first-of-type {
+            width: var(--ctc-line-long, 88%);
+          }
+
+          .ctc-card-line:last-of-type {
+            width: var(--ctc-line-short, 58%);
+            opacity: var(--ctc-muted-opacity, 0.42);
+          }
+
+          .ctc-scene {
+            width: var(--ctc-scene-width, 68cqw);
+            height: var(--ctc-scene-height, 58cqh);
+            overflow: hidden;
+            border: var(--ctc-border-width, 0.22cqw) solid var(--border, #334155);
+            border-radius: var(--radius, 2cqw);
+            background: var(--surface, #1e293b);
+            box-shadow: var(--ctc-shadow-x, 0cqw) var(--ctc-card-shadow-y, 2.4cqh)
+              var(--ctc-card-shadow-blur, 5cqw)
+              color-mix(
+                in srgb,
+                var(--bg, #0b1120) var(--ctc-card-shadow-strength, 55%),
+                var(--transparent, transparent)
+              );
+          }
+
+          .ctc-scene-bar {
+            display: flex;
+            align-items: center;
+            gap: var(--ctc-dot-gap, var(--space-1, 1cqw));
+            height: var(--ctc-scene-bar-height, 8cqh);
+            padding-inline: var(--ctc-scene-pad, var(--space-2, 2cqw));
+            border-bottom: var(--ctc-border-width, 0.22cqw) solid var(--border, #334155);
+          }
+
+          .ctc-scene-dot {
+            width: var(--ctc-dot-size, 1.4cqw);
+            aspect-ratio: var(--ctc-pulse-ratio, 1);
+            border-radius: var(--ctc-round, 50%);
+            background: var(--ctc-primary, var(--fg, #f8fafc));
+          }
+
+          .ctc-scene-body {
+            display: grid;
+            grid-template-columns: var(--ctc-scene-columns, 1fr 2fr);
+            gap: var(--ctc-scene-gap, var(--space-3, 3cqw));
+            padding: var(--ctc-scene-body-pad, var(--space-3, 5cqh))
+              var(--ctc-scene-pad, var(--space-3, 3cqw));
+          }
+
+          .ctc-scene-panel {
+            min-height: var(--ctc-panel-height, 34cqh);
+            border-radius: var(--ctc-panel-radius, var(--radius, 1.2cqw));
+            background: color-mix(
+              in srgb,
+              var(--ctc-primary, var(--fg, #f8fafc)) var(--ctc-panel-strength, 24%),
+              var(--surface, #1e293b)
+            );
+          }
+
+          .ctc-scene-copy {
+            padding-top: var(--ctc-copy-top, var(--space-2, 2cqh));
+          }
+
+          .ctc-scene-line + .ctc-scene-line {
+            margin-top: var(--ctc-scene-line-gap, var(--space-3, 3cqh));
+          }
+
+          .ctc-scene-line:nth-child(1) {
+            width: var(--ctc-scene-line-one, 92%);
+          }
+
+          .ctc-scene-line:nth-child(2) {
+            width: var(--ctc-scene-line-two, 68%);
+            opacity: var(--ctc-muted-opacity, 0.42);
+          }
+
+          .ctc-scene-line:nth-child(3) {
+            width: var(--ctc-scene-line-three, 78%);
+            background: var(--ctc-secondary, var(--fg, #f8fafc));
+          }
+        </style>
+
+        <div
+          id="cut-the-curve-clip"
+          class="ctc-clip clip"
+          data-start="0"
+          data-duration="1"
+          data-track-index="0"
+        >
+          <div class="ctc-backdrop"></div>
+
+          <div class="ctc-subject is-outgoing" aria-hidden="true">
+            <div class="ctc-art ctc-cursor">
+              <span class="ctc-cursor-pulse"></span>
+              <svg viewBox="0 0 64 88" aria-hidden="true">
+                <path
+                  class="ctc-cursor-shape"
+                  d="M8 5 L54 43 L34 47 L45 75 L30 82 L19 53 L8 68 Z"
+                />
+              </svg>
+            </div>
+            <div class="ctc-art ctc-card">
+              <div class="ctc-card-chip"></div>
+              <div class="ctc-card-line"></div>
+              <div class="ctc-card-line"></div>
+            </div>
+            <div class="ctc-art ctc-scene">
+              <div class="ctc-scene-bar">
+                <span class="ctc-scene-dot"></span><span class="ctc-scene-dot"></span
+                ><span class="ctc-scene-dot"></span>
+              </div>
+              <div class="ctc-scene-body">
+                <div class="ctc-scene-panel"></div>
+                <div class="ctc-scene-copy">
+                  <div class="ctc-scene-line"></div>
+                  <div class="ctc-scene-line"></div>
+                  <div class="ctc-scene-line"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="ctc-subject is-incoming" aria-hidden="true">
+            <div class="ctc-art ctc-cursor">
+              <span class="ctc-cursor-pulse"></span>
+              <svg viewBox="0 0 64 88" aria-hidden="true">
+                <path
+                  class="ctc-cursor-shape"
+                  d="M8 5 L54 43 L34 47 L45 75 L30 82 L19 53 L8 68 Z"
+                />
+              </svg>
+            </div>
+            <div class="ctc-art ctc-card">
+              <div class="ctc-card-chip"></div>
+              <div class="ctc-card-line"></div>
+              <div class="ctc-card-line"></div>
+            </div>
+            <div class="ctc-art ctc-scene">
+              <div class="ctc-scene-bar">
+                <span class="ctc-scene-dot"></span><span class="ctc-scene-dot"></span
+                ><span class="ctc-scene-dot"></span>
+              </div>
+              <div class="ctc-scene-body">
+                <div class="ctc-scene-panel"></div>
+                <div class="ctc-scene-copy">
+                  <div class="ctc-scene-line"></div>
+                  <div class="ctc-scene-line"></div>
+                  <div class="ctc-scene-line"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <script src="../lib/gsap.min.js"></script>
+        <script>
+          (function () {
+            "use strict";
+
+            var root = document.getElementById("root");
+            var outgoing = root.querySelector(".is-outgoing");
+            var incoming = root.querySelector(".is-incoming");
+            var vars =
+              window.__hyperframes && window.__hyperframes.getVariables
+                ? window.__hyperframes.getVariables()
+                : {};
+
+            var subject =
+              vars.subject === "card" || vars.subject === "scene" ? vars.subject : "cursor";
+            var direction =
+              vars.direction === "right" || vars.direction === "up" || vars.direction === "down"
+                ? vars.direction
+                : "left";
+            var rawCut = Number(vars.cutFraction);
+            var cutFraction = Number.isFinite(rawCut) ? Math.max(0, Math.min(1, rawCut)) : 0.33;
+            var rawBlur = Number(vars.blurPx);
+            var blurPx = Number.isFinite(rawBlur) ? Math.max(0, rawBlur) : 12;
+            var exit = vars.exit === "fade" || vars.exit === "up" ? vars.exit : "none";
+
+            root.dataset.subject = subject;
+
+            // Direction is the single owner of axis, sign, unit, and base travel.
+            var vectors = {
+              left: { axis: "x", sign: -1, unit: "cqw", distance: 34 },
+              right: { axis: "x", sign: 1, unit: "cqw", distance: 34 },
+              up: { axis: "y", sign: -1, unit: "cqh", distance: 26 },
+              down: { axis: "y", sign: 1, unit: "cqh", distance: 26 },
+            };
+            var vector = vectors[direction];
+            var duration = Math.max(0.001, parseFloat(root.dataset.duration || "1"));
+            // Exit none keeps the whole duration for the cut profile. An
+            // enabled exit reserves a short tail after the incoming lands.
+            var EXIT = exit === "none" ? 0 : Math.min(0.35, duration * 0.25);
+            var TRAVEL = Math.max(0.001, duration - EXIT);
+            var CUT_AT = TRAVEL * cutFraction;
+            var ENTRY_DURATION = TRAVEL - CUT_AT;
+            var entryDistance =
+              CUT_AT > 0 ? vector.distance * (ENTRY_DURATION / CUT_AT) : vector.distance * 2;
+            var seamBlur = "blur(" + blurPx + "px)";
+            var clearBlur = "blur(0px)";
+            var seamOpacity = 0.72;
+
+            var outgoingEnd = { opacity: seamOpacity, filter: seamBlur };
+            outgoingEnd[vector.axis] = vector.sign * vector.distance + vector.unit;
+
+            var incomingStart = { x: 0, y: 0, opacity: 0, filter: seamBlur };
+            incomingStart[vector.axis] = -vector.sign * entryDistance + vector.unit;
+
+            var incomingEnd = { opacity: 1, filter: clearBlur };
+            incomingEnd[vector.axis] = 0;
+
+            gsap.set(outgoing, { x: 0, y: 0, opacity: 1, filter: clearBlur });
+            gsap.set(incoming, incomingStart);
+
+            var tl = gsap.timeline({ paused: true });
+
+            if (CUT_AT > 0) {
+              tl.to(
+                outgoing,
+                Object.assign({}, outgoingEnd, { duration: CUT_AT, ease: "power4.in" }),
+                0,
+              );
+            }
+
+            // CUT: one visibility owner, matched blur and opacity on both sides.
+            tl.set(outgoing, { opacity: 0 }, CUT_AT);
+            tl.set(incoming, { opacity: seamOpacity }, CUT_AT);
+            tl.call(
+              function () {
+                root.dispatchEvent(
+                  new CustomEvent("hf:sfx", {
+                    detail: { id: "whip-cut", t: CUT_AT },
+                    bubbles: true,
+                  }),
+                );
+              },
+              [],
+              CUT_AT,
+            );
+
+            if (ENTRY_DURATION > 0) {
+              tl.to(
+                incoming,
+                Object.assign({}, incomingEnd, {
+                  duration: ENTRY_DURATION,
+                  ease: "power4.out",
+                }),
+                CUT_AT,
+              );
+            } else {
+              tl.set(incoming, incomingEnd, CUT_AT);
+            }
+
+            // Optional departure; exit none rests until the frame cuts.
+            if (exit === "fade") {
+              tl.to(incoming, { opacity: 0, duration: EXIT, ease: "power2.in" }, TRAVEL);
+            } else if (exit === "up") {
+              tl.to(
+                incoming,
+                { opacity: 0, y: "-6cqh", duration: EXIT, ease: "power2.in" },
+                TRAVEL,
+              );
+            }
+
+            tl.seek(0);
+
+            window.__timelines = window.__timelines || {};
+            window.__timelines["cut-the-curve"] = tl;
+          })();
+        </script>
+      </div>
+    </div>
+    </div>
+
+    <script src="../lib/gsap.min.js"></script>
+    <script>
+      window.__timelines = window.__timelines || {};
+      window.__timelines["cut-the-curve-demo"] = gsap.timeline({ paused: true });
+    </script>
+  </div>
+<script>window.__popostFit();</script>
+</body>
+</html>

@@ -25,6 +25,15 @@ THIRD_PARTY NOTICES
   frames and Runtime; a ground that is not flat is taken per pixel; the move is fitted along its path; turns, settle
   time, peak speed and squash / stretch are added; bounce, expo.in / inOut and a spring family are added to the eases.
 
+- assets/video/examples/hf/*.html : example scenes ported from the registry of HyperFrames
+  (https://github.com/heygen-com/hyperframes, registry/components, registry/blocks and registry/examples, at commit
+  a8332860c396e9224d42b7ea2a9cc8f42918c961) by tools/video/port-hyperframes.mjs. Copyright 2026 HeyGen, Inc., Apache
+  License 2.0 (text below). Each file names its source item and the changes made to it in its header: GSAP and
+  three.js loaded from the project instead of a CDN, web font links removed, pictures replaced by slots and drawn
+  stand-ins, Math.random replaced by a seeded generator, CSS transitions removed, the composition scaled into the
+  scene's canvas, HyperFrames variables declared as parameters, clips shown and hidden from the scene's time, sound
+  cues derived from its tweens. HyperFrames' bundled sound files, pictures, fonts and third-party libraries are not
+  included. assets/video/examples/catalogue.json lists every ported item and every item that was not ported.
 - references/video-motion.md : rules and numbers adapted from HyperFrames' skills/hyperframes/references/motion.md
   and sound.md (same commit, Apache License 2.0, rewritten) and from LottieFiles motion-design-skill
   (https://github.com/LottieFiles/motion-design-skill, MIT License, Copyright (c) 2025 LottieFiles; text below).
