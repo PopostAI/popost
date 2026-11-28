@@ -23,6 +23,7 @@ import { amountKnown, cameraKnown, kindKnown, LEGEND, NO_PATH, tag } from './kno
 import type { Status, Unrecovered } from '../types';
 import { LISTED, UNRECOVERED_FILE, unrecoveredLine, unrecoveredOf } from './unrecovered';
 import { kindLine, kindRanges, type SpeechFile } from './speech-kind';
+import { soundLines, soundSection, type SoundFile } from '../sound/reading';
 
 export interface Description {
   /** File name (relative to reference/) -> content. */
@@ -261,7 +262,7 @@ const effectQuestions = (m: Measure, p: Pictures): string[] => {
   ];
 };
 
-const card = (m: Measure, text: TextTrack | undefined, transcript: Transcript | undefined, phrases: Phrase[], beats: Beat[], name: string, tokens: Record<string, number>, inset: Inset | undefined, p: Pictures, lost: readonly Unrecovered[], speech?: SpeechFile): string => {
+const card = (m: Measure, text: TextTrack | undefined, transcript: Transcript | undefined, phrases: Phrase[], beats: Beat[], name: string, tokens: Record<string, number>, inset: Inset | undefined, p: Pictures, lost: readonly Unrecovered[], speech?: SpeechFile, sound?: SoundFile): string => {
   const { fps, frames, width, height, duration, hasAudio } = m.source;
   const lengths = m.shots.map((s) => (s.end - s.start) / fps);
   const L: string[] = ['# Reference: ' + name, ''];
@@ -307,6 +308,8 @@ const card = (m: Measure, text: TextTrack | undefined, transcript: Transcript | 
   const dialogue = beats.flatMap((b, i) => (b.speech === 'on-camera' ? [i] : []));
   if (dialogue.length) L.push('- Dialogue beats (a visible person says them; timeline.md marks them "on camera"): ' + dialogue.join(', ') + '. No voice-over reads them: the person of the re-make says them in a clip');
   L.push('- ' + LEGEND);
+  // The sound of the reference decides the sound of the re-make (video-sound.md): music, ambience, effects, and the plan that follows.
+  if (sound) L.push('', '## Sound', '', ...soundLines(sound).map((l) => '- ' + l));
   if (p.written) L.push(...picturesBlock(m));
   L.push('', '## Not recovered', '');
   L.push('What the reading could not tell, one entry each (all of them, as data, in ' + UNRECOVERED_FILE + '). Settle what you can from the pictures; append what stays open, and what you could not see yourself, to "unrecovered" in elements.json. The delivery notes list every entry that is still open with what was assumed instead.', '');
@@ -329,7 +332,7 @@ const card = (m: Measure, text: TextTrack | undefined, transcript: Transcript | 
 const beatText = (b: Beat, i: number, fps: number): string =>
   i + ' ' + sec(b.start, fps) + '-' + sec(b.end, fps) + (b.shown ? '' : ' spoken only') + (b.speech === 'on-camera' ? ' on camera' : '') + ' ' + quote(b.text) + (b.confidence < UNSURE ? ' (unsure)' : '');
 
-const timeline = (m: Measure, cues: TextCue[], beats: Beat[], step: number, p: Pictures): string => {
+const timeline = (m: Measure, cues: TextCue[], beats: Beat[], step: number, p: Pictures, sound?: SoundFile): string => {
   const fps = m.source.fps;
   const shots = m.shots.map((s, k) => timelineLine(s, k > 0 ? m.boundaries[k - 1] : undefined, m.boundaries[k], cues, beats, fps, step, p));
   return [
@@ -340,6 +343,7 @@ const timeline = (m: Measure, cues: TextCue[], beats: Beat[], step: number, p: P
     'One shot per line: #number start-end (seconds) @first-last frame | in: how the shot begins | camera | the beats in it | other text | motion | movement (moves throughout, enters then holds, moves in parts, still: a shot that MOVES THROUGHOUT has its frames opened before its scene is written).'
       + (p.written ? ' The frames of shot NN are in shots/NN-frames.jpg, those of a change into it in transitions/NN.jpg: what they show wins over these labels.' : ''), '',
     ...shots,
+    ...(sound ? ['', ...soundSection(sound)] : []),
   ].join('\n') + '\n';
 };
 
@@ -347,8 +351,9 @@ const timeline = (m: Measure, cues: TextCue[], beats: Beat[], step: number, p: P
  * name: what to call the reference in the card (not a file name of a private data set). inset: the frame around the
  * content (inset.ts). o.pictures: the pictures of frames.ts were written beside the text, which then names them.
  * o.speech: the record of the speech's kind (speech-kind.ts): the card says it, and confirmed kinds shape the beats.
+ * o.sound: the reading of the sound (sound/reading.ts): the card and timeline.md say it.
  */
-export const describeReference = (m: Measure, text: TextTrack | undefined, name: string, transcript?: Transcript, inset?: Inset, o: { pictures?: boolean; speech?: SpeechFile } = {}): Description => {
+export const describeReference = (m: Measure, text: TextTrack | undefined, name: string, transcript?: Transcript, inset?: Inset, o: { pictures?: boolean; speech?: SpeechFile; sound?: SoundFile } = {}): Description => {
   const p: Pictures = { written: o.pictures === true, joined: joinedShots(m), amounts: m.shots.map((_s, k) => shotAmount(m, k)), activity: activities(m), amount: videoAmount(m), tracks: m.tracks ?? [], measure: m };
   const fps = m.source.fps;
   const boundaries = m.boundaries.map((b) => b.frame);
@@ -360,12 +365,12 @@ export const describeReference = (m: Measure, text: TextTrack | undefined, name:
   const files: Record<string, string> = {};
   // A cue belongs to the shots it overlaps by more than half a reading step (kind.ts, shownIn).
   const step = roles?.step ?? 0;
-  files['timeline.md'] = timeline(m, cues, read.beats, step, p);
+  files['timeline.md'] = timeline(m, cues, read.beats, step, p, o.sound);
   // Without a text reader the text facts are unknown, not absent: shotLooks is given no cues then.
   m.shots.forEach((s, k) => { files['shots/' + two(k + 1) + '.md'] = shotFile(s, k > 0 ? m.boundaries[k - 1] : undefined, m.boundaries[k], cues, phrases, read.beats, fps, step, shotLooks(s, roles?.cues, step), p); });
   const tokens = Object.fromEntries(Object.entries(files).map(([k, v]) => [k, roughTokens(v)]));
   const unrecovered = unrecoveredOf(m, { text: roles, transcript, beats: read.beats, ...(o.speech ? { speech: o.speech } : {}) });
-  files['REFERENCE.md'] = card(m, roles, transcript, phrases, read.beats, name, tokens, inset, p, unrecovered, o.speech);
+  files['REFERENCE.md'] = card(m, roles, transcript, phrases, read.beats, name, tokens, inset, p, unrecovered, o.speech, o.sound);
   tokens['REFERENCE.md'] = roughTokens(files['REFERENCE.md']);
   return { files, tokens, unrecovered };
 };

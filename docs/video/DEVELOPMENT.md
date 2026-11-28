@@ -157,7 +157,7 @@ On a machine shared with other work, run heavy commands one at a time and at low
 `flock <a lock file> nice -n 10 npm run test:skill`.
 
 With a connected popost.ai account (`popost auth login`), voice-over and transcription run there by default, and
-background music can be generated there (`popost video music`, `src/video/music/`), paid in
+a music bed can be generated there when the music plan has one (`popost video music`, `src/video/music/`), paid in
 credits like images: a paid command prices its work and stops with exit code 3 unless it gets `--confirm --max-credits N`
 (the rest of the video's one budget), and prints `chargedCredits`; generated clips outside the agreed list need
 `--approve-unplanned <key>` (`production/approved-clips.json`). Every Open API request made in a project carries the
@@ -183,6 +183,27 @@ Speech and sound follow what the reference has, and what was not asked for is re
 - The mix is layered from known times, no level detection (`src/video/timeline/mix.ts`): `resolve` gives a sound
   that gives way to speech a `duck` (spans, dB, ramp), the render writes it as an ffmpeg volume expression
   (`render/encode.ts`, `duckFilter`), the Studio applies it per frame, and a draft export bakes it into the audio file.
+
+The rules of a video's sound (R1 to R5) are in `skills/popost/references/video-sound.md`; where each one lives:
+
+- R1, one lead voice: the layers of `timeline/mix.ts` and `resolve.ts`; `speechOverlap` in `project/check-sound.ts`.
+- R2 and R5, one music source, from the reading: the plan, `music-plan.json`, proposed from `sound.json` or the
+  template (`src/video/music/plan.ts`, `commands/music-plan.ts`); `musicOverlap` refuses two at once. Generated music
+  needs an account; a 503 of the music quote means the generator is off: no generated bed, said once
+  (`musicOffer`, `MusicUnavailable`). `music make` takes the tier and the longest track from the quote, refuses
+  more with the platform's `maxSeconds`, and cuts a longer track to the video with a fade-out (`fitTrack`).
+- R3, the mode of a clip's sound: `sound/modes.ts` (`SOUND_MODES` in `types.ts`; the request's `"sound"`, the
+  timeline's `"soundMode"`, the receipt `<clip>.mode.json` read by `media/footage.ts`), applied per materials run by
+  `generate/clip-sound.ts`. A silent clip asks for `generateAudio: false` only where the model's `audioOptional` is
+  true (`generate/cloud.ts`), else its track is stripped.
+- R4, music made by a clip: exceptions with their basis and words in `music-plan.json`; the bed gives way under such
+  a clip and an exhibit (`Duck.away`, `givingWay`: 60 dB, ramps of 0.5 s); `clipMusicRecords` holds clips to them.
+- Effects: an audio track of role `sfx`, placed by `at`, lowered 6 dB under speech unless `lead`
+  (`SFX_DUCK_DB`); its file has a record `<file>.sfx.json` (`writeEffectRecord`, `effectRecorded`).
+- One voice per character: `voice/sample.ts` (`popost video voice sample`). Did a clip say its lines:
+  `sound/speech-check.ts` (`popost video speech-check`); its measured spans go to the mix (`media/footage.ts`) and
+  its lines' times to the captions (`heardShifts` in `template/speech-rules.ts`). Speaking clips join by hard cuts
+  (`speakingCuts`).
 
 ## 5. The evaluation loop
 

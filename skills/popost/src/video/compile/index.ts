@@ -12,7 +12,7 @@ import { compilePage } from './page';
 import { extractFootage, probeFootage, type FootageStats } from './footage';
 import { loadWords } from './words';
 import { checkSpeechLocks } from '../generate/speech-lock';
-import { soundRecords, speechOverlap } from '../project/check-sound';
+import { clipMusicRecords, musicOverlap, soundRecords, speakingCuts, speechOverlap } from '../project/check-sound';
 
 export { compilePage } from './page';
 export { loadWords } from './words';
@@ -60,7 +60,7 @@ export const buildPage = async (rt: Runtime, projectDir: string, opts: BuildOpti
   const problems = [...parsed.problems, ...checkProject(parsed.project, { files, footage: probed.info, words })];
   if (problems.some((p) => p.level === 'error')) return { problems, project: parsed.project };
   const plain = resolve(parsed.project, probed.info, words);
-  problems.push(...await checkSpeechLocks(rt, rt.path.resolve(rt.cwd, projectDir), plain), ...speechOverlap(plain), ...await soundRecords(rt, rt.path.resolve(rt.cwd, projectDir), parsed.project));
+  problems.push(...await checkSpeechLocks(rt, rt.path.resolve(rt.cwd, projectDir), plain), ...speechOverlap(plain), ...musicOverlap(plain), ...speakingCuts(plain), ...await clipMusicRecords(rt, rt.path.resolve(rt.cwd, projectDir), plain), ...await soundRecords(rt, rt.path.resolve(rt.cwd, projectDir), parsed.project));
   if (problems.some(p => p.level === 'error')) return { problems, project: parsed.project };
   const shows = Object.keys(plain.footage ?? {}).length > 0;
   const { resolved, stats } = shows ? await extractFootage(rt, plain, projectDir, probed, { scale: opts.scale }) : { resolved: plain, stats: undefined };

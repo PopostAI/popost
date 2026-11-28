@@ -114,7 +114,7 @@ npx vite-node skills/popost/src/cli.ts video --help  # 从源码运行 popost vi
 机器和别的工作共用时，重任务一次只跑一个，并降低优先级，例如
 `flock <锁文件> nice -n 10 npm run test:skill`。
 
-连接 popost.ai 账户（`popost auth login`）后，配音和转写默认在平台上完成，也可以在平台上生成背景音乐（`popost video music`，`src/video/music/`），像图片一样按积分计费：付费命令先报价，没有 `--confirm --max-credits N`（这条视频唯一预算的剩余额度）就以退出码 3 停下、不扣费，完成后输出 `chargedCredits`；不在已同意清单里的生成视频片段要 `--approve-unplanned <key>`（`production/approved-clips.json`）。在工程里发出的每个 Open API 请求都带上工程的任务（`x-popost-task`、`x-popost-task-title`、`x-popost-agent-session`；`src/providers/task.ts`），`popost usage --dir P` 读出平台记在它名下的费用（`--title TEXT` 先给任务起名）。环境变量，全部可选：`POPOST_FFMPEG`、`POPOST_CHROME`；`POPOST_OCR_CMD`、`POPOST_ASR_CMD`、`POPOST_TTS_CMD`、`POPOST_TTS_MODEL`（本机读取器和自己的合成器，见 `tools/`；设置后，转写器和合成器优先于账户）；`POPOST_LLM_URL`、`POPOST_LLM_MODEL`、`POPOST_LLM_KEY`、`POPOST_LLM_JSON`（模型环节用的模型，见 `src/plan/model.ts`；密钥不写进任何文件、日志或测试）；`POPOST_RENDER_PAGES`；`POPOST_VIDEO_DATA`、`POPOST_VIDEO_WORK`。
+连接 popost.ai 账户（`popost auth login`）后，配音和转写默认在平台上完成，音乐计划里有生成的背景音乐时也在平台上生成（`popost video music`，`src/video/music/`），像图片一样按积分计费：付费命令先报价，没有 `--confirm --max-credits N`（这条视频唯一预算的剩余额度）就以退出码 3 停下、不扣费，完成后输出 `chargedCredits`；不在已同意清单里的生成视频片段要 `--approve-unplanned <key>`（`production/approved-clips.json`）。在工程里发出的每个 Open API 请求都带上工程的任务（`x-popost-task`、`x-popost-task-title`、`x-popost-agent-session`；`src/providers/task.ts`），`popost usage --dir P` 读出平台记在它名下的费用（`--title TEXT` 先给任务起名）。环境变量，全部可选：`POPOST_FFMPEG`、`POPOST_CHROME`；`POPOST_OCR_CMD`、`POPOST_ASR_CMD`、`POPOST_TTS_CMD`、`POPOST_TTS_MODEL`（本机读取器和自己的合成器，见 `tools/`；设置后，转写器和合成器优先于账户）；`POPOST_LLM_URL`、`POPOST_LLM_MODEL`、`POPOST_LLM_KEY`、`POPOST_LLM_JSON`（模型环节用的模型，见 `src/plan/model.ts`；密钥不写进任何文件、日志或测试）；`POPOST_RENDER_PAGES`；`POPOST_VIDEO_DATA`、`POPOST_VIDEO_WORK`。
 
 语音和声音跟着参考视频走，没人要求的东西一律拒绝（报错并给出修正办法）：
 
@@ -122,6 +122,24 @@ npx vite-node skills/popost/src/cli.ts video --help  # 从源码运行 popost vi
 - 只有参考视频有旁白，或用户亲口要求（`--voice-asked`，记在工程里），才配旁白：`src/video/template/speech-rules.ts`。fill 的 `"sound"` 以及由参考视频生成的工程里每条音轨，都必须有来源记录：`src/video/music/provenance.ts`、`src/video/project/check-sound.ts`。
 - 生成片段里出镜说话的人：`speech.lines` 写明语言和每句对应的 beat，时间由程序从模板取，并由程序把对白段写进提示词（`src/video/generate/dialogue.ts`）。
 - 混音按已知时间分层，不做电平检测（`src/video/timeline/mix.ts`）：`resolve` 给需要避让语音的声音一个 `duck`（区间、分贝、过渡），渲染时写成 ffmpeg 的 volume 表达式（`render/encode.ts` 的 `duckFilter`），Studio 逐帧应用，草稿导出则直接烘进音频文件。
+
+视频声音的五条规则（R1 到 R5）写在 `skills/popost/references/video-sound.md`；各自落在哪里：
+
+- R1，任一时刻只有一个主导人声：`timeline/mix.ts` 和 `resolve.ts` 的分层；`project/check-sound.ts` 的 `speechOverlap`。
+- R2 和 R5，任一时刻只有一个音乐来源，并跟着参考视频的解读走：音乐计划 `music-plan.json`，从 `sound.json` 或模板提出
+  （`src/video/music/plan.ts`、`commands/music-plan.ts`）；`musicOverlap` 拒绝两段音乐同时出现。生成音乐需要账户；
+  音乐报价返回 503 表示生成器关闭：不安排生成的背景音乐，只说明一次（`musicOffer`、`MusicUnavailable`）。`music make`
+  从报价取档位和最长时长，超过时带着平台的 `maxSeconds` 拒绝，比视频长的音轨裁到视频长度并淡出（`fitTrack`）。
+- R3，片段声音的模式：`sound/modes.ts`（`types.ts` 的 `SOUND_MODES`；请求里的 `"sound"`、时间线里的 `"soundMode"`、
+  片段旁的回执 `<clip>.mode.json`，由 `media/footage.ts` 读取），每次 materials 由 `generate/clip-sound.ts` 应用。
+  静音片段只在模型的 `audioOptional` 为 true 时请求 `generateAudio: false`（`generate/cloud.ts`），否则去掉音轨。
+- R4，片段自带音乐：例外连同依据和原话记在 `music-plan.json`；在这种片段和 exhibit 片段下背景音乐完全让开
+  （`Duck.away`、`givingWay`：60 dB，0.5 s 过渡）；`clipMusicRecords` 按记录检查片段。
+- 音效：角色为 `sfx` 的音轨，用 `at` 定位，有人说话时降 6 dB，`lead` 时不降（`SFX_DUCK_DB`）；文件旁有来源记录
+  `<file>.sfx.json`（`writeEffectRecord`、`effectRecorded`）。
+- 每个角色一个声音：`voice/sample.ts`（`popost video voice sample`）。片段有没有说出台词：`sound/speech-check.ts`
+  （`popost video speech-check`）；测得的语音区间用于混音（`media/footage.ts`），台词时间用于字幕
+  （`template/speech-rules.ts` 的 `heardShifts`）。说话的片段之间用硬切（`speakingCuts`）。
 
 ## 5. 评测循环
 

@@ -57,6 +57,11 @@ export interface SpeechFile {
   seconds: { spoken: number; video: number };
   /** true: every phrase has its kind (or there is nothing to confirm). */
   confirmed: boolean;
+  /**
+   * 'sound-analysis': the kinds are a default the listener's reading gave (withHeardKinds), not a reader's look at the
+   * frames; speech-kind confirm replaces them.
+   */
+  from?: 'sound-analysis';
   /** The kinds present, in the order of PHRASE_KINDS; ["none"] or ["unknown"] for a reference without phrases. */
   kinds: SpeechKind[];
   phrases: SpeechPhrase[];
@@ -103,6 +108,35 @@ export const speechOf = (o: SpeechInput): SpeechFile => {
     seconds: { spoken: r2(spoken), video: r2(o.duration) },
     confirmed: phrases.every((p) => p.kind !== undefined), kinds: kindsOf(o.status, phrases), phrases,
   };
+};
+
+/**
+ * Words inside the music: phrases this short and this sparse, in a sound whose music a listener heard vocals in, are
+ * the song's words and not a script. General values, not calibrated on any set: a sung hook or a sampled shout is a
+ * few words (syllablesOf counts at least one syllable a word and rounds up, so six short words come to about ten),
+ * and a narrated video speaks for more than two fifths of its length.
+ */
+export const HEARD_SYLLABLES = 12;
+export const HEARD_SHARE = 0.4;
+
+/** What the listener said of the voices in the music (the hosted sound analysis; describe passes it on). */
+export interface HeardVoices { music: boolean; vocals: 'none' | 'sung' | 'spoken-sample' | 'rap'; speech?: string }
+
+/**
+ * A record whose open phrases get a default kind from what a listener heard: when the music has sung (or rapped)
+ * vocals, or a spoken sample, and the phrases are short and sparse (HEARD_SYLLABLES, HEARD_SHARE), they are the
+ * music's words: 'sung', or 'fragments' for a spoken sample. The record says where the kinds came from, and whoever
+ * reads the frames can still confirm otherwise (speech-kind confirm). A record that is confirmed already, or has
+ * nothing to confirm, is left as it is.
+ */
+export const withHeardKinds = (f: SpeechFile, heard: HeardVoices | undefined): SpeechFile => {
+  if (!heard?.music || heard.vocals === 'none' || f.status !== 'transcribed' || f.confirmed || !f.phrases.length) return f;
+  const syllables = f.phrases.reduce((n, p) => n + syllablesOf(p.text), 0) / f.phrases.length;
+  const share = f.seconds.video > 0 ? f.seconds.spoken / f.seconds.video : 1;
+  if (syllables > HEARD_SYLLABLES || share >= HEARD_SHARE) return f;
+  const kind: PhraseKind = heard.vocals === 'spoken-sample' ? 'fragments' : 'sung';
+  const phrases = f.phrases.map((p) => (p.kind ? p : { ...p, kind }));
+  return { ...f, confirmed: true, from: 'sound-analysis', kinds: kindsOf(f.status, phrases), phrases };
 };
 
 /** A record with the pictures of its phrases named: sheet k (from 1) shows phrases (k-1)*PHRASES_A_SHEET onward. */
@@ -169,7 +203,8 @@ export const confirmSpeech = (f: SpeechFile, given: Partial<Record<PhraseKind, r
   if (open.length) problems.push({ at: 'phrases', message: open.length + ' phrase(s) have no kind yet: ' + runs(open) + '.', fix: 'Look at the frame of each (its picture and time are in the list) and name its kind: --narration, --on-camera, --sung or --fragments with their numbers.' });
   if (problems.length) return { problems };
   const phrases = f.phrases.map((p) => ({ ...p, kind: kinds.get(p.index) as PhraseKind }));
-  return { file: { ...f, confirmed: true, kinds: kindsOf(f.status, phrases), phrases }, problems };
+  const { from: _default, ...rest } = f;
+  return { file: { ...rest, confirmed: true, kinds: kindsOf(f.status, phrases), phrases }, problems };
 };
 
 /** Numbers as runs: 2-4, 7. */
@@ -205,7 +240,8 @@ export const kindLine = (f: SpeechFile): string => {
   if (!f.confirmed) return '- Speech kind: unconfirmed. Whether these words are narration, said on camera or sung is not something a program hears: open the pictures of the phrases and confirm it (popost video speech-kind show <this directory>)';
   if (f.kinds.length === 1 && f.kinds[0] === 'fragments' && f.phrases.every((p) => p.kind === 'fragments'))
     return '- Speech kind: fragments (' + f.phrases.length + ' short phrase' + (f.phrases.length === 1 ? '' : 's') + ', ' + f.seconds.spoken.toFixed(1) + ' s of ' + f.seconds.video.toFixed(1) + ' s): ' + KIND_MEANS.fragments;
-  return '- Speech kind: ' + PHRASE_KINDS.filter((k) => f.kinds.includes(k)).map((k) => k + ' (phrases ' + runs(f.phrases.filter((p) => p.kind === k).map((p) => p.index)) + '): ' + KIND_MEANS[k]).join('; ');
+  return '- Speech kind: ' + PHRASE_KINDS.filter((k) => f.kinds.includes(k)).map((k) => k + ' (phrases ' + runs(f.phrases.filter((p) => p.kind === k).map((p) => p.index)) + '): ' + KIND_MEANS[k]).join('; ')
+    + (f.from === 'sound-analysis' ? '. A default from the sound analysis (vocals in the music, short and sparse phrases), not from the frames: popost video speech-kind confirm corrects it' : '');
 };
 
 /** A stretch of the reference with the kind of the speech in it, in source frames: what the beats are read with. */

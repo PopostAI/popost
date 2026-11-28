@@ -65,7 +65,7 @@ const readRequest = async (rt: Runtime, file: string): Promise<GenerateRequest> 
     if (typeof path !== 'string' || !path.trim()) throw new GenerateError('"' + key + '" is the path of a picture.', 2);
     frames[key] = userPath(rt, path);
   }
-  return { prompt: data.prompt, ...(seconds !== undefined ? { seconds } : {}), ...(aspect !== undefined ? { aspect } : {}), ...lists, ...frames, ...(data.priceOnly === true ? { priceOnly: true as const } : {}) };
+  return { prompt: data.prompt, ...(seconds !== undefined ? { seconds } : {}), ...(aspect !== undefined ? { aspect } : {}), ...lists, ...frames, ...(data.audio === false ? { audio: false as const } : {}), ...(data.priceOnly === true ? { priceOnly: true as const } : {}) };
 };
 
 const USAGE = 'Give the kind, the request and the output file: popost video generate video|image <request.json> <out-file> (or --models).';
@@ -118,7 +118,7 @@ const generate: Subcommand = {
       'the built-in generator for POPOST_GEN_CMD="popost video generate": makes a clip or a picture on popost.ai with your account, paid in credits, only at a price the user agreed to (--confirm --max-credits N; POPOST_GEN_MAX_CREDITS or --yes still work); prints {"credits", "chargedCredits", "key"}, or {"confirm": {...}} with exit code 3. In a project with agreed clips (production/approved-clips.json) a clip that is not one of them is asked about (reason "unplanned") until --approve-unplanned <key>',
     positionals: [
       { name: 'kind', choices: ['video', 'image'], required: false, help: 'a clip or a picture' },
-      { name: 'request', required: false, help: 'request.json: { "prompt", "seconds"?, "aspect"?, "images"?, "videos"?, "audios"?, "firstFrame"?, "lastFrame"?, "priceOnly"? }; frames never together with references' },
+      { name: 'request', required: false, help: 'request.json: { "prompt", "seconds"?, "aspect"?, "images"?, "videos"?, "audios"?, "firstFrame"?, "lastFrame"?, "audio"?: false (no sound track, where the model can), "priceOnly"? }; frames never together with references' },
       { name: 'out', required: false, help: 'the file to write: .mp4 for a clip, .png, .jpg or .webp for a picture' },
     ],
     options: [

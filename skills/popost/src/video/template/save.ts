@@ -12,6 +12,7 @@ import type { Elements } from '../elements/types';
 import { withCaptionRoles } from '../elements/caption-roles';
 import type { Transcript } from '../speech/types';
 import { factsOfSpeech, kindRanges, type SpeechFile } from '../describe/speech-kind';
+import type { SoundFile } from '../sound/reading';
 import type { TextTrack } from '../text/types';
 import { error, warning } from '../project/check-common';
 import { estimateCapacity, measureCapacities, type Band } from './capacity';
@@ -79,6 +80,8 @@ export interface SaveOptions {
    * Without it (a reference described before the record existed) every heard word is a line, as before.
    */
   speech?: SpeechFile;
+  /** The reading of the reference's sound (sound.json): the template keeps its facts and the default sound plan. */
+  sound?: SoundFile;
 }
 
 /** The kinds of the speech that reach the template: the phrases that lie before the end, when shots were dropped there. */
@@ -109,6 +112,7 @@ export const saveTemplate = async (rt: Runtime, o: SaveOptions): Promise<{ probl
   const kinds = kindsUntil(o.speech, src.from === undefined ? undefined : m.source.frames);
   const made = templateFrom({ measure: m, ...(src.text ? { text: src.text } : {}), ...(src.transcript ? { transcript: src.transcript } : {}), ...(o.inset ? { inset: o.inset } : {}), name: o.name, label: o.label ?? o.name, hash: measureHash(m), ...(kinds ? { kinds } : {}) });
   if (o.speech) made.speech = factsOfSpeech(o.speech);
+  if (o.sound) made.sound = o.sound.facts;
   const fingerprint = src.from === undefined ? undefined : referenceFingerprint(o.reading?.measure ?? o.measure);
   if (fingerprint) made.source.fingerprint = fingerprint;
   // The reading: each shot's elements, an effect of its own as "custom" with the picture of its frames (a path from the template directory).

@@ -14,6 +14,8 @@ import { isVisibleSpeech, speechPrompt } from '../../src/video/generate/speech';
 import { speechSpans } from '../../src/video/media/footage';
 import { hasFfmpeg, runFfmpegOk } from '../../src/video/media/ffmpeg';
 import { registerVoice } from '../../src/video/voice/profile';
+import { writeMusicPlan } from '../../src/video/music/provenance';
+import { readModeReceipt, soundTail } from '../../src/video/sound/modes';
 
 const rt = await createDiskRuntime();
 afterAll(async () => { await rt.cleanup(); });
@@ -175,7 +177,9 @@ describe.skipIf(!ffmpeg)('a clip made with lines', () => {
     expect(sent?.prompt).toContain('Two friends at a kitchen table, medium shot.');
     expect(sent?.prompt).toContain('native speech in American English');
     expect(sent?.prompt).toContain('0.5-2.8 s host says "I use it every single day."; 3.0-4.8 s guest says "And I keep asking about it."');
-    expect(sent?.prompt).not.toContain('No background music');
+    // A clip with lines is "speech": its speaker's voice leads, and it has no music of its own (video-sound.md, R2 and R3).
+    expect(sent?.prompt.endsWith(soundTail('speech'))).toBe(true);
+    expect(await readModeReceipt(rt, path.join(dir, 'assets/talk.mp4'))).toEqual({ version: 1, sound: 'speech' });
     const receipt = JSON.parse(await readFile(path.join(dir, 'assets/talk.mp4.speech.json'), 'utf8')) as { mode: string; language: string; speaker: string; text: string; lines: unknown[] };
     expect(receipt).toMatchObject({ mode: 'native', language: 'en-US', speaker: 'host, guest', text: 'I use it every single day. And I keep asking about it.' });
     expect(receipt.lines).toEqual([{ speaker: 'host', text: 'I use it every single day.', at: 0.5, to: 2.8, beat: 2 }, { speaker: 'guest', text: 'And I keep asking about it.', at: 3, to: 4.8, beat: 3 }]);
@@ -188,36 +192,47 @@ describe.skipIf(!ffmpeg)('a clip made with lines', () => {
     expect(again.asked).toEqual([]);
   }, 60_000);
 
-  it('asks for every clip of a video with a music track of its own without background music, and says so', async () => {
+  it('asks for every clip by the role of its sound and none with music, and says so; one continuous clip keeps its music only as a recorded exception', async () => {
     const dir = await project('music');
     const generator = keeping();
     const scenery: MaterialRequest = { file: 'assets/street.mp4', prompt: 'A rainy street at night, neon signs.', seconds: 2, cast: [] };
     const r = await makeMaterials(rt, { requests: [...both(), scenery], dir, generator, times, music: true, anchor: false });
     expect(r.problems).toEqual([]);
     expect(generator.asked).toHaveLength(3);
-    for (const a of generator.asked) expect(a.prompt.endsWith(NO_MUSIC)).toBe(true);
+    expect(generator.asked.filter((a) => a.prompt.endsWith(soundTail('speech')))).toHaveLength(2);
+    expect(generator.asked.find((a) => a.prompt.startsWith('A rainy street'))?.prompt).toBe('A rainy street at night, neon signs.' + soundTail('ambience'));
+    for (const a of generator.asked) expect(a.prompt).toContain('No background music');
     expect(NO_MUSIC).toContain('No background music');
-    expect(r.notes?.join(' ')).toContain('every clip was asked for without background music');
-    // A video of one generated clip keeps that clip's own soundtrack.
+    expect(r.notes?.join(' ')).toContain('Every clip is asked for by the role of its sound');
+    // One generated clip is asked for without music too (R2), unless the plan records exception (a) for the whole video.
     const single = await project('single');
     const one = keeping();
-    const alone = await makeMaterials(rt, { requests: [scenery], dir: single, generator: one, music: true });
-    expect(one.asked[0]?.prompt).toBe('A rainy street at night, neon signs.');
-    expect(alone.notes?.join(' ')).toContain('one generated clip: it keeps its own continuous soundtrack');
+    await makeMaterials(rt, { requests: [scenery], dir: single, generator: one, music: true });
+    expect(one.asked[0]?.prompt).toBe('A rainy street at night, neon signs.' + soundTail('ambience'));
+    const kept = await project('single-kept');
+    await writeMusicPlan(rt, kept, { version: 1, music: 'none', clipMusic: [{ basis: 'single-clip', clip: 'all', why: 'the reference is one continuous take' }] });
+    const own = keeping();
+    const alone = await makeMaterials(rt, { requests: [scenery], dir: kept, generator: own, music: false });
+    expect(own.asked[0]?.prompt).toBe('A rainy street at night, neon signs.' + soundTail('ambience', { music: 'single-clip' }));
+    expect(own.asked[0]?.prompt).not.toContain('No background music');
+    expect(alone.clipMusic).toEqual([{ file: 'assets/street.mp4', basis: 'single-clip', means: expect.stringContaining('one continuous clip'), why: 'the reference is one continuous take' }]);
+    expect(await readModeReceipt(rt, path.join(kept, 'assets/street.mp4'))).toEqual({ version: 1, sound: 'ambience', clipMusic: 'single-clip' });
   }, 60_000);
 
   it('lets the person speak natively in a project with a registered voice, which is the timbre reference where it can be', async () => {
     const dir = await project('voiced');
     const sample = path.join(dir, 'sample.wav');
-    await runFfmpegOk(rt, ['-y', '-loglevel', 'error', '-f', 'lavfi', '-i', 'sine=frequency=440:duration=0.4', sample]);
+    await runFfmpegOk(rt, ['-y', '-loglevel', 'error', '-f', 'lavfi', '-i', 'sine=frequency=440:duration=3', sample]);
     await registerVoice(rt, dir, 'host', sample, 'native-reference');
     const generator = keeping();
     const solo = request({ file: 'assets/solo.mp4', cast: ['host'], speech: { mode: 'native', language: 'en-US', lines: [{ speaker: 'host', text: 'I use it every single day.', beat: 2 }, { speaker: 'host', text: 'Really every day.', beat: 3 }] } });
     const last = request({ file: 'assets/last.mp4', seconds: 4, cast: ['guest'], speech: { mode: 'native', language: 'en-US', lines: [{ speaker: 'guest', text: 'Try it.', beat: 4 }] } });
     const r = await makeMaterials(rt, { requests: [solo, last], dir, generator, times });
     expect(r.problems).toEqual([]);
+    // One sample of the registered voice (voice/sample.ts) goes with the clip as its reference sound, named in the prompt.
     expect(generator.asked[0]?.audios).toHaveLength(1);
-    expect(generator.asked[0]?.prompt).toContain('defines the voice identity and timbre only');
+    expect(generator.asked[0]?.audios?.[0]).toMatch(/voices\/host\.sample\.wav$/);
+    expect(generator.asked[0]?.prompt).toContain('The voice of host is @audio1: it defines the voice\'s identity and timbre only');
     expect(generator.asked[0]?.prompt).toContain('0.5-2.8 s host says');
   }, 60_000);
 });

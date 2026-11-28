@@ -2,8 +2,8 @@
  * `popost video music quote` and `make`: generated background music, paid as speech is. The price first (exit code 3
  * without --confirm or above --max-credits, nothing asked for), then one job per order under the project's task,
  * waited for while it runs and downloaded as an MP3; the same command again pays nothing twice; a refused description
- * and a failed generator charge nothing and say what to do. All of it is off unless POPOST_VIDEO_MUSIC=on. The platform
- * is the in-memory fake.
+ * and a failed generator charge nothing and say what to do. It needs a connected account; a generator switched off on
+ * the platform (HTTP 503) is said once and nothing is asked again. The platform is the in-memory fake.
  */
 import { describe, expect, it } from 'vitest';
 import { createTestRuntime, runCli } from '../../src/testing/memory';
@@ -17,22 +17,49 @@ const setup = (o: FakeOptions = {}) => {
   const platform = fakePlatform({ balance: 500, ...o });
   const sleeps: number[] = [];
   let t = Date.UTC(2026, 10, 27);
-  const rt = createTestRuntime({ env: { ...ENV, POPOST_VIDEO_MUSIC: 'on' }, fetchHandler: platform.handler, now: () => new Date(t), sleep: async (ms) => { sleeps.push(ms); t += ms; } });
+  const rt = createTestRuntime({ env: ENV, fetchHandler: platform.handler, now: () => new Date(t), sleep: async (ms) => { sleeps.push(ms); t += ms; } });
   const make = (...more: string[]) => runCli(rt, ['video', 'music', 'make', '--project', '/work/p', '--prompt', PROMPT, '--seconds', '30', '--out', OUT, ...more]);
   const posts = () => platform.sent.filter((s) => s.method === 'POST' && s.path === '/music');
   return { rt, platform, sleeps, make, posts };
 };
 
 describe('popost video music quote', () => {
-  it('prices a length rounded up to a whole second, 3 at least and 300 at most, and charges nothing', async () => {
-    expect([musicSeconds(0.4), musicSeconds(3), musicSeconds(29.2), musicSeconds(30), musicSeconds(900)]).toEqual([3, 3, 30, 30, 300]);
+  it('prices a length rounded up to a whole second, 3 at least, and charges nothing; over the platform\'s maximum it is refused with that maximum', async () => {
+    expect([musicSeconds(0.4), musicSeconds(3), musicSeconds(29.2), musicSeconds(30), musicSeconds(900)]).toEqual([3, 3, 30, 30, 900]);
     const { rt, platform } = setup();
     expect((await runCli(rt, ['video', 'music', 'quote', '--seconds', '29.2'])).code).toBe(0);
-    expect(rt.json()).toMatchObject({ ok: true, seconds: 30, credits: 54 });
+    expect(rt.json()).toMatchObject({ ok: true, available: true, seconds: 30, credits: 54 });
     expect(rt.json().note).toBeUndefined();
     expect(platform.sent.map((s) => [s.path, s.body])).toEqual([['/music/quote', { seconds: 30 }]]);
-    expect((await runCli(rt, ['video', 'music', 'quote', '--seconds', '900'])).code).toBe(0);
-    expect(rt.json()).toMatchObject({ seconds: 300, credits: 540, note: expect.stringContaining('first 300 s') });
+    expect((await runCli(rt, ['video', 'music', 'quote', '--seconds', '900'])).code).toBe(2);
+    expect(rt.json()).toMatchObject({ ok: false, maxSeconds: 180, problems: [{ at: '--seconds', fix: expect.stringContaining('--seconds 180') }] });
+    expect(platform.account.charged).toBe(0);
+  });
+
+  it('names the tier of the quote and its longest track, and refuses a length over that tier\'s longest track before anything is made', async () => {
+    const { rt, platform, make, posts } = setup({ musicModel: (s) => (s <= 30 ? { model: 'clip', maxTrackSeconds: 30 } : { model: 'song', maxTrackSeconds: 180 }) });
+    expect((await runCli(rt, ['video', 'music', 'quote', '--seconds', '20'])).code).toBe(0);
+    expect(rt.json()).toMatchObject({ ok: true, seconds: 20, model: 'clip', maxTrackSeconds: 30 });
+    expect((await runCli(rt, ['video', 'music', 'quote', '--seconds', '95'])).code).toBe(0);
+    expect(rt.json()).toMatchObject({ model: 'song', maxTrackSeconds: 180 });
+    expect((await make()).code).toBe(3);
+    expect((rt.json().confirm as { items: { what: string }[] }).items[0]?.what).toContain('(clip)');
+    const short = setup({ musicModel: () => ({ model: 'clip', maxTrackSeconds: 20 }) });
+    expect((await short.make('--confirm', '--max-credits', '60')).code).toBe(2);
+    expect(short.rt.json()).toMatchObject({ ok: false, maxSeconds: 20, chargedCredits: 0 });
+    expect(short.posts()).toHaveLength(0);
+    expect(posts()).toHaveLength(0);
+    expect(platform.account.charged).toBe(0);
+  });
+
+  it('a generator switched off on the platform (HTTP 503) is said once: the quote is answered, make charges nothing, nothing is asked again', async () => {
+    const { rt, platform, make, posts } = setup({ musicOff: true });
+    expect((await runCli(rt, ['video', 'music', 'quote', '--seconds', '30'])).code).toBe(0);
+    expect(rt.json()).toMatchObject({ ok: true, available: false, note: expect.stringContaining('not available on popost.ai right now') });
+    expect((await make('--confirm', '--max-credits', '60')).code).toBe(2);
+    expect(String(rt.json().error)).toContain('not available on popost.ai right now');
+    expect(platform.sent.filter((s) => s.path === '/music/quote')).toHaveLength(2);
+    expect(posts()).toHaveLength(0);
     expect(platform.account.charged).toBe(0);
   });
 
@@ -46,17 +73,12 @@ describe('popost video music quote', () => {
     expect(String(rt.json().error)).toContain('--seconds N');
   });
 
-  it('is off by default: without the switch, or without an account, nothing is priced or made', async () => {
-    const platform = fakePlatform({ balance: 500 });
-    const plain = createTestRuntime({ env: ENV, fetchHandler: platform.handler });
-    expect((await runCli(plain, ['video', 'music', 'quote', '--seconds', '30'])).code).toBe(2);
-    expect(String(plain.json().error)).toContain('off by default');
-    expect((await runCli(plain, ['video', 'music', 'make', '--prompt', PROMPT, '--seconds', '30', '--out', OUT, '--confirm', '--max-credits', '60'])).code).toBe(2);
-    expect(String(plain.json().error)).toContain('POPOST_VIDEO_MUSIC=on');
-    expect(platform.sent).toHaveLength(0);
-    const offline = createTestRuntime({ env: { POPOST_VIDEO_MUSIC: 'on' } });
+  it('needs a connected account: without one nothing is priced or made, and the user\'s own file is named as the way', async () => {
+    const offline = createTestRuntime({});
     expect((await runCli(offline, ['video', 'music', 'quote', '--seconds', '30'])).code).toBe(2);
     expect(String(offline.json().error)).toContain('popost auth login');
+    expect((await runCli(offline, ['video', 'music', 'make', '--prompt', PROMPT, '--seconds', '30', '--out', OUT, '--confirm', '--max-credits', '60'])).code).toBe(2);
+    expect(String(offline.json().error)).toContain('popost video music own');
   });
 });
 
@@ -195,15 +217,11 @@ describe('popost video music make', () => {
     expect((await runCli(rt, ['video', 'music', '--help'])).stdout).toContain('make');
   });
 
-  it('video doctor says music is not generated unless it is switched on', async () => {
+  it('video doctor says music is made on popost.ai with a connected account, and not without one', async () => {
     const { rt } = setup();
     await runCli(rt, ['video', 'doctor']);
-    expect(rt.json()).toMatchObject({ tools: { music: 'popost.ai' }, hosted: { music: expect.stringContaining('popost video music make') } });
-    const plain = createTestRuntime({ env: ENV });
-    await runCli(plain, ['video', 'doctor']);
-    expect(plain.json()).toMatchObject({ tools: { music: null, speak: 'popost.ai' } });
-    expect((plain.json().hosted as Record<string, unknown>).music).toBeUndefined();
-    const offline = createTestRuntime({ env: { POPOST_VIDEO_MUSIC: 'on' } });
+    expect(rt.json()).toMatchObject({ tools: { music: 'popost.ai', speak: 'popost.ai' }, hosted: { music: expect.stringContaining('popost video music make') } });
+    const offline = createTestRuntime({});
     await runCli(offline, ['video', 'doctor']);
     expect(offline.json()).toMatchObject({ tools: { music: null } });
   });

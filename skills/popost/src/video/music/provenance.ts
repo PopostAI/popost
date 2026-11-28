@@ -11,15 +11,41 @@ import type { Runtime } from '../../runtime';
 import { error } from '../project/check-common';
 import type { Problem } from '../types';
 import { replicationSoundSource, REFERENCE_SOUND_RECEIPT } from '../replication/audio-provenance';
+import { isClipMusicBasis, type ClipMusicBasis } from '../sound/modes';
 
 export const MUSIC_PLAN_FILE = 'music-plan.json';
-/** generated: one track made for the whole video; own: the user's file; none: no music. */
-export interface MusicPlan { version: 1; music: 'generated' | 'own' | 'none'; style?: string }
+/**
+ * A recorded exception to "clips carry no music" (video-sound.md, R4): which exception, the clip it is for (a path in
+ * the project, or "all" for the whole video), and what it rests on, in the words of the reference reading or of the
+ * user. It is shown to the user with the plan and its price (music plan, materials).
+ */
+export interface ClipMusicException { basis: ClipMusicBasis; clip: string; why: string }
+/**
+ * generated: one track made for the whole video; own: the user's file; none: no music. style: the agreed style of a
+ * generated track. asked: the user's words when the plan departs from the reading (R5). clipMusic: the recorded
+ * exceptions under which clips carry music. unavailable: why a planned bed could not be generated (no account, the
+ * generator off): said with the plan and in the notes of materials.
+ */
+export interface MusicPlan { version: 1; music: 'generated' | 'own' | 'none'; style?: string; basis?: string; asked?: string; clipMusic?: ClipMusicException[]; unavailable?: string }
+
+const text = (v: unknown): string | undefined => (typeof v === 'string' && v.trim() ? v.trim() : undefined);
+
+const exceptionOf = (c: unknown): ClipMusicException[] => {
+  const r = c as { basis?: unknown; clip?: unknown; why?: unknown } | null;
+  const why = text(r?.why);
+  return r && isClipMusicBasis(r.basis) && why ? [{ basis: r.basis, clip: text(r.clip) ?? 'all', why }] : [];
+};
 
 export const readMusicPlan = async (rt: Runtime, project: string): Promise<MusicPlan | undefined> => {
   const raw = await rt.fs.readText(rt.path.join(project, MUSIC_PLAN_FILE)).then((t) => JSON.parse(t) as Partial<MusicPlan>, () => undefined);
-  return raw && (raw.music === 'generated' || raw.music === 'own' || raw.music === 'none') ? { version: 1, music: raw.music, ...(typeof raw.style === 'string' ? { style: raw.style } : {}) } : undefined;
+  if (!raw || !(raw.music === 'generated' || raw.music === 'own' || raw.music === 'none')) return undefined;
+  const clipMusic = (Array.isArray(raw.clipMusic) ? raw.clipMusic : []).flatMap(exceptionOf);
+  const [style, basis, asked, unavailable] = [text(raw.style), text(raw.basis), text(raw.asked), text(raw.unavailable)];
+  return { version: 1, music: raw.music, ...(style ? { style } : {}), ...(basis ? { basis } : {}), ...(asked ? { asked } : {}), ...(clipMusic.length ? { clipMusic } : {}), ...(unavailable ? { unavailable } : {}) };
 };
+
+/** The exceptions a project records for music inside its clips. */
+export const clipMusicExceptions = async (rt: Runtime, project: string): Promise<ClipMusicException[]> => (await readMusicPlan(rt, project))?.clipMusic ?? [];
 
 export const writeMusicPlan = async (rt: Runtime, project: string, plan: MusicPlan): Promise<void> => {
   await rt.fs.mkdir(project);
@@ -55,6 +81,27 @@ export const soundSource = async (rt: Runtime, file: string, project?: string): 
   if ((await read(USER_RECEIPT))?.audioSha256 === hash) return 'user';
   if (project && await replicationSoundSource(rt, project, rt.path.relative(project, file)) === 'reference') return 'reference';
   return undefined;
+};
+
+/**
+ * The record beside a sound effect's file (<file>.sfx.json), written by the command that brought the effect into the
+ * project: where it came from (source, e.g. "catalogue" with the catalogue id) and the file's hash. An audio track of
+ * role "sfx" plays only a file with such a record in a project made from a reference (project/check-sound.ts).
+ */
+export const EFFECT_RECEIPT = '.sfx.json';
+export interface EffectRecord { version: 1; source: string; id?: string; audioSha256: string }
+
+export const writeEffectRecord = async (rt: Runtime, file: string, r: { source: string; id?: string }): Promise<EffectRecord> => {
+  const record: EffectRecord = { version: 1, source: r.source, ...(r.id ? { id: r.id } : {}), audioSha256: sha256(await rt.fs.readFile(file)) };
+  await rt.fs.writeFile(file + EFFECT_RECEIPT, JSON.stringify(record, null, 2) + '\n');
+  return record;
+};
+
+/** Whether an effect's file has its record, and is the file the record was written for. */
+export const effectRecorded = async (rt: Runtime, file: string): Promise<boolean> => {
+  const record = await rt.fs.readText(file + EFFECT_RECEIPT).then((t) => JSON.parse(t) as Partial<EffectRecord> | null, () => undefined);
+  if (!record || typeof record.source !== 'string' || !record.source) return false;
+  return record.audioSha256 === (await rt.fs.readFile(file).then(sha256, () => undefined));
 };
 
 export const SOUND_FIX =

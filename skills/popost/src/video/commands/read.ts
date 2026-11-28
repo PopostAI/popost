@@ -14,7 +14,10 @@ import { INSET_FILE, insetPlan, insetText } from '../describe/inset';
 import { TRACKS_FILE, tracksFile } from '../describe/paths';
 import { knownOf } from '../describe/known';
 import { UNRECOVERED_FILE, unrecoveredFile } from '../describe/unrecovered';
-import { isSpeechFile, keepConfirmed, middleOf, PHRASES_A_SHEET, phraseSheetFile, SPEECH_FILE, speechOf, withPictures, type SpeechFile, type SpeechStatus } from '../describe/speech-kind';
+import { isSpeechFile, keepConfirmed, middleOf, PHRASES_A_SHEET, phraseSheetFile, SPEECH_FILE, speechOf, withHeardKinds, withPictures, type SpeechFile, type SpeechStatus } from '../describe/speech-kind';
+import { heardSound, measureFile, planAnalysis, runAnalysis, type AnalysisPlan, type HeardSound } from '../sound/analysis';
+import { musicLine, SOUND_FILE, soundFileOf, type SoundAnalysisRecord, type SoundFile } from '../sound/reading';
+import { ToolError } from '../tool';
 import { writeSheets } from '../look/sheets';
 import { probe } from '../media/ffmpeg';
 import { readReference } from '../describe/parts';
@@ -30,7 +33,7 @@ import { readFacts } from '../template/facts';
 import { comparisonScope } from './compare-scope';
 import { quoteVideoSpeech, transcriptionPrice } from '../speech/hosted';
 import { commandTranscriber, NO_TRANSCRIBER, phrasesOf, transcribe, TRANSCRIBER_HINT, transcriberKind } from '../speech/index';
-import type { Wallet } from '../wallet';
+import { Wallet, type PriceItem } from '../wallet';
 import { CREDIT_OPTIONS, walletFor } from './credits';
 import { synthCase } from '../synth/generate';
 import { writeCase } from '../synth/write';
@@ -62,6 +65,31 @@ const hearing = async (rt: Runtime, args: ParsedArgs, video: string, what: strin
   if (transcriberKind(rt) !== 'hosted') return { transcriber: commandTranscriber(rt), wallet: undefined as Wallet | undefined };
   const wallet = await walletFor(rt, args, await transcriptionPrice(rt, video, what));
   return { transcriber: commandTranscriber(rt, wallet), wallet };
+};
+
+const NO_SOUND_ANALYSIS: OptionSpec = { flag: '--no-sound-analysis', kind: 'flag', help: 'do not have popost.ai listen to the sound (music, ambience, effects); the sound is still measured here, at no charge' };
+
+/**
+ * What describe pays popost.ai for, priced before anything is done: the transcription (unless the user's own
+ * transcriber hears it) and the sound analysis. One price, one agreement (--confirm --max-credits N), one wallet.
+ */
+const describeHearing = async (rt: Runtime, args: ParsedArgs, video: string, o: { speech: boolean; sound: AnalysisPlan }) => {
+  const hosted = o.speech && transcriberKind(rt) === 'hosted';
+  const items: PriceItem[] = [...(hosted ? await transcriptionPrice(rt, video, 'the speech of the reference') : []), ...(o.sound.kind === 'run' ? [o.sound.item] : [])];
+  const wallet = hosted || o.sound.kind === 'run' ? await walletFor(rt, args, items) : undefined;
+  return { transcriber: o.speech ? commandTranscriber(rt, wallet) : undefined, wallet };
+};
+
+/** The reading of the reference's sound: measured here, and listened to when the plan says so (sound/analysis.ts). */
+const readSound = async (rt: Runtime, video: string, m: Measure, heard: HeardSound | undefined, plan: AnalysisPlan, wallet: Wallet | undefined): Promise<SoundFile> => {
+  if (!heard) return soundFileOf({ hasAudio: false, analysis: { status: 'silent' } });
+  const fps = m.source.fps;
+  const measured = await measureFile(rt, video, { cuts: m.boundaries.map((b) => b.frame / fps), motion: m.shots.flatMap((s) => s.events.map((e) => e.start / fps)) }).catch((e: unknown) => {
+    if (e instanceof ToolError) throw e;
+    return undefined;
+  });
+  const analysis: SoundAnalysisRecord = plan.kind === 'run' ? await runAnalysis(rt, heard, wallet ?? new Wallet(0)) : plan.record;
+  return soundFileOf({ hasAudio: true, audioSha256: heard.sha256, ...(measured ? { measured } : {}), analysis });
 };
 
 /** A file the user named, against the working directory; a missing one is an error the user can fix. */
@@ -224,7 +252,7 @@ const describe = command(
     options: [
       outDir('the directory to write into'),
       { flag: '--name', default: 'reference', help: 'what REFERENCE.md calls the video (not a file name of a private data set)' },
-      LANGUAGE, NO_SPEECH, ...CREDIT_OPTIONS, PROJECT_OPTION,
+      LANGUAGE, NO_SPEECH, NO_SOUND_ANALYSIS, ...CREDIT_OPTIONS, PROJECT_OPTION,
     ],
   },
   async (args, rt) => {
@@ -232,8 +260,12 @@ const describe = command(
     const dir = userPath(rt, args.req('out'));
     const reader = commandTextReader(rt);
     const skipped = args.flag('no-speech');
-    // With popost.ai the speech is priced before anything else is done: without --confirm the price is all there is.
-    const { transcriber, wallet } = skipped ? { transcriber: undefined, wallet: undefined } : await hearing(rt, args, video, 'the speech of the reference');
+    // The sound as a listener hears it, and what the listener will do for it (kept from an earlier describe, run, or not at all).
+    const heard = (await probe(rt, video)).hasAudio ? await heardSound(rt, video) : undefined;
+    const soundBefore = await rt.fs.readText(rt.path.join(dir, SOUND_FILE)).then((t) => JSON.parse(t) as unknown, () => undefined);
+    const soundPlan = await planAnalysis(rt, heard, { skip: args.flag('no-sound-analysis'), before: soundBefore });
+    // With popost.ai the speech and the sound analysis are priced before anything else is done: without --confirm the price is all there is.
+    const { transcriber, wallet } = await describeHearing(rt, args, video, { speech: !skipped, sound: soundPlan });
     const language = args.string('language');
     await removeOldPictures(rt, dir);
     // Minutes with a reader and a transcriber: a line on stderr every 15 s says which part is where.
@@ -251,10 +283,13 @@ const describe = command(
     const status: SpeechStatus = !m.source.hasAudio ? 'silent' : spoken ? 'transcribed' : got.speechFailed !== undefined ? 'failed' : skipped ? 'skipped' : 'no-tool';
     const boundaries = m.boundaries.map((b) => b.frame);
     const before = await rt.fs.readText(rt.path.join(dir, SPEECH_FILE)).then((t) => JSON.parse(t) as unknown, () => undefined);
-    const speech = await phrasePictures(rt, video, dir, keepConfirmed(speechOf({
+    const sound = await readSound(rt, video, m, heard, soundPlan, wallet);
+    const listened = sound.analysis.status === 'done' ? sound.analysis.result : undefined;
+    // Words inside the music (sung, a sampled voice) get their kind from the listener; a reader of the frames can still correct it.
+    const speech = await phrasePictures(rt, video, dir, withHeardKinds(keepConfirmed(speechOf({
       status, ...(got.speechFailed !== undefined ? { why: got.speechFailed } : {}), ...(spoken ? { transcript: spoken, phrases: phrasesOf(spoken, { boundaries }) } : {}), fps: m.source.fps, duration: m.source.duration,
-    }), isSpeechFile(before) ? before : undefined));
-    const d = describeReference(m, cues, args.string('name') ?? 'reference', spoken, inset, { pictures: true, speech });
+    }), isSpeechFile(before) ? before : undefined), listened ? { music: listened.music.present, vocals: listened.music.vocals, speech: listened.speech.kind } : undefined));
+    const d = describeReference(m, cues, args.string('name') ?? 'reference', spoken, inset, { pictures: true, speech, sound });
     for (const [name, content] of Object.entries(d.files)) await rt.fs.writeFile(rt.path.join(dir, name), content);
     // measure.json says of each value how it is known (describe/known.ts), as the files a model reads do.
     await writeJsonFile(rt, rt.path.join(dir, 'measure.json'), { ...m, known: knownOf(m) });
@@ -264,6 +299,7 @@ const describe = command(
     if (spoken) await writeJsonFile(rt, rt.path.join(dir, 'transcript.json'), spoken);
     else await rt.fs.rm(rt.path.join(dir, 'transcript.json'));
     await writeJsonFile(rt, rt.path.join(dir, SPEECH_FILE), speech);
+    await writeJsonFile(rt, rt.path.join(dir, SOUND_FILE), sound);
     // The frame around the content, for template save; a frame an earlier describe found must not outlive this one.
     if (inset) await writeJsonFile(rt, rt.path.join(dir, INSET_FILE), inset);
     else await rt.fs.rm(rt.path.join(dir, INSET_FILE));
@@ -274,11 +310,12 @@ const describe = command(
           : got.speechFailed !== undefined ? { part: 'speech', because: 'the transcription failed: ' + got.speechFailed, toAdd: 'run the same command again: a failed transcription starts a new one, and nothing was charged for the failed one' }
           : { part: 'speech', because: NO_TRANSCRIBER, toAdd: ASR_HINT },
       ]),
+      ...(['done', 'silent'].includes(sound.analysis.status) ? [] : [{ part: 'sound analysis (what the music, ambience and effects are)', because: sound.analysis.status + (sound.analysis.why ? ': ' + sound.analysis.why : ''), ...(sound.analysis.status === 'no-account' ? { toAdd: 'popost auth login, then describe again' } : sound.analysis.status === 'failed' ? { toAdd: 'run the same command again: nothing was charged for a failed analysis' } : {}) }]),
     ];
     const typed = args.req('out');
     printJson(rt, {
       ok: true, dir,
-      files: ['REFERENCE.md', 'timeline.md', 'measure.json', TRACKS_FILE, UNRECOVERED_FILE, SPEECH_FILE, ...(cues ? ['text.json'] : []), ...(spoken ? ['transcript.json'] : []), ...(inset ? [INSET_FILE] : [])],
+      files: ['REFERENCE.md', 'timeline.md', 'measure.json', TRACKS_FILE, UNRECOVERED_FILE, SPEECH_FILE, SOUND_FILE, ...(cues ? ['text.json'] : []), ...(spoken ? ['transcript.json'] : []), ...(inset ? [INSET_FILE] : [])],
       shotFiles: m.shots.length, paths: m.tracks?.length ?? 0, notRecovered: d.unrecovered.length,
       tokens: { 'REFERENCE.md': d.tokens['REFERENCE.md'], 'timeline.md': d.tokens['timeline.md'] },
       sound: m.source.hasAudio, text: cues !== undefined, speech: spoken !== undefined, chargedCredits: wallet?.spent ?? 0,
@@ -286,6 +323,13 @@ const describe = command(
       speechKind: speech.confirmed
         ? { status: speech.status, kinds: speech.kinds }
         : { status: speech.status, kinds: 'unconfirmed', phrases: speech.phrases.length, next: 'popost video speech-kind show ' + typed + ' lists the phrases with their pictures; confirm each kind with popost video speech-kind confirm ' + typed + ' before template save' },
+      // What the sound is decides the re-make's sound (video-sound.md): music, ambience, effects, the default plan.
+      soundReading: {
+        analysis: sound.analysis.status, ...(sound.analysis.why ? { why: sound.analysis.why } : {}), music: musicLine(sound.facts, sound.analysis.status),
+        ambience: sound.facts.ambience, ...(sound.facts.ambienceWhat ? { ambienceWhat: sound.facts.ambienceWhat } : {}), effects: sound.facts.effects,
+        ...(sound.measured?.tempo ? { beatGrid: { bpm: sound.measured.tempo.bpm, confidence: sound.measured.tempo.confidence } } : {}), ...(sound.facts.cutsOnBeat ? { cutsOnBeat: sound.facts.cutsOnBeat } : {}),
+        onsets: sound.measured?.onsets.length ?? 0, plan: sound.facts.plan,
+      },
       ...(inset ? { inset: { ...inset, note: insetText(inset, m.shots.length) } } : {}),
       pictures: picturesEntry(rt, dir, m, got.pictures ?? []),
       ...(leftOut.length ? { leftOut } : {}),

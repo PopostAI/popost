@@ -15,6 +15,7 @@ import { fillPackage } from '../../src/video/template/fill';
 import { buildPage } from '../../src/video/compile/index';
 import { hasMusicTrack, soundProblems } from '../../src/video/music/provenance';
 import { loadTemplate, saveTemplate } from '../../src/video/template/save';
+import { soundTail } from '../../src/video/sound/modes';
 import type { Measure, Problem, Resolved } from '../../src/video/types';
 
 const sourceBytes = new TextEncoder().encode('synthetic reference bytes');
@@ -66,7 +67,8 @@ describe('strict generation and fill preflights', () => {
     const rt = createTestRuntime(), { g, sent } = generator(rt);
     const made = await makeMaterials(rt, { dir: '/work/legacy', requests: [request()], generator: g, anchor: false });
     expect(made.materials[0]).toMatchObject({ made: true, credits: 7 });
-    expect(sent).toHaveLength(1); expect(sent[0]?.prompt).toBe(request().prompt);
+    // No replication sentence: only the end every clip gets from its sound mode (a clip without lines: ambience).
+    expect(sent).toHaveLength(1); expect(sent[0]?.prompt).toBe(request().prompt + soundTail('ambience'));
     expect(await fillReplicationProblems(rt, '/work/legacy', '/work/assets', { speak: true, sound: 'unreviewed.wav' })).toEqual([]);
     const pkg = await template(rt);
     const filled = await fillPackage(rt, pkg, { outDir: '/work/filled', fill: { shots: [{ color: '#101040' }], captions: ['Hello'] } });

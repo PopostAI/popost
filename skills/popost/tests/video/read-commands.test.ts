@@ -102,14 +102,16 @@ describe.skipIf(!ok)('popost video: the reading commands', () => {
 
   it('describe works without tools and says what it left out; with them it writes the text and the speech too', async () => {
     expect((await runCli(rt, ['video', 'describe', 'two.mp4', '--out', 'plain'])).code).toBe(0);
-    expect(json()).toMatchObject({ ok: true, dir: rt.path.join(rt.dir, 'plain'), files: ['REFERENCE.md', 'timeline.md', 'measure.json', 'tracks.json', 'unrecovered.json', 'speech.json'], shotFiles: 2, sound: true, text: false, speech: false, speechKind: { status: 'no-tool', kinds: ['unknown'] } });
-    expect((json().leftOut as Array<{ because: string }>).map((x) => x.because)).toEqual(['POPOST_OCR_CMD is not set', 'no popost.ai account is connected and POPOST_ASR_CMD is not set']);
+    expect(json()).toMatchObject({ ok: true, dir: rt.path.join(rt.dir, 'plain'), files: ['REFERENCE.md', 'timeline.md', 'measure.json', 'tracks.json', 'unrecovered.json', 'speech.json', 'sound.json'], shotFiles: 2, sound: true, text: false, speech: false, speechKind: { status: 'no-tool', kinds: ['unknown'] } });
+    expect((json().leftOut as Array<{ because: string }>).map((x) => x.because)).toEqual(['POPOST_OCR_CMD is not set', 'no popost.ai account is connected and POPOST_ASR_CMD is not set', 'no-account']);
+    // The sound is measured here whatever tools there are; nobody listened without an account, and the reading says so.
+    expect(json().soundReading).toMatchObject({ analysis: 'no-account', plan: { music: 'ask' } });
     for (const f of ['REFERENCE.md', 'timeline.md', 'shots/01.md', 'shots/02.md', 'measure.json']) expect(await exists('plain/' + f), f).toBe(true);
     const full = withTools({ POPOST_OCR_CMD: tools.ocr, POPOST_ASR_CMD: tools.asr });
     expect((await runCli(full, ['video', 'describe', 'two.mp4', '--out', 'full', '--name', 'two shots'])).code).toBe(0);
-    expect(json()).toMatchObject({ ok: true, files: ['REFERENCE.md', 'timeline.md', 'measure.json', 'tracks.json', 'unrecovered.json', 'speech.json', 'text.json', 'transcript.json'], text: true, speech: true });
+    expect(json()).toMatchObject({ ok: true, files: ['REFERENCE.md', 'timeline.md', 'measure.json', 'tracks.json', 'unrecovered.json', 'speech.json', 'sound.json', 'text.json', 'transcript.json'], text: true, speech: true });
     expect((json().speechKind as { status: string }).status).toBe('transcribed');
-    expect(json().leftOut).toBeUndefined();
+    expect((json().leftOut as Array<{ part: string }>).map((x) => x.part)).toEqual(['sound analysis (what the music, ambience and effects are)']);
     expect(await rt.fs.readText(rt.path.join(rt.dir, 'full/REFERENCE.md'))).toContain('# Reference: two shots');
   });
 

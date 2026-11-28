@@ -6,7 +6,7 @@ import type { AudioTrack, Problem, VideoTrack, VisualTrack } from '../types';
 import type { SpanFrames } from '../timeline/spans';
 import { checkBox, error, materialRef, motionLength, warning, type CheckContext } from './check-common';
 import { checkSpan } from './check-span';
-import { checkPlay } from './check-footage';
+import { checkPlay, silentBedProblems } from './check-footage';
 import { checkLook, checkTextStyle } from './check-look';
 import { checkCaption } from './check-caption';
 
@@ -56,11 +56,30 @@ const audioSpan = (ctx: CheckContext, t: AudioTrack, at: string): Problem[] => {
   return checkSpan(ctx, t.during, at + '.during', 'Audio "' + t.id + '"').problems;
 };
 
+/**
+ * An effect (role "sfx") is placed by the frame its file starts on: "at" lies inside the video, and "at", "lead" and
+ * "cue" belong to effects only; an effect is never a bed.
+ */
+const effectProblems = (ctx: CheckContext, t: AudioTrack, at: string): Problem[] => {
+  const out: Problem[] = [];
+  if (t.role !== 'sfx') {
+    for (const key of ['at', 'lead', 'cue'] as const) if (t[key] !== undefined)
+      out.push(error(at + '.' + key, '"' + key + '" belongs to an effect (an audio track with "role": "sfx"); "' + t.id + '" is ' + (t.role ? 'of role "' + t.role + '"' : 'without a role') + '.', 'Add "role": "sfx" when it is a one-shot effect, or remove "' + key + '".'));
+    return out;
+  }
+  if (t.bed) out.push(error(at + '.bed', 'An effect is not a bed: a bed plays the sound of a clip under the shots cut from it.', 'Remove "bed", or remove "role": "sfx".'));
+  if (t.at !== undefined && t.at >= ctx.tl.total)
+    out.push(error(at + '.at', 'The effect "' + t.id + '" starts on frame ' + t.at + ', and the video has ' + ctx.tl.total + ' frames (0 to ' + (ctx.tl.total - 1) + ').', 'Put "at" on the frame of the event it marks, inside the video.'));
+  if (t.at === undefined && !t.during) out.push(warning(at + '.at', 'The effect "' + t.id + '" has neither "at" nor "during": it plays from the first frame.', 'Write "at": the frame of the event it marks.'));
+  return out;
+};
+
 const checkAudio = (ctx: CheckContext, t: AudioTrack, i: number): Problem[] => {
   const at = 'tracks[' + i + ']';
   const span = audioSpan(ctx, t, at);
   // A bed plays the sound of a clip: its material is the video material the shots are cut from.
-  return [...span, ...materialRef(ctx, t.material, at + '.material', t.bed ? 'video' : 'audio', (t.bed ? 'bed "' : 'audio track "') + t.id + '"')];
+  return [...span, ...effectProblems(ctx, t, at), ...materialRef(ctx, t.material, at + '.material', t.bed ? 'video' : 'audio', (t.bed ? 'bed "' : 'audio track "') + t.id + '"'),
+    ...(t.bed ? silentBedProblems(ctx, t.material, at + '.material', t.id) : [])];
 };
 
 export const checkTracks = (ctx: CheckContext): Problem[] =>
