@@ -1,0 +1,212 @@
+<!doctype html>
+<!--
+  Adapted from HyperFrames (https://github.com/heygen-com/hyperframes), registry/components/yt-feather-highlight, commit a8332860c396e9224d42b7ea2a9cc8f42918c961.
+  Copyright 2026 HeyGen, Inc. Licensed under the Apache License, Version 2.0; the licence text is in the popost
+  Skill's THIRD_PARTY_NOTICES. Changed for the popost Skill (tools/video/port-hyperframes.mjs): its comments removed; GSAP loaded from the project (../lib/gsap.min.js) instead of a CDN; the 1920x1080 composition scaled into the scene's canvas (parameter "fit"); HyperFrames variables declared as parameters; its clips shown and hidden from the scene's time; sound cues derived from its tweens.
+-->
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <script src="../lib/gsap.min.js"></script>
+    <style>
+      *,
+      *::before,
+      *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        background: #14161c;
+        overflow: hidden;
+      }
+      /* ---- yt-feather-highlight --------------------------------------------
+         Spotlight part of the frame: a dim layer with a feathered ellipse
+         hole. The hole's position/size are CSS variables, so the helpers
+         tween them directly (GSAP animates CSS vars). */
+      .yt-hl {
+        --yt-hl-x: 50%;
+        --yt-hl-y: 50%;
+        --yt-hl-rx: 22%;
+        --yt-hl-ry: 26%;
+        --yt-hl-dim: 0.55;
+
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0;
+        background: rgba(6, 8, 12, var(--yt-hl-dim));
+        -webkit-mask-image: radial-gradient(
+          ellipse var(--yt-hl-rx) var(--yt-hl-ry) at var(--yt-hl-x) var(--yt-hl-y),
+          transparent 0%,
+          transparent 52%,
+          black 88%
+        );
+        mask-image: radial-gradient(
+          ellipse var(--yt-hl-rx) var(--yt-hl-ry) at var(--yt-hl-x) var(--yt-hl-y),
+          transparent 0%,
+          transparent 52%,
+          black 88%
+        );
+      }
+      /* self-preview stand-in scene (not part of the snippet) */
+      #yt-hl-scene {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, #2a7fff 0%, #7d5cff 100%);
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        font-family: "Inter", ui-sans-serif, sans-serif;
+        font-weight: 700;
+        font-size: 64px;
+        color: rgba(255, 255, 255, 0.92);
+      }
+      #yt-hl-scene .box {
+        width: 420px;
+        height: 300px;
+        border-radius: 24px;
+        background: rgba(255, 255, 255, 0.16);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    </style>
+  <style id="popost-fit">
+  html, body { margin: 0 !important; width: 1280px; height: 720px; overflow: hidden !important; background: #000000; }
+  #popost-stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden; }
+</style>
+<script type="application/json" id="popost-params">
+{
+ "about": "Dims the frame except a feathered ellipse; the hole's position and size are CSS variables, so helpers glide the spotlight between targets",
+ "class": "ui",
+ "tags": [
+  "highlight",
+  "spotlight",
+  "effect",
+  "overlay"
+ ],
+ "seconds": 4.98,
+ "params": [
+  {
+   "name": "fit",
+   "type": "choice",
+   "default": "contain",
+   "options": [
+    "contain",
+    "cover"
+   ],
+   "what": "how the 1920x1080 composition is fitted into the canvas: whole with bars, or filling it and cropped"
+  }
+ ],
+ "values": {}
+}
+</script>
+<script>
+  /* popost: the scene's parameters stand in for HyperFrames variables; random numbers are seeded; the composition is
+     scaled into the canvas; clips are shown and hidden from the scene's time. */
+  (function () {
+    var block = document.getElementById('popost-params');
+    var values = block ? (JSON.parse(block.textContent).values || {}) : {};
+    var vars = {};
+    Object.keys(values).forEach(function (k) { if (k !== 'fit') vars[k] = values[k] === 'true' ? true : values[k] === 'false' ? false : values[k]; });
+    window.__hyperframes = { getVariables: function () { return vars; } };
+    var seed = 20240229;
+    window.__popostRandom = function () { seed = (seed + 0x6d2b79f5) >>> 0; var t = seed; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+    window.__popostFit = function () {
+      // The canvas, from the size this file declares: a scene of a later shot loads in a layer that is not displayed, where the page measures 0.
+      var size = /width: (\d+)px; height: (\d+)px;/.exec(document.getElementById('popost-fit').textContent);
+      var W = 1920, H = 1080, s = document.getElementById('popost-stage'), cw = Number(size[1]), ch = Number(size[2]);
+      var k = (values.fit === 'cover' ? Math.max : Math.min)(cw / W, ch / H);
+      s.style.transform = 'translate(' + (cw - W * k) / 2 + 'px,' + (ch - H * k) / 2 + 'px) scale(' + k + ')';
+      var clips = Array.prototype.slice.call(s.querySelectorAll('.clip[data-start]')).filter(function (c) { return isFinite(parseFloat(c.getAttribute('data-start'))) && c.parentNode !== s; });
+      // A mounted composition that starts later in its host runs on its own time.
+      [].forEach(function (m) {
+        var tl = window.__timelines && window.__timelines[m.id];
+        if (tl) window.__timelines[m.id] = { pause: function () { tl.pause(); }, seek: function (t) { tl.seek(Math.max(0, t - m.start)); }, duration: function () { return tl.duration() + m.start; } };
+      });
+      var scene = (window.__popostScene = window.__popostScene || {}), before = scene.render;
+      scene.render = function (seconds, fps) {
+        if (before) before(seconds, fps);
+        for (var i = 0; i < clips.length; i++) {
+          var a = parseFloat(clips[i].getAttribute('data-start')), d = parseFloat(clips[i].getAttribute('data-duration'));
+          clips[i].style.visibility = seconds >= a && (!isFinite(d) || seconds < a + d) ? 'visible' : 'hidden';
+        }
+      };
+    };
+  })();
+</script>
+<script type="application/json" id="popost-cues">[{"at":0.5,"cue":"shimmer","gain":0.45}]</script>
+</head>
+  <body>
+<div id="popost-stage">
+    
+    <div
+      id="yt-hl-root"
+      data-composition-id="yt-feather-highlight"
+      data-start="0"
+      data-duration="5"
+      data-width="1920"
+      data-height="1080"
+    >
+      <div id="yt-hl-scene">
+        <div class="box">A</div>
+        <div class="box">B</div>
+      </div>
+      <div class="yt-hl" id="yt-hl-demo"></div>
+      <div
+        id="yt-hl-drv"
+        class="clip"
+        data-start="0"
+        data-duration="5"
+        data-track-index="0"
+        style="position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none"
+      ></div>
+    </div>
+    <script>
+      (function () {
+        window.__timelines = window.__timelines || {};
+
+        // ---- copy these helpers into the host script ----
+        window.ytHighlightIn = function (tl, target, at, opts) {
+          opts = opts || {};
+          var vars = { opacity: 1, duration: 0.5, ease: "power2.out" };
+          if (opts.x !== undefined) vars["--yt-hl-x"] = opts.x;
+          if (opts.y !== undefined) vars["--yt-hl-y"] = opts.y;
+          if (opts.rx !== undefined) vars["--yt-hl-rx"] = opts.rx;
+          if (opts.ry !== undefined) vars["--yt-hl-ry"] = opts.ry;
+          gsap.set(target, {
+            "--yt-hl-x": opts.x !== undefined ? opts.x : "50%",
+            "--yt-hl-y": opts.y !== undefined ? opts.y : "50%",
+            "--yt-hl-rx": opts.rx !== undefined ? opts.rx : "22%",
+            "--yt-hl-ry": opts.ry !== undefined ? opts.ry : "26%",
+          });
+          tl.to(target, { opacity: 1, duration: 0.5, ease: "power2.out" }, at);
+        };
+        window.ytHighlightTo = function (tl, target, at, opts, dur) {
+          opts = opts || {};
+          var vars = { duration: dur === undefined ? 0.8 : dur, ease: "power2.inOut" };
+          if (opts.x !== undefined) vars["--yt-hl-x"] = opts.x;
+          if (opts.y !== undefined) vars["--yt-hl-y"] = opts.y;
+          if (opts.rx !== undefined) vars["--yt-hl-rx"] = opts.rx;
+          if (opts.ry !== undefined) vars["--yt-hl-ry"] = opts.ry;
+          tl.to(target, vars, at);
+        };
+        window.ytHighlightOut = function (tl, target, at) {
+          tl.to(target, { opacity: 0, duration: 0.4, ease: "power2.in" }, at);
+        };
+
+        // Self-preview timeline: spotlight box A, glide to box B, release.
+        var tl = gsap.timeline({ paused: true });
+        window.ytHighlightIn(tl, "#yt-hl-demo", 0.5, { x: "26%", y: "50%", rx: "17%", ry: "24%" });
+        window.ytHighlightTo(tl, "#yt-hl-demo", 2.2, { x: "74%" }, 0.9);
+        window.ytHighlightOut(tl, "#yt-hl-demo", 4.2);
+        tl.set("#yt-hl-root", { visibility: "hidden" }, 4.98);
+        window.__timelines["yt-feather-highlight"] = tl;
+      })();
+    </script>
+  </div>
+<script>window.__popostFit();</script>
+</body>
+</html>

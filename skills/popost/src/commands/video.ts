@@ -17,7 +17,7 @@ import { makeCommands, makeGroups } from '../video/commands/make';
 import { mediaCommands } from '../video/commands/media';
 import { musicCommands } from '../video/commands/music';
 import { speechKindCommands } from '../video/commands/speech-kind';
-import { readCommands, readGroups } from '../video/commands/read';
+import { measureGroup, readCommands, readGroups } from '../video/commands/read';
 import { sourceCommands } from '../video/commands/source';
 import { replicationCommands } from '../video/commands/replication';
 import type { Commands } from '../video/commands/shared';
@@ -37,6 +37,8 @@ export const main: CommandMain = (argv, rt) => {
   const [name, ...rest] = argv;
   const group = name === undefined ? undefined : GROUPS[name];
   if (group) return runSubcommand(PROG + ' ' + name, group, rest, rt);
+  // `measure <video>` measures a whole video; `measure curve <video>` one moving thing of it.
+  if (name === 'measure' && rest[0] !== undefined && rest[0] in measureGroup) return runSubcommand(PROG + ' measure', measureGroup, rest, rt);
   const table = { ...COMMANDS, ...Object.fromEntries(Object.entries(GROUPS).map(([n, c]) => [n, groupEntry(c)])) };
   return runSubcommand(PROG, table, argv, rt);
 };

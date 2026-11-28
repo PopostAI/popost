@@ -1,0 +1,418 @@
+<!doctype html>
+<!--
+  Adapted from HyperFrames (https://github.com/heygen-com/hyperframes), registry/components/decline-chart, commit a8332860c396e9224d42b7ea2a9cc8f42918c961.
+  Copyright 2026 HeyGen, Inc. Licensed under the Apache License, Version 2.0; the licence text is in the popost
+  Skill's THIRD_PARTY_NOTICES. Changed for the popost Skill (tools/video/port-hyperframes.mjs): its comments removed; the composition it mounts (decline-chart.html) put into the page; GSAP loaded from the project (../lib/gsap.min.js) instead of a CDN; the 1920x1080 composition scaled into the scene's canvas (parameter "fit"); HyperFrames variables declared as parameters; its clips shown and hidden from the scene's time; sound cues derived from its tweens.
+-->
+
+<html data-composition-variables='[
+    { "id": "label", "type": "string", "role": "content", "label": "Metric label", "description": "Label shown above the declining value.", "default": "Retention" },
+    { "id": "start_value", "type": "number", "role": "content", "label": "Start value", "description": "Metric value at the start of the decline.", "default": 82, "min": 0, "max": 100, "step": 1 },
+    { "id": "end_value", "type": "number", "role": "content", "label": "End value", "description": "Metric value at the bottom of the decline.", "default": 34, "min": 0, "max": 100, "step": 1 }
+  ]' lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>Decline Chart Demo</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #0b0c0e;
+      }
+
+      #root {
+        --fg: #f8fafc;
+        --font-display: Inter, system-ui, sans-serif;
+        --font-body: Inter, system-ui, sans-serif;
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: radial-gradient(circle at 50% 42%, #171a1f 0%, #0b0c0e 70%);
+      }
+
+      .mount-card {
+        width: 68%;
+        height: 70%;
+        left: 16%;
+        top: 15%;
+        container-type: size;
+        overflow: hidden;
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        border-radius: 32px;
+        box-shadow: 0 44px 100px rgba(0, 0, 0, 0.5);
+      }
+    </style>
+  <style id="popost-fit">
+  html, body { margin: 0 !important; width: 1280px; height: 720px; overflow: hidden !important; background: #000000; }
+  #popost-stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden; }
+</style>
+<script type="application/json" id="popost-params">
+{
+ "about": "A metric line draws downward as its value counts down and the ambient background darkens in lockstep.",
+ "class": "chart",
+ "tags": [
+  "motion-primitive",
+  "data",
+  "chart",
+  "decline",
+  "metric",
+  "problem"
+ ],
+ "seconds": 4,
+ "params": [
+  {
+   "name": "fit",
+   "type": "choice",
+   "default": "contain",
+   "options": [
+    "contain",
+    "cover"
+   ],
+   "what": "how the 1920x1080 composition is fitted into the canvas: whole with bars, or filling it and cropped"
+  },
+  {
+   "name": "label",
+   "type": "text",
+   "default": "Retention",
+   "maxLength": 200,
+   "what": "Label shown above the declining value."
+  },
+  {
+   "name": "start_value",
+   "type": "number",
+   "default": 82,
+   "min": 0,
+   "max": 100,
+   "what": "Metric value at the start of the decline."
+  },
+  {
+   "name": "end_value",
+   "type": "number",
+   "default": 34,
+   "min": 0,
+   "max": 100,
+   "what": "Metric value at the bottom of the decline."
+  }
+ ],
+ "values": {}
+}
+</script>
+<script>
+  /* popost: the scene's parameters stand in for HyperFrames variables; random numbers are seeded; the composition is
+     scaled into the canvas; clips are shown and hidden from the scene's time. */
+  (function () {
+    var block = document.getElementById('popost-params');
+    var values = block ? (JSON.parse(block.textContent).values || {}) : {};
+    var vars = {"label":"Weekly retention","start_value":91,"end_value":26};
+    Object.keys(values).forEach(function (k) { if (k !== 'fit') vars[k] = values[k] === 'true' ? true : values[k] === 'false' ? false : values[k]; });
+    window.__hyperframes = { getVariables: function () { return vars; } };
+    var seed = 20240229;
+    window.__popostRandom = function () { seed = (seed + 0x6d2b79f5) >>> 0; var t = seed; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+    window.__popostFit = function () {
+      // The canvas, from the size this file declares: a scene of a later shot loads in a layer that is not displayed, where the page measures 0.
+      var size = /width: (\d+)px; height: (\d+)px;/.exec(document.getElementById('popost-fit').textContent);
+      var W = 1920, H = 1080, s = document.getElementById('popost-stage'), cw = Number(size[1]), ch = Number(size[2]);
+      var k = (values.fit === 'cover' ? Math.max : Math.min)(cw / W, ch / H);
+      s.style.transform = 'translate(' + (cw - W * k) / 2 + 'px,' + (ch - H * k) / 2 + 'px) scale(' + k + ')';
+      var clips = Array.prototype.slice.call(s.querySelectorAll('.clip[data-start]')).filter(function (c) { return isFinite(parseFloat(c.getAttribute('data-start'))) && c.parentNode !== s; });
+      // A mounted composition that starts later in its host runs on its own time.
+      [].forEach(function (m) {
+        var tl = window.__timelines && window.__timelines[m.id];
+        if (tl) window.__timelines[m.id] = { pause: function () { tl.pause(); }, seek: function (t) { tl.seek(Math.max(0, t - m.start)); }, duration: function () { return tl.duration() + m.start; } };
+      });
+      var scene = (window.__popostScene = window.__popostScene || {}), before = scene.render;
+      scene.render = function (seconds, fps) {
+        if (before) before(seconds, fps);
+        for (var i = 0; i < clips.length; i++) {
+          var a = parseFloat(clips[i].getAttribute('data-start')), d = parseFloat(clips[i].getAttribute('data-duration'));
+          clips[i].style.visibility = seconds >= a && (!isFinite(d) || seconds < a + d) ? 'visible' : 'hidden';
+        }
+      };
+    };
+  })();
+</script>
+<script type="application/json" id="popost-cues">[{"at":0,"cue":"tick","gain":0.35}]</script>
+</head>
+  <body>
+<div id="popost-stage">
+    <div
+      id="root"
+      data-composition-id="decline-chart-demo"
+      data-start="0"
+      data-width="1920"
+      data-height="1080"
+      data-duration="4"
+      data-fps="30"
+    >
+      <div
+        id="decline-chart-mount"
+        class="mount-card clip"
+        data-composition-id="decline-chart"
+       
+        data-variable-values='{"label":"Weekly retention","start_value":91,"end_value":26}'
+        data-start="0"
+        data-duration="4"
+        data-track-index="0"
+        data-width="1306"
+        data-height="756"
+      >
+      <div id="root" data-composition-id="decline-chart" data-duration="4" data-fps="30">
+        <style>
+          *,
+          *::before,
+          *::after {
+            box-sizing: border-box;
+          }
+
+          #root {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            container-type: size;
+            isolation: isolate;
+            color: var(--fg, #f8fafc);
+            font-family: var(--font-body, Inter, system-ui, sans-serif);
+            pointer-events: none;
+          }
+
+          .dc-clip,
+          .dc-ambient,
+          .dc-gloom {
+            position: absolute;
+            inset: 0;
+          }
+
+          .dc-clip {
+            overflow: hidden;
+          }
+
+          .dc-ambient {
+            background:
+              radial-gradient(circle at 24% 16%, rgba(47, 129, 150, 0.55), transparent 46%),
+              linear-gradient(145deg, #152f3c 0%, #101a25 48%, #0c1118 100%);
+            transform: scale(1.02);
+            transform-origin: center;
+            will-change: filter;
+          }
+
+          .dc-gloom {
+            background: #030507;
+            opacity: 0;
+          }
+
+          .dc-layout {
+            position: absolute;
+            inset: 9cqh 9cqw 8cqh;
+            display: grid;
+            /* minmax(0, 1fr): a bare 1fr row inflates to the svg's intrinsic
+               aspect height (min-height auto), overflowing the card. */
+            grid-template-rows: auto minmax(0, 1fr);
+            gap: 5cqh;
+            opacity: 0;
+          }
+
+          .dc-header {
+            display: flex;
+            align-items: end;
+            justify-content: space-between;
+            gap: 5cqw;
+          }
+
+          .dc-label {
+            max-width: 58cqw;
+            overflow: hidden;
+            color: rgba(226, 232, 240, 0.72);
+            font-size: clamp(12px, 3.6cqh, 38px);
+            font-weight: 620;
+            letter-spacing: 0.05em;
+            line-height: 1.1;
+            text-overflow: ellipsis;
+            text-transform: uppercase;
+            white-space: nowrap;
+          }
+
+          .dc-value {
+            flex: 0 0 auto;
+            color: #f8fafc;
+            font-family: var(--font-display, Inter, system-ui, sans-serif);
+            font-size: clamp(30px, 12cqh, 118px);
+            font-variant-numeric: tabular-nums;
+            font-weight: 760;
+            letter-spacing: -0.07em;
+            line-height: 0.8;
+          }
+
+          .dc-chart {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+          }
+
+          .dc-grid {
+            stroke: rgba(148, 163, 184, 0.18);
+            stroke-width: 1;
+            vector-effect: non-scaling-stroke;
+          }
+
+          .dc-line {
+            fill: none;
+            stroke: #fb7185;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            /* No non-scaling-stroke here: with preserveAspectRatio=none Chromium
+               applies the dash pattern in screen space, so the user-space
+               dasharray from getTotalLength() splits the draw into two visible
+               segments. Scaled stroke keeps dashes in user space. */
+            stroke-width: 4;
+          }
+
+          .dc-endpoint {
+            fill: #fecdd3;
+            opacity: 0;
+            transform-box: fill-box;
+            transform-origin: center;
+          }
+        </style>
+
+        <div
+          id="decline-chart-clip"
+          class="dc-clip clip"
+          data-start="0"
+          data-duration="4"
+          data-track-index="0"
+        >
+          <div class="dc-ambient"></div>
+          <div class="dc-gloom"></div>
+          <div class="dc-layout">
+            <div class="dc-header">
+              <div class="dc-label"></div>
+              <div class="dc-value"></div>
+            </div>
+            <svg
+              class="dc-chart"
+              viewBox="0 0 260 240"
+              preserveAspectRatio="none"
+              aria-hidden="true"
+            >
+              <line class="dc-grid" x1="8" y1="55" x2="252" y2="55"></line>
+              <line class="dc-grid" x1="8" y1="120" x2="252" y2="120"></line>
+              <line class="dc-grid" x1="8" y1="185" x2="252" y2="185"></line>
+              <path
+                class="dc-line"
+                d="M 8 24 C 28 28, 44 43, 61 56 S 93 76, 112 92 S 144 111, 163 134 S 193 159, 213 186 S 239 211, 252 222"
+              ></path>
+              <circle class="dc-endpoint" cx="252" cy="222" r="6"></circle>
+            </svg>
+          </div>
+        </div>
+
+        <script src="../lib/gsap.min.js"></script>
+        <script>
+          (function () {
+            "use strict";
+
+            var root = document.getElementById("root");
+            var layout = root.querySelector(".dc-layout");
+            var ambient = root.querySelector(".dc-ambient");
+            var gloom = root.querySelector(".dc-gloom");
+            var label = root.querySelector(".dc-label");
+            var value = root.querySelector(".dc-value");
+            var line = root.querySelector(".dc-line");
+            var endpoint = root.querySelector(".dc-endpoint");
+            var lineLength = line.getTotalLength();
+            var vars =
+              window.__hyperframes && window.__hyperframes.getVariables
+                ? window.__hyperframes.getVariables()
+                : {};
+
+            line.style.strokeDasharray = lineLength + " " + lineLength;
+
+            var startValue = Number.isFinite(vars.start_value) ? vars.start_value : 82;
+            var endValue = Number.isFinite(vars.end_value) ? vars.end_value : 34;
+            var labelText = vars.label == null ? "Retention" : String(vars.label);
+
+            label.textContent = labelText;
+
+            var IN_BASE = 0.55;
+            var OUT_BASE = 0.45;
+            var duration = Math.max(0.001, parseFloat(root.dataset.duration || "4"));
+            var fixedTotal = IN_BASE + OUT_BASE;
+            var phaseScale = duration < fixedTotal ? duration / fixedTotal : 1;
+            var IN = IN_BASE * phaseScale;
+            var OUT = OUT_BASE * phaseScale;
+            var HOLD = Math.max(0, duration - IN - OUT);
+            var OUT_START = IN + HOLD;
+            var progress = { value: 0 };
+
+            function renderProgress() {
+              var p = progress.value;
+              line.style.strokeDashoffset = String(lineLength * (1 - p));
+              ambient.style.filter =
+                "saturate(" + (1 - p * 0.72) + ") brightness(" + (1 - p * 0.52) + ")";
+              gloom.style.opacity = String(p * 0.46);
+              endpoint.style.opacity = String(Math.max(0, (p - 0.94) / 0.06));
+              value.textContent = String(Math.round(startValue + (endValue - startValue) * p));
+            }
+
+            renderProgress();
+
+            var tl = gsap.timeline({ paused: true });
+            tl.fromTo(
+              layout,
+              { opacity: 0, y: "2.5cqh" },
+              { opacity: 1, y: 0, duration: IN, ease: "power2.out" },
+              0,
+            );
+
+            if (HOLD > 0) {
+              tl.to(
+                progress,
+                { value: 1, duration: HOLD, ease: "power2.out", onUpdate: renderProgress },
+                IN,
+              );
+            } else {
+              tl.call(
+                function () {
+                  progress.value = 1;
+                  renderProgress();
+                },
+                [],
+                IN,
+              );
+            }
+
+            tl.fromTo(
+              endpoint,
+              { scale: 0.72 },
+              { scale: 1, duration: OUT, ease: "power2.out" },
+              OUT_START,
+            );
+
+            tl.seek(0);
+            window.__timelines = window.__timelines || {};
+            window.__timelines["decline-chart"] = tl;
+          })();
+        </script>
+      </div>
+    </div>
+    </div>
+
+    <script src="../lib/gsap.min.js"></script>
+    <script>
+      window.__timelines = window.__timelines || {};
+      window.__timelines["decline-chart-demo"] = gsap.timeline({ paused: true });
+    </script>
+  </div>
+<script>window.__popostFit();</script>
+</body>
+</html>

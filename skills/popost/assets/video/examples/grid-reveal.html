@@ -1,0 +1,151 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Staggered grid reveal</title>
+<style>
+  html, body { margin: 0; width: 1280px; height: 720px; overflow: hidden; }
+  #grid { position: absolute; left: 6%; top: 8%; width: 88%; height: 84%; display: grid; }
+  .cell { }
+</style></head>
+<body>
+<div id="grid"></div>
+  <script type="application/json" id="popost-params">
+{
+ "about": "A grid of tiles that arrives in an order: along the diagonal, by rows, by columns, from the middle outwards or at random, each tile on its own entrance a few hundredths after its neighbour.",
+ "class": "motion",
+ "seconds": 2.2,
+ "tags": [
+  "grid",
+  "stagger",
+  "tiles",
+  "mosaic",
+  "cascade",
+  "reveal",
+  "lattice"
+ ],
+ "params": [
+  {
+   "name": "cols",
+   "type": "number",
+   "default": 6,
+   "min": 1,
+   "max": 16,
+   "what": "columns"
+  },
+  {
+   "name": "rows",
+   "type": "number",
+   "default": 4,
+   "min": 1,
+   "max": 12,
+   "what": "rows"
+  },
+  {
+   "name": "order",
+   "type": "choice",
+   "default": "diagonal",
+   "options": [
+    "diagonal",
+    "rows",
+    "columns",
+    "radial",
+    "random",
+    "start",
+    "end"
+   ],
+   "what": "which tiles come first"
+  },
+  {
+   "name": "enter",
+   "type": "choice",
+   "default": "scale",
+   "options": [
+    "scale",
+    "rise",
+    "drop",
+    "fade",
+    "blur",
+    "turn",
+    "pop"
+   ],
+   "what": "how each tile arrives"
+  },
+  {
+   "name": "each",
+   "type": "number",
+   "default": 0.05,
+   "min": 0.005,
+   "max": 0.5,
+   "what": "the time between two steps of the order",
+   "unit": "seconds"
+  },
+  {
+   "name": "gap",
+   "type": "number",
+   "default": 0.02,
+   "min": 0,
+   "max": 0.1,
+   "what": "the space between tiles",
+   "unit": "fraction of the canvas height"
+  },
+  {
+   "name": "radius",
+   "type": "number",
+   "default": 0.02,
+   "min": 0,
+   "max": 0.2,
+   "what": "the tiles' corner radius",
+   "unit": "fraction of the canvas height"
+  },
+  {
+   "name": "seed",
+   "type": "number",
+   "default": 7,
+   "min": 1,
+   "max": 999,
+   "what": "the random order"
+  },
+  {
+   "name": "color",
+   "type": "colour",
+   "default": "#457b9d",
+   "what": "the tiles"
+  },
+  {
+   "name": "accent",
+   "type": "colour",
+   "default": "#f4a261",
+   "what": "every fifth tile"
+  },
+  {
+   "name": "ground",
+   "type": "colour",
+   "default": "#0d1b2a",
+   "what": "the background"
+  },
+  {
+   "name": "delay",
+   "type": "number",
+   "default": 0.2,
+   "min": 0,
+   "max": 20,
+   "unit": "seconds",
+   "what": "when the effect starts, from the start of the shot"
+  }
+ ],
+ "values": {}
+}
+  </script>
+  <script src="../lib/popost-motion.js"></script>
+  <script>
+    // The parameters of this copy: the declared defaults, then what "values" sets.
+    var P = (function () { var b = JSON.parse(document.getElementById('popost-params').textContent), v = {}; b.params.forEach(function (p) { v[p.name] = p['default']; }); for (var k in b.values) v[k] = b.values[k]; return v; })();
+    // The canvas, from the size this file declares for html and body: a scene of a later shot loads in a layer that
+    // is not displayed, where the page itself measures 0 until its first frame.
+    var SIZE = /html, body \{ margin: 0; width: (\d+)px; height: (\d+)px;/.exec(document.querySelector('style').textContent), W = Number(SIZE[1]), H = Number(SIZE[2]), U = Math.min(W, H) / 720;
+    var M = popostMotion, grid = document.getElementById('grid');
+    document.body.style.background = P.ground; grid.style.gridTemplateColumns = 'repeat(' + P.cols + ', 1fr)'; grid.style.gridTemplateRows = 'repeat(' + P.rows + ', 1fr)'; grid.style.gap = P.gap * H + 'px';
+    for (var i = 0; i < P.cols * P.rows; i++) { var c = document.createElement('div'); c.className = 'cell'; c.style.borderRadius = P.radius * H + 'px'; c.style.background = i % 5 === 2 ? P.accent : P.color; grid.appendChild(c); }
+    M.gridReveal('.cell', { at: P.delay, cols: P.cols, order: P.order, enter: P.enter, each: P.each, seed: P.seed });
+    // Ambient: the whole grid drifts a little, so the shot is not a still picture once the tiles are in.
+    M.drift('#grid', { amount: 6 * U, period: 4 });
+  </script>
+</body></html>

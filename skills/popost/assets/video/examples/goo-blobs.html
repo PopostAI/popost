@@ -1,0 +1,127 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Liquid goo</title>
+<style>
+  html, body { margin: 0; width: 1280px; height: 720px; overflow: hidden; }
+  #goo { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
+  .blob { position: absolute; left: 0; top: 0; border-radius: 50%; }
+</style></head>
+<body>
+<div id="goo"></div>
+  <script type="application/json" id="popost-params">
+{
+ "about": "Blobs that melt into one another where they come close and pull apart with a neck between them, as thick liquid does: circles under an SVG blur-and-threshold filter, each on its own orbit.",
+ "class": "shape",
+ "seconds": 4,
+ "tags": [
+  "goo",
+  "liquid",
+  "metaball",
+  "blob",
+  "gooey",
+  "lava",
+  "merge",
+  "split"
+ ],
+ "params": [
+  {
+   "name": "blobs",
+   "type": "number",
+   "default": 6,
+   "min": 2,
+   "max": 14,
+   "what": "how many blobs"
+  },
+  {
+   "name": "size",
+   "type": "number",
+   "default": 0.2,
+   "min": 0.05,
+   "max": 0.5,
+   "what": "a blob's diameter",
+   "unit": "fraction of the canvas height"
+  },
+  {
+   "name": "reach",
+   "type": "number",
+   "default": 0.26,
+   "min": 0,
+   "max": 0.6,
+   "what": "how far they wander from the middle",
+   "unit": "fraction of the canvas height"
+  },
+  {
+   "name": "speed",
+   "type": "number",
+   "default": 1,
+   "min": 0.1,
+   "max": 5,
+   "what": "how fast they wander"
+  },
+  {
+   "name": "blur",
+   "type": "number",
+   "default": 16,
+   "min": 4,
+   "max": 40,
+   "what": "how soft the joins are",
+   "unit": "pixels at 720 high"
+  },
+  {
+   "name": "seed",
+   "type": "number",
+   "default": 3,
+   "min": 1,
+   "max": 999,
+   "what": "which arrangement"
+  },
+  {
+   "name": "color",
+   "type": "colour",
+   "default": "#06d6a0",
+   "what": "the liquid"
+  },
+  {
+   "name": "ground",
+   "type": "colour",
+   "default": "#0b132b",
+   "what": "the background"
+  },
+  {
+   "name": "delay",
+   "type": "number",
+   "default": 0.2,
+   "min": 0,
+   "max": 20,
+   "unit": "seconds",
+   "what": "when the effect starts, from the start of the shot"
+  }
+ ],
+ "values": {}
+}
+  </script>
+  <script src="../lib/popost-motion.js"></script>
+  <script>
+    // The parameters of this copy: the declared defaults, then what "values" sets.
+    var P = (function () { var b = JSON.parse(document.getElementById('popost-params').textContent), v = {}; b.params.forEach(function (p) { v[p.name] = p['default']; }); for (var k in b.values) v[k] = b.values[k]; return v; })();
+    // The canvas, from the size this file declares for html and body: a scene of a later shot loads in a layer that
+    // is not displayed, where the page itself measures 0 until its first frame.
+    var SIZE = /html, body \{ margin: 0; width: (\d+)px; height: (\d+)px;/.exec(document.querySelector('style').textContent), W = Number(SIZE[1]), H = Number(SIZE[2]), U = Math.min(W, H) / 720;
+    var M = popostMotion, host = document.getElementById('goo'), r = M.rng(P.seed), blobs = [];
+    document.body.style.background = P.ground;
+    for (var i = 0; i < P.blobs; i++) {
+      var e = document.createElement('div'), d = P.size * H * (0.6 + 0.8 * r());
+      e.className = 'blob'; e.style.width = e.style.height = d + 'px'; e.style.margin = -d / 2 + 'px 0 0 ' + -d / 2 + 'px'; e.style.background = P.color; host.appendChild(e);
+      blobs.push({ e: e, a: r() * 6.28, b: r() * 6.28, fa: 0.5 + r(), fb: 0.4 + r(), k: 0.5 + 0.5 * r() });
+    }
+    M.goo('#goo', { blur: P.blur * U });
+    // Each blob on its own closed path (two sines): they meet, melt and part again; in from the middle over the first half second.
+    M.on(function (t) {
+      var open = M.ease('back.out(1.4)')(M.progress(t, P.delay, 0.6));
+      blobs.forEach(function (b) {
+        var u = (t - P.delay) * P.speed;
+        M.put(b.e, 'orbit', { x: W / 2 + Math.cos(b.a + u * b.fa) * P.reach * H * b.k * 1.6 * open, y: H / 2 + Math.sin(b.b + u * b.fb) * P.reach * H * b.k * open, scale: open });
+      });
+    });
+    M.cue(P.delay, 'swish', 0.4, 'goo');
+  </script>
+</body></html>

@@ -1,0 +1,354 @@
+<!doctype html>
+<!--
+  Adapted from HyperFrames (https://github.com/heygen-com/hyperframes), registry/components/menu-morph, commit a8332860c396e9224d42b7ea2a9cc8f42918c961.
+  Copyright 2026 HeyGen, Inc. Licensed under the Apache License, Version 2.0; the licence text is in the popost
+  Skill's THIRD_PARTY_NOTICES. Changed for the popost Skill (tools/video/port-hyperframes.mjs): its comments removed; GSAP loaded from the project (../lib/gsap.min.js) instead of a CDN; the 1920x1080 composition scaled into the scene's canvas (parameter "fit"); HyperFrames variables declared as parameters; its clips shown and hidden from the scene's time; sound cues derived from its tweens.
+-->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>Menu Morph - Demo</title>
+    <script src="../lib/gsap.min.js"></script>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+      }
+      #demo {
+        width: 1920px;
+        height: 1080px;
+        display: grid;
+        place-items: center;
+        background: #f4f4f5;
+        font-family: Inter, system-ui, sans-serif;
+      }
+      .demo-frame {
+        display: grid;
+        place-items: center;
+        min-width: 760px;
+        min-height: 480px;
+        padding: 56px;
+        /* ponytail: scale the wrapper — GSAP animates children, not this element */
+        transform: scale(3.4);
+      }
+      .hf-transition-menu-morph {
+        position: relative;
+        display: grid;
+        place-items: center;
+        width: 360px;
+        height: 280px;
+        font-family: Inter, system-ui, sans-serif;
+      }
+      .hf-transition-menu-button {
+        z-index: 2;
+        display: grid;
+        place-items: center;
+        gap: 5px;
+        width: 68px;
+        height: 68px;
+        border: 0;
+        border-radius: 999px;
+        background: #18181b;
+        box-shadow: 0 22px 58px rgba(0, 0, 0, 0.22);
+      }
+      .hf-transition-menu-button span {
+        width: 24px;
+        height: 3px;
+        border-radius: 999px;
+        background: #ffffff;
+        transform-origin: center;
+      }
+      .hf-transition-menu-actions {
+        position: absolute;
+        display: flex;
+        gap: 10px;
+        bottom: 20px;
+      }
+      .hf-transition-menu-actions div {
+        padding: 10px 16px;
+        border-radius: 999px;
+        background: #ffffff;
+        color: #18181b;
+        font-size: 14px;
+        font-weight: 700;
+        box-shadow: 0 14px 34px rgba(0, 0, 0, 0.12);
+        border: 1px solid #e4e4e7;
+      }
+    </style>
+  <style id="popost-fit">
+  html, body { margin: 0 !important; width: 1280px; height: 720px; overflow: hidden !important; background: #000000; }
+  #popost-stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden; }
+</style>
+<script type="application/json" id="popost-params">
+{
+ "about": "A transitions.dev-inspired hamburger and plus-menu morph primitive for compact action menus",
+ "class": "ui",
+ "tags": [
+  "video-primitive",
+  "transition-primitive",
+  "transitions-dev-port",
+  "menu",
+  "morph"
+ ],
+ "seconds": 5,
+ "params": [
+  {
+   "name": "fit",
+   "type": "choice",
+   "default": "contain",
+   "options": [
+    "contain",
+    "cover"
+   ],
+   "what": "how the 1920x1080 composition is fitted into the canvas: whole with bars, or filling it and cropped"
+  },
+  {
+   "name": "actions",
+   "type": "text",
+   "default": "Text, Image, Audio",
+   "maxLength": 200,
+   "what": "Comma separated labels for the pills that fan out under the button. Up to six."
+  },
+  {
+   "name": "tone",
+   "type": "choice",
+   "default": "ink",
+   "options": [
+    "ink",
+    "green",
+    "blue",
+    "violet"
+   ],
+   "what": "Colour of the round button behind the white bars."
+  },
+  {
+   "name": "size",
+   "type": "number",
+   "default": 68,
+   "min": 52,
+   "max": 112,
+   "unit": "px",
+   "what": "Diameter of the round button in pixels. The bars scale with it."
+  }
+ ],
+ "values": {}
+}
+</script>
+<script>
+  /* popost: the scene's parameters stand in for HyperFrames variables; random numbers are seeded; the composition is
+     scaled into the canvas; clips are shown and hidden from the scene's time. */
+  (function () {
+    var block = document.getElementById('popost-params');
+    var values = block ? (JSON.parse(block.textContent).values || {}) : {};
+    var vars = {};
+    Object.keys(values).forEach(function (k) { if (k !== 'fit') vars[k] = values[k] === 'true' ? true : values[k] === 'false' ? false : values[k]; });
+    window.__hyperframes = { getVariables: function () { return vars; } };
+    var seed = 20240229;
+    window.__popostRandom = function () { seed = (seed + 0x6d2b79f5) >>> 0; var t = seed; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+    window.__popostFit = function () {
+      // The canvas, from the size this file declares: a scene of a later shot loads in a layer that is not displayed, where the page measures 0.
+      var size = /width: (\d+)px; height: (\d+)px;/.exec(document.getElementById('popost-fit').textContent);
+      var W = 1920, H = 1080, s = document.getElementById('popost-stage'), cw = Number(size[1]), ch = Number(size[2]);
+      var k = (values.fit === 'cover' ? Math.max : Math.min)(cw / W, ch / H);
+      s.style.transform = 'translate(' + (cw - W * k) / 2 + 'px,' + (ch - H * k) / 2 + 'px) scale(' + k + ')';
+      var clips = Array.prototype.slice.call(s.querySelectorAll('.clip[data-start]')).filter(function (c) { return isFinite(parseFloat(c.getAttribute('data-start'))) && c.parentNode !== s; });
+      // A mounted composition that starts later in its host runs on its own time.
+      [].forEach(function (m) {
+        var tl = window.__timelines && window.__timelines[m.id];
+        if (tl) window.__timelines[m.id] = { pause: function () { tl.pause(); }, seek: function (t) { tl.seek(Math.max(0, t - m.start)); }, duration: function () { return tl.duration() + m.start; } };
+      });
+      var scene = (window.__popostScene = window.__popostScene || {}), before = scene.render;
+      scene.render = function (seconds, fps) {
+        if (before) before(seconds, fps);
+        for (var i = 0; i < clips.length; i++) {
+          var a = parseFloat(clips[i].getAttribute('data-start')), d = parseFloat(clips[i].getAttribute('data-duration'));
+          clips[i].style.visibility = seconds >= a && (!isFinite(d) || seconds < a + d) ? 'visible' : 'hidden';
+        }
+      };
+    };
+  })();
+</script>
+<script type="application/json" id="popost-cues">[{"at":0.96,"cue":"tick","gain":0.3}]</script>
+</head>
+  <body>
+<div id="popost-stage">
+    <div
+      id="demo"
+      data-composition-id="menu-morph-demo"
+      data-start="0"
+      data-width="1920"
+      data-height="1080"
+      data-duration="5"
+    >
+      <div class="demo-frame">
+        <div
+          class="hf-transition-menu-morph"
+          data-composition-variables='[
+    { "id": "actions", "type": "string", "role": "content", "label": "Actions", "description": "Comma separated labels for the pills that fan out under the button. Up to six.", "default": "Text, Image, Audio" },
+    { "id": "tone", "type": "enum", "role": "style", "label": "Tone", "description": "Colour of the round button behind the white bars.", "default": "ink", "options": [{ "value": "ink", "label": "Ink" }, { "value": "green", "label": "Green" }, { "value": "blue", "label": "Blue" }, { "value": "violet", "label": "Violet" }] },
+    { "id": "size", "type": "number", "role": "layout", "label": "Button size", "description": "Diameter of the round button in pixels. The bars scale with it.", "default": 68, "min": 52, "max": 112, "step": 4, "unit": "px" }
+  ]'
+        >
+          <button class="hf-transition-menu-button" type="button" aria-label="Menu">
+            <span></span><span></span><span></span>
+          </button>
+          <div class="hf-transition-menu-actions">
+            <div>Text</div>
+            <div>Image</div>
+            <div>Audio</div>
+          </div>
+        </div>
+      </div>
+      <script>
+        (function () {
+          "use strict";
+
+          var vars =
+            window.__hyperframes && window.__hyperframes.getVariables
+              ? window.__hyperframes.getVariables()
+              : {};
+
+          // Anything missing or invalid returns to its declared default.
+          // The button is the one accent-carrying element here, so the three
+          // chromatic options ride the composition's own tokens and fall back to ink.
+          var tones = {
+            ink: "#18181b",
+            green: "var(--brand, #18181b)",
+            blue: "var(--accent, #18181b)",
+            violet: "var(--accent-2, #18181b)",
+          };
+
+          function pick(table, value, fallback) {
+            return Object.prototype.hasOwnProperty.call(table, value) ? value : fallback;
+          }
+
+          var labels = [];
+          if (typeof vars.actions === "string") {
+            var parts = vars.actions.split(",");
+            for (var p = 0; p < parts.length && labels.length < 6; p += 1) {
+              var label = parts[p].trim();
+              if (label) {
+                labels.push(label);
+              }
+            }
+          }
+          if (!labels.length) {
+            labels = ["Text", "Image", "Audio"];
+          }
+
+          var size =
+            typeof vars.size === "number" || typeof vars.size === "string"
+              ? Number(vars.size)
+              : NaN;
+          size = isFinite(size) && size > 0 ? Math.min(112, Math.max(52, size)) : 68;
+
+          var tone = tones[pick(tones, vars.tone, "ink")];
+
+          var roots = document.querySelectorAll(".hf-transition-menu-morph");
+          for (var i = 0; i < roots.length; i += 1) {
+            roots[i].style.setProperty("--hf-menu-size", size + "px");
+            roots[i].style.setProperty("--hf-menu-bg", tone);
+            var row = roots[i].querySelector(".hf-transition-menu-actions");
+            if (!row) {
+              continue;
+            }
+            while (row.firstChild) {
+              row.removeChild(row.firstChild);
+            }
+            for (var j = 0; j < labels.length; j += 1) {
+              var pill = document.createElement("div");
+              pill.textContent = labels[j];
+              row.appendChild(pill);
+            }
+          }
+        })();
+      </script>
+      <script>
+        const tl = gsap.timeline({ paused: true });
+        tl.fromTo(
+          ".hf-transition-menu-button",
+          { scale: 0.72, opacity: 0 },
+          { scale: 1, opacity: 1, duration: 0.34, ease: "back.out(1.8)" },
+          0.3,
+        );
+        tl.to(
+          ".hf-transition-menu-button span:nth-child(1)",
+          { y: 8, rotation: 45, duration: 0.24, ease: "power2.inOut" },
+          0.78,
+        );
+        tl.to(
+          ".hf-transition-menu-button span:nth-child(2)",
+          { opacity: 0, duration: 0.18, ease: "power1.out" },
+          0.78,
+        );
+        tl.to(
+          ".hf-transition-menu-button span:nth-child(3)",
+          { y: -8, rotation: -45, duration: 0.24, ease: "power2.inOut" },
+          0.78,
+        );
+        tl.fromTo(
+          ".hf-transition-menu-actions div",
+          { y: 28, opacity: 0, scale: 0.86 },
+          { y: 0, opacity: 1, scale: 1, duration: 0.26, stagger: 0.06, ease: "back.out(1.6)" },
+          0.96,
+        );
+        tl.set({}, {}, 5);
+        window.__timelines = window.__timelines || {};
+        window.__timelines["menu-morph-demo"] = tl;
+      </script>
+    </div>
+    <style>
+      .hf-transition-menu-morph {
+        position: relative;
+        display: grid;
+        place-items: center;
+        width: 360px;
+        height: 220px;
+        font-family: Inter, system-ui, sans-serif;
+      }
+      .hf-transition-menu-button {
+        z-index: 2;
+        display: grid;
+        place-items: center;
+        gap: 5px;
+        width: var(--hf-menu-size, 68px);
+        height: var(--hf-menu-size, 68px);
+        border: 0;
+        border-radius: 999px;
+        background: var(--hf-menu-bg, #18181b);
+        box-shadow: 0 22px 58px rgba(0, 0, 0, 0.22);
+      }
+      .hf-transition-menu-button span {
+        width: calc(var(--hf-menu-size, 68px) * 6 / 17);
+        height: 3px;
+        border-radius: 999px;
+        background: #ffffff;
+        transform-origin: center;
+      }
+      .hf-transition-menu-actions {
+        position: absolute;
+        display: flex;
+        gap: 10px;
+        bottom: 20px;
+      }
+      .hf-transition-menu-actions div {
+        padding: 9px 13px;
+        border-radius: 999px;
+        background: #ffffff;
+        color: #18181b;
+        font-size: 13px;
+        font-weight: 850;
+        box-shadow: 0 14px 34px rgba(0, 0, 0, 0.12);
+      }
+    </style>
+  </div>
+<script>window.__popostFit();</script>
+</body>
+</html>

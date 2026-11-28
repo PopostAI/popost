@@ -18,7 +18,7 @@ const RULES: Rule[] = [
   { pattern: /\b(?:Date\.now|performance\.now)\s*\(|\bnew\s+Date\s*\(/, level: 'error', message: 'It reads the real clock; a frame must depend on its time in the video only.', fix: 'Use the "seconds" given to window.__popostScene.render(seconds).' },
   { pattern: /\bMath\.random\s*\(/, level: 'error', message: 'It uses random numbers, so two renders differ.', fix: 'Write the values out, or compute them from an index (for example (i * 37) % 100).' },
   { pattern: /\b(?:fetch|XMLHttpRequest|WebSocket|EventSource|sendBeacon|importScripts)\b/, level: 'error', message: 'It talks to the network from a script.', fix: 'Remove it: a scene has everything it shows in its own file.' },
-  { pattern: /\b(?:window\.)?(?:parent|top|opener)\s*\.|\bwindow\.open\s*\(|\blocation\s*(?:\.\s*\w+\s*)?=[^=]/, level: 'error', message: 'It reaches outside its own page (parent, top, location).', fix: 'Remove it: a scene only draws itself.' },
+  { pattern: /(?<![.\w$])(?:window\.)?(?:parent|top|opener)\s*\.|\bwindow\.open\s*\(|(?<![.\w$])(?:window\.|document\.)?location\s*(?:\.\s*\w+\s*)?=[^=]/, level: 'error', message: 'It reaches outside its own page (parent, top, location).', fix: 'Remove it: a scene only draws itself.' },
   { pattern: /\btransition\s*:/i, level: 'warning', message: 'It has a CSS transition; a transition starts when a style changes, not at a time of the video, so the renderer cannot place it.', fix: 'Use a CSS animation with animation-delay instead.' },
 ];
 

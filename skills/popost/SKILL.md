@@ -29,7 +29,7 @@ Before paid work show the account, work items, known prices and unknowns. Use `l
 
 ## 选择任务
 
-- 视频：用户要做视频，或按参考视频做同款、换主题、配音时，读 [video.md](references/video.md)，从第 0 步做到第 7 步；下面的图文流程和工程命令不适用。 For people, follow explicit user character requirements/material first; otherwise use a new face with a similar archetype and mood. Keeping the presenter or avatar layout does not select the reference person's identity. Read [video-performers.md](references/video-performers.md) before preparing cast or media.
+- 视频：用户要做视频，或按参考视频做同款、换主题、配音时，读 [video.md](references/video.md)，从第 0 步做到第 7 步；下面的图文流程和工程命令不适用。 For people, follow explicit user character requirements/material first; otherwise use a new face with a similar archetype and mood. Keeping the presenter or avatar layout does not select the reference person's identity. Read [video-performers.md](references/video-performers.md) before preparing cast or media. Before writing the scene of a shot that moves throughout (REFERENCE.md, `Movement:`), or any scene of a motion-graphics reference, read [video-motion.md](references/video-motion.md) (the motion rulebook, the helper, 3D, sound cues) and search the [effects catalogue](references/video-effects.md): this is a required step, not an option.
 - 创作：从需求设计新内容；只有氛围/风格参考也属参考引导的创作。读 [create.md](references/create.md)。两种起点：直接按用户需求设计；或先从随 Skill 附带的模板里选——通读 `<skill>/templates/community/README.md`（全部模板的中英文名称和适用场景），选 1–3 个候选，读候选 SKILL.md 全文后决定用哪个或都不用（`popost template search` 只是可能漏掉同义说法和另一种语言的关键词捷径；用户已指定模板就直接用）。
 - 复刻：给定目标参考，要还原或做同款改编。先确定保留和替换范围，读 [reproduce.md](references/reproduce.md)。
 - 编辑：修改已有工程，保留任务外的设计；只重做受影响内容，读 [editor-contract.md](references/editor-contract.md)。

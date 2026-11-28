@@ -455,7 +455,22 @@ Done when: `"ok": true` (its note that the files were not looked at is expected:
 This step decides most of the result: the reference's look and motion live in its designed shots. Write one HTML file
 in `project/scenes/` for every `scene` of fill.json, drawing the whole shot with the reference shot's layout, colours,
 type and motion (its entry in `ref/elements.json`, its frames) and the new content. Shots of one design (three numbered steps) can share
-a file with different `slots`. The rules (the whole contract: `<skill>/references/video-scenes.md`):
+a file with different `slots`.
+
+**Look at the motion first.** `ref/REFERENCE.md` has a `Movement:` line when shots move throughout, and `timeline.md`
+marks each such shot `MOVES THROUGHOUT`. For every one of them, and for every shot when the reference is motion
+graphics, do this before writing its scene; it is not optional:
+
+1. Open `ref/shots/NN-frames.jpg` (consecutive frames with their times) and say what moves, from where to where, and
+   what keeps moving after the main move.
+2. Read `ref/shots/NN.md`, "Motion events": the measured curve of the shot's main moving element (start, duration,
+   overshoot, bounces, squash, the closest easing, ready to paste). For another element, measure it:
+   `popost video measure curve reference.mp4 --from S --to S --roi x,y,w,h`.
+3. Read `<skill>/references/video-motion.md` (the motion rulebook and its recipes) and search the effects catalogue
+   (`popost video scene example --search "<what moves>"`, `<skill>/references/video-effects.md`) before drawing an
+   effect by hand.
+
+The rules (the whole contract: `<skill>/references/video-scenes.md`):
 
 1. A whole HTML page; `html, body` exactly the canvas size (step 2), `margin: 0`, `overflow: hidden`. Inline `<style>`
    and SVG; pictures by a path relative to the scene file (`../assets/logo.png`); nothing from the network.
@@ -463,7 +478,10 @@ a file with different `slots`. The rules (the whole contract: `<skill>/reference
    0 s; the engine sets every animation to the frame's time. A counter or a typed text:
    `window.__popostScene = { render(seconds) { ... } }`, which sets everything it changes from `seconds` alone.
    Motion in sequence (a list that staggers in, several elements one after another): a GSAP timeline, after
-   `popost video scene library project`; read "A timeline library" in `video-scenes.md` first.
+   `popost video scene library project`; read "A timeline library" in `video-scenes.md` first. A bounce, a slam, a
+   pop, a draw-on, a morph, particles, a glitch, a counter, lit 3D: the motion helper
+   (`popost video scene library project --name motion`), three.js (`--name three`) or an entry of the effects
+   catalogue, as `video-motion.md` shows; never one element dropping on a CSS keyframe where the reference bounces.
 3. Never: `setTimeout`, `setInterval`, `requestAnimationFrame`, `Date.now()`, `performance.now()`,
    `Math.random()`, CSS `transition`, `<video>`, `<audio>`, `<iframe>`, `fetch`.
 4. Use the actual filled shot's clock. Match the reference entrance, dwell, exit and handoff; do not move every
@@ -560,7 +578,7 @@ paid again) and
 re-flows each beat to its spoken line; `--keep-length` keeps each beat at least as long as in the reference, so the
 cuts keep its rhythm; `--fit-tempo 1.12` speeds a line that would run over its beat up as far as it needs, at most
 12% (hardly heard; the pitch stays), and only the rest makes the beat longer. Its `notes` say which lines were sped
-up and give the new length. When the reading says the words appear one by one, add `"captionReveal": "words"` to the fill (`template check` warns when it is missing). From now on run `template fill` only with these options, or the voice is dropped.
+up and give the new length. How a caption line comes on screen is measured (`text.json`, `captionLook.reveal`; REFERENCE.md and TEMPLATE.md say it): a source whose lines appear whole at once gets whole lines, and `template check` warns about a `"captionReveal": "words"` it did not have; a source whose lines build word by word gets that by default with a voice. Only where nothing was measured and the reading says the words appear one by one, add `"captionReveal": "words"` to the fill (`template check` warns when it is missing). From now on run `template fill` only with these options, or the voice is dropped.
 Without a speaker, or for a video without a voice (step 4: no narration in the reference), leave out `--speak --keep-length --fit-tempo 1.12 --pace <budgets.pace> --confirm --max-credits <left>`; `template fill` refuses them there. The last command
 looks at the files of the fill and at `project/video.json`: run it again after every hand edit of `video.json`; it
 warns when the captions are much smaller or larger than the reference's, with both sizes in pixels (`video check` does
@@ -593,7 +611,9 @@ to do: fix them like a shot of `worst`), `paths` (each path measured in the refe
 `differs` names what is not alike, the reference's number first: the path angle, the size, the duration, the shape of
 the edge; set the scene from the reference's numbers), `notRecovered` (what the reading of the reference did not
 recover and what you added: it goes into the delivery notes) and `worst`: the shots that differ most, each with `by` (the dimension
-that makes it so: `picture`, `colour`, `motion`, `text` or `transition`), its seconds in both videos and a `look` command. With a
+that makes it so: `picture`, `colour`, `motion`, `text` or `transition`), its seconds in both videos and a `look` command; `stillShots` names every shot
+of yours that stands still for more than 40% of its length while the reference shot moves throughout: each is in `worst` with a `problem`
+(its `message` and its `fix`), and each is fixed (the scene re-written so that it moves to its last frame, `video-motion.md`), never only noted. With a
 text reader, run `popost video text final.mp4 --out final.text.json` first and add
 `--reference-text ref/text.json --other-text final.text.json`: the shots are then compared on their text too. A round:
 

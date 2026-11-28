@@ -1,0 +1,403 @@
+<!doctype html>
+<!--
+  Adapted from HyperFrames (https://github.com/heygen-com/hyperframes), registry/components/cta-lockup, commit a8332860c396e9224d42b7ea2a9cc8f42918c961.
+  Copyright 2026 HeyGen, Inc. Licensed under the Apache License, Version 2.0; the licence text is in the popost
+  Skill's THIRD_PARTY_NOTICES. Changed for the popost Skill (tools/video/port-hyperframes.mjs): its comments removed; the composition it mounts (cta-lockup.html) put into the page; GSAP loaded from the project (../lib/gsap.min.js) instead of a CDN; the 1920x1080 composition scaled into the scene's canvas (parameter "fit"); HyperFrames variables declared as parameters; its clips shown and hidden from the scene's time; sound cues derived from its tweens.
+-->
+
+<html data-composition-variables='[
+    { "id": "action_line", "type": "string", "role": "content", "label": "Action line", "description": "Primary action statement shown above the CTA.", "default": "Start building today" },
+    { "id": "button_label", "type": "string", "role": "content", "label": "Button label", "description": "Text displayed inside the CTA capsule.", "default": "Get HyperFrames" },
+    { "id": "microcopy", "type": "string", "role": "content", "label": "Microcopy", "description": "Supporting detail shown below the CTA capsule.", "default": "Free while in beta" },
+    { "id": "accent", "type": "enum", "role": "style", "label": "Accent", "description": "Fill color used by the CTA capsule.", "default": "green", "options": [{ "value": "green", "label": "Green" }, { "value": "blue", "label": "Blue" }, { "value": "violet", "label": "Violet" }] }
+  ]' lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>CTA Lockup Demo</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #0b0c0e;
+      }
+
+      #root {
+        --bg: #0b0c0e;
+        --fg: #f8fafc;
+        --muted: #aeb7c5;
+        --surface: #15181d;
+        --border: #303640;
+        --font-display: Inter, system-ui, sans-serif;
+        --font-body: Inter, system-ui, sans-serif;
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: radial-gradient(ellipse at 50% 44%, #171a20 0%, var(--bg) 70%);
+      }
+
+      .mount-card {
+        width: 48%;
+        height: 48%;
+        left: 26%;
+        top: 26%;
+        container-type: size;
+        overflow: hidden;
+        border: 0.12cqmin solid color-mix(in srgb, var(--border) 72%, transparent);
+        border-radius: 3cqmin;
+        background: color-mix(in srgb, var(--surface) 82%, transparent);
+        box-shadow: 0 4cqh 10cqh color-mix(in srgb, var(--bg) 68%, transparent);
+      }
+    </style>
+  <style id="popost-fit">
+  html, body { margin: 0 !important; width: 1280px; height: 720px; overflow: hidden !important; background: #000000; }
+  #popost-stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden; }
+</style>
+<script type="application/json" id="popost-params">
+{
+ "about": "A canonical closing lockup that reveals an action line, pops in an accent CTA capsule, settles supporting microcopy, and holds with confidence.",
+ "class": "logo",
+ "tags": [
+  "motion-primitive",
+  "ui-props",
+  "cta",
+  "end-card",
+  "lockup",
+  "ask"
+ ],
+ "seconds": 4,
+ "params": [
+  {
+   "name": "fit",
+   "type": "choice",
+   "default": "contain",
+   "options": [
+    "contain",
+    "cover"
+   ],
+   "what": "how the 1920x1080 composition is fitted into the canvas: whole with bars, or filling it and cropped"
+  },
+  {
+   "name": "action_line",
+   "type": "text",
+   "default": "Start building today",
+   "maxLength": 200,
+   "what": "Primary action statement shown above the CTA."
+  },
+  {
+   "name": "button_label",
+   "type": "text",
+   "default": "Get HyperFrames",
+   "maxLength": 200,
+   "what": "Text displayed inside the CTA capsule."
+  },
+  {
+   "name": "microcopy",
+   "type": "text",
+   "default": "Free while in beta",
+   "maxLength": 200,
+   "what": "Supporting detail shown below the CTA capsule."
+  },
+  {
+   "name": "accent",
+   "type": "choice",
+   "default": "green",
+   "options": [
+    "green",
+    "blue",
+    "violet"
+   ],
+   "what": "Fill color used by the CTA capsule."
+  }
+ ],
+ "values": {}
+}
+</script>
+<script>
+  /* popost: the scene's parameters stand in for HyperFrames variables; random numbers are seeded; the composition is
+     scaled into the canvas; clips are shown and hidden from the scene's time. */
+  (function () {
+    var block = document.getElementById('popost-params');
+    var values = block ? (JSON.parse(block.textContent).values || {}) : {};
+    var vars = {"action_line":"Build your next video","button_label":"Try it now","microcopy":"No credit card required","accent":"violet"};
+    Object.keys(values).forEach(function (k) { if (k !== 'fit') vars[k] = values[k] === 'true' ? true : values[k] === 'false' ? false : values[k]; });
+    window.__hyperframes = { getVariables: function () { return vars; } };
+    var seed = 20240229;
+    window.__popostRandom = function () { seed = (seed + 0x6d2b79f5) >>> 0; var t = seed; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+    window.__popostFit = function () {
+      // The canvas, from the size this file declares: a scene of a later shot loads in a layer that is not displayed, where the page measures 0.
+      var size = /width: (\d+)px; height: (\d+)px;/.exec(document.getElementById('popost-fit').textContent);
+      var W = 1920, H = 1080, s = document.getElementById('popost-stage'), cw = Number(size[1]), ch = Number(size[2]);
+      var k = (values.fit === 'cover' ? Math.max : Math.min)(cw / W, ch / H);
+      s.style.transform = 'translate(' + (cw - W * k) / 2 + 'px,' + (ch - H * k) / 2 + 'px) scale(' + k + ')';
+      var clips = Array.prototype.slice.call(s.querySelectorAll('.clip[data-start]')).filter(function (c) { return isFinite(parseFloat(c.getAttribute('data-start'))) && c.parentNode !== s; });
+      // A mounted composition that starts later in its host runs on its own time.
+      [].forEach(function (m) {
+        var tl = window.__timelines && window.__timelines[m.id];
+        if (tl) window.__timelines[m.id] = { pause: function () { tl.pause(); }, seek: function (t) { tl.seek(Math.max(0, t - m.start)); }, duration: function () { return tl.duration() + m.start; } };
+      });
+      var scene = (window.__popostScene = window.__popostScene || {}), before = scene.render;
+      scene.render = function (seconds, fps) {
+        if (before) before(seconds, fps);
+        for (var i = 0; i < clips.length; i++) {
+          var a = parseFloat(clips[i].getAttribute('data-start')), d = parseFloat(clips[i].getAttribute('data-duration'));
+          clips[i].style.visibility = seconds >= a && (!isFinite(d) || seconds < a + d) ? 'visible' : 'hidden';
+        }
+      };
+    };
+  })();
+</script>
+<script type="application/json" id="popost-cues">[{"at":0,"cue":"swish","gain":0.4}]</script>
+</head>
+  <body>
+<div id="popost-stage">
+    <div
+      id="root"
+      data-composition-id="cta-lockup-demo"
+      data-start="0"
+      data-width="1920"
+      data-height="1080"
+      data-duration="4"
+      data-fps="30"
+    >
+      <div
+        id="cta-lockup-mount"
+        class="mount-card clip"
+        data-composition-id="cta-lockup"
+       
+        data-variable-values='{"action_line":"Build your next video","button_label":"Try it now","microcopy":"No credit card required","accent":"violet"}'
+        data-start="0"
+        data-duration="4"
+        data-track-index="0"
+        data-width="922"
+        data-height="518"
+      >
+      <div id="root" data-composition-id="cta-lockup" data-duration="4" data-fps="30">
+        <style>
+          *,
+          *::before,
+          *::after {
+            box-sizing: border-box;
+          }
+
+          #root {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            container-type: size;
+            isolation: isolate;
+            color: var(--fg, #f8fafc);
+            font-family: var(--font-body, Inter, system-ui, sans-serif);
+            pointer-events: none;
+          }
+
+          .cl-clip {
+            width: 100%;
+            height: 100%;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+          }
+
+          .cl-lockup {
+            width: min(88cqw, 150cqh);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            will-change: transform;
+          }
+
+          .cl-action {
+            max-width: 86cqw;
+            margin: 0 0 6.5cqh;
+            color: var(--fg, #f8fafc);
+            font-family: var(--font-display, Inter, system-ui, sans-serif);
+            font-size: min(10cqw, 14cqh);
+            font-weight: 760;
+            line-height: 1.02;
+            letter-spacing: -0.045em;
+            text-wrap: balance;
+            will-change: transform, opacity;
+          }
+
+          .cl-button {
+            min-width: 34cqw;
+            max-width: 78cqw;
+            margin: 0 0 3.8cqh;
+            padding: 3.2cqh 5.5cqw;
+            overflow: hidden;
+            border: 0;
+            border-radius: 50cqh;
+            background: var(--cl-accent, #22c55e);
+            box-shadow: 0 2.2cqh 6cqh color-mix(in srgb, var(--cl-accent, #22c55e) 28%, transparent);
+            color: #07110d;
+            font: inherit;
+            font-size: min(4.3cqw, 6.8cqh);
+            font-weight: 760;
+            line-height: 1;
+            letter-spacing: -0.02em;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            transform-origin: 50% 50%;
+            will-change: transform, opacity;
+          }
+
+          .cl-microcopy {
+            max-width: 76cqw;
+            margin: 0;
+            color: var(--muted, #cbd5e1);
+            font-size: min(3cqw, 4.2cqh);
+            font-weight: 520;
+            line-height: 1.25;
+            letter-spacing: 0.01em;
+            text-wrap: balance;
+            will-change: transform, opacity;
+          }
+        </style>
+
+        <div
+          id="cta-lockup-clip"
+          class="cl-clip clip"
+          data-start="0"
+          data-duration="4"
+          data-track-index="0"
+        >
+          <div class="cl-lockup">
+            <h2 class="cl-action"></h2>
+            <button class="cl-button" type="button" tabindex="-1"></button>
+            <p class="cl-microcopy"></p>
+          </div>
+        </div>
+
+        <script src="../lib/gsap.min.js"></script>
+        <script>
+          (function () {
+            "use strict";
+
+            var root = document.getElementById("root");
+            var lockup = root.querySelector(".cl-lockup");
+            var actionLine = root.querySelector(".cl-action");
+            var button = root.querySelector(".cl-button");
+            var microcopy = root.querySelector(".cl-microcopy");
+            var vars =
+              window.__hyperframes && window.__hyperframes.getVariables
+                ? window.__hyperframes.getVariables()
+                : {};
+
+            var actionText =
+              vars.action_line == null ? "Start building today" : String(vars.action_line);
+            var buttonText =
+              vars.button_label == null ? "Get HyperFrames" : String(vars.button_label);
+            var microcopyText =
+              vars.microcopy == null ? "Free while in beta" : String(vars.microcopy);
+            var accentColors = {
+              green: "var(--brand, #22c55e)",
+              blue: "var(--accent, #38bdf8)",
+              violet: "var(--accent-2, #a78bfa)",
+            };
+            var accentName = Object.prototype.hasOwnProperty.call(accentColors, vars.accent)
+              ? vars.accent
+              : "green";
+
+            actionLine.textContent = actionText;
+            button.textContent = buttonText;
+            microcopy.textContent = microcopyText;
+            root.style.setProperty("--cl-accent", accentColors[accentName]);
+
+            var IN_BASE = 1.6;
+            var duration = Math.max(0.001, parseFloat(root.dataset.duration || "4"));
+            var envelopeScale = Math.min(1, duration / IN_BASE);
+            var IN = IN_BASE * envelopeScale;
+            var HOLD = Math.max(0, duration - IN);
+
+            var ACTION_DURATION = 0.5 * envelopeScale;
+            var BUTTON_AT = 0.56 * envelopeScale;
+            var BUTTON_DURATION = 0.6 * envelopeScale;
+            var BUTTON_OPACITY_DURATION = 0.24 * envelopeScale;
+            var MICROCOPY_AT = 1.18 * envelopeScale;
+            var MICROCOPY_DURATION = 0.42 * envelopeScale;
+
+            var tl = gsap.timeline({ paused: true });
+
+            tl.fromTo(
+              actionLine,
+              { opacity: 0, y: "3.4cqh" },
+              { opacity: 1, y: 0, duration: ACTION_DURATION, ease: "power3.out" },
+              0,
+            );
+            tl.fromTo(
+              button,
+              { scale: 0.72, y: "2.2cqh" },
+              {
+                scale: 1,
+                y: 0,
+                duration: BUTTON_DURATION,
+                ease: "back.out(1.7)",
+              },
+              BUTTON_AT,
+            );
+            tl.fromTo(
+              button,
+              { opacity: 0 },
+              {
+                opacity: 1,
+                duration: BUTTON_OPACITY_DURATION,
+                ease: "power2.out",
+              },
+              BUTTON_AT,
+            );
+            tl.fromTo(
+              microcopy,
+              { opacity: 0, y: "1.8cqh" },
+              {
+                opacity: 1,
+                y: 0,
+                duration: MICROCOPY_DURATION,
+                ease: "power2.out",
+              },
+              MICROCOPY_AT,
+            );
+
+            if (HOLD > 0) {
+              tl.fromTo(
+                lockup,
+                { y: 0 },
+                {
+                  y: "-0.35cqh",
+                  duration: HOLD / 2,
+                  ease: "sine.inOut",
+                  yoyo: true,
+                  repeat: 1,
+                },
+                IN,
+              );
+            }
+
+            tl.seek(0);
+            window.__timelines = window.__timelines || {};
+            window.__timelines["cta-lockup"] = tl;
+          })();
+        </script>
+      </div>
+    </div>
+    </div>
+
+    <script src="../lib/gsap.min.js"></script>
+    <script>
+      window.__timelines = window.__timelines || {};
+      window.__timelines["cta-lockup-demo"] = gsap.timeline({ paused: true });
+    </script>
+  </div>
+<script>window.__popostFit();</script>
+</body>
+</html>

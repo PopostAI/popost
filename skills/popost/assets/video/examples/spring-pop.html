@@ -1,0 +1,129 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Spring pop with sunburst</title>
+<style>
+  html, body { margin: 0; width: 1280px; height: 720px; overflow: hidden; }
+  #badge { position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #ffffff; font: 900 64px "Noto Sans", "Noto Sans CJK SC", sans-serif; box-shadow: 0 12px 0 rgba(0, 0, 0, 0.25); }
+</style></head>
+<body>
+<div id="badge"><span data-slot="label"></span></div>
+  <script type="application/json" id="popost-params">
+{
+ "about": "A badge pops in on a spring (named by its damping ratio) over rays that keep turning behind it; a star of sparks marks the landing. The badge lands and stays still: the rays are what keeps moving.",
+ "class": "logo",
+ "seconds": 2.5,
+ "tags": [
+  "pop",
+  "badge",
+  "star",
+  "sunburst",
+  "spring",
+  "overshoot",
+  "rays",
+  "prize"
+ ],
+ "params": [
+  {
+   "name": "label",
+   "type": "text",
+   "default": "NEW",
+   "maxLength": 12,
+   "what": "the text on the badge"
+  },
+  {
+   "name": "damping",
+   "type": "number",
+   "default": 0.45,
+   "min": 0.15,
+   "max": 1,
+   "what": "the spring's damping ratio: 1 never overshoots, 0.7-0.85 restrained, 0.4-0.6 playful, under 0.3 a cartoon"
+  },
+  {
+   "name": "stiffness",
+   "type": "number",
+   "default": 200,
+   "min": 30,
+   "max": 1500,
+   "what": "the spring constant: higher swings faster"
+  },
+  {
+   "name": "duration",
+   "type": "number",
+   "default": 0.6,
+   "min": 0.15,
+   "max": 3,
+   "what": "the length of the pop",
+   "unit": "seconds"
+  },
+  {
+   "name": "rays",
+   "type": "number",
+   "default": 16,
+   "min": 4,
+   "max": 48,
+   "what": "rays of the sunburst"
+  },
+  {
+   "name": "raySpeed",
+   "type": "number",
+   "default": 20,
+   "min": -180,
+   "max": 180,
+   "what": "how fast the rays turn",
+   "unit": "degrees a second"
+  },
+  {
+   "name": "size",
+   "type": "number",
+   "default": 0.34,
+   "min": 0.05,
+   "max": 0.9,
+   "what": "the badge's diameter",
+   "unit": "fraction of the canvas height"
+  },
+  {
+   "name": "color",
+   "type": "colour",
+   "default": "#e63946",
+   "what": "the badge"
+  },
+  {
+   "name": "rayColor",
+   "type": "colour",
+   "default": "#ffd23f",
+   "what": "the rays"
+  },
+  {
+   "name": "ground",
+   "type": "colour",
+   "default": "#1d3557",
+   "what": "the background"
+  },
+  {
+   "name": "delay",
+   "type": "number",
+   "default": 0.2,
+   "min": 0,
+   "max": 20,
+   "unit": "seconds",
+   "what": "when the effect starts, from the start of the shot"
+  }
+ ],
+ "values": {}
+}
+  </script>
+  <script src="../lib/popost-motion.js"></script>
+  <script>
+    // The parameters of this copy: the declared defaults, then what "values" sets.
+    var P = (function () { var b = JSON.parse(document.getElementById('popost-params').textContent), v = {}; b.params.forEach(function (p) { v[p.name] = p['default']; }); for (var k in b.values) v[k] = b.values[k]; return v; })();
+    // The canvas, from the size this file declares for html and body: a scene of a later shot loads in a layer that
+    // is not displayed, where the page itself measures 0 until its first frame.
+    var SIZE = /html, body \{ margin: 0; width: (\d+)px; height: (\d+)px;/.exec(document.querySelector('style').textContent), W = Number(SIZE[1]), H = Number(SIZE[2]), U = Math.min(W, H) / 720;
+    var M = popostMotion, d = P.size * H, badge = document.getElementById('badge');
+    document.body.style.background = P.ground;
+    badge.style.width = badge.style.height = d + 'px'; badge.style.left = (W - d) / 2 + 'px'; badge.style.top = (H - d) / 2 + 'px'; badge.style.background = P.color; badge.style.fontSize = d * 0.3 + 'px';
+    badge.firstElementChild.textContent = P.label;
+    M.sunburst({ at: P.delay, 'for': 0.5, rays: P.rays, speed: P.raySpeed, color: P.rayColor, opacity: 0.55, under: true });
+    M.pop('#badge', { at: P.delay + 0.1, 'for': P.duration, damping: P.damping, stiffness: P.stiffness });
+    M.burst({ at: P.delay + 0.16, count: 14, speed: d * 2.6, life: 0.7, size: 16 * U, shape: 'star', colors: [P.rayColor, '#ffffff'], gravity: 300, cue: 'sparkle', gain: 0.6 });
+  </script>
+</body></html>

@@ -1,0 +1,311 @@
+<!doctype html>
+<!--
+  Adapted from HyperFrames (https://github.com/heygen-com/hyperframes), registry/components/logo-sting, commit a8332860c396e9224d42b7ea2a9cc8f42918c961.
+  Copyright 2026 HeyGen, Inc. Licensed under the Apache License, Version 2.0; the licence text is in the popost
+  Skill's THIRD_PARTY_NOTICES. Changed for the popost Skill (tools/video/port-hyperframes.mjs): its comments removed; the composition it mounts (logo-sting.html) put into the page; GSAP loaded from the project (../lib/gsap.min.js) instead of a CDN; the 1920x1080 composition scaled into the scene's canvas (parameter "fit"); HyperFrames variables declared as parameters; its clips shown and hidden from the scene's time; sound cues derived from its tweens.
+-->
+
+<html data-composition-variables='[
+    { "id": "wordmark", "type": "string", "role": "content", "label": "Wordmark", "description": "Brand name displayed in the final lockup.", "default": "HYPERFRAMES" },
+    { "id": "accent", "type": "enum", "role": "style", "label": "Accent", "description": "Color of the single impact ring.", "default": "green", "options": [{ "value": "green", "label": "Green" }, { "value": "blue", "label": "Blue" }, { "value": "violet", "label": "Violet" }] }
+  ]' lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>Logo Sting Demo</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #0b0c0e;
+      }
+
+      #root {
+        --bg: #0b0c0e;
+        --fg: #f8fafc;
+        --font-display: Inter, system-ui, sans-serif;
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #0b0c0e;
+      }
+
+      .mount-card {
+        width: 76%;
+        height: 52%;
+        left: 12%;
+        top: 24%;
+        container-type: size;
+        overflow: hidden;
+      }
+    </style>
+  <style id="popost-fit">
+  html, body { margin: 0 !important; width: 1280px; height: 720px; overflow: hidden !important; background: #000000; }
+  #popost-stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden; }
+</style>
+<script type="application/json" id="popost-params">
+{
+ "about": "A wordmark slams into its final scale, fires one accent ring and one white impact frame, then holds completely still.",
+ "class": "logo",
+ "tags": [
+  "motion-primitive",
+  "brand",
+  "logo",
+  "sting",
+  "impact",
+  "reveal"
+ ],
+ "seconds": 0.95,
+ "params": [
+  {
+   "name": "fit",
+   "type": "choice",
+   "default": "contain",
+   "options": [
+    "contain",
+    "cover"
+   ],
+   "what": "how the 1920x1080 composition is fitted into the canvas: whole with bars, or filling it and cropped"
+  },
+  {
+   "name": "wordmark",
+   "type": "text",
+   "default": "HYPERFRAMES",
+   "maxLength": 200,
+   "what": "Brand name displayed in the final lockup."
+  },
+  {
+   "name": "accent",
+   "type": "choice",
+   "default": "green",
+   "options": [
+    "green",
+    "blue",
+    "violet"
+   ],
+   "what": "Color of the single impact ring."
+  }
+ ],
+ "values": {}
+}
+</script>
+<script>
+  /* popost: the scene's parameters stand in for HyperFrames variables; random numbers are seeded; the composition is
+     scaled into the canvas; clips are shown and hidden from the scene's time. */
+  (function () {
+    var block = document.getElementById('popost-params');
+    var values = block ? (JSON.parse(block.textContent).values || {}) : {};
+    var vars = {"wordmark":"MOTION LAB","accent":"violet"};
+    Object.keys(values).forEach(function (k) { if (k !== 'fit') vars[k] = values[k] === 'true' ? true : values[k] === 'false' ? false : values[k]; });
+    window.__hyperframes = { getVariables: function () { return vars; } };
+    var seed = 20240229;
+    window.__popostRandom = function () { seed = (seed + 0x6d2b79f5) >>> 0; var t = seed; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+    window.__popostFit = function () {
+      // The canvas, from the size this file declares: a scene of a later shot loads in a layer that is not displayed, where the page measures 0.
+      var size = /width: (\d+)px; height: (\d+)px;/.exec(document.getElementById('popost-fit').textContent);
+      var W = 1920, H = 1080, s = document.getElementById('popost-stage'), cw = Number(size[1]), ch = Number(size[2]);
+      var k = (values.fit === 'cover' ? Math.max : Math.min)(cw / W, ch / H);
+      s.style.transform = 'translate(' + (cw - W * k) / 2 + 'px,' + (ch - H * k) / 2 + 'px) scale(' + k + ')';
+      var clips = Array.prototype.slice.call(s.querySelectorAll('.clip[data-start]')).filter(function (c) { return isFinite(parseFloat(c.getAttribute('data-start'))) && c.parentNode !== s; });
+      // A mounted composition that starts later in its host runs on its own time.
+      [].forEach(function (m) {
+        var tl = window.__timelines && window.__timelines[m.id];
+        if (tl) window.__timelines[m.id] = { pause: function () { tl.pause(); }, seek: function (t) { tl.seek(Math.max(0, t - m.start)); }, duration: function () { return tl.duration() + m.start; } };
+      });
+      var scene = (window.__popostScene = window.__popostScene || {}), before = scene.render;
+      scene.render = function (seconds, fps) {
+        if (before) before(seconds, fps);
+        for (var i = 0; i < clips.length; i++) {
+          var a = parseFloat(clips[i].getAttribute('data-start')), d = parseFloat(clips[i].getAttribute('data-duration'));
+          clips[i].style.visibility = seconds >= a && (!isFinite(d) || seconds < a + d) ? 'visible' : 'hidden';
+        }
+      };
+    };
+  })();
+</script>
+<script type="application/json" id="popost-cues">[{"at":0,"cue":"swish","gain":0.4}]</script>
+</head>
+  <body>
+<div id="popost-stage">
+    <div
+      id="root"
+      data-composition-id="logo-sting-demo"
+      data-start="0"
+      data-width="1920"
+      data-height="1080"
+      data-duration="2.2"
+      data-fps="30"
+    >
+      <div
+        id="logo-sting-mount"
+        class="mount-card clip"
+        data-composition-id="logo-sting"
+       
+        data-variable-values='{"wordmark":"MOTION LAB","accent":"violet"}'
+        data-start="0"
+        data-duration="2.2"
+        data-track-index="0"
+        data-width="1459"
+        data-height="562"
+      >
+      <div id="root" data-composition-id="logo-sting" data-duration="2.2" data-fps="30">
+        <style>
+          *,
+          *::before,
+          *::after {
+            box-sizing: border-box;
+          }
+
+          #root {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            container-type: size;
+            background: var(--bg, #0b0c0e);
+            color: var(--fg, #f8fafc);
+            font-family: var(--font-display, Inter, system-ui, sans-serif);
+            pointer-events: none;
+          }
+
+          .ls-clip {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+          }
+
+          .ls-ring {
+            position: absolute;
+            z-index: 1;
+            width: min(42cqw, 72cqh);
+            aspect-ratio: 1;
+            border: min(0.34cqw, 0.62cqh) solid var(--ls-accent);
+            border-radius: 50%;
+            opacity: 0;
+            will-change: transform, opacity;
+          }
+
+          .ls-wordmark {
+            position: relative;
+            z-index: 2;
+            max-width: 90cqw;
+            color: var(--fg, #f8fafc);
+            font-size: min(10.5cqw, 18cqh);
+            font-weight: 850;
+            line-height: 0.9;
+            letter-spacing: -0.055em;
+            text-align: center;
+            white-space: nowrap;
+            transform-origin: 50% 50%;
+            will-change: transform;
+          }
+
+          .ls-flash {
+            position: absolute;
+            inset: 0;
+            z-index: 3;
+            background: #ffffff;
+            opacity: 0;
+          }
+        </style>
+
+        <div
+          id="logo-sting-clip"
+          class="ls-clip clip"
+          data-start="0"
+          data-duration="2.2"
+          data-track-index="0"
+        >
+          <div class="ls-ring" aria-hidden="true"></div>
+          <div class="ls-wordmark"></div>
+          <div class="ls-flash" aria-hidden="true"></div>
+        </div>
+
+        <script src="../lib/gsap.min.js"></script>
+        <script>
+          (function () {
+            "use strict";
+
+            var root = document.getElementById("root");
+            var wordmark = root.querySelector(".ls-wordmark");
+            var ring = root.querySelector(".ls-ring");
+            var flash = root.querySelector(".ls-flash");
+            var vars =
+              window.__hyperframes && window.__hyperframes.getVariables
+                ? window.__hyperframes.getVariables()
+                : {};
+
+            var accentColors = {
+              green: "var(--brand, #5df28b)",
+              blue: "var(--accent, #4da3ff)",
+              violet: "var(--accent-2, #a978ff)",
+            };
+            var accent = Object.prototype.hasOwnProperty.call(accentColors, vars.accent)
+              ? vars.accent
+              : "green";
+            var wordmarkText = vars.wordmark == null ? "HYPERFRAMES" : String(vars.wordmark);
+
+            wordmark.textContent = wordmarkText;
+            root.style.setProperty("--ls-accent", accentColors[accent]);
+
+            var IN_BASE = 0.95;
+            var IMPACT_BASE = 0.55;
+            var parsedDuration = parseFloat(root.dataset.duration);
+            var duration = Number.isFinite(parsedDuration) ? Math.max(0.001, parsedDuration) : 2.2;
+            var IN = Math.min(IN_BASE, duration);
+            var retime = IN / IN_BASE;
+            var IMPACT = IMPACT_BASE * retime;
+            var RING_DURATION = (IN_BASE - IMPACT_BASE) * retime;
+            var FLASH_FRAME = Math.min(1 / 30, RING_DURATION);
+            var HOLD = Math.max(0, duration - IN);
+
+            gsap.set(ring, { scale: 0.34, opacity: 0 });
+            gsap.set(flash, { opacity: 0 });
+
+            var tl = gsap.timeline({ paused: true });
+
+            tl.fromTo(
+              wordmark,
+              { scale: 1.15 },
+              { scale: 1, duration: IMPACT, ease: "expo.out" },
+              0,
+            );
+            tl.set(ring, { opacity: 0.92 }, IMPACT);
+            tl.to(
+              ring,
+              { scale: 2.4, opacity: 0, duration: RING_DURATION, ease: "power3.out" },
+              IMPACT,
+            );
+            tl.set(flash, { opacity: 1 }, IMPACT);
+            tl.set(flash, { opacity: 0 }, IMPACT + FLASH_FRAME);
+            tl.addLabel("hold", IN);
+            tl.addLabel("end", IN + HOLD);
+
+            tl.seek(0);
+            window.__timelines = window.__timelines || {};
+            window.__timelines["logo-sting"] = tl;
+          })();
+        </script>
+      </div>
+    </div>
+    </div>
+
+    <script src="../lib/gsap.min.js"></script>
+    <script>
+      window.__timelines = window.__timelines || {};
+      window.__timelines["logo-sting-demo"] = gsap.timeline({ paused: true });
+    </script>
+  </div>
+<script>window.__popostFit();</script>
+</body>
+</html>

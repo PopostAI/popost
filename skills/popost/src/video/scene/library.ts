@@ -20,6 +20,9 @@ export interface SceneLibrary {
   readonly licence: string;
 }
 
+/** three.js as a classic script (build/three.min.js of r147, about 0.6 MB): THREE as a global, no module loader. */
+const THREE_USE = "var renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('gl'), antialias: true, preserveDrawingBuffer: true }); /* scene, camera, lights: once */ window.__popostScene = { render: function (seconds) { /* set every position from seconds */ renderer.render(scene, camera); } };";
+
 export const LIBRARIES: Readonly<Record<string, SceneLibrary>> = {
   gsap: {
     from: { package: 'gsap', source: 'dist/gsap.min.js' },
@@ -34,6 +37,20 @@ export const LIBRARIES: Readonly<Record<string, SceneLibrary>> = {
     tag: '<script src="../lib/popost-screen.js"></script>',
     use: "popostScreen('#window', { still: '../assets/page-01.png', scale: 1, top: 0, steps: [{ at: 0.3, zoom: [x, y, w, h], fill: 0.5 }, { at: 1.2, highlight: [x, y, w, h] }, { at: 1.5, pointer: [x, y, w, h] }, { at: 2.2, click: true }] });  // boxes as --outline prints them; scale and top as --still printed them (stillScale, y)",
     licence: 'Part of the popost Skill (CLIPCAT AI LTD), under the Skill\'s licence.',
+  },
+  motion: {
+    from: { skillFile: 'assets/video/motion.js' },
+    file: 'lib/popost-motion.js',
+    tag: '<script src="../lib/popost-motion.js"></script>',
+    use: "var M = popostMotion; M.bounce('#ball', { at: 0.2, for: 1.6, from: [640, 120], floor: 560, bounces: 3, trail: 4, shadow: true }); M.slam('#title', { at: 1.9 });  // times in seconds of the shot; every effect is a function of the time and adds its sound cues to window.__popostScene.cues (references/video-motion.md)",
+    licence: 'Part of the popost Skill (CLIPCAT AI LTD), under the Skill\'s licence.',
+  },
+  three: {
+    from: { package: 'three', source: 'build/three.min.js' },
+    file: 'lib/three.min.js',
+    tag: '<script src="../lib/three.min.js"></script>',
+    use: THREE_USE,
+    licence: 'three.js, Copyright 2010-2023 three.js authors, MIT License (https://github.com/mrdoob/three.js/blob/dev/LICENSE). The file in the project is its unchanged file.',
   },
 };
 

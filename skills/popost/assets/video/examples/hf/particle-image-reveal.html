@@ -1,0 +1,528 @@
+<!doctype html>
+<!--
+  Adapted from HyperFrames (https://github.com/heygen-com/hyperframes), registry/components/particle-image-reveal, commit a8332860c396e9224d42b7ea2a9cc8f42918c961.
+  Copyright 2026 HeyGen, Inc. Licensed under the Apache License, Version 2.0; the licence text is in the popost
+  Skill's THIRD_PARTY_NOTICES. Changed for the popost Skill (tools/video/port-hyperframes.mjs): its comments removed; the composition it mounts (particle-image-reveal.html) put into the page; GSAP loaded from the project (../lib/gsap.min.js) instead of a CDN; the 1920x1080 composition scaled into the scene's canvas (parameter "fit"); HyperFrames variables declared as parameters; its clips shown and hidden from the scene's time; sound cues derived from its tweens.
+-->
+
+<html data-composition-variables='[
+    { "id": "density", "type": "enum", "role": "style", "label": "Density", "description": "Particle count for the converging field.", "default": "med", "options": [{ "value": "low", "label": "Low" }, { "value": "med", "label": "Medium" }, { "value": "high", "label": "High" }] },
+    { "id": "direction", "type": "enum", "role": "timing", "label": "Direction", "description": "ltr sweeps the reveal left to right; center opens an iris from the middle outward.", "default": "ltr", "options": [{ "value": "ltr", "label": "Left to right" }, { "value": "center", "label": "Center out" }] },
+    { "id": "accent", "type": "enum", "role": "style", "label": "Accent", "description": "Particle and monogram color: green rides --brand, blue rides --accent, violet rides --accent-2.", "default": "green", "options": [{ "value": "green", "label": "Green" }, { "value": "blue", "label": "Blue" }, { "value": "violet", "label": "Violet" }] },
+    { "id": "exit", "type": "enum", "role": "timing", "label": "Exit", "description": "Optional departure. Default none: the revealed image holds until the frame cuts.", "default": "none", "options": [{ "value": "none", "label": "None" }, { "value": "fade", "label": "Fade" }, { "value": "up", "label": "Up" }] }
+  ]' lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>Particle Image Reveal Demo</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: var(--bg, #0b0c0e);
+      }
+
+      #root {
+        --bg: #0b0c0e;
+        --fg: #f8fafc;
+        --surface: #14171c;
+        --border: #343a46;
+        --brand: #71f5a7;
+        --accent: #61a8ff;
+        --accent-2: #c5a3ff;
+        --font-display: "Inter", system-ui, sans-serif;
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: radial-gradient(
+          ellipse at 50% 44%,
+          var(--bg, #171a20) 0%,
+          var(--bg, #0b0c0e) 72%
+        );
+      }
+
+      .mount-card {
+        width: 62%;
+        height: 72%;
+        left: 19%;
+        top: 14%;
+        container-type: size;
+        overflow: hidden;
+        border: 1px solid color-mix(in srgb, var(--border, #94a3b8) 20%, transparent);
+        border-radius: 30px;
+        background: color-mix(in srgb, var(--surface, #101318) 72%, transparent);
+        box-shadow: 0 40px 100px color-mix(in srgb, var(--bg, #000000) 48%, transparent);
+      }
+    </style>
+  <style id="popost-fit">
+  html, body { margin: 0 !important; width: 1280px; height: 720px; overflow: hidden !important; background: #000000; }
+  #popost-stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden; }
+</style>
+<script type="application/json" id="popost-params">
+{
+ "about": "A seeded deterministic particle field converges and settles while a slotted image reveals beneath it, the trail thinning until the image holds clean.",
+ "class": "particles",
+ "tags": [
+  "motion-primitive",
+  "intros-reveals",
+  "particles",
+  "reveal",
+  "canvas",
+  "deterministic"
+ ],
+ "seconds": 4,
+ "params": [
+  {
+   "name": "fit",
+   "type": "choice",
+   "default": "contain",
+   "options": [
+    "contain",
+    "cover"
+   ],
+   "what": "how the 1920x1080 composition is fitted into the canvas: whole with bars, or filling it and cropped"
+  },
+  {
+   "name": "density",
+   "type": "choice",
+   "default": "med",
+   "options": [
+    "low",
+    "med",
+    "high"
+   ],
+   "what": "Particle count for the converging field."
+  },
+  {
+   "name": "direction",
+   "type": "choice",
+   "default": "ltr",
+   "options": [
+    "ltr",
+    "center"
+   ],
+   "what": "ltr sweeps the reveal left to right; center opens an iris from the middle outward."
+  },
+  {
+   "name": "accent",
+   "type": "choice",
+   "default": "green",
+   "options": [
+    "green",
+    "blue",
+    "violet"
+   ],
+   "what": "Particle and monogram color: green rides --brand, blue rides --accent, violet rides --accent-2."
+  },
+  {
+   "name": "exit",
+   "type": "choice",
+   "default": "none",
+   "options": [
+    "none",
+    "fade",
+    "up"
+   ],
+   "what": "Optional departure. Default none: the revealed image holds until the frame cuts."
+  }
+ ],
+ "values": {}
+}
+</script>
+<script>
+  /* popost: the scene's parameters stand in for HyperFrames variables; random numbers are seeded; the composition is
+     scaled into the canvas; clips are shown and hidden from the scene's time. */
+  (function () {
+    var block = document.getElementById('popost-params');
+    var values = block ? (JSON.parse(block.textContent).values || {}) : {};
+    var vars = {"direction":"center","accent":"violet","density":"high"};
+    Object.keys(values).forEach(function (k) { if (k !== 'fit') vars[k] = values[k] === 'true' ? true : values[k] === 'false' ? false : values[k]; });
+    window.__hyperframes = { getVariables: function () { return vars; } };
+    var seed = 20240229;
+    window.__popostRandom = function () { seed = (seed + 0x6d2b79f5) >>> 0; var t = seed; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+    window.__popostFit = function () {
+      // The canvas, from the size this file declares: a scene of a later shot loads in a layer that is not displayed, where the page measures 0.
+      var size = /width: (\d+)px; height: (\d+)px;/.exec(document.getElementById('popost-fit').textContent);
+      var W = 1920, H = 1080, s = document.getElementById('popost-stage'), cw = Number(size[1]), ch = Number(size[2]);
+      var k = (values.fit === 'cover' ? Math.max : Math.min)(cw / W, ch / H);
+      s.style.transform = 'translate(' + (cw - W * k) / 2 + 'px,' + (ch - H * k) / 2 + 'px) scale(' + k + ')';
+      var clips = Array.prototype.slice.call(s.querySelectorAll('.clip[data-start]')).filter(function (c) { return isFinite(parseFloat(c.getAttribute('data-start'))) && c.parentNode !== s; });
+      // A mounted composition that starts later in its host runs on its own time.
+      [].forEach(function (m) {
+        var tl = window.__timelines && window.__timelines[m.id];
+        if (tl) window.__timelines[m.id] = { pause: function () { tl.pause(); }, seek: function (t) { tl.seek(Math.max(0, t - m.start)); }, duration: function () { return tl.duration() + m.start; } };
+      });
+      var scene = (window.__popostScene = window.__popostScene || {}), before = scene.render;
+      scene.render = function (seconds, fps) {
+        if (before) before(seconds, fps);
+        for (var i = 0; i < clips.length; i++) {
+          var a = parseFloat(clips[i].getAttribute('data-start')), d = parseFloat(clips[i].getAttribute('data-duration'));
+          clips[i].style.visibility = seconds >= a && (!isFinite(d) || seconds < a + d) ? 'visible' : 'hidden';
+        }
+      };
+    };
+  })();
+</script>
+<script type="application/json" id="popost-cues">[{"at":0.62,"cue":"swish","gain":0.45}]</script>
+</head>
+  <body>
+<div id="popost-stage">
+    <div
+      id="root"
+      data-composition-id="particle-image-reveal-demo"
+      data-start="0"
+      data-width="1920"
+      data-height="1080"
+      data-duration="4"
+      data-fps="30"
+    >
+      <div
+        id="particle-image-reveal-mount"
+        class="mount-card clip"
+        data-composition-id="particle-image-reveal"
+       
+        data-variable-values='{"direction":"center","accent":"violet","density":"high"}'
+        data-start="0"
+        data-duration="4"
+        data-track-index="0"
+        data-width="1190"
+        data-height="778"
+      >
+      <div id="root" data-composition-id="particle-image-reveal" data-duration="4" data-fps="30">
+        <style>
+          *,
+          *::before,
+          *::after {
+            box-sizing: border-box;
+          }
+
+          #root {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            container-type: size;
+            isolation: isolate;
+            color: var(--fg, #f8fafc);
+            font-family: var(--font-display, "Inter", system-ui, sans-serif);
+            pointer-events: none;
+          }
+
+          .pir-clip {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            background: var(--bg, transparent);
+          }
+
+          .pir-stage {
+            position: absolute;
+            inset: 0;
+            will-change: transform, opacity;
+          }
+
+          .pir-image {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+            will-change: clip-path, opacity;
+          }
+
+          .pir-image > img,
+          .pir-image > video {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+
+          .pir-monogram {
+            display: grid;
+            place-items: center;
+            width: 52cqmin;
+            height: 52cqmin;
+            border: 0.18cqmin solid
+              color-mix(in srgb, var(--pir-accent) 52%, var(--border, #475569));
+            border-radius: var(--radius, 3cqmin);
+            background: color-mix(in srgb, var(--surface, #14171c) 90%, var(--pir-accent));
+            box-shadow: 0 3cqh 9cqh color-mix(in srgb, var(--bg, #000000) 40%, transparent);
+          }
+
+          .pir-monogram-glyph {
+            color: var(--pir-accent);
+            font-size: 26cqmin;
+            font-weight: 600;
+            line-height: 1;
+            letter-spacing: 0.02em;
+          }
+
+          .pir-canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+          }
+        </style>
+
+        <div
+          id="particle-image-reveal-clip"
+          class="pir-clip clip"
+          data-start="0"
+          data-duration="4"
+          data-track-index="0"
+        >
+          <div class="pir-stage">
+            <div class="pir-image">
+              <div class="pir-monogram">
+                <span class="pir-monogram-glyph" aria-hidden="true">H</span>
+              </div>
+            </div>
+            <canvas class="pir-canvas" aria-hidden="true"></canvas>
+          </div>
+        </div>
+
+        <script src="../lib/gsap.min.js"></script>
+        <script>
+          (function () {
+            "use strict";
+
+            var root = document.getElementById("root");
+            var stage = root.querySelector(".pir-stage");
+            var imageLayer = root.querySelector(".pir-image");
+            var canvas = root.querySelector(".pir-canvas");
+            var vars =
+              window.__hyperframes && window.__hyperframes.getVariables
+                ? window.__hyperframes.getVariables()
+                : {};
+
+            var densityCounts = { low: 320, med: 640, high: 1100 };
+            var density = Object.prototype.hasOwnProperty.call(densityCounts, vars.density)
+              ? vars.density
+              : "med";
+            var direction = vars.direction === "center" ? "center" : "ltr";
+            // Each enum choice routes to a DIFFERENT contract token so the
+            // variable stays meaningful under a theme.
+            var accentColors = {
+              green: "var(--brand, #71f5a7)",
+              blue: "var(--accent, #61a8ff)",
+              violet: "var(--accent-2, #c5a3ff)",
+            };
+            var accent = Object.prototype.hasOwnProperty.call(accentColors, vars.accent)
+              ? vars.accent
+              : "green";
+            var exit = vars.exit === "fade" || vars.exit === "up" ? vars.exit : "none";
+
+            root.style.setProperty("--pir-accent", accentColors[accent]);
+
+            // SLOT. Caller templates live at HOST DOCUMENT level (the mount
+            // wipes host-clip children, and templates never render). The
+            // scoped document proxy filters queries to this composition's
+            // subtree, so the lookup deliberately goes through ownerDocument.
+            var hostDoc = root.ownerDocument;
+            var slotTemplate = null;
+            try {
+              slotTemplate = hostDoc.querySelector(
+                'template[data-slot="particle-image-reveal-image"]',
+              );
+            } catch (error) {
+              slotTemplate = null;
+            }
+            if (slotTemplate) {
+              imageLayer.querySelector(".pir-monogram").remove();
+              imageLayer.appendChild(hostDoc.importNode(slotTemplate.content, true));
+            }
+
+            // Envelope: fixed IN/OUT, elastic HOLD, never time-scaled.
+            var IN_BASE = 2.8;
+            var OUT_BASE = exit === "none" ? 0 : 0.45;
+            var duration = Math.max(0.001, parseFloat(root.dataset.duration || "4"));
+            var totalBase = Math.max(0.001, IN_BASE + OUT_BASE);
+            var scale = duration < totalBase ? duration / totalBase : 1;
+            var IN = IN_BASE * scale;
+            var OUT = OUT_BASE * scale;
+            var HOLD = Math.max(0, duration - (IN + OUT));
+            var OUT_START = IN + HOLD;
+
+            // Canvas raster basis is fixed once at mount. Elastic root: the
+            // host box decides the resolution; the same host always yields
+            // the same raster, so painted frames stay byte-stable.
+            var dpr = Math.min(2, Math.max(1, Number(window.devicePixelRatio) || 1));
+            var box = root.getBoundingClientRect();
+            var cssW = Math.max(1, Math.round(box.width) || 640);
+            var cssH = Math.max(1, Math.round(box.height) || 360);
+            canvas.width = Math.round(cssW * dpr);
+            canvas.height = Math.round(cssH * dpr);
+            var ctx = canvas.getContext("2d");
+            var minDim = Math.min(canvas.width, canvas.height);
+
+            // Resolve the accent token to a concrete color once at mount so
+            // canvas fills never depend on style recalc during seeks.
+            var probe = hostDoc.createElement("span");
+            probe.style.color = accentColors[accent];
+            root.appendChild(probe);
+            var particleColor = getComputedStyle(probe).color || "#71f5a7";
+            probe.remove();
+
+            // The LCG and every per-particle decision live here. This IIFE
+            // runs once before timeline construction, then only the table is
+            // read. Particle state at any time is a pure function of
+            // (table row, timeline time).
+            var COUNT = densityCounts[density];
+            var particles = (function () {
+              var state = 0x50a71c1e;
+              function next() {
+                state = (Math.imul(1664525, state) + 1013904223) >>> 0;
+                return state / 4294967296;
+              }
+              var rows = [];
+              for (var i = 0; i < COUNT; i += 1) {
+                var tx = next();
+                var ty = next();
+                var key =
+                  direction === "center"
+                    ? Math.min(1, Math.hypot(tx - 0.5, ty - 0.5) / 0.7071)
+                    : tx;
+                // Arrival and birth are fractions of IN. Arrivals sweep with
+                // the reveal front; every fade completes by p = 1 exactly.
+                var arrive = 0.24 + 0.66 * key + 0.04 * next();
+                var travel = 0.2 + 0.12 * next();
+                var fade = 0.05 + 0.04 * next();
+                var angle;
+                if (direction === "center") {
+                  // Converge inward: start displaced radially outward.
+                  angle = Math.atan2(ty - 0.5, tx - 0.5);
+                  if (tx === 0.5 && ty === 0.5) angle = next() * Math.PI * 2;
+                } else {
+                  // Fly in from the left, within a 90 degree cone.
+                  angle = Math.PI + (next() - 0.5) * (Math.PI / 2);
+                }
+                rows.push({
+                  tx: tx,
+                  ty: ty,
+                  arrive: Math.min(0.94, arrive),
+                  birth: Math.max(0, arrive - travel),
+                  fade: fade,
+                  offset: (0.06 + 0.14 * next()) * minDim,
+                  ox: Math.cos(angle),
+                  oy: Math.sin(angle),
+                  radius: (0.28 + 0.62 * next()) * (minDim / 100),
+                  dim: 0.55 + 0.45 * next(),
+                });
+              }
+              return rows;
+            })();
+
+            function clamp01(v) {
+              return v < 0 ? 0 : v > 1 ? 1 : v;
+            }
+
+            // Pure repaint: clear, then draw every particle from (row, p).
+            function paint(timeSeconds) {
+              ctx.clearRect(0, 0, canvas.width, canvas.height);
+              var p = IN > 0 ? clamp01(timeSeconds / IN) : 1;
+              // Global end clamp: the whole field is gone exactly at p = 1,
+              // and the trail thins as the reveal completes.
+              var endClamp = clamp01((1 - p) / 0.05);
+              if (endClamp === 0) return;
+              var thin = 1 - 0.4 * clamp01((p - 0.72) / 0.28);
+              ctx.fillStyle = particleColor;
+              for (var i = 0; i < particles.length; i += 1) {
+                var row = particles[i];
+                var u = clamp01((p - row.birth) / (row.arrive - row.birth));
+                if (u <= 0) continue;
+                var settled = clamp01((p - row.arrive) / row.fade);
+                var alpha = clamp01(u / 0.14) * (1 - settled) * endClamp * thin * row.dim * 0.92;
+                if (alpha <= 0.002) continue;
+                var e = 1 - Math.pow(1 - u, 3);
+                var x = row.tx * canvas.width + row.ox * row.offset * (1 - e);
+                var y = row.ty * canvas.height + row.oy * row.offset * (1 - e);
+                var r = row.radius * dpr * (0.6 + 0.4 * (1 - settled));
+                ctx.globalAlpha = alpha;
+                ctx.beginPath();
+                ctx.arc(x, y, r, 0, Math.PI * 2);
+                ctx.fill();
+              }
+              ctx.globalAlpha = 1;
+            }
+
+            // Image reveal geometry follows the particle sweep.
+            var clipFrom =
+              direction === "center" ? "circle(0% at 50% 50%)" : "inset(0% 100% 0% 0%)";
+            var clipTo = direction === "center" ? "circle(75% at 50% 50%)" : "inset(0% 0% 0% 0%)";
+
+            gsap.set(stage, { opacity: 1, y: "0cqh" });
+            gsap.set(imageLayer, { opacity: 0, clipPath: clipFrom });
+
+            var tl = gsap.timeline({
+              paused: true,
+              onUpdate: function () {
+                paint(tl.time());
+              },
+            });
+
+            // Anchor tween: an inert plain-object tween spanning the full
+            // authored duration. Without it the timeline would end at the
+            // last DOM tween (2.69s) and seeks into the hold would clamp
+            // tl.time() below IN, freezing the particle field short of its
+            // authored zero. It also guarantees onUpdate fires (and the
+            // canvas repaints) for every eventful seek anywhere in [0, D].
+            tl.to({ p: 0 }, { p: 1, duration: duration, ease: "none" }, 0);
+
+            // IN: the image fades up beneath the particles and reveals along
+            // the same front the arrivals sweep. Both endpoints authored.
+            tl.fromTo(
+              imageLayer,
+              { opacity: 0 },
+              { opacity: 1, duration: IN * 0.42, ease: "power2.out" },
+              IN * 0.18,
+            );
+            tl.fromTo(
+              imageLayer,
+              { clipPath: clipFrom },
+              { clipPath: clipTo, duration: IN * 0.74, ease: "power2.inOut" },
+              IN * 0.22,
+            );
+
+            // HOLD: truly still, deliberately. Fractional transform drift
+            // re-rasters the slot/canvas layer at history-dependent subpixel
+            // offsets and breaks byte-identical seeks (the K1 cq-transform
+            // trap); the reveal supplies the life, the hold supplies calm.
+
+            // OUT: optional departure; exit none holds until the frame cuts.
+            if (exit === "up") {
+              tl.to(stage, { y: "-4cqh", duration: OUT, ease: "power2.in" }, OUT_START);
+              tl.to(stage, { opacity: 0, duration: OUT, ease: "power2.in" }, OUT_START);
+            } else if (exit === "fade") {
+              tl.to(stage, { opacity: 0, duration: OUT, ease: "power2.in" }, OUT_START);
+            }
+
+            tl.seek(0);
+            paint(0);
+            window.__timelines = window.__timelines || {};
+            window.__timelines["particle-image-reveal"] = tl;
+          })();
+        </script>
+      </div>
+    </div>
+    </div>
+
+    <script src="../lib/gsap.min.js"></script>
+    <script>
+      window.__timelines = window.__timelines || {};
+      window.__timelines["particle-image-reveal-demo"] = gsap.timeline({ paused: true });
+    </script>
+  </div>
+<script>window.__popostFit();</script>
+</body>
+</html>

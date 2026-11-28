@@ -1,0 +1,125 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Slam-in title with a flash frame</title>
+<style>
+  html, body { margin: 0; width: 1280px; height: 720px; overflow: hidden; }
+  #world { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
+  #title { position: absolute; left: 0; width: 100%; text-align: center; font: 900 180px "Noto Sans", "Noto Sans CJK SC", sans-serif; letter-spacing: -0.02em; line-height: 1; }
+</style></head>
+<body>
+<div id="world"><div id="title" data-slot="title"></div></div>
+  <script type="application/json" id="popost-params">
+{
+ "about": "A title slams in from large on an accelerating ease, the frame flashes white on the landing frame, the ground shakes and a ring spreads; then the title stays dead still while streaks keep running behind it.",
+ "class": "text",
+ "seconds": 2.2,
+ "tags": [
+  "slam",
+  "impact",
+  "flash",
+  "title",
+  "headline",
+  "shake",
+  "kinetic"
+ ],
+ "params": [
+  {
+   "name": "title",
+   "type": "text",
+   "default": "SLAM",
+   "maxLength": 24,
+   "what": "the word that lands"
+  },
+  {
+   "name": "from",
+   "type": "number",
+   "default": 3.4,
+   "min": 1.2,
+   "max": 8,
+   "what": "how large it is when it starts, against its resting size"
+  },
+  {
+   "name": "duration",
+   "type": "number",
+   "default": 0.22,
+   "min": 0.08,
+   "max": 1,
+   "what": "the length of the fall",
+   "unit": "seconds"
+  },
+  {
+   "name": "flash",
+   "type": "choice",
+   "default": "on",
+   "options": [
+    "on",
+    "off"
+   ],
+   "what": "the white frame on the landing"
+  },
+  {
+   "name": "shake",
+   "type": "number",
+   "default": 12,
+   "min": 0,
+   "max": 60,
+   "what": "how far the ground shakes",
+   "unit": "pixels at 720 high"
+  },
+  {
+   "name": "ring",
+   "type": "choice",
+   "default": "on",
+   "options": [
+    "on",
+    "off"
+   ],
+   "what": "the ring that spreads from the landing"
+  },
+  {
+   "name": "color",
+   "type": "colour",
+   "default": "#ffffff",
+   "what": "the title"
+  },
+  {
+   "name": "ground",
+   "type": "colour",
+   "default": "#111111",
+   "what": "the background"
+  },
+  {
+   "name": "accent",
+   "type": "colour",
+   "default": "#ffd23f",
+   "what": "the ring and the streaks"
+  },
+  {
+   "name": "delay",
+   "type": "number",
+   "default": 0.2,
+   "min": 0,
+   "max": 20,
+   "unit": "seconds",
+   "what": "when the effect starts, from the start of the shot"
+  }
+ ],
+ "values": {}
+}
+  </script>
+  <script src="../lib/popost-motion.js"></script>
+  <script>
+    // The parameters of this copy: the declared defaults, then what "values" sets.
+    var P = (function () { var b = JSON.parse(document.getElementById('popost-params').textContent), v = {}; b.params.forEach(function (p) { v[p.name] = p['default']; }); for (var k in b.values) v[k] = b.values[k]; return v; })();
+    // The canvas, from the size this file declares for html and body: a scene of a later shot loads in a layer that
+    // is not displayed, where the page itself measures 0 until its first frame.
+    var SIZE = /html, body \{ margin: 0; width: (\d+)px; height: (\d+)px;/.exec(document.querySelector('style').textContent), W = Number(SIZE[1]), H = Number(SIZE[2]), U = Math.min(W, H) / 720;
+    var M = popostMotion, title = document.getElementById('title');
+    document.body.style.background = P.ground;
+    title.textContent = P.title; title.style.color = P.color; title.style.fontSize = 0.26 * H + 'px'; title.style.top = 0.36 * H + 'px';
+    // Ambient: the streaks never stop, so the shot keeps moving after the title has landed.
+    M.speedLines({ at: 0, 'for': 60, count: 18, angle: -8, color: P.accent, on: '#world', under: true, cue: false });
+    var s = M.slam('#title', { at: P.delay, 'for': P.duration, from: P.from, flash: P.flash === 'on' });
+    if (P.shake > 0) M.shake('#world', { at: s.land, 'for': 0.35, amount: P.shake * U, cue: false });
+    if (P.ring === 'on') M.shockwave({ at: s.land, radius: 0.6 * H, width: 18 * U, color: P.accent, cue: false });
+  </script>
+</body></html>

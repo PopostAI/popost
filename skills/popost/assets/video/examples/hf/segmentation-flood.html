@@ -1,0 +1,681 @@
+<!doctype html>
+<!--
+  Adapted from HyperFrames (https://github.com/heygen-com/hyperframes), registry/components/segmentation-flood, commit a8332860c396e9224d42b7ea2a9cc8f42918c961.
+  Copyright 2026 HeyGen, Inc. Licensed under the Apache License, Version 2.0; the licence text is in the popost
+  Skill's THIRD_PARTY_NOTICES. Changed for the popost Skill (tools/video/port-hyperframes.mjs): its comments removed; the composition it mounts (segmentation-flood.html) put into the page; GSAP loaded from the project (../lib/gsap.min.js) instead of a CDN; the 1920x1080 composition scaled into the scene's canvas (parameter "fit"); HyperFrames variables declared as parameters; its clips shown and hidden from the scene's time; sound cues derived from its tweens.
+-->
+
+<html data-composition-variables='[
+    { "id": "regions", "type": "string", "role": "content", "label": "Regions", "description": "Comma-separated region labels; 2 to 4 are used, one translucent mask + bracket + mono chip each.", "default": "Figure, Signal, Ground" },
+    { "id": "flood_at", "type": "number", "role": "timing", "label": "Flood at", "description": "Seconds from mount start when the segmentation pass begins. Clamped so the pass and any exit stay inside the clip.", "default": 0.8 },
+    { "id": "flicker", "type": "enum", "role": "style", "label": "Flicker", "description": "Deterministic 2-frame HUD luminance toggle riding the flood pass.", "default": "on", "options": [{ "value": "on", "label": "On" }, { "value": "off", "label": "Off" }] },
+    { "id": "accent", "type": "enum", "role": "style", "label": "Accent", "description": "Mask, bracket, and chip color: green rides --brand, blue rides --accent, violet rides --accent-2.", "default": "green", "options": [{ "value": "green", "label": "Green" }, { "value": "blue", "label": "Blue" }, { "value": "violet", "label": "Violet" }] },
+    { "id": "exit", "type": "enum", "role": "timing", "label": "Exit", "description": "Optional departure. Default none: the labeled read holds until the frame cuts.", "default": "none", "options": [{ "value": "none", "label": "None" }, { "value": "fade", "label": "Fade" }, { "value": "up", "label": "Up" }] }
+  ]' lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>Segmentation Flood Demo</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: var(--bg, #f5f6f8);
+      }
+
+      #root {
+        --bg: #f5f6f8;
+        --fg: #101318;
+        --muted: #5b6472;
+        --surface: #ffffff;
+        --border: #d7dce4;
+        --brand: #14a35e;
+        --accent: #2f6fed;
+        --accent-2: #7a5cd6;
+        --radius: 24px;
+        --font-display: "Inter", system-ui, sans-serif;
+        --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: var(--bg);
+      }
+
+      .mount-stage {
+        position: absolute;
+        inset: 0;
+        container-type: size;
+        overflow: hidden;
+      }
+
+      .demo-subject {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          160deg,
+          color-mix(in srgb, var(--surface, #ffffff) 92%, var(--accent, #2f6fed)) 0%,
+          var(--surface, #ffffff) 60%
+        );
+        font-family: var(--font-display, system-ui, sans-serif);
+      }
+
+      .demo-subject .block {
+        position: absolute;
+        border: 1px solid var(--border, #d7dce4);
+        border-radius: var(--radius, 24px);
+        background: color-mix(in srgb, var(--muted, #5b6472) 10%, var(--surface, #ffffff));
+        box-shadow: 0 24px 60px rgba(16, 19, 24, 0.07);
+      }
+
+      .demo-subject .block.round {
+        border-radius: 50%;
+      }
+    </style>
+  <style id="popost-fit">
+  html, body { margin: 0 !important; width: 1280px; height: 720px; overflow: hidden !important; background: #000000; }
+  #popost-stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden; }
+</style>
+<script type="application/json" id="popost-params">
+{
+ "about": "Machine-vision read of a slotted subject: translucent accent segmentation masks flood on in quantized scanline steps, each region gets a thin bracket and mono label chip, a deterministic 2-frame HUD flicker rides the pass, then the labeled read settles clean.",
+ "class": "overlay",
+ "tags": [
+  "motion-primitive",
+  "product-demo",
+  "ai",
+  "hud",
+  "canvas",
+  "deterministic",
+  "experiment"
+ ],
+ "seconds": 4.5,
+ "params": [
+  {
+   "name": "fit",
+   "type": "choice",
+   "default": "contain",
+   "options": [
+    "contain",
+    "cover"
+   ],
+   "what": "how the 1920x1080 composition is fitted into the canvas: whole with bars, or filling it and cropped"
+  },
+  {
+   "name": "regions",
+   "type": "text",
+   "default": "Figure, Signal, Ground",
+   "maxLength": 200,
+   "what": "Comma-separated region labels; 2 to 4 are used, one translucent mask + bracket + mono chip each."
+  },
+  {
+   "name": "flood_at",
+   "type": "number",
+   "default": 0.8,
+   "min": -100000,
+   "max": 100000,
+   "what": "Seconds from mount start when the segmentation pass begins. Clamped so the pass and any exit stay inside the clip."
+  },
+  {
+   "name": "flicker",
+   "type": "choice",
+   "default": "on",
+   "options": [
+    "on",
+    "off"
+   ],
+   "what": "Deterministic 2-frame HUD luminance toggle riding the flood pass."
+  },
+  {
+   "name": "accent",
+   "type": "choice",
+   "default": "green",
+   "options": [
+    "green",
+    "blue",
+    "violet"
+   ],
+   "what": "Mask, bracket, and chip color: green rides --brand, blue rides --accent, violet rides --accent-2."
+  },
+  {
+   "name": "exit",
+   "type": "choice",
+   "default": "none",
+   "options": [
+    "none",
+    "fade",
+    "up"
+   ],
+   "what": "Optional departure. Default none: the labeled read holds until the frame cuts."
+  }
+ ],
+ "values": {}
+}
+</script>
+<script>
+  /* popost: the scene's parameters stand in for HyperFrames variables; random numbers are seeded; the composition is
+     scaled into the canvas; clips are shown and hidden from the scene's time. */
+  (function () {
+    var block = document.getElementById('popost-params');
+    var values = block ? (JSON.parse(block.textContent).values || {}) : {};
+    var vars = {"regions":"Chassis, Payload, Horizon, Beacon","flood_at":0.6,"accent":"blue"};
+    Object.keys(values).forEach(function (k) { if (k !== 'fit') vars[k] = values[k] === 'true' ? true : values[k] === 'false' ? false : values[k]; });
+    window.__hyperframes = { getVariables: function () { return vars; } };
+    var seed = 20240229;
+    window.__popostRandom = function () { seed = (seed + 0x6d2b79f5) >>> 0; var t = seed; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+    window.__popostFit = function () {
+      // The canvas, from the size this file declares: a scene of a later shot loads in a layer that is not displayed, where the page measures 0.
+      var size = /width: (\d+)px; height: (\d+)px;/.exec(document.getElementById('popost-fit').textContent);
+      var W = 1920, H = 1080, s = document.getElementById('popost-stage'), cw = Number(size[1]), ch = Number(size[2]);
+      var k = (values.fit === 'cover' ? Math.max : Math.min)(cw / W, ch / H);
+      s.style.transform = 'translate(' + (cw - W * k) / 2 + 'px,' + (ch - H * k) / 2 + 'px) scale(' + k + ')';
+      var clips = Array.prototype.slice.call(s.querySelectorAll('.clip[data-start]')).filter(function (c) { return isFinite(parseFloat(c.getAttribute('data-start'))) && c.parentNode !== s; });
+      // A mounted composition that starts later in its host runs on its own time.
+      [].forEach(function (m) {
+        var tl = window.__timelines && window.__timelines[m.id];
+        if (tl) window.__timelines[m.id] = { pause: function () { tl.pause(); }, seek: function (t) { tl.seek(Math.max(0, t - m.start)); }, duration: function () { return tl.duration() + m.start; } };
+      });
+      var scene = (window.__popostScene = window.__popostScene || {}), before = scene.render;
+      scene.render = function (seconds, fps) {
+        if (before) before(seconds, fps);
+        for (var i = 0; i < clips.length; i++) {
+          var a = parseFloat(clips[i].getAttribute('data-start')), d = parseFloat(clips[i].getAttribute('data-duration'));
+          clips[i].style.visibility = seconds >= a && (!isFinite(d) || seconds < a + d) ? 'visible' : 'hidden';
+        }
+      };
+    };
+  })();
+</script>
+<script type="application/json" id="popost-cues">[{"at":0,"cue":"swish","gain":0.4}]</script>
+</head>
+  <body>
+<div id="popost-stage">
+    <template data-slot="segmentation-flood-subject">
+      <div class="demo-subject">
+        <div class="block" style="left: 10%; top: 16%; width: 26%; height: 26%"></div>
+        <div class="block round" style="left: 62%; top: 12%; width: 22%; height: 34%"></div>
+        <div class="block" style="left: 16%; top: 60%; width: 22%; height: 25%"></div>
+        <div class="block round" style="left: 58%; top: 62%; width: 26%; height: 23%"></div>
+      </div>
+    </template>
+
+    <div
+      id="root"
+      data-composition-id="segmentation-flood-demo"
+      data-start="0"
+      data-width="1920"
+      data-height="1080"
+      data-duration="4.5"
+      data-fps="30"
+    >
+      <div
+        id="segmentation-flood-mount"
+        class="mount-stage clip"
+        data-composition-id="segmentation-flood"
+       
+        data-variable-values='{"regions":"Chassis, Payload, Horizon, Beacon","flood_at":0.6,"accent":"blue"}'
+        data-start="0"
+        data-duration="4.5"
+        data-track-index="0"
+        data-width="1920"
+        data-height="1080"
+      >
+      <div id="root" data-composition-id="segmentation-flood" data-duration="4.5" data-fps="30">
+        <style>
+          *,
+          *::before,
+          *::after {
+            box-sizing: border-box;
+          }
+
+          #root {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            container-type: size;
+            isolation: isolate;
+            color: var(--fg, #f8fafc);
+            font-family: var(--font-display, "Inter", system-ui, sans-serif);
+            pointer-events: none;
+          }
+
+          .sgf-clip {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            background: var(--bg, transparent);
+          }
+
+          .sgf-stage {
+            position: absolute;
+            inset: 0;
+            will-change: transform, opacity;
+          }
+
+          .sgf-subject {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            will-change: opacity;
+          }
+
+          .sgf-subject > img,
+          .sgf-subject > video {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+
+          .sgf-scene {
+            position: absolute;
+            inset: 0;
+            background: color-mix(in srgb, var(--surface, #14171c) 88%, var(--bg, #0b0c0e));
+          }
+
+          .sgf-shape {
+            position: absolute;
+            border: 0.16cqmin solid color-mix(in srgb, var(--border, #475569) 70%, transparent);
+            border-radius: var(--radius, 2cqmin);
+            background: color-mix(in srgb, var(--muted, #94a3b8) 16%, var(--surface, #14171c));
+          }
+
+          .sgf-shape.round {
+            border-radius: 50%;
+          }
+
+          .sgf-canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+          }
+
+          .sgf-overlay {
+            position: absolute;
+            inset: 0;
+          }
+
+          .sgf-frame {
+            position: absolute;
+            will-change: opacity;
+          }
+
+          .sgf-corner {
+            position: absolute;
+            width: 2.6cqmin;
+            height: 2.6cqmin;
+            border: 0 solid var(--sgf-accent);
+          }
+
+          .sgf-corner.tl {
+            left: 0;
+            top: 0;
+            border-left-width: 0.28cqmin;
+            border-top-width: 0.28cqmin;
+          }
+
+          .sgf-corner.tr {
+            right: 0;
+            top: 0;
+            border-right-width: 0.28cqmin;
+            border-top-width: 0.28cqmin;
+          }
+
+          .sgf-corner.bl {
+            left: 0;
+            bottom: 0;
+            border-left-width: 0.28cqmin;
+            border-bottom-width: 0.28cqmin;
+          }
+
+          .sgf-corner.br {
+            right: 0;
+            bottom: 0;
+            border-right-width: 0.28cqmin;
+            border-bottom-width: 0.28cqmin;
+          }
+
+          .sgf-chip {
+            position: absolute;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.9cqmin;
+            padding: 0.7cqmin 1.4cqmin;
+            border: 0.14cqmin solid
+              color-mix(in srgb, var(--sgf-accent) 60%, var(--border, #475569));
+            border-radius: calc(var(--radius, 2cqmin) * 0.4);
+            background: color-mix(in srgb, var(--bg, #0b0c0e) 78%, var(--sgf-accent));
+            color: var(--fg, #f8fafc);
+            font-family: var(--font-mono, ui-monospace, "SF Mono", Menlo, monospace);
+            font-size: 1.9cqmin;
+            font-weight: 500;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            white-space: nowrap;
+            will-change: opacity, transform;
+          }
+
+          .sgf-chip-dot {
+            width: 0.9cqmin;
+            height: 0.9cqmin;
+            border-radius: 50%;
+            background: var(--sgf-accent);
+          }
+        </style>
+
+        <div
+          id="segmentation-flood-clip"
+          class="sgf-clip clip"
+          data-start="0"
+          data-duration="4.5"
+          data-track-index="0"
+        >
+          <div class="sgf-stage">
+            <div class="sgf-subject">
+              <div class="sgf-scene" aria-hidden="true"></div>
+            </div>
+            <canvas class="sgf-canvas" aria-hidden="true"></canvas>
+            <div class="sgf-overlay"></div>
+          </div>
+        </div>
+
+        <script src="../lib/gsap.min.js"></script>
+        <script>
+          (function () {
+            "use strict";
+
+            var root = document.getElementById("root");
+            var stage = root.querySelector(".sgf-stage");
+            var subject = root.querySelector(".sgf-subject");
+            var scene = root.querySelector(".sgf-scene");
+            var canvas = root.querySelector(".sgf-canvas");
+            var overlay = root.querySelector(".sgf-overlay");
+            var vars =
+              window.__hyperframes && window.__hyperframes.getVariables
+                ? window.__hyperframes.getVariables()
+                : {};
+
+            var labels = String(vars.regions == null ? "" : vars.regions)
+              .split(",")
+              .map(function (s) {
+                return s.trim();
+              })
+              .filter(Boolean)
+              .slice(0, 4);
+            if (labels.length < 2) labels = ["Figure", "Signal", "Ground"];
+
+            var floodAtRaw = parseFloat(vars.flood_at);
+            var flicker = vars.flicker !== "off";
+            var accentColors = {
+              green: "var(--brand, #71f5a7)",
+              blue: "var(--accent, #61a8ff)",
+              violet: "var(--accent-2, #c5a3ff)",
+            };
+            var accent = Object.prototype.hasOwnProperty.call(accentColors, vars.accent)
+              ? vars.accent
+              : "green";
+            var exit = vars.exit === "fade" || vars.exit === "up" ? vars.exit : "none";
+            root.style.setProperty("--sgf-accent", accentColors[accent]);
+
+            // Region anchor cells (fractions of the stage), top-left to
+            // bottom-right so the staggered flood reads as one pass.
+            var anchors = [
+              { x: 0.07, y: 0.11, w: 0.34, h: 0.36 },
+              { x: 0.55, y: 0.08, w: 0.37, h: 0.4 },
+              { x: 0.12, y: 0.56, w: 0.3, h: 0.33 },
+              { x: 0.53, y: 0.58, w: 0.36, h: 0.31 },
+            ];
+
+            // SLOT. Caller templates live at HOST DOCUMENT level.
+            var hostDoc = root.ownerDocument;
+            var slotTemplate = null;
+            try {
+              slotTemplate = hostDoc.querySelector(
+                'template[data-slot="segmentation-flood-subject"]',
+              );
+            } catch (error) {
+              slotTemplate = null;
+            }
+            if (slotTemplate) {
+              scene.remove();
+              subject.appendChild(hostDoc.importNode(slotTemplate.content, true));
+            } else {
+              // Default token scene: muted shapes seated inside the region
+              // anchors so the machine-vision read has content to read.
+              for (var s = 0; s < labels.length; s += 1) {
+                var cell = anchors[s];
+                var shape = hostDoc.createElement("div");
+                shape.className = s % 2 === 1 ? "sgf-shape round" : "sgf-shape";
+                shape.style.left = (cell.x + cell.w * 0.16) * 100 + "%";
+                shape.style.top = (cell.y + cell.h * 0.18) * 100 + "%";
+                shape.style.width = cell.w * 0.68 * 100 + "%";
+                shape.style.height = cell.h * 0.64 * 100 + "%";
+                scene.appendChild(shape);
+              }
+            }
+
+            // Envelope. The pass length is fixed by the region count; the
+            // start cue is clamped so pass + exit always fit.
+            var fps = 30;
+            var duration = Math.max(0.001, parseFloat(root.dataset.duration || "4.5"));
+            var OUT = exit === "none" ? 0 : 0.45;
+            var STAGGER = 0.35;
+            var REGION_DUR = 1.0;
+            var CHIP_DUR = 0.3;
+            var passLen = STAGGER * (labels.length - 1) + REGION_DUR + CHIP_DUR;
+            var floodAt = isFinite(floodAtRaw) ? floodAtRaw : 0.8;
+            floodAt = Math.min(
+              Math.max(0.2, floodAt),
+              Math.max(0.2, duration - passLen - OUT - 0.1),
+            );
+            var floodEnd = floodAt + STAGGER * (labels.length - 1) + REGION_DUR;
+            var OUT_START = duration - OUT;
+
+            // Canvas raster basis, fixed once at mount (elastic root: the
+            // host box decides the resolution).
+            var dpr = Math.min(2, Math.max(1, Number(window.devicePixelRatio) || 1));
+            var box = root.getBoundingClientRect();
+            var cssW = Math.max(1, Math.round(box.width) || 640);
+            var cssH = Math.max(1, Math.round(box.height) || 360);
+            canvas.width = Math.round(cssW * dpr);
+            canvas.height = Math.round(cssH * dpr);
+            var ctx = canvas.getContext("2d");
+
+            // Resolve the accent token to a concrete color once at mount so
+            // canvas fills never depend on style recalc during seeks.
+            var probe = hostDoc.createElement("span");
+            probe.style.color = accentColors[accent];
+            root.appendChild(probe);
+            var maskColor = getComputedStyle(probe).color || "#71f5a7";
+            probe.remove();
+
+            // Seeded region table: geometry jitter + per-region flood
+            // quantum (2 or 3 frames) + scanline row count. Computed once;
+            // painted frames are pure functions of (table, time).
+            var regions = (function () {
+              var state = 0x5e6f100d;
+              function next() {
+                state = (Math.imul(1664525, state) + 1013904223) >>> 0;
+                return state / 4294967296;
+              }
+              var rows = [];
+              for (var i = 0; i < labels.length; i += 1) {
+                var a = anchors[i];
+                rows.push({
+                  x: a.x + (next() - 0.5) * 0.02,
+                  y: a.y + (next() - 0.5) * 0.02,
+                  w: a.w * (0.94 + next() * 0.1),
+                  h: a.h * (0.94 + next() * 0.1),
+                  start: floodAt + STAGGER * i,
+                  quantum: next() < 0.5 ? 2 : 3,
+                  rows: 11 + Math.floor(next() * 4),
+                });
+              }
+              return rows;
+            })();
+
+            function clamp01(v) {
+              return v < 0 ? 0 : v > 1 ? 1 : v;
+            }
+
+            // Pure repaint: clear, then draw every mask's arrived rows and
+            // the flicker wash from (table, t). Row arrival quantizes time
+            // to the region's frame quantum, so rows land whole and hold
+            // stable within a step.
+            function paint(t) {
+              ctx.clearRect(0, 0, canvas.width, canvas.height);
+              for (var i = 0; i < regions.length; i += 1) {
+                var r = regions[i];
+                var local = t - r.start;
+                if (local <= 0) continue;
+                var q = r.quantum / fps;
+                var quantized = Math.floor(local / q) * q;
+                var p = clamp01(quantized / REGION_DUR);
+                var visible = Math.min(r.rows, Math.floor(p * r.rows + 1e-6));
+                if (visible <= 0) continue;
+                var rx = r.x * canvas.width;
+                var rw = r.w * canvas.width;
+                var rowH = (r.h * canvas.height) / r.rows;
+                for (var k = 0; k < visible; k += 1) {
+                  var leading = k === visible - 1 && visible < r.rows;
+                  ctx.globalAlpha = leading ? 0.55 : 0.3;
+                  ctx.fillStyle = maskColor;
+                  // A hairline gap between rows keeps the scanline texture.
+                  ctx.fillRect(
+                    rx,
+                    r.y * canvas.height + k * rowH,
+                    rw,
+                    Math.max(1, rowH - Math.max(1, dpr)),
+                  );
+                }
+              }
+              // HUD flicker: pure function of the frame index, active only
+              // while the flood is in flight, gone the instant it settles.
+              if (flicker && t > floodAt && t < floodEnd) {
+                var frame = Math.floor(t * fps);
+                if (Math.floor(frame / 2) % 2 === 1) {
+                  ctx.globalAlpha = 0.05;
+                  ctx.fillStyle = "#ffffff";
+                  ctx.fillRect(0, 0, canvas.width, canvas.height);
+                }
+              }
+              ctx.globalAlpha = 1;
+            }
+
+            // Brackets + chips: DOM, positioned from the seeded table.
+            var frames = [];
+            var chips = [];
+            for (var i = 0; i < regions.length; i += 1) {
+              var r = regions[i];
+              var frameEl = hostDoc.createElement("div");
+              frameEl.className = "sgf-frame";
+              frameEl.style.left = r.x * 100 + "%";
+              frameEl.style.top = r.y * 100 + "%";
+              frameEl.style.width = r.w * 100 + "%";
+              frameEl.style.height = r.h * 100 + "%";
+              ["tl", "tr", "bl", "br"].forEach(function (corner) {
+                var c = hostDoc.createElement("span");
+                c.className = "sgf-corner " + corner;
+                frameEl.appendChild(c);
+              });
+              overlay.appendChild(frameEl);
+              frames.push(frameEl);
+
+              var chip = hostDoc.createElement("div");
+              chip.className = "sgf-chip";
+              chip.style.left = r.x * 100 + "%";
+              // Chips sit above the region; bottom rows drop them inside
+              // the top edge so nothing leaves the stage.
+              if (r.y > 0.08) {
+                chip.style.top = "calc(" + r.y * 100 + "% - 3.9cqmin)";
+              } else {
+                chip.style.top = "calc(" + r.y * 100 + "% + 1cqmin)";
+              }
+              var dot = hostDoc.createElement("span");
+              dot.className = "sgf-chip-dot";
+              chip.appendChild(dot);
+              chip.appendChild(hostDoc.createTextNode(labels[i]));
+              overlay.appendChild(chip);
+              chips.push(chip);
+            }
+
+            gsap.set(stage, { opacity: 1, y: "0cqh" });
+            gsap.set(subject, { opacity: 0 });
+
+            var tl = gsap.timeline({
+              paused: true,
+              onUpdate: function () {
+                paint(tl.time());
+              },
+            });
+
+            // Anchor tween: an inert plain-object tween spanning the full
+            // authored duration so tl.time() covers [0, D] and onUpdate
+            // repaints the canvas on every eventful seek.
+            tl.to({ p: 0 }, { p: 1, duration: duration, ease: "none" }, 0);
+
+            // IN: the subject settles up quietly before the read begins.
+            tl.fromTo(
+              subject,
+              { opacity: 0 },
+              { opacity: 1, duration: 0.5, ease: "power2.out" },
+              0,
+            );
+
+            // Each region's bracket + chip land as its mask completes.
+            for (var i = 0; i < regions.length; i += 1) {
+              var done = regions[i].start + REGION_DUR;
+              tl.fromTo(
+                frames[i],
+                { opacity: 0 },
+                { opacity: 1, duration: 0.22, ease: "power2.out" },
+                done - 0.16,
+              );
+              tl.fromTo(
+                chips[i],
+                { opacity: 0, y: "0.8cqh" },
+                { opacity: 1, y: "0cqh", duration: CHIP_DUR, ease: "power2.out" },
+                done,
+              );
+            }
+
+            // HOLD: truly still; the flood is complete, the flicker window
+            // is closed, and the canvas repaints the same settled read.
+
+            // OUT: optional departure; exit none holds until the frame cuts.
+            if (exit === "up") {
+              tl.to(stage, { y: "-4cqh", duration: OUT, ease: "power2.in" }, OUT_START);
+              tl.to(stage, { opacity: 0, duration: OUT, ease: "power2.in" }, OUT_START);
+            } else if (exit === "fade") {
+              tl.to(stage, { opacity: 0, duration: OUT, ease: "power2.in" }, OUT_START);
+            }
+
+            tl.seek(0);
+            paint(0);
+            window.__timelines = window.__timelines || {};
+            window.__timelines["segmentation-flood"] = tl;
+          })();
+        </script>
+      </div>
+    </div>
+    </div>
+
+    <script src="../lib/gsap.min.js"></script>
+    <script>
+      window.__timelines = window.__timelines || {};
+      window.__timelines["segmentation-flood-demo"] = gsap.timeline({ paused: true });
+    </script>
+  </div>
+<script>window.__popostFit();</script>
+</body>
+</html>

@@ -1,0 +1,157 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Particle burst, confetti, sparks and shockwave</title>
+<style>
+  html, body { margin: 0; width: 1280px; height: 720px; overflow: hidden; }
+
+</style></head>
+<body>
+
+  <script type="application/json" id="popost-params">
+{
+ "about": "A burst from a point: dots or stars that fly out, slow and fall; confetti that is thrown up, flutters and falls; sparks thrown one way; and a ring that spreads from the same point. All seeded: the same on every render.",
+ "class": "particles",
+ "seconds": 2.6,
+ "tags": [
+  "particles",
+  "burst",
+  "confetti",
+  "sparks",
+  "shockwave",
+  "explosion",
+  "celebrate",
+  "fireworks"
+ ],
+ "params": [
+  {
+   "name": "kind",
+   "type": "choice",
+   "default": "confetti",
+   "options": [
+    "burst",
+    "stars",
+    "confetti",
+    "sparks"
+   ],
+   "what": "what flies"
+  },
+  {
+   "name": "x",
+   "type": "number",
+   "default": 0.5,
+   "min": 0,
+   "max": 1,
+   "what": "where it starts, across",
+   "unit": "fraction of the canvas width"
+  },
+  {
+   "name": "y",
+   "type": "number",
+   "default": 0.62,
+   "min": 0,
+   "max": 1,
+   "what": "where it starts, down",
+   "unit": "fraction of the canvas height"
+  },
+  {
+   "name": "count",
+   "type": "number",
+   "default": 70,
+   "min": 4,
+   "max": 400,
+   "what": "how many pieces"
+  },
+  {
+   "name": "speed",
+   "type": "number",
+   "default": 1.4,
+   "min": 0.1,
+   "max": 5,
+   "what": "how fast they leave",
+   "unit": "canvas heights a second"
+  },
+  {
+   "name": "gravity",
+   "type": "number",
+   "default": 1.2,
+   "min": 0,
+   "max": 5,
+   "what": "how hard they fall",
+   "unit": "canvas heights a second squared"
+  },
+  {
+   "name": "spread",
+   "type": "number",
+   "default": 70,
+   "min": 5,
+   "max": 360,
+   "what": "the opening of the fan",
+   "unit": "degrees"
+  },
+  {
+   "name": "angle",
+   "type": "number",
+   "default": -90,
+   "min": -180,
+   "max": 180,
+   "what": "the middle of the fan: -90 is up",
+   "unit": "degrees"
+  },
+  {
+   "name": "life",
+   "type": "number",
+   "default": 2.2,
+   "min": 0.2,
+   "max": 8,
+   "what": "how long a piece lives",
+   "unit": "seconds"
+  },
+  {
+   "name": "ring",
+   "type": "choice",
+   "default": "on",
+   "options": [
+    "on",
+    "off"
+   ],
+   "what": "the ring that spreads from the start"
+  },
+  {
+   "name": "seed",
+   "type": "number",
+   "default": 5,
+   "min": 1,
+   "max": 999,
+   "what": "which throw"
+  },
+  {
+   "name": "ground",
+   "type": "colour",
+   "default": "#10002b",
+   "what": "the background"
+  },
+  {
+   "name": "delay",
+   "type": "number",
+   "default": 0.2,
+   "min": 0,
+   "max": 20,
+   "unit": "seconds",
+   "what": "when the effect starts, from the start of the shot"
+  }
+ ],
+ "values": {}
+}
+  </script>
+  <script src="../lib/popost-motion.js"></script>
+  <script>
+    // The parameters of this copy: the declared defaults, then what "values" sets.
+    var P = (function () { var b = JSON.parse(document.getElementById('popost-params').textContent), v = {}; b.params.forEach(function (p) { v[p.name] = p['default']; }); for (var k in b.values) v[k] = b.values[k]; return v; })();
+    // The canvas, from the size this file declares for html and body: a scene of a later shot loads in a layer that
+    // is not displayed, where the page itself measures 0 until its first frame.
+    var SIZE = /html, body \{ margin: 0; width: (\d+)px; height: (\d+)px;/.exec(document.querySelector('style').textContent), W = Number(SIZE[1]), H = Number(SIZE[2]), U = Math.min(W, H) / 720;
+    var M = popostMotion, x = P.x * W, y = P.y * H, o = { at: P.delay, x: x, y: y, count: P.count, speed: P.speed * H, gravity: P.gravity * H, spread: P.spread, angle: P.angle, life: P.life, seed: P.seed, size: 14 * U };
+    document.body.style.background = P.ground;
+    if (P.ring === 'on') M.shockwave({ at: P.delay, x: x, y: y, radius: 0.34 * H, width: 12 * U, cue: false });
+    if (P.kind === 'confetti') M.confetti(o); else if (P.kind === 'sparks') M.sparks(o); else M.burst(Object.assign(o, { shape: P.kind === 'stars' ? 'star' : 'dot' }));
+  </script>
+</body></html>

@@ -1,0 +1,479 @@
+<!doctype html>
+<!--
+  Adapted from HyperFrames (https://github.com/heygen-com/hyperframes), registry/components/titlecard-lockup, commit a8332860c396e9224d42b7ea2a9cc8f42918c961.
+  Copyright 2026 HeyGen, Inc. Licensed under the Apache License, Version 2.0; the licence text is in the popost
+  Skill's THIRD_PARTY_NOTICES. Changed for the popost Skill (tools/video/port-hyperframes.mjs): its comments removed; the composition it mounts (titlecard-lockup.html) put into the page; GSAP loaded from the project (../lib/gsap.min.js) instead of a CDN; the 1920x1080 composition scaled into the scene's canvas (parameter "fit"); HyperFrames variables declared as parameters; its clips shown and hidden from the scene's time; sound cues derived from its tweens.
+-->
+
+<html data-composition-variables='[
+    { "id": "wordmark", "type": "string", "role": "content", "label": "Wordmark", "description": "Display wordmark that settles dead-center.", "default": "HYPERFRAMES" },
+    { "id": "label", "type": "string", "role": "content", "label": "Label", "description": "Mono caption under the rule. Empty hides it.", "default": "WRITE HTML. RENDER VIDEO." },
+    { "id": "kicker", "type": "string", "role": "content", "label": "Kicker", "description": "Small mono label above the wordmark. Empty hides it.", "default": "INTRODUCING" },
+    { "id": "rule", "type": "enum", "role": "style", "label": "Rule", "description": "Hairline rule drawn left to right under the wordmark.", "default": "show", "options": [{ "value": "show", "label": "Show" }, { "value": "hide", "label": "Hide" }] },
+    { "id": "accent", "type": "enum", "role": "style", "label": "Accent", "description": "Contract color carried by the hairline rule.", "default": "green", "options": [{ "value": "green", "label": "Green" }, { "value": "blue", "label": "Blue" }, { "value": "violet", "label": "Violet" }] },
+    { "id": "exit", "type": "enum", "role": "style", "label": "Exit", "description": "Optional departure. Frame roots own transitions, so none is the default.", "default": "none", "options": [{ "value": "none", "label": "None" }, { "value": "fade", "label": "Fade" }, { "value": "up", "label": "Up" }] }
+  ]' lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>titlecard-lockup Demo</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: var(--bg, #f4f6f9);
+      }
+
+      #root {
+        --bg: #f4f6f9;
+        --fg: #14161b;
+        --surface: #ffffff;
+        --border: #dfe4ec;
+        --brand: #1d4ed8;
+        --accent: #0284c7;
+        --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: radial-gradient(ellipse at 50% 40%, #ffffff 0%, var(--bg, #f4f6f9) 70%);
+      }
+
+      .mount-stage {
+        width: 100%;
+        height: 100%;
+        left: 0;
+        top: 0;
+        container-type: size;
+        overflow: hidden;
+      }
+    </style>
+  <style id="popost-fit">
+  html, body { margin: 0 !important; width: 1280px; height: 720px; overflow: hidden !important; background: #000000; }
+  #popost-stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden; }
+</style>
+<script type="application/json" id="popost-params">
+{
+ "about": "The calm breather titlecard: an optional mono kicker fades up, the wordmark settles dead-center with one restrained move, a hairline rule draws left to right, a mono label fades beneath, and the lockup holds truly still.",
+ "class": "logo",
+ "tags": [
+  "motion-primitive",
+  "typography",
+  "title-card",
+  "lockup",
+  "breather",
+  "orient"
+ ],
+ "seconds": 1.8,
+ "params": [
+  {
+   "name": "fit",
+   "type": "choice",
+   "default": "contain",
+   "options": [
+    "contain",
+    "cover"
+   ],
+   "what": "how the 1920x1080 composition is fitted into the canvas: whole with bars, or filling it and cropped"
+  },
+  {
+   "name": "wordmark",
+   "type": "text",
+   "default": "HYPERFRAMES",
+   "maxLength": 200,
+   "what": "Display wordmark that settles dead-center."
+  },
+  {
+   "name": "label",
+   "type": "text",
+   "default": "WRITE HTML. RENDER VIDEO.",
+   "maxLength": 200,
+   "what": "Mono caption under the rule. Empty hides it."
+  },
+  {
+   "name": "kicker",
+   "type": "text",
+   "default": "INTRODUCING",
+   "maxLength": 200,
+   "what": "Small mono label above the wordmark. Empty hides it."
+  },
+  {
+   "name": "rule",
+   "type": "choice",
+   "default": "show",
+   "options": [
+    "show",
+    "hide"
+   ],
+   "what": "Hairline rule drawn left to right under the wordmark."
+  },
+  {
+   "name": "accent",
+   "type": "choice",
+   "default": "green",
+   "options": [
+    "green",
+    "blue",
+    "violet"
+   ],
+   "what": "Contract color carried by the hairline rule."
+  },
+  {
+   "name": "exit",
+   "type": "choice",
+   "default": "none",
+   "options": [
+    "none",
+    "fade",
+    "up"
+   ],
+   "what": "Optional departure. Frame roots own transitions, so none is the default."
+  }
+ ],
+ "values": {}
+}
+</script>
+<script>
+  /* popost: the scene's parameters stand in for HyperFrames variables; random numbers are seeded; the composition is
+     scaled into the canvas; clips are shown and hidden from the scene's time. */
+  (function () {
+    var block = document.getElementById('popost-params');
+    var values = block ? (JSON.parse(block.textContent).values || {}) : {};
+    var vars = {"wordmark":"NORTH","label":"SECURE AGENTS PLATFORM","kicker":"MEET","accent":"green"};
+    Object.keys(values).forEach(function (k) { if (k !== 'fit') vars[k] = values[k] === 'true' ? true : values[k] === 'false' ? false : values[k]; });
+    window.__hyperframes = { getVariables: function () { return vars; } };
+    var seed = 20240229;
+    window.__popostRandom = function () { seed = (seed + 0x6d2b79f5) >>> 0; var t = seed; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+    window.__popostFit = function () {
+      // The canvas, from the size this file declares: a scene of a later shot loads in a layer that is not displayed, where the page measures 0.
+      var size = /width: (\d+)px; height: (\d+)px;/.exec(document.getElementById('popost-fit').textContent);
+      var W = 1920, H = 1080, s = document.getElementById('popost-stage'), cw = Number(size[1]), ch = Number(size[2]);
+      var k = (values.fit === 'cover' ? Math.max : Math.min)(cw / W, ch / H);
+      s.style.transform = 'translate(' + (cw - W * k) / 2 + 'px,' + (ch - H * k) / 2 + 'px) scale(' + k + ')';
+      var clips = Array.prototype.slice.call(s.querySelectorAll('.clip[data-start]')).filter(function (c) { return isFinite(parseFloat(c.getAttribute('data-start'))) && c.parentNode !== s; });
+      // A mounted composition that starts later in its host runs on its own time.
+      [].forEach(function (m) {
+        var tl = window.__timelines && window.__timelines[m.id];
+        if (tl) window.__timelines[m.id] = { pause: function () { tl.pause(); }, seek: function (t) { tl.seek(Math.max(0, t - m.start)); }, duration: function () { return tl.duration() + m.start; } };
+      });
+      var scene = (window.__popostScene = window.__popostScene || {}), before = scene.render;
+      scene.render = function (seconds, fps) {
+        if (before) before(seconds, fps);
+        for (var i = 0; i < clips.length; i++) {
+          var a = parseFloat(clips[i].getAttribute('data-start')), d = parseFloat(clips[i].getAttribute('data-duration'));
+          clips[i].style.visibility = seconds >= a && (!isFinite(d) || seconds < a + d) ? 'visible' : 'hidden';
+        }
+      };
+    };
+  })();
+</script>
+<script type="application/json" id="popost-cues">[{"at":0.9,"cue":"draw","gain":0.45}]</script>
+</head>
+  <body>
+<div id="popost-stage">
+    <div
+      id="root"
+      data-composition-id="titlecard-lockup-demo"
+      data-start="0"
+      data-width="1920"
+      data-height="1080"
+      data-duration="4"
+      data-fps="30"
+    >
+      <div
+        id="titlecard-lockup-mount"
+        class="mount-stage clip"
+        data-composition-id="titlecard-lockup"
+       
+        data-variable-values='{"wordmark":"NORTH","label":"SECURE AGENTS PLATFORM","kicker":"MEET","accent":"green"}'
+        data-start="0"
+        data-duration="4"
+        data-track-index="0"
+        data-width="1920"
+        data-height="1080"
+      >
+      <div id="root" data-composition-id="titlecard-lockup" data-duration="4" data-fps="30">
+        <style>
+          *,
+          *::before,
+          *::after {
+            box-sizing: border-box;
+          }
+
+          #root {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            container-type: size;
+            isolation: isolate;
+            color: var(--fg, #f8fafc);
+            font-family: var(--font-display, Inter, system-ui, sans-serif);
+            pointer-events: none;
+          }
+
+          #root [hidden] {
+            display: none !important;
+          }
+
+          .tl-clip {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+            background: var(--bg, #0b0c0e);
+          }
+
+          .tl-lockup {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 92cqw;
+            text-align: center;
+            will-change: transform, opacity;
+          }
+
+          .tl-kicker {
+            display: block;
+            margin-bottom: var(--space-2, 3.4cqh);
+            /* Light-safe ink derived from the host's own fg/bg instead of
+               --muted (whose fallback is dark-tuned and fails contrast on
+               light hosts). 62% fg clears 4.5:1 on both dark and light. */
+            color: color-mix(in srgb, var(--fg, #f8fafc) 62%, var(--bg, #0b0c0e));
+            font-family: var(--font-mono, ui-monospace, "SF Mono", Menlo, Consolas, monospace);
+            font-size: 2.6cqmin;
+            font-weight: 600;
+            line-height: 1;
+            letter-spacing: 0.3em;
+            text-indent: 0.3em; /* balances the trailing tracking so the line optically centers */
+            text-transform: uppercase;
+            will-change: transform, opacity;
+          }
+
+          .tl-wordmark {
+            display: block;
+            max-width: 92cqw;
+            color: var(--fg, #f8fafc);
+            font-family: var(--font-display, Inter, system-ui, sans-serif);
+            font-size: var(--tl-wordmark-size, min(14cqw, 22cqh));
+            font-weight: 600;
+            line-height: 1;
+            letter-spacing: -0.03em;
+            white-space: nowrap;
+            transform-origin: 50% 50%;
+            will-change: transform, opacity;
+          }
+
+          .tl-rule-svg {
+            display: block;
+            width: 34cqw;
+            height: max(1px, 0.2cqmin);
+            margin-top: var(--space-2, 4cqh);
+          }
+
+          .tl-rule-svg line {
+            stroke: color-mix(
+              in srgb,
+              var(--tl-accent, var(--brand, #71f5a7)) 60%,
+              var(--fg, #f8fafc)
+            );
+            stroke-width: 2;
+            stroke-opacity: 0.62;
+          }
+
+          .tl-label {
+            display: block;
+            margin-top: var(--space-2, 3.2cqh);
+            /* Same fg/bg-derived ink as the kicker: contrast-safe on any host. */
+            color: color-mix(in srgb, var(--fg, #f8fafc) 62%, var(--bg, #0b0c0e));
+            font-family: var(--font-mono, ui-monospace, "SF Mono", Menlo, Consolas, monospace);
+            font-size: 2.2cqmin;
+            font-weight: 600;
+            line-height: 1.4;
+            letter-spacing: 0.34em;
+            text-indent: 0.34em;
+            text-transform: uppercase;
+            will-change: transform, opacity;
+          }
+        </style>
+
+        <div
+          id="titlecard-lockup-clip"
+          class="tl-clip clip"
+          data-start="0"
+          data-duration="4"
+          data-track-index="0"
+        >
+          <div class="tl-lockup">
+            <span class="tl-kicker"></span>
+            <span class="tl-wordmark"></span>
+            <svg
+              class="tl-rule-svg"
+              viewBox="0 0 560 2"
+              preserveAspectRatio="none"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
+              <line class="tl-rule" x1="0" y1="1" x2="560" y2="1" />
+            </svg>
+            <span class="tl-label"></span>
+          </div>
+        </div>
+
+        <script src="../lib/gsap.min.js"></script>
+        <script>
+          (function () {
+            "use strict";
+
+            var root = document.getElementById("root");
+            var lockup = root.querySelector(".tl-lockup");
+            var kicker = root.querySelector(".tl-kicker");
+            var wordmark = root.querySelector(".tl-wordmark");
+            var ruleSvg = root.querySelector(".tl-rule-svg");
+            var ruleLine = root.querySelector(".tl-rule");
+            var label = root.querySelector(".tl-label");
+            var vars =
+              window.__hyperframes && window.__hyperframes.getVariables
+                ? window.__hyperframes.getVariables()
+                : {};
+
+            function readText(value, fallback) {
+              if (value == null) return fallback;
+              return String(value).trim().replace(/\s+/g, " ");
+            }
+
+            var wordmarkText = readText(vars.wordmark, "HYPERFRAMES");
+            var labelText = readText(vars.label, "WRITE HTML. RENDER VIDEO.");
+            var kickerText = readText(vars.kicker, "INTRODUCING");
+            var ruleShown = vars.rule !== "hide";
+            var accentColors = {
+              green: "var(--brand, #71f5a7)",
+              blue: "var(--accent, #61a8ff)",
+              violet: "var(--accent-2, #c5a3ff)",
+            };
+            var accent = Object.prototype.hasOwnProperty.call(accentColors, vars.accent)
+              ? vars.accent
+              : "green";
+            var exit = vars.exit === "fade" || vars.exit === "up" ? vars.exit : "none";
+
+            wordmark.textContent = wordmarkText;
+            lockup.setAttribute("aria-label", wordmarkText);
+            root.style.setProperty("--tl-accent", accentColors[accent]);
+
+            if (kickerText) kicker.textContent = kickerText;
+            else kicker.setAttribute("hidden", "hidden");
+            if (labelText) label.textContent = labelText;
+            else label.setAttribute("hidden", "hidden");
+            if (!ruleShown) ruleSvg.setAttribute("hidden", "hidden");
+
+            // Deterministic character-count fit keeps the wordmark on one line
+            // with air on both sides before the template is laid out. The 0.78
+            // advance estimate is conservative so wide themed display faces
+            // (serifs) still fit inside the frame.
+            var characters = Math.max(1, Array.from(wordmarkText).length);
+            var fittedCqw = Math.min(12, 84 / (characters * 0.78));
+            root.style.setProperty(
+              "--tl-wordmark-size",
+              "min(" + fittedCqw.toFixed(3) + "cqw, 22cqh)",
+            );
+
+            var IN_BASE = 1.8;
+            var OUT_BASE = exit === "none" ? 0 : 0.5;
+            var parsedDuration = Number.parseFloat(root.dataset.duration);
+            var duration = Number.isFinite(parsedDuration) ? Math.max(0.001, parsedDuration) : 4;
+            var totalBase = IN_BASE + OUT_BASE;
+            var phaseScale = duration < totalBase ? duration / totalBase : 1;
+            var IN = IN_BASE * phaseScale;
+            var OUT = OUT_BASE * phaseScale;
+            var HOLD = Math.max(0, duration - IN - OUT);
+            var OUT_START = IN + HOLD;
+            var KICKER_IN = 0.45 * phaseScale;
+            var WORD_AT = 0.25 * phaseScale;
+            var WORD_IN = 0.85 * phaseScale;
+            var RULE_AT = 0.9 * phaseScale;
+            var RULE_IN = 0.55 * phaseScale;
+            var LABEL_AT = 1.3 * phaseScale;
+            var LABEL_IN = 0.5 * phaseScale;
+
+            var tl = gsap.timeline({ paused: true });
+
+            // Optional kicker fades up first. An empty kicker leaves a beat of
+            // quiet instead of reflowing the schedule.
+            if (kickerText) {
+              tl.fromTo(
+                kicker,
+                { autoAlpha: 0, y: "2.2cqh" },
+                { autoAlpha: 1, y: "0cqh", duration: KICKER_IN, ease: "power2.out" },
+                0,
+              );
+            }
+
+            // The ONE move: the wordmark settles dead-center, scale 0.96 to 1,
+            // smooth ease-out, entrance half only, no bounce.
+            tl.fromTo(
+              wordmark,
+              { autoAlpha: 0, scale: 0.96 },
+              { autoAlpha: 1, scale: 1, duration: WORD_IN, ease: "power3.out" },
+              WORD_AT,
+            );
+
+            // Hairline rule draws left to right via measured-length dash.
+            if (ruleShown) {
+              var ruleLength = ruleLine.getTotalLength();
+              ruleLine.style.strokeDasharray = String(ruleLength);
+              ruleLine.style.strokeDashoffset = String(ruleLength);
+              tl.fromTo(
+                ruleLine,
+                { strokeDashoffset: ruleLength },
+                { strokeDashoffset: 0, duration: RULE_IN, ease: "power2.out" },
+                RULE_AT,
+              );
+            }
+
+            // Mono label fades up beneath the rule.
+            if (labelText) {
+              tl.fromTo(
+                label,
+                { autoAlpha: 0, y: "1.8cqh" },
+                { autoAlpha: 1, y: "0cqh", duration: LABEL_IN, ease: "power2.out" },
+                LABEL_AT,
+              );
+            }
+
+            // TRUE hold: dead still. No drift, no breath; sub-perceptual
+            // motion reads as noise at 1080p, and the stillness is the point.
+
+            // Optional exit. Frame roots own transitions; none is the default
+            // and leaves the held lockup as the final frame.
+            if (exit !== "none") {
+              var exitProps = { autoAlpha: 0, duration: OUT, ease: "power2.in" };
+              if (exit === "up") exitProps.y = "-2.4cqh";
+              tl.to(lockup, exitProps, OUT_START);
+            }
+
+            tl.seek(0);
+            window.__timelines = window.__timelines || {};
+            window.__timelines["titlecard-lockup"] = tl;
+          })();
+        </script>
+      </div>
+    </div>
+    </div>
+
+    <script src="../lib/gsap.min.js"></script>
+    <script>
+      window.__timelines = window.__timelines || {};
+      window.__timelines["titlecard-lockup-demo"] = gsap.timeline({ paused: true });
+    </script>
+  </div>
+<script>window.__popostFit();</script>
+</body>
+</html>

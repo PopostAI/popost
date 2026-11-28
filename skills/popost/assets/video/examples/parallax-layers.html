@@ -1,0 +1,130 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Camera move over layers at different depths</title>
+<style>
+  html, body { margin: 0; width: 1280px; height: 720px; overflow: hidden; }
+  .layer { position: absolute; left: -15%; top: -15%; width: 130%; height: 130%; }
+  .hill { position: absolute; border-radius: 50%; }
+  #title { position: absolute; left: 0; top: 34%; width: 100%; text-align: center; color: #ffffff; font: 900 150px/1 "Noto Sans", "Noto Sans CJK SC", sans-serif; text-shadow: 0 6px 0 rgba(0, 0, 0, 0.2); }
+</style></head>
+<body>
+<div class="layer" id="l0"></div><div class="layer" id="l1"></div><div class="layer" id="l2"></div><div class="layer" id="l3"></div>
+  <div id="title" data-slot="title"></div>
+  <script type="application/json" id="popost-params">
+{
+ "about": "One camera move over layers at different depths: the far layers move least, the near ones most, and the whole scene grows a little. The move lasts the whole shot (an ambient layer); a title lands in front and stays still.",
+ "class": "camera",
+ "seconds": 5,
+ "tags": [
+  "parallax",
+  "camera",
+  "depth",
+  "layers",
+  "pan",
+  "zoom",
+  "ken burns",
+  "ambient"
+ ],
+ "params": [
+  {
+   "name": "title",
+   "type": "text",
+   "default": "Depth",
+   "maxLength": 30,
+   "what": "the title in front"
+  },
+  {
+   "name": "panX",
+   "type": "number",
+   "default": -0.12,
+   "min": -1,
+   "max": 1,
+   "what": "how far the camera travels across",
+   "unit": "fraction of the canvas width, for the nearest layer"
+  },
+  {
+   "name": "panY",
+   "type": "number",
+   "default": 0,
+   "min": -1,
+   "max": 1,
+   "what": "how far it travels down",
+   "unit": "fraction of the canvas height"
+  },
+  {
+   "name": "zoom",
+   "type": "number",
+   "default": 1.08,
+   "min": 0.5,
+   "max": 2,
+   "what": "how much the scene grows by the end"
+  },
+  {
+   "name": "duration",
+   "type": "number",
+   "default": 5,
+   "min": 0.5,
+   "max": 60,
+   "what": "the length of the camera move",
+   "unit": "seconds"
+  },
+  {
+   "name": "ease",
+   "type": "choice",
+   "default": "sine.inOut",
+   "options": [
+    "linear",
+    "sine.inOut",
+    "power2.inOut",
+    "power2.out"
+   ],
+   "what": "the camera's speed"
+  },
+  {
+   "name": "sky",
+   "type": "colour",
+   "default": "#264653",
+   "what": "the far ground"
+  },
+  {
+   "name": "mid",
+   "type": "colour",
+   "default": "#2a9d8f",
+   "what": "the middle layers"
+  },
+  {
+   "name": "near",
+   "type": "colour",
+   "default": "#e9c46a",
+   "what": "the near layer"
+  },
+  {
+   "name": "delay",
+   "type": "number",
+   "default": 0.2,
+   "min": 0,
+   "max": 20,
+   "unit": "seconds",
+   "what": "when the effect starts, from the start of the shot"
+  }
+ ],
+ "values": {}
+}
+  </script>
+  <script src="../lib/popost-motion.js"></script>
+  <script>
+    // The parameters of this copy: the declared defaults, then what "values" sets.
+    var P = (function () { var b = JSON.parse(document.getElementById('popost-params').textContent), v = {}; b.params.forEach(function (p) { v[p.name] = p['default']; }); for (var k in b.values) v[k] = b.values[k]; return v; })();
+    // The canvas, from the size this file declares for html and body: a scene of a later shot loads in a layer that
+    // is not displayed, where the page itself measures 0 until its first frame.
+    var SIZE = /html, body \{ margin: 0; width: (\d+)px; height: (\d+)px;/.exec(document.querySelector('style').textContent), W = Number(SIZE[1]), H = Number(SIZE[2]), U = Math.min(W, H) / 720;
+    var M = popostMotion, r = M.rng(8), title = document.getElementById('title');
+    document.body.style.background = P.sky; title.textContent = P.title; title.style.fontSize = 0.2 * H + 'px';
+    // Drawn stand-ins: discs as hills and suns, larger and lower on the nearer layers. Put your own pictures into the layers.
+    [['l0', P.mid, 0.25, 5, 0.2], ['l1', P.mid, 0.45, 4, 0.5], ['l2', P.near, 0.7, 4, 0.85], ['l3', P.near, 1, 3, 1.2]].forEach(function (L, k) {
+      var host = document.getElementById(L[0]);
+      for (var i = 0; i < L[3]; i++) { var d = document.createElement('div'), s = (0.25 + 0.5 * L[2]) * H * (0.7 + 0.6 * r()); d.className = 'hill'; d.style.width = s * 1.8 + 'px'; d.style.height = s + 'px'; d.style.left = (i / L[3]) * 100 + r() * 12 + '%'; d.style.top = 62 + k * 9 + r() * 6 + '%'; d.style.background = L[1]; d.style.opacity = 0.35 + 0.2 * k; host.appendChild(d); }
+    });
+    M.parallax([{ el: '#l0', depth: 0.2 }, { el: '#l1', depth: 0.45 }, { el: '#l2', depth: 0.75 }, { el: '#l3', depth: 1.2 }], { at: 0, 'for': P.duration, to: [P.panX * W, P.panY * H], zoom: P.zoom, ease: P.ease });
+    M.tween('#title', { at: P.delay, 'for': 0.6, ease: 'expo.out', from: { y: 40 * U, opacity: 0, blur: 8 }, to: {}, cue: 'swish' });
+  </script>
+</body></html>

@@ -1,0 +1,137 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Kinetic type</title>
+<style>
+  html, body { margin: 0; width: 1280px; height: 720px; overflow: hidden; }
+  #line { position: absolute; left: 8%; width: 84%; top: 0; height: 100%; display: flex; align-items: center; justify-content: center; text-align: center; }
+  #text { font: 900 86px/1.15 "Noto Sans", "Noto Sans CJK SC", sans-serif; letter-spacing: -0.01em; }
+</style></head>
+<body>
+<div id="line"><div id="text" data-slot="text"></div></div>
+  <script type="application/json" id="popost-params">
+{
+ "about": "A line of type that arrives piece by piece: by word, by character or by line, each piece rising, dropping, sharpening out of a blur, scaling, popping or slamming in. The line lands and then stays still.",
+ "class": "text",
+ "seconds": 2.6,
+ "tags": [
+  "kinetic",
+  "typography",
+  "words",
+  "letters",
+  "title",
+  "stagger",
+  "headline",
+  "caption"
+ ],
+ "params": [
+  {
+   "name": "text",
+   "type": "text",
+   "default": "Make it move with meaning",
+   "maxLength": 80,
+   "what": "the line"
+  },
+  {
+   "name": "by",
+   "type": "choice",
+   "default": "words",
+   "options": [
+    "words",
+    "chars",
+    "lines"
+   ],
+   "what": "what arrives one after another"
+  },
+  {
+   "name": "enter",
+   "type": "choice",
+   "default": "rise",
+   "options": [
+    "rise",
+    "drop",
+    "blur",
+    "scale",
+    "fade",
+    "left",
+    "right",
+    "turn",
+    "pop",
+    "slam"
+   ],
+   "what": "how each piece arrives"
+  },
+  {
+   "name": "each",
+   "type": "number",
+   "default": 0.09,
+   "min": 0.01,
+   "max": 1,
+   "what": "the time between two pieces",
+   "unit": "seconds"
+  },
+  {
+   "name": "order",
+   "type": "choice",
+   "default": "start",
+   "options": [
+    "start",
+    "end",
+    "center",
+    "edges",
+    "random"
+   ],
+   "what": "which piece comes first"
+  },
+  {
+   "name": "size",
+   "type": "number",
+   "default": 0.12,
+   "min": 0.03,
+   "max": 0.4,
+   "what": "the size of the type",
+   "unit": "fraction of the canvas height"
+  },
+  {
+   "name": "color",
+   "type": "colour",
+   "default": "#f1faee",
+   "what": "the type"
+  },
+  {
+   "name": "accent",
+   "type": "colour",
+   "default": "#e63946",
+   "what": "the last word"
+  },
+  {
+   "name": "ground",
+   "type": "colour",
+   "default": "#1d3557",
+   "what": "the background"
+  },
+  {
+   "name": "delay",
+   "type": "number",
+   "default": 0.2,
+   "min": 0,
+   "max": 20,
+   "unit": "seconds",
+   "what": "when the effect starts, from the start of the shot"
+  }
+ ],
+ "values": {}
+}
+  </script>
+  <script src="../lib/popost-motion.js"></script>
+  <script>
+    // The parameters of this copy: the declared defaults, then what "values" sets.
+    var P = (function () { var b = JSON.parse(document.getElementById('popost-params').textContent), v = {}; b.params.forEach(function (p) { v[p.name] = p['default']; }); for (var k in b.values) v[k] = b.values[k]; return v; })();
+    // The canvas, from the size this file declares for html and body: a scene of a later shot loads in a layer that
+    // is not displayed, where the page itself measures 0 until its first frame.
+    var SIZE = /html, body \{ margin: 0; width: (\d+)px; height: (\d+)px;/.exec(document.querySelector('style').textContent), W = Number(SIZE[1]), H = Number(SIZE[2]), U = Math.min(W, H) / 720;
+    var M = popostMotion, el = document.getElementById('text');
+    document.body.style.background = P.ground; el.textContent = P.text; el.style.color = P.color; el.style.fontSize = P.size * H + 'px';
+    var made = M.kinetic('#text', { at: P.delay, by: P.by, enter: P.enter, each: P.each, order: P.order });
+    // One accent: the last word (or the last piece), which carries the meaning.
+    var spans = M.split('#text', P.by); if (spans.length) (P.by === 'chars' ? spans[spans.length - 1].parentNode : spans[spans.length - 1]).style.color = P.accent;
+  </script>
+</body></html>

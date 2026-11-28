@@ -21,7 +21,7 @@ Third-party attributions (Skill workflow, html-deck) stay in place until the der
 
 | Check | Result |
 |---|---|
-| Skill tests `skills/popost/tests/run_all_tests.py` | 193 total, 191 pass, 1 fail, 1 error — both environmental: `test_provider.test_dry_run_no_ledger_no_charge` needs the `clipcat` CLI on PATH; `test_strict_contract.test_real_dom_probe_and_review_bind` needs Playwright's bundled Chromium |
+| Skill tests `skills/popost/tests/run_all_tests.py` | 193 total, 191 pass, 1 fail, 1 error — both environmental: `test_provider.test_dry_run_no_ledger_no_charge` needs an external generator CLI on PATH; `test_strict_contract.test_real_dom_probe_and_review_bind` needs Playwright's bundled Chromium |
 | Frontend `npm run typecheck` | exit 0 |
 | Frontend `npx eslint src` | 0 errors, 8 warnings |
 | Frontend build | see "Known issue" — use `npm run sync:fonts && npx vite build` |
@@ -78,8 +78,8 @@ html-deck's own source files. Product-team files inside the vendored folder (`br
 - 2026-10-30 — T4a started: browser smoke of `main` vs branch builds (Sonnet sub-agent).
 - 2026-10-30 — `htmlmixed.js` restored by the user from macOS (`git checkout -- …`); file identical to `public/vendor/html-deck` again.
 - 2026-10-30 — T2 done and reviewed. Verification on the real working tree:
-  - Skill tests: 115 total, 114 pass, 1 fail = the same environmental `test_provider.test_dry_run_no_ledger_no_charge` (no `clipcat`
-    CLI) as in the baseline. The 78 removed tests belonged only to deleted modules. Create (concept → design → assets) and
+  - Skill tests: 115 total, 114 pass, 1 fail = the same environmental `test_provider.test_dry_run_no_ledger_no_charge` (no external
+    generator CLI) as in the baseline. The 78 removed tests belonged only to deleted modules. Create (concept → design → assets) and
     strict-replication paths, render, export, package/reopen and providers are all covered and pass.
   - `tests/production_editor_e2e.py`: ok (1/1).
   - `sha256sum -c SOURCE-MANIFEST.sha256`: all entries match (4 editor hashes were already stale on `main`; fixed).
@@ -145,7 +145,7 @@ html-deck's own source files. Product-team files inside the vendored folder (`br
 - 2026-10-30 — VM test env for the skill: `sudo apt install python3.14-venv python3-pip`, venv `$SCRATCH/venv` with
   `skills/popost/requirements.txt`; run with `PLAYWRIGHT_CHROMIUM=/usr/bin/google-chrome POPOST_PYTHON=$SCRATCH/venv/bin/python`.
   Pre-W3 baseline on `a9c56b0` (old editor still wired): 115 total, 114 pass, 1 fail = the known environmental
-  `test_provider.test_dry_run_no_ledger_no_charge` (no `clipcat` CLI).
+  `test_provider.test_dry_run_no_ledger_no_charge` (no external generator CLI).
 - 2026-10-30 — W3-E done and reviewed (reviewer re-ran skill suite 115/114/1 = baseline, `production_editor_e2e.py` ok,
   `npm run lint` 0 errors / 8 warnings, 644 editor tests, rebuild+publish reproduces the committed `assets/canvas/`
   byte-for-byte per SOURCE-MANIFEST). `editor_handoff.VERSION` = 4.0.0. Test edits (paths/hooks only): bundle test now checks

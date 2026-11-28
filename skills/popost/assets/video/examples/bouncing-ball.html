@@ -1,0 +1,182 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Bouncing ball</title>
+<style>
+  html, body { margin: 0; width: 1280px; height: 720px; overflow: hidden; }
+  #floor { position: absolute; left: 0; width: 100%; bottom: 0; }
+  #ball { border-radius: 50%; }
+</style></head>
+<body>
+<div id="floor"></div>
+  <div id="ball"></div>
+  <script type="application/json" id="popost-params">
+{
+ "about": "A ball is dropped and bounces: parabolic arcs with restitution, squash only on the frames it touches, stretch along its fall, a contact shadow that tightens as it comes down, a ghost trail, and a ring on the floor at the first landing.",
+ "class": "motion",
+ "seconds": 2.4,
+ "tags": [
+  "bounce",
+  "ball",
+  "squash",
+  "stretch",
+  "physics",
+  "gravity",
+  "trail",
+  "shadow",
+  "on twos"
+ ],
+ "params": [
+  {
+   "name": "startX",
+   "type": "number",
+   "default": 0.3,
+   "min": 0,
+   "max": 1,
+   "what": "where the ball is released, across",
+   "unit": "fraction of the canvas width"
+  },
+  {
+   "name": "startY",
+   "type": "number",
+   "default": 0.12,
+   "min": 0,
+   "max": 1,
+   "what": "where the ball is released, down",
+   "unit": "fraction of the canvas height"
+  },
+  {
+   "name": "endX",
+   "type": "number",
+   "default": 0.7,
+   "min": 0,
+   "max": 1,
+   "what": "where it has travelled to when it rests",
+   "unit": "fraction of the canvas width"
+  },
+  {
+   "name": "floor",
+   "type": "number",
+   "default": 0.82,
+   "min": 0.2,
+   "max": 1,
+   "what": "the height of the floor",
+   "unit": "fraction of the canvas height"
+  },
+  {
+   "name": "size",
+   "type": "number",
+   "default": 0.14,
+   "min": 0.02,
+   "max": 0.6,
+   "what": "the ball's diameter",
+   "unit": "fraction of the canvas height"
+  },
+  {
+   "name": "bounces",
+   "type": "number",
+   "default": 3,
+   "min": 0,
+   "max": 8,
+   "what": "how many times it bounces after the first landing"
+  },
+  {
+   "name": "restitution",
+   "type": "number",
+   "default": 0.6,
+   "min": 0.1,
+   "max": 0.95,
+   "what": "the share of its speed it keeps at each bounce: 0.35 heavy, 0.6 rubber, 0.8 lively"
+  },
+  {
+   "name": "squash",
+   "type": "number",
+   "default": 0.3,
+   "min": 0,
+   "max": 0.6,
+   "what": "how flat it gets on the frames it touches"
+  },
+  {
+   "name": "stretch",
+   "type": "number",
+   "default": 0.25,
+   "min": 0,
+   "max": 0.6,
+   "what": "how long it gets along its fall at full speed"
+  },
+  {
+   "name": "trail",
+   "type": "number",
+   "default": 4,
+   "min": 0,
+   "max": 10,
+   "what": "ghost copies behind it"
+  },
+  {
+   "name": "duration",
+   "type": "number",
+   "default": 1.6,
+   "min": 0.3,
+   "max": 10,
+   "what": "from the release to the last landing",
+   "unit": "seconds"
+  },
+  {
+   "name": "hold",
+   "type": "choice",
+   "default": 1,
+   "options": [
+    1,
+    2,
+    3
+   ],
+   "what": "frames each drawing is held: 1 smooth, 2 \"on twos\" as hand-drawn animation"
+  },
+  {
+   "name": "color",
+   "type": "colour",
+   "default": "#fca311",
+   "what": "the ball"
+  },
+  {
+   "name": "ground",
+   "type": "colour",
+   "default": "#14213d",
+   "what": "the background"
+  },
+  {
+   "name": "floorColor",
+   "type": "colour",
+   "default": "#0b1326",
+   "what": "the floor"
+  },
+  {
+   "name": "delay",
+   "type": "number",
+   "default": 0.2,
+   "min": 0,
+   "max": 20,
+   "unit": "seconds",
+   "what": "when the effect starts, from the start of the shot"
+  }
+ ],
+ "values": {}
+}
+  </script>
+  <script src="../lib/popost-motion.js"></script>
+  <script>
+    // The parameters of this copy: the declared defaults, then what "values" sets.
+    var P = (function () { var b = JSON.parse(document.getElementById('popost-params').textContent), v = {}; b.params.forEach(function (p) { v[p.name] = p['default']; }); for (var k in b.values) v[k] = b.values[k]; return v; })();
+    // The canvas, from the size this file declares for html and body: a scene of a later shot loads in a layer that
+    // is not displayed, where the page itself measures 0 until its first frame.
+    var SIZE = /html, body \{ margin: 0; width: (\d+)px; height: (\d+)px;/.exec(document.querySelector('style').textContent), W = Number(SIZE[1]), H = Number(SIZE[2]), U = Math.min(W, H) / 720;
+    var M = popostMotion, size = P.size * H, floor = P.floor * H;
+    document.body.style.background = P.ground;
+    var f = document.getElementById('floor'); f.style.top = floor + 'px'; f.style.background = P.floorColor;
+    var ball = document.getElementById('ball'); ball.style.width = ball.style.height = size + 'px'; ball.style.background = P.color;
+    var b = M.bounce('#ball', { at: P.delay, 'for': P.duration, from: [P.startX * W, P.startY * H], to: [P.endX * W], floor: floor, size: size, bounces: P.bounces, restitution: P.restitution, squash: P.squash, stretch: P.stretch, trail: P.trail, shadow: true });
+    // The floor answers the first landing; the later ones are too soft for a ring.
+    var firstX = P.startX * W + (P.endX - P.startX) * W * ((b.contacts[0] - P.delay) / P.duration);
+    M.shockwave({ at: b.contacts[0], x: firstX, y: floor, radius: size * 1.6, flat: 0.22, width: 8 * U, cue: false });
+    // "On twos": the engine's render is wrapped so that the time itself is held.
+    if (P.hold > 1) { var draw = window.__popostScene.render; window.__popostScene.render = function (s, fps) { draw(M.stepped(s, fps, P.hold), fps); }; }
+  </script>
+</body></html>

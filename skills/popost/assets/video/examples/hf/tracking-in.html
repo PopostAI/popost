@@ -1,0 +1,250 @@
+<!doctype html>
+<!--
+  Adapted from HyperFrames (https://github.com/heygen-com/hyperframes), registry/components/tracking-in, commit a8332860c396e9224d42b7ea2a9cc8f42918c961.
+  Copyright 2026 HeyGen, Inc. Licensed under the Apache License, Version 2.0; the licence text is in the popost
+  Skill's THIRD_PARTY_NOTICES. Changed for the popost Skill (tools/video/port-hyperframes.mjs): its comments removed; GSAP loaded from the project (../lib/gsap.min.js) instead of a CDN; the 1920x1080 composition scaled into the scene's canvas (parameter "fit"); HyperFrames variables declared as parameters; its clips shown and hidden from the scene's time; sound cues derived from its tweens.
+-->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>Tracking In - Demo</title>
+    <script src="../lib/gsap.min.js"></script>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+      }
+      body {
+        font-family: Inter, system-ui, sans-serif;
+        background: #fafafa;
+      }
+      #demo {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        display: grid;
+        place-items: center;
+        background: linear-gradient(135deg, #fafafa, #f4f4f5);
+        color: #18181b;
+      }
+      .panel {
+        text-align: center;
+        width: 1260px;
+      }
+      .label {
+        font-size: 28px;
+        font-weight: 600;
+        color: #71717a;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+      }
+      .headline {
+        margin-top: 28px;
+        font-size: 118px;
+        line-height: 1;
+        font-weight: 900;
+      }
+      .hf-tracking-in {
+        opacity: 0;
+        letter-spacing: var(--hf-tracking-value, 0.28em);
+        transform: translateY(8px);
+        will-change: opacity, letter-spacing, transform;
+      }
+    </style>
+  <style id="popost-fit">
+  html, body { margin: 0 !important; width: 1280px; height: 720px; overflow: hidden !important; background: #000000; }
+  #popost-stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden; }
+</style>
+<script type="application/json" id="popost-params">
+{
+ "about": "A precise letter-spacing reveal for premium headings and interface labels",
+ "class": "text",
+ "tags": [
+  "motion-primitive",
+  "text",
+  "reveal",
+  "typography"
+ ],
+ "seconds": 1.51,
+ "params": [
+  {
+   "name": "fit",
+   "type": "choice",
+   "default": "contain",
+   "options": [
+    "contain",
+    "cover"
+   ],
+   "what": "how the 1920x1080 composition is fitted into the canvas: whole with bars, or filling it and cropped"
+  },
+  {
+   "name": "tracking",
+   "type": "choice",
+   "default": "standard",
+   "options": [
+    "tight",
+    "standard",
+    "wide"
+   ],
+   "what": "Multiplies the letter-spacing the timeline drives, so the reveal starts and settles proportionally wider or tighter."
+  },
+  {
+   "name": "rise",
+   "type": "choice",
+   "default": "standard",
+   "options": [
+    "subtle",
+    "standard",
+    "bold"
+   ],
+   "what": "Vertical offset the text starts from, which the timeline reads as the start of its travel and eases to zero."
+  },
+  {
+   "name": "tone",
+   "type": "choice",
+   "default": "inherit",
+   "options": [
+    "inherit",
+    "ink",
+    "paper",
+    "accent"
+   ],
+   "what": "Text colour: inherit keeps the surrounding page colour, ink suits light frames, paper dark ones, accent rides --brand."
+  }
+ ],
+ "values": {}
+}
+</script>
+<script>
+  /* popost: the scene's parameters stand in for HyperFrames variables; random numbers are seeded; the composition is
+     scaled into the canvas; clips are shown and hidden from the scene's time. */
+  (function () {
+    var block = document.getElementById('popost-params');
+    var values = block ? (JSON.parse(block.textContent).values || {}) : {};
+    var vars = {};
+    Object.keys(values).forEach(function (k) { if (k !== 'fit') vars[k] = values[k] === 'true' ? true : values[k] === 'false' ? false : values[k]; });
+    window.__hyperframes = { getVariables: function () { return vars; } };
+    var seed = 20240229;
+    window.__popostRandom = function () { seed = (seed + 0x6d2b79f5) >>> 0; var t = seed; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+    window.__popostFit = function () {
+      // The canvas, from the size this file declares: a scene of a later shot loads in a layer that is not displayed, where the page measures 0.
+      var size = /width: (\d+)px; height: (\d+)px;/.exec(document.getElementById('popost-fit').textContent);
+      var W = 1920, H = 1080, s = document.getElementById('popost-stage'), cw = Number(size[1]), ch = Number(size[2]);
+      var k = (values.fit === 'cover' ? Math.max : Math.min)(cw / W, ch / H);
+      s.style.transform = 'translate(' + (cw - W * k) / 2 + 'px,' + (ch - H * k) / 2 + 'px) scale(' + k + ')';
+      var clips = Array.prototype.slice.call(s.querySelectorAll('.clip[data-start]')).filter(function (c) { return isFinite(parseFloat(c.getAttribute('data-start'))) && c.parentNode !== s; });
+      // A mounted composition that starts later in its host runs on its own time.
+      [].forEach(function (m) {
+        var tl = window.__timelines && window.__timelines[m.id];
+        if (tl) window.__timelines[m.id] = { pause: function () { tl.pause(); }, seek: function (t) { tl.seek(Math.max(0, t - m.start)); }, duration: function () { return tl.duration() + m.start; } };
+      });
+      var scene = (window.__popostScene = window.__popostScene || {}), before = scene.render;
+      scene.render = function (seconds, fps) {
+        if (before) before(seconds, fps);
+        for (var i = 0; i < clips.length; i++) {
+          var a = parseFloat(clips[i].getAttribute('data-start')), d = parseFloat(clips[i].getAttribute('data-duration'));
+          clips[i].style.visibility = seconds >= a && (!isFinite(d) || seconds < a + d) ? 'visible' : 'hidden';
+        }
+      };
+    };
+  })();
+</script>
+<script type="application/json" id="popost-cues">[{"at":0.45,"cue":"tick","gain":0.3}]</script>
+</head>
+  <body>
+<div id="popost-stage">
+    <div
+      id="demo"
+      data-composition-id="tracking-in-demo"
+      data-width="1920"
+      data-height="1080"
+      data-duration="4"
+      data-composition-variables='[
+    { "id": "tracking", "type": "enum", "role": "style", "label": "Tracking", "description": "Multiplies the letter-spacing the timeline drives, so the reveal starts and settles proportionally wider or tighter.", "default": "standard", "options": [{ "value": "tight", "label": "Tight" }, { "value": "standard", "label": "Standard" }, { "value": "wide", "label": "Wide" }] },
+    { "id": "rise", "type": "enum", "role": "motion", "label": "Rise", "description": "Vertical offset the text starts from, which the timeline reads as the start of its travel and eases to zero.", "default": "standard", "options": [{ "value": "subtle", "label": "Subtle" }, { "value": "standard", "label": "Standard" }, { "value": "bold", "label": "Bold" }] },
+    { "id": "tone", "type": "enum", "role": "style", "label": "Tone", "description": "Text colour: inherit keeps the surrounding page colour, ink suits light frames, paper dark ones, accent rides --brand.", "default": "inherit", "options": [{ "value": "inherit", "label": "Inherit" }, { "value": "ink", "label": "Ink" }, { "value": "paper", "label": "Paper" }, { "value": "accent", "label": "Accent" }] }
+  ]'
+    >
+      <div class="panel">
+        <div class="label hf-tracking-in">Editorial motion</div>
+        <div class="headline hf-tracking-in">TRACKING IN</div>
+      </div>
+      <script>
+        (function () {
+          "use strict";
+
+          var vars =
+            window.__hyperframes && window.__hyperframes.getVariables
+              ? window.__hyperframes.getVariables()
+              : {};
+
+          // Unrecognised overrides return to their declared defaults.
+          var reaches = { tight: 0.6, standard: 1, wide: 1.8 };
+          var rises = { subtle: "4px", standard: "8px", bold: "18px" };
+          var tones = {
+            inherit: "inherit",
+            ink: "#18181b",
+            paper: "#fafafa",
+            accent: "var(--brand, #34d399)",
+          };
+
+          function pick(table, value, fallback) {
+            return Object.prototype.hasOwnProperty.call(table, value) ? value : fallback;
+          }
+
+          var reach = reaches[pick(reaches, vars.tracking, "standard")];
+          var rise = rises[pick(rises, vars.rise, "standard")];
+          var tone = tones[pick(tones, vars.tone, "inherit")];
+
+          // The class is applied to arbitrary host elements, so the resolved values
+          // ride the document root and inherit down to every one of them.
+          var host = document.documentElement;
+          host.style.setProperty("--hf-tracking-reach", String(reach));
+          host.style.setProperty("--hf-tracking-y", rise);
+          host.style.setProperty("--hf-tracking-color", tone);
+        })();
+      </script>
+      <script>
+        const tl = gsap.timeline({ paused: true });
+        tl.to(
+          ".hf-tracking-in",
+          {
+            opacity: 1,
+            "--hf-tracking-value": "0.02em",
+            y: 0,
+            duration: 0.9,
+            ease: "power3.out",
+            stagger: 0.16,
+          },
+          0.45,
+        );
+        window.__timelines = window.__timelines || {};
+        window.__timelines["tracking-in-demo"] = tl;
+      </script>
+    </div>
+    <style
+      data-composition-variables='[
+    { "id": "tracking", "type": "enum", "role": "style", "label": "Tracking", "description": "Multiplies the letter-spacing the timeline drives, so the reveal starts and settles proportionally wider or tighter.", "default": "standard", "options": [{ "value": "tight", "label": "Tight" }, { "value": "standard", "label": "Standard" }, { "value": "wide", "label": "Wide" }] },
+    { "id": "rise", "type": "enum", "role": "motion", "label": "Rise", "description": "Vertical offset the text starts from, which the timeline reads as the start of its travel and eases to zero.", "default": "standard", "options": [{ "value": "subtle", "label": "Subtle" }, { "value": "standard", "label": "Standard" }, { "value": "bold", "label": "Bold" }] },
+    { "id": "tone", "type": "enum", "role": "style", "label": "Tone", "description": "Text colour: inherit keeps the surrounding page colour, ink suits light frames, paper dark ones, accent rides --brand.", "default": "inherit", "options": [{ "value": "inherit", "label": "Inherit" }, { "value": "ink", "label": "Ink" }, { "value": "paper", "label": "Paper" }, { "value": "accent", "label": "Accent" }] }
+  ]'
+    >
+      .hf-tracking-in {
+        opacity: 0;
+        color: var(--hf-tracking-color, inherit);
+        letter-spacing: calc(var(--hf-tracking-value, 0.28em) * var(--hf-tracking-reach, 1));
+        transform: translateY(var(--hf-tracking-y, 8px));
+        will-change: opacity, letter-spacing, transform;
+      }
+    </style>
+  </div>
+<script>window.__popostFit();</script>
+</body>
+</html>
