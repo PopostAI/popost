@@ -133,6 +133,36 @@ https://github.com/PopostAI/popost/tree/main/skills/popost/tools/video
   `template see` and `scene write`. An agent that writes the fill and the scenes itself does not need them. A key
   is never written to a file or printed.
 
+## Measuring one move
+
+`describe` measures the curve of the main moving element of every shot that moves throughout (at most six shots,
+four seconds each) and writes it into `ref/shots/NN.md` under "Motion events". For any other element, or to hold
+your render against the reference, measure it yourself:
+
+```bash
+popost video measure curve reference.mp4 --from 2.1 --to 3.4 --roi 0.3,0.1,0.4,0.8   # a region as fractions of the frame (or pixels)
+popost video measure curve reference.mp4 --track shot-03-event-1 --reference-dir ref  # a path of ref/tracks.json: its box and its frames
+popost video measure curve final.mp4 --from 2.1 --to 3.4 --roi 0.3,0.1,0.4,0.8       # the same region of your render
+```
+
+- `--from` is a moment before the move starts, `--to` one after it has come to rest; `--roi` holds the thing's whole
+  path and nothing else that moves. The ground is taken from the region's border (a flat ground) or, when that is
+  not one colour, as what stays put over the span.
+- `moves[]` (the largest first): `start`, `end`, `duration`, `frames`; `from` and `to` (the centre, fractions of the
+  canvas); `distance` (canvas widths) and `peakSpeed` (canvas widths a second); `overshoot` and `anticipation` (percent
+  of the move); `turns` (how often it turns back before it rests) and `bounces`; `settle` (seconds until it stays
+  within 2% of rest); `squash` (`stretch` and `squash`: its height over its width against the same at rest, at its
+  tallest and its flattest); `fit`: the closest easing by least squares, its `error` (0.02 is close, 0.1 loose) and
+  the next two families. `pulses[]`: a stretch that returns to where it began.
+- The eases: `linear`, `power1`-`power4` with `.in` `.out` `.inOut`, `sine`, `expo`, `circ`, `back.out(s)` with its
+  overshoot amount, `elastic.out(1,p)`, `bounce.out`, and `spring(damping,stiffness)` (damping 1 never overshoots,
+  0.5 overshoots by 16%, 0.2 rings). `fit.ease` is the name the Skill's motion helper takes; `fit.gsap` is GSAP's
+  (`gsapExact: false` when GSAP has no such curve and the nearest built-in is given).
+- `sentence` says the first move in words; `moves[].paste` has it ready to paste: `helper` for a scene drawn by
+  `render(seconds)` with the motion helper, `gsap` for a GSAP timeline.
+- What it cannot see: the last fifth of a long ease-out moves a thing by a pixel or two, so `power3.out` over 1 s can
+  come back as `power2.out` over 0.8 s (the same curve to a pixel); two things in one region are followed as one box.
+
 ## Generated music
 
 Off by default: a video's sound is its voice-over, a sound file the user gave (`"sound"`), or the sound its clips

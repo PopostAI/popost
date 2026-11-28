@@ -12,6 +12,7 @@
  */
 import { deltaE } from '../measure/colour';
 import { toHex } from '../measure/pixels';
+import { coreOf } from './core';
 import { r2, type Frame, type Lab, type Rect } from './frame';
 import { dEdge, isPicture, strokeMax, strokesOf, SURE, type Surround } from './letters';
 import type { CaptionHighlight } from './types';
@@ -58,22 +59,39 @@ export const litChars = (text: string, ink: number[], lit: number[], gap: number
   const on = new Set(lit);
   if (!cols.length || !lit.length) return chars.map(() => false);
   const words = text.split(/(\s+)/).filter((w) => w.length > 0);
-  // The ink cut where it stops for a word gap or more.
-  const parts: [number, number][] = [];
-  for (const c of cols) {
-    const last = parts[parts.length - 1];
-    if (last && c - last[1] <= gap) last[1] = c;
-    else parts.push([c, c]);
-  }
   const real = words.filter((w) => !isSpace(w));
+  // The highlight's stretches (a word or a few each; a stretch narrower than a word gap is a stray edge) and, apart
+  // from them, the rest of the ink cut where it stops for a word gap or more. Kept apart because a stretch is smoothed
+  // and reaches into the gaps beside its word, which would join it to its neighbours.
+  const cut = (xs: number[], most: number): [number, number][] => {
+    const out: [number, number][] = [];
+    for (const c of xs) {
+      const last = out[out.length - 1];
+      if (last && c - last[1] <= most) last[1] = c;
+      else out.push([c, c]);
+    }
+    return out;
+  };
+  const stretches = cut([...on].sort((a, b) => a - b), 1).filter(([a, b]) => b - a >= gap);
+  const inStretch = (c: number): boolean => stretches.some(([a, b]) => c >= a && c <= b);
+  const parts = [...cut(cols.filter((c) => !inStretch(c)), gap).map((p) => ({ p, lit: false })), ...stretches.map((p) => ({ p, lit: true }))].sort((x, y) => x.p[0] - y.p[0]);
+  // More pieces than words: a gap inside a word is smaller than one between words, so the smallest gaps of the plain
+  // ink are closed (never across a stretch).
+  while (real.length > 1 && parts.length > real.length) {
+    let k = -1;
+    for (let j = 1; j < parts.length; j++) {
+      if (parts[j]?.lit || parts[j - 1]?.lit) continue;
+      const g = (parts[j]?.p[0] ?? 0) - (parts[j - 1]?.p[1] ?? 0);
+      if (k < 0 || g < (parts[k]?.p[0] ?? 0) - (parts[k - 1]?.p[1] ?? 0)) k = j;
+    }
+    if (k < 0) break;
+    parts.splice(k - 1, 2, { p: [parts[k - 1]?.p[0] ?? 0, parts[k]?.p[1] ?? 0], lit: false });
+  }
   if (real.length > 1 && parts.length === real.length) {
     let k = 0;
     return words.flatMap((w) => {
       const n = Array.from(w).length;
-      if (isSpace(w)) return Array.from({ length: n }, () => false);
-      const [a, b] = parts[k++] ?? [0, -1];
-      const mine = cols.filter((c) => c >= a && c <= b);
-      const lit = mine.filter((c) => on.has(c)).length >= 0.5 * mine.length;
+      const lit = !isSpace(w) && (parts[k++]?.lit ?? false);
       return Array.from({ length: n }, () => lit);
     });
   }
@@ -123,6 +141,7 @@ const stretchOn = (f: Frame, box: Rect, fs: number[], hs: number[]): { lit: numb
   const raw = count(hs);
   const held = lit.reduce((s, x) => s + (raw[x] ?? 0), 0);
   // The letters' columns: the fill's, and the highlight's where it holds a stretch (elsewhere it may be the picture between letters).
+  // The letters' columns: the fill's, and the highlight's where it holds a stretch (elsewhere it may be the picture between letters).
   const ink = [...fs.map((i) => (i % f.w) - x0).filter((x) => x >= 0 && x < w), ...lit];
   const span = ink.reduce((m, x) => Math.max(m, x), -Infinity) - ink.reduce((m, x) => Math.min(m, x), Infinity);
   const sameRow = (() => {
@@ -134,7 +153,7 @@ const stretchOn = (f: Frame, box: Rect, fs: number[], hs: number[]): { lit: numb
 
 /** The highlight of the lines, when one is found; texts[k] is what the reader read on line k. */
 export const highlightOf = (frames: Frame[], boxes: Rect[], texts: string[], ctx: FillContext, candidates: Surround[], around: Lab[][]): CaptionHighlight | undefined => {
-  const n = frames.length, least = Math.max(2, Math.ceil(0.25 * n));
+  const n = frames.length, least = Math.max(2, Math.ceil(n / 6));
   const fillLab = ctx.fill.find((l) => l) ?? [0, 0, 0];
   const found = candidates.filter((s) => {
     const lab = s.group.lab;
@@ -146,7 +165,14 @@ export const highlightOf = (frames: Frame[], boxes: Rect[], texts: string[], ctx
       const fill = ctx.fill[k], box = boxes[k];
       return s.group.at[k] && fill && box ? stretchOn(f, box, ctx.px?.[k] ?? strokesOf(f, box, fill, strokeMax(box)), s.px[k] ?? []) : undefined;
     });
-    return { s, lines, count: lines.filter(Boolean).length };
+    // With the reader's text, a line counts only when the stretch covers whole words of it: the picture seen between
+    // two words has no word under it.
+    const worded = lines.map((x, k) => {
+      const text = texts[k], box = boxes[k];
+      if (!x || !text || !box) return x;
+      return litChars(text, x.ink, x.lit, Math.max(3, Math.round(0.12 * (box.y1 - box.y0)))).some(Boolean) ? x : undefined;
+    });
+    return { s, lines: worded, count: worded.filter(Boolean).length };
   }).filter((x) => x.count >= least).sort((a, b) => b.count - a.count || b.s.group.lines - a.s.group.lines)[0];
   if (!found) return undefined;
   const at = found.s.group.at.flatMap((l, k) => (l && found.lines[k] ? [l] : []));
@@ -158,5 +184,8 @@ export const highlightOf = (frames: Frame[], boxes: Rect[], texts: string[], ctx
     const runs = runsOf(litChars(text, x.ink, x.lit, Math.max(3, Math.round(0.12 * (box.y1 - box.y0)))));
     return runs.length ? [marked(Array.from(text), runs)] : [];
   }).slice(0, MAX_EXAMPLES);
-  return { ...(confidence >= SURE ? { color: toHex(found.s.group.rgb) } : {}), confidence, lines: found.count, ...(examples.length ? { examples } : {}) };
+  // The colour of the highlighted strokes' core, as the fill's is (core.ts), when the lines agree on it.
+  const core = coreOf(frames, boxes, found.s.group.at.map((l, k) => (found.lines[k] ? l : undefined)), found.s.around);
+  const rgb = core && core.share >= SURE ? core.rgb : found.s.group.rgb;
+  return { ...(confidence >= SURE ? { color: toHex(rgb) } : {}), confidence, lines: found.count, ...(examples.length ? { examples } : {}) };
 };

@@ -167,11 +167,11 @@ const noEdges = (): Edges => ({ up: [], down: [], left: [], right: [] });
  * one of them), and how far that colour goes on, up and down (thick). pairs: the lightness above minus below, and
  * left minus right, at each stroke pixel that has both: a shadow makes one side darker everywhere.
  */
-const edgesFrom = (f: Frame, px: number[], lab: Lab, reach: number, into: Edges, thick?: number[], pairs?: { v: number[]; h: number[] }): void => {
+const edgesFrom = (f: Frame, px: number[], lab: Lab, reach: number, into: Edges, thick?: number[], pairs?: { v: number[]; h: number[] }, beyond?: { v: number[]; h: number[] }): void => {
   for (let j = 0; j < px.length; j += 2) {
     const i = px[j] ?? 0;
     const x0 = i % f.w, y0 = Math.floor(i / f.w);
-    const found: Partial<Record<Dir, Seen>> = {};
+    const found: Partial<Record<Dir, Seen>> = {}, past: Partial<Record<Dir, number>> = {};
     for (const [name, dx, dy] of DIRECTIONS) {
       for (let k = 1; k < reach; k++) {
         const x = x0 + dx * k, y = y0 + dy * k;
@@ -183,16 +183,21 @@ const edgesFrom = (f: Frame, px: number[], lab: Lab, reach: number, into: Edges,
         const seen = dEdge(a.lab, lab) > dEdge(b.lab, lab) ? a : b;
         into[name].push(seen);
         found[name] = seen;
-        if (thick && dx === 0) {
+        if (thick || beyond) {
           let t = 1;
-          while (t < 3 * reach && inside(f, fx, fy + dy * t) && edge2At(f, (fy + dy * t) * f.w + fx, seen.lab) <= NEAR * NEAR) t++;
-          thick.push(t);
+          while (t < 3 * reach && inside(f, fx + dx * t, fy + dy * t) && edge2At(f, (fy + dy * t) * f.w + fx + dx * t, seen.lab) <= NEAR * NEAR) t++;
+          if (thick && dx === 0) thick.push(t);
+          // Two pixels past where that colour ends: darker on one side everywhere under a shadow below an outline.
+          const bx = fx + dx * (t + 1), by = fy + dy * (t + 1);
+          if (inside(f, bx, by)) past[name] = f.lab[3 * (by * f.w + bx)] ?? 0;
         }
         break;
       }
     }
     if (pairs && found.up && found.down) pairs.v.push(found.up.lab[0] - found.down.lab[0]);
     if (pairs && found.left && found.right) pairs.h.push(found.left.lab[0] - found.right.lab[0]);
+    if (beyond && past.up !== undefined && past.down !== undefined) beyond.v.push(past.up - past.down);
+    if (beyond && past.left !== undefined && past.right !== undefined) beyond.h.push(past.left - past.right);
   }
 };
 
@@ -218,6 +223,10 @@ export interface Surround {
    * the line, seen between its letters and inside their counters (where the letters enclose it), not a fill.
    */
   ground: boolean;
+  /** The edges and the thickness line by line (undefined where the colour was not found), for a look at some lines only. */
+  perLine: ({ edges: Edges; thick: number[] } | undefined)[];
+  /** Past the colour around the strokes, the side that is darker everywhere: a shadow under an outline. */
+  shadowBeyond?: Dir;
 }
 
 /**
@@ -251,13 +260,18 @@ const SHADE = 6;
 const shadeOf = (d: number[]): number => (d.length >= 20 && d.filter((x) => x > 0).length >= 0.7 * d.length ? median(d) : 0);
 
 const surroundOf = (frames: Frame[], boxes: Rect[], g: Group): Surround => {
-  const edges = noEdges(), thick: number[] = [], pairs = { v: [] as number[], h: [] as number[] };
+  const edges = noEdges(), thick: number[] = [], pairs = { v: [] as number[], h: [] as number[] }, beyond = { v: [] as number[], h: [] as number[] };
+  const perLine: Surround['perLine'] = [];
   const px = frames.map((f, k) => {
     const lab = g.at[k], box = boxes[k];
-    if (!lab || !box) return [];
+    if (!lab || !box) { perLine.push(undefined); return []; }
     const h = box.y1 - box.y0;
     const mine = strokesOf(f, box, lab, strokeMax(box));
-    edgesFrom(f, mine, lab, Math.max(4, Math.round(0.3 * h)), edges, thick, pairs);
+    const own = { edges: noEdges(), thick: [] as number[] };
+    edgesFrom(f, mine, lab, Math.max(4, Math.round(0.3 * h)), own.edges, own.thick, pairs, beyond);
+    for (const d of Object.keys(edges) as Dir[]) for (const x of own.edges[d]) edges[d].push(x);
+    for (const t of own.thick) thick.push(t);
+    perLine.push(own);
     return mine;
   });
   const strokes = px.flatMap((p, k) => (g.at[k] ? [p.length] : []));
@@ -270,7 +284,8 @@ const surroundOf = (frames: Frame[], boxes: Rect[], g: Group): Surround => {
   const consistent = cons.down >= 0.5 && cons.up < 0.4 ? 'down' : cons.right >= 0.5 && cons.left < 0.4 ? 'right' : undefined;
   const shade = shadeOf(pairs.v) >= SHADE ? 'down' : shadeOf(pairs.h) >= SHADE ? 'right' : undefined;
   const shadow = consistent ?? shade;
-  return { group: g, strokes, px, edges, cons, around, enclosed: agree ? (cons.up + cons.down + cons.left + cons.right) / 4 : 0, ...(shadow ? { shadow } : {}), thickness: median(thick), ground: groundOf(frames, boxes, g) };
+  const shadowBeyond = shadeOf(beyond.v) >= SHADE ? 'down' as const : shadeOf(beyond.h) >= SHADE ? 'right' as const : undefined;
+  return { group: g, strokes, px, edges, cons, around, enclosed: agree ? (cons.up + cons.down + cons.left + cons.right) / 4 : 0, ...(shadow ? { shadow } : {}), thickness: median(thick), ground: groundOf(frames, boxes, g), perLine, ...(shadowBeyond ? { shadowBeyond } : {}) };
 };
 
 /** The picture just around each line, outside its box: beside it when there is room (another line may lie above or below), else all round. */
@@ -285,6 +300,27 @@ export const pictureAround = (frames: Frame[], boxes: Rect[]): Lab[][] =>
 /** A colour is the picture's when it covers a tenth or more of the picture around the line, on half the lines or more. */
 export const isPicture = (around: Lab[][], lab: Lab): boolean =>
   around.filter((px) => px.length > 0 && px.filter((l) => (l[0] - lab[0]) ** 2 + (l[1] - lab[1]) ** 2 + (l[2] - lab[2]) ** 2 <= NEAR * NEAR).length >= 0.1 * px.length).length >= around.length / 2;
+
+const nearShare = (px: Lab[], lab: Lab): number => (px.length ? px.filter((l) => (l[0] - lab[0]) ** 2 + (l[1] - lab[1]) ** 2 + (l[2] - lab[2]) ** 2 <= NEAR * NEAR).length / px.length : 0);
+
+/** What surrounds a candidate on some lines only. */
+export interface Partial4 { lines: number[]; enclosed: number; thickness: number; edge: Seen[] }
+
+/**
+ * A colour that encloses the letters and is also the picture around most lines (a black outline in a dark video) is
+ * still an outline when it encloses them on the lines where the picture is another colour: there the picture cannot
+ * be what is seen around the strokes. Those lines (two or more, a fifth of the lines or more), how enclosed the
+ * candidate is on them, and how thick the layer is there; undefined when there are too few such lines.
+ */
+export const offPicture = (s: Surround, around: Lab[][]): Partial4 | undefined => {
+  const lines = s.perLine.flatMap((e, k) => (e && nearShare(around[k] ?? [], s.around) < 0.1 ? [k] : []));
+  if (lines.length < Math.max(2, 0.2 * s.perLine.length)) return undefined;
+  const of = (d: Dir): Seen[] => lines.flatMap((k) => s.perLine[k]?.edges[d] ?? []);
+  const dirs: Dir[] = ['up', 'down', 'left', 'right'];
+  const agree = dirs.every((d) => { const e = of(d); return e.length > 0 && dEdge(labMedian(e.map((x) => x.lab)), s.around) < 18; });
+  const cons = dirs.map((d) => alike(of(d)));
+  return { lines, enclosed: agree ? cons.reduce((a, b) => a + b, 0) / 4 : 0, thickness: median(lines.flatMap((k) => s.perLine[k]?.thick ?? [])), edge: dirs.flatMap(of) };
+};
 
 /** Candidates followed at most: the colours that cover most of the boxes, over all lines. */
 const MAX_CANDIDATES = 12;
@@ -304,14 +340,21 @@ const sureOf = (s: Surround, n: number): number => {
 const hexOf = (s: Surround): string => toHex(s.group.rgb);
 
 /** How the letters were told: the fill's surroundings, for the highlight to compare with. */
-export interface Letters { look: CaptionLook; fill?: Surround }
+export interface Letters { look: CaptionLook; fill?: Surround; /** The lines the outline was told on, when it has the picture's colour. */ part?: Partial4 }
 
 /** The letters without a plate: outline, shadow or plain, the fill's colour and how sure each part is. */
 export const lettersOf = (frames: Frame[], boxes: Rect[], all: Surround[], around: Lab[][]): Letters => {
   const n = frames.length;
   const strokesPerLine = (s: Surround): number => median(s.strokes);
   const candidates = all.filter((s) => s.group.lines >= 0.75 * n && !s.ground && !isPicture(around, s.group.lab) && s.strokes.length > 0);
-  const plainCores = candidates.filter((s) => isPicture(around, s.around));
+  // An outline of the picture's colour (black in a dark video): told on the lines where the picture is another colour.
+  const off = new Map<Surround, Partial4>();
+  for (const s of candidates) {
+    if (!isPicture(around, s.around)) continue;
+    const o = offPicture(s, around);
+    if (o && o.enclosed >= ENCLOSED && o.thickness <= 0.25 * median(boxes.map((b) => b.y1 - b.y0))) off.set(s, o);
+  }
+  const plainCores = candidates.filter((s) => isPicture(around, s.around) && !off.has(s));
   // Anti-aliased fringe pixels can look enclosed by their own letter's core. A larger, more persistent core with
   // the picture beyond it is plain ink, so that fringe cannot be a separate fill with the core as its outline.
   const own = candidates.filter((s) => !plainCores.some((core) => core !== s && core.group.lines >= s.group.lines &&
@@ -319,7 +362,7 @@ export const lettersOf = (frames: Frame[], boxes: Rect[], all: Surround[], aroun
   const lineHeight = median(boxes.map((b) => b.y1 - b.y0));
   // The fill is enclosed by one colour that is not the picture (the ground between dark letters on a light picture
   // encloses them too, but it is the picture): an outline, a thin layer, or a plate that fills the whole box.
-  const enclosed = own.filter((s) => s.enclosed >= ENCLOSED && !isPicture(around, s.around))
+  const enclosed = own.filter((s) => (s.enclosed >= ENCLOSED && !isPicture(around, s.around)) || off.has(s))
     .sort((a, b) => b.enclosed * b.group.lines - a.enclosed * a.group.lines || strokesPerLine(b) - strokesPerLine(a));
   const fillSure = (s: Surround): Pick<CaptionLook, 'color' | 'confidence'> => {
     const c = sureOf(s, n);
@@ -330,8 +373,9 @@ export const lettersOf = (frames: Frame[], boxes: Rect[], all: Surround[], aroun
   // outline's colour), the fill is the one with the most stroke pixels.
   const top = enclosed[0];
   const best = top && enclosed.filter((s) => dEdge(s.group.lab, top.group.lab) <= 15 && dEdge(s.around, top.around) <= 15).sort((a, b) => strokesPerLine(b) * b.group.lines - strokesPerLine(a) * a.group.lines)[0];
-  const look = best ? outlineLook(frames, boxes, best, all, n, fillSure(best), lineHeight) : undefined;
-  if (best && look) return { fill: best, look };
+  const look = best ? outlineLook(frames, boxes, best, all, n, fillSure(best), lineHeight, off.get(best)) : undefined;
+  const part = best ? off.get(best) : undefined;
+  if (best && look) return { fill: best, look, ...(part ? { part } : {}) };
   // No outline: the letters are the colour with the most stroke pixels, but never the colour around another
   // candidate's strokes (an outline that was not consistent enough to be sure of, or a shadow).
   const arounds = own.filter((s) => s.enclosed >= ENCLOSED / 2).map((s) => s.around);
@@ -348,15 +392,15 @@ export const lettersOf = (frames: Frame[], boxes: Rect[], all: Surround[], aroun
 };
 
 /** Letters enclosed by another colour: a plate that fills the reader's whole box, or an outline when it is a thin layer; else undefined. */
-const outlineLook = (frames: Frame[], boxes: Rect[], best: Surround, all: Surround[], n: number, fill: Pick<CaptionLook, 'color' | 'confidence'>, lineHeight: number): CaptionLook | undefined => {
-  const edge = [...best.edges.up, ...best.edges.down, ...best.edges.left, ...best.edges.right];
+const outlineLook = (frames: Frame[], boxes: Rect[], best: Surround, all: Surround[], n: number, fill: Pick<CaptionLook, 'color' | 'confidence'>, lineHeight: number, part?: Partial4): CaptionLook | undefined => {
+  const edge = part?.edge ?? [...best.edges.up, ...best.edges.down, ...best.edges.left, ...best.edges.right];
   // A plate that fills the reader's whole box (a loose box hides its sides): the colour around the letters covers
   // most of the box, which an outline never does.
-  const boxPixels = frames.map((f, k) => area(f, boxes[k] as Rect).map((i) => labOf(f, i))).flat();
+  const boxPixels = frames.flatMap((f, k) => (part && !part.lines.includes(k) ? [] : area(f, boxes[k] as Rect).map((i) => labOf(f, i))));
   const covered = boxPixels.filter((l) => deltaE(l, best.around) <= 15).length / Math.max(1, boxPixels.length);
   if (covered >= 0.45 && consistency(edge) >= 0.5)
     return { kind: 'plate', ...fill, samples: n, plate: { color: colourOf(edge), opacity: 1, padding: 0.2, radius: 0.2, confidence: r2(consistency(edge)) }, unsure: ['the plate reaches past the boxes the reader gave, so its padding, corners and opacity were not measured: 0.2, 0.2 and 1 are taken'] };
-  if (best.thickness > 0.25 * lineHeight) return undefined;
+  if ((part?.thickness ?? best.thickness) > 0.25 * lineHeight) return undefined;
   // The outline's own pixels are one of the box's colours, seen whole rather than bled into its neighbours: of the
   // colours like the one around the letters, the one with the most stroke pixels.
   const whole = all.filter((s) => s !== best && dEdge(s.group.lab, best.around) <= 15).sort((a, b) => median(b.strokes) * b.group.lines - median(a.strokes) * a.group.lines)[0];

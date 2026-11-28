@@ -112,7 +112,7 @@ source's colours are not measured). More words than the source's bar has is refu
 
 Other keys: `captions` (one line per beat; `""` for none), `voice` and `speed` (passed to the speaker), `say`
 (`[{"text": "SaaS", "as": "sass"}]`: how a word is spoken), `captionColor`, `captionOutline`, `captionSpoken`
-(`true`: light up the spoken word), `captionReveal` (`"words"`: show each word when it is spoken), `sound` (an
+(`true`: light up the spoken word), `captionReveal` (`"words"`: show each word when it is spoken; `"whole"`: every line whole at once; left out, the lines come on as the source's were measured to, below), `sound` (an
 audio file for the whole video, relative to the project: the user's own file, taken in with `popost video music own`, or
 generated music with its receipt; a file without such a record is refused. It starts with the video at its own level,
 is lowered while anybody speaks (above), fades out over the last second when it is longer than the video and is not repeated when it is shorter), `beds`
@@ -124,6 +124,21 @@ default; otherwise white with a dark outline. `captionColor` and `captionOutline
 asterisks, `"Save *50%* today"`, are drawn in the highlight colour: the reference's, when it filled a word or two of
 its lines with another colour (`TEMPLATE.md` says so), else a yellow that stands out from the letters; the asterisks
 are neither drawn nor spoken.
+
+What is measured of the source's caption letters, and what follows from it:
+
+- **Colour, outline, shadow, weight.** The fill colour is the core of the strokes, also on small or soft letters
+  (30 to 45 pixels tall, where most of a stroke is edge and the commonest colour is a grey); an outline is found also
+  when it has the colour of a dark picture; a shadow under an outline is kept; strokes are `heavy` or `regular`, and
+  the captions of a fill are drawn in that weight.
+- **How a line comes on.** `captionLook.reveal` is `whole`, `words` or `chars`, from the frames around the start of
+  several lines. A fill follows it: whole lines stay whole; a source that built its lines up gets `captionReveal:
+  "words"` by default when there is a voice. Do not add `"captionReveal": "words"` to a source measured `whole`
+  unless the user asked: `template check` warns.
+- **How many lines have a highlight.** `captionLook.highlight.share` is the share of the measured lines with a word or
+  two in the highlight colour; `TEMPLATE.md` says it as "about 1 line in 4" with the number of your lines to mark.
+  Mark that many: `template check` warns when the fill marks fewer than half of that share, or more than double, and
+  says how many lines to mark or unmark. A warning of this kind is to be fixed, not noted.
 
 ## Commands
 

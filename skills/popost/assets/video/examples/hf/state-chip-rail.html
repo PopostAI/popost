@@ -1,0 +1,518 @@
+<!doctype html>
+<!--
+  Adapted from HyperFrames (https://github.com/heygen-com/hyperframes), registry/components/state-chip-rail, commit a8332860c396e9224d42b7ea2a9cc8f42918c961.
+  Copyright 2026 HeyGen, Inc. Licensed under the Apache License, Version 2.0; the licence text is in the popost
+  Skill's THIRD_PARTY_NOTICES. Changed for the popost Skill (tools/video/port-hyperframes.mjs): its comments removed; the composition it mounts (state-chip-rail.html) put into the page; GSAP loaded from the project (../lib/gsap.min.js) instead of a CDN; the 1920x1080 composition scaled into the scene's canvas (parameter "fit"); HyperFrames variables declared as parameters; its clips shown and hidden from the scene's time; sound cues derived from its tweens.
+-->
+
+<html data-composition-variables='[
+    { "id": "states", "type": "string", "role": "content", "label": "States", "description": "Comma-separated chip labels in machine order (2 to 8 states).", "default": "Queued,Reading,Drafting,Done" },
+    { "id": "times", "type": "string", "role": "timing", "label": "Times", "description": "Comma-separated activation times in seconds, one per advance (state 1 onward). Blank entries use the default even rhythm.", "default": "" },
+    { "id": "badge_state", "type": "number", "role": "content", "label": "Badge state", "description": "Index of the state the badges pop beside.", "default": 1, "min": 0, "max": 7, "step": 1 },
+    { "id": "badges", "type": "string", "role": "content", "label": "Badges", "description": "Comma-separated badge labels shown beside the badge state. Empty disables.", "default": "" },
+    { "id": "accent", "type": "enum", "role": "style", "label": "Accent", "description": "Accent token family used by the active chip.", "default": "green", "options": [{ "value": "green", "label": "Green" }, { "value": "blue", "label": "Blue" }, { "value": "violet", "label": "Violet" }] },
+    { "id": "exit", "type": "enum", "role": "timing", "label": "Exit", "description": "How the rail leaves the frame. Default none: the hold ends the film.", "default": "none", "options": [{ "value": "none", "label": "None" }, { "value": "fade", "label": "Fade" }, { "value": "up", "label": "Up" }] }
+  ]' lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>state-chip-rail Demo</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: var(--bg, #0b0c0e);
+      }
+
+      #root {
+        --bg: #0b0c0e;
+        --fg: #f8fafc;
+        --surface: #14171c;
+        --border: #343a46;
+        --brand: #71f5a7;
+        --accent: #61a8ff;
+        --accent-2: #c5a3ff;
+        --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: radial-gradient(
+          ellipse at 50% 44%,
+          var(--bg, #171a20) 0%,
+          var(--bg, #0b0c0e) 72%
+        );
+      }
+
+      .mount-card {
+        width: 80%;
+        height: 30%;
+        left: 10%;
+        top: 35%;
+        container-type: size;
+        overflow: hidden;
+        border: 1px solid color-mix(in srgb, var(--border, #94a3b8) 20%, transparent);
+        border-radius: 30px;
+        background: color-mix(in srgb, var(--surface, #101318) 72%, transparent);
+        box-shadow: 0 40px 100px color-mix(in srgb, var(--bg, #000000) 48%, transparent);
+      }
+    </style>
+  <style id="popost-fit">
+  html, body { margin: 0 !important; width: 1280px; height: 720px; overflow: hidden !important; background: #000000; }
+  #popost-stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden; }
+</style>
+<script type="application/json" id="popost-params">
+{
+ "about": "A rail of mono status chips advances a seek-safe data-state snap machine on a cue schedule: active chip ink on surface, done chips dim, pending chips hollow, optional badges pop beside one state.",
+ "class": "motion",
+ "tags": [
+  "motion-primitive",
+  "product-demo",
+  "state-machine",
+  "status",
+  "chips",
+  "rail"
+ ],
+ "seconds": 3.7,
+ "params": [
+  {
+   "name": "fit",
+   "type": "choice",
+   "default": "contain",
+   "options": [
+    "contain",
+    "cover"
+   ],
+   "what": "how the 1920x1080 composition is fitted into the canvas: whole with bars, or filling it and cropped"
+  },
+  {
+   "name": "states",
+   "type": "text",
+   "default": "Queued,Reading,Drafting,Done",
+   "maxLength": 200,
+   "what": "Comma-separated chip labels in machine order (2 to 8 states)."
+  },
+  {
+   "name": "times",
+   "type": "text",
+   "default": "",
+   "maxLength": 200,
+   "what": "Comma-separated activation times in seconds, one per advance (state 1 onward). Blank entries use the default even rhythm."
+  },
+  {
+   "name": "badge_state",
+   "type": "number",
+   "default": 1,
+   "min": 0,
+   "max": 7,
+   "what": "Index of the state the badges pop beside."
+  },
+  {
+   "name": "badges",
+   "type": "text",
+   "default": "",
+   "maxLength": 200,
+   "what": "Comma-separated badge labels shown beside the badge state. Empty disables."
+  },
+  {
+   "name": "accent",
+   "type": "choice",
+   "default": "green",
+   "options": [
+    "green",
+    "blue",
+    "violet"
+   ],
+   "what": "Accent token family used by the active chip."
+  },
+  {
+   "name": "exit",
+   "type": "choice",
+   "default": "none",
+   "options": [
+    "none",
+    "fade",
+    "up"
+   ],
+   "what": "How the rail leaves the frame. Default none: the hold ends the film."
+  }
+ ],
+ "values": {}
+}
+</script>
+<script>
+  /* popost: the scene's parameters stand in for HyperFrames variables; random numbers are seeded; the composition is
+     scaled into the canvas; clips are shown and hidden from the scene's time. */
+  (function () {
+    var block = document.getElementById('popost-params');
+    var values = block ? (JSON.parse(block.textContent).values || {}) : {};
+    var vars = {"states":"Queued,Reading,Searching,Drafting,Done","times":"1.0,1.9,2.8,3.7","badges":"Drive,Mail,CRM","badge_state":2,"accent":"blue"};
+    Object.keys(values).forEach(function (k) { if (k !== 'fit') vars[k] = values[k] === 'true' ? true : values[k] === 'false' ? false : values[k]; });
+    window.__hyperframes = { getVariables: function () { return vars; } };
+    var seed = 20240229;
+    window.__popostRandom = function () { seed = (seed + 0x6d2b79f5) >>> 0; var t = seed; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+    window.__popostFit = function () {
+      // The canvas, from the size this file declares: a scene of a later shot loads in a layer that is not displayed, where the page measures 0.
+      var size = /width: (\d+)px; height: (\d+)px;/.exec(document.getElementById('popost-fit').textContent);
+      var W = 1920, H = 1080, s = document.getElementById('popost-stage'), cw = Number(size[1]), ch = Number(size[2]);
+      var k = (values.fit === 'cover' ? Math.max : Math.min)(cw / W, ch / H);
+      s.style.transform = 'translate(' + (cw - W * k) / 2 + 'px,' + (ch - H * k) / 2 + 'px) scale(' + k + ')';
+      var clips = Array.prototype.slice.call(s.querySelectorAll('.clip[data-start]')).filter(function (c) { return isFinite(parseFloat(c.getAttribute('data-start'))) && c.parentNode !== s; });
+      // A mounted composition that starts later in its host runs on its own time.
+      [].forEach(function (m) {
+        var tl = window.__timelines && window.__timelines[m.id];
+        if (tl) window.__timelines[m.id] = { pause: function () { tl.pause(); }, seek: function (t) { tl.seek(Math.max(0, t - m.start)); }, duration: function () { return tl.duration() + m.start; } };
+      });
+      var scene = (window.__popostScene = window.__popostScene || {}), before = scene.render;
+      scene.render = function (seconds, fps) {
+        if (before) before(seconds, fps);
+        for (var i = 0; i < clips.length; i++) {
+          var a = parseFloat(clips[i].getAttribute('data-start')), d = parseFloat(clips[i].getAttribute('data-duration'));
+          clips[i].style.visibility = seconds >= a && (!isFinite(d) || seconds < a + d) ? 'visible' : 'hidden';
+        }
+      };
+    };
+  })();
+</script>
+<script type="application/json" id="popost-cues">[{"at":0.12,"cue":"swish","gain":0.4}]</script>
+</head>
+  <body>
+<div id="popost-stage">
+    <div
+      id="root"
+      data-composition-id="state-chip-rail-demo"
+      data-start="0"
+      data-width="1920"
+      data-height="1080"
+      data-duration="5"
+      data-fps="30"
+    >
+      <div
+        id="state-chip-rail-mount"
+        class="mount-card clip"
+        data-composition-id="state-chip-rail"
+       
+        data-variable-values='{"states":"Queued,Reading,Searching,Drafting,Done","times":"1.0,1.9,2.8,3.7","badges":"Drive,Mail,CRM","badge_state":2,"accent":"blue"}'
+        data-start="0"
+        data-duration="5"
+        data-track-index="0"
+        data-width="1536"
+        data-height="324"
+      >
+      <div id="root" data-composition-id="state-chip-rail" data-duration="5" data-fps="30">
+        <style>
+          *,
+          *::before,
+          *::after {
+            box-sizing: border-box;
+          }
+
+          #root {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            container-type: size;
+            isolation: isolate;
+            background: var(--bg, transparent);
+            color: var(--fg, #f8fafc);
+            font-family: var(--font-mono, ui-monospace, "SF Mono", Menlo, Consolas, monospace);
+            pointer-events: none;
+          }
+
+          .scr-clip {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+          }
+
+          .scr-rail {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: nowrap;
+            max-width: 94cqw;
+            gap: var(--scr-gap, 0.8em);
+            font-size: var(--scr-font, 2cqmin);
+            will-change: transform, opacity;
+          }
+
+          .scr-chip,
+          .scr-badge {
+            display: flex;
+            flex: 0 0 auto;
+            align-items: center;
+            gap: 0.55em;
+            padding: 0.62em 1.05em;
+            overflow: hidden;
+            border: 0.16cqmin solid var(--border, #334155);
+            border-radius: 100cqmax;
+            font-weight: 500;
+            line-height: 1;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            white-space: nowrap;
+            will-change: transform, opacity;
+          }
+
+          .scr-dot {
+            flex: 0 0 auto;
+            width: 0.5em;
+            aspect-ratio: 1;
+            border: 0.16cqmin solid var(--muted, #94a3b8);
+            border-radius: 50%;
+            background: transparent;
+          }
+
+          /* The snap machine: presentation is pure CSS on [data-state]; the
+             timeline only flips the attribute. Dimming rides color, never
+             opacity, so it cannot fight the entrance opacity tweens. */
+          .scr-chip[data-state="pending"] {
+            border-color: color-mix(in srgb, var(--border, #334155) 80%, transparent);
+            background: transparent;
+            color: color-mix(in srgb, var(--muted, #94a3b8) 78%, transparent);
+          }
+
+          .scr-chip[data-state="active"] {
+            border-color: color-mix(in srgb, var(--scr-accent) 62%, var(--border, #334155));
+            background: var(--surface, #131a24);
+            color: var(--fg, #f8fafc);
+          }
+          .scr-chip[data-state="active"] .scr-dot {
+            border-color: transparent;
+            background: var(--scr-accent, var(--brand, #71f5a7));
+          }
+
+          .scr-chip[data-state="done"] {
+            border-color: color-mix(in srgb, var(--border, #334155) 45%, transparent);
+            background: transparent;
+            color: color-mix(in srgb, var(--muted, #94a3b8) 42%, transparent);
+          }
+          .scr-chip[data-state="done"] .scr-dot {
+            border-color: transparent;
+            background: color-mix(in srgb, var(--scr-accent, #71f5a7) 38%, transparent);
+          }
+
+          .scr-badge {
+            padding: 0.5em 0.9em;
+            border-color: color-mix(in srgb, var(--border, #334155) 70%, transparent);
+            color: color-mix(in srgb, var(--muted, #94a3b8) 88%, transparent);
+            font-size: 0.82em;
+          }
+        </style>
+
+        <div
+          id="state-chip-rail-clip"
+          class="scr-clip clip"
+          data-start="0"
+          data-duration="5"
+          data-track-index="0"
+        >
+          <div class="scr-rail" role="list"></div>
+        </div>
+
+        <script src="../lib/gsap.min.js"></script>
+        <script>
+          (function () {
+            "use strict";
+
+            // Literal id, never read off the DOM: the flattening step strips
+            // data-composition-id from the mounted root (see toggle-flip).
+            var compositionId = "state-chip-rail";
+            var root = document.getElementById("root");
+            var rail = root.querySelector(".scr-rail");
+            var vars =
+              window.__hyperframes && window.__hyperframes.getVariables
+                ? window.__hyperframes.getVariables()
+                : {};
+
+            function commaList(value, max) {
+              return String(value == null ? "" : value)
+                .split(",")
+                .map(function (token) {
+                  return token.trim();
+                })
+                .filter(function (token) {
+                  return token !== "";
+                })
+                .slice(0, max);
+            }
+
+            var states = commaList(vars.states, 8);
+            if (states.length === 0) states = ["Queued", "Reading", "Drafting", "Done"];
+            var count = states.length;
+
+            var badges = commaList(vars.badges, 4);
+            var badgeStateRaw = Math.round(Number(vars.badge_state));
+            var badgeState = Number.isFinite(badgeStateRaw)
+              ? Math.max(0, Math.min(count - 1, badgeStateRaw))
+              : Math.min(1, count - 1);
+
+            var exit = vars.exit === "fade" || vars.exit === "up" ? vars.exit : "none";
+
+            // Each enum choice routes to a DIFFERENT contract token so the
+            // variable stays meaningful under a theme.
+            var accentColors = {
+              green: "var(--brand, #71f5a7)",
+              blue: "var(--accent, #61a8ff)",
+              violet: "var(--accent-2, #c5a3ff)",
+            };
+            var accent = Object.prototype.hasOwnProperty.call(accentColors, vars.accent)
+              ? vars.accent
+              : "green";
+            root.style.setProperty("--scr-accent", accentColors[accent]);
+
+            // Build the rail: chips in machine order, badges directly after
+            // the badge_state chip. State 0 is active from mount.
+            var chips = states.map(function (label, index) {
+              var chip = document.createElement("div");
+              chip.className = "scr-chip";
+              chip.setAttribute("role", "listitem");
+              chip.setAttribute("data-state", index === 0 ? "active" : "pending");
+              var dot = document.createElement("span");
+              dot.className = "scr-dot";
+              dot.setAttribute("aria-hidden", "true");
+              var text = document.createElement("span");
+              text.textContent = label;
+              chip.appendChild(dot);
+              chip.appendChild(text);
+              return chip;
+            });
+            var badgeElements = badges.map(function (label) {
+              var badge = document.createElement("div");
+              badge.className = "scr-badge";
+              badge.textContent = label;
+              return badge;
+            });
+            chips.forEach(function (chip, index) {
+              rail.appendChild(chip);
+              if (index === badgeState) {
+                badgeElements.forEach(function (badge) {
+                  rail.appendChild(badge);
+                });
+              }
+            });
+            rail.setAttribute("aria-label", states.join(", "));
+
+            // Deterministic fit: wide-tracked mono at ~0.76em per glyph, plus
+            // chip padding, dot, and rail gaps, all measured in em.
+            var railEm = (count - 1 + badges.length) * 0.8;
+            states.forEach(function (label) {
+              railEm += Array.from(label).length * 0.76 + 3.1;
+            });
+            badges.forEach(function (label) {
+              railEm += (Array.from(label).length * 0.76 + 2.5) * 0.82;
+            });
+            var fontCqw = Math.min(2.4, 90 / Math.max(1, railEm));
+            root.style.setProperty("--scr-font", "min(" + fontCqw.toFixed(3) + "cqw, 9cqh)");
+
+            // RETIME RANGE: fixed IN cascade + advance schedule, elastic
+            // still HOLD, optional OUT.
+            var OUT_BASE = 0.45;
+            var duration = Math.max(0.001, parseFloat(root.dataset.duration || "5"));
+            var OUT = exit === "none" ? 0 : Math.min(OUT_BASE, duration * 0.2);
+            var avail = duration - OUT;
+
+            var CHIP = Math.min(0.45, Math.max(0.2, avail * 0.15));
+            var entryGap = Math.min(0.08, Math.max(0.02, avail * 0.02));
+            var entryEnd = 0.12 + entryGap * (count - 1) + CHIP;
+
+            // Default rhythm: advances spread evenly from just after the
+            // cascade to ~1s before the window closes.
+            var firstAdvance = Math.min(Math.max(entryEnd + 0.15, 0.9), Math.max(0.2, avail - 0.6));
+            var lastAdvance = Math.max(firstAdvance, avail - 1.0);
+            var advanceCount = count - 1;
+            var timesList = String(vars.times == null ? "" : vars.times).split(",");
+            var previous = 0.15;
+            var advances = [];
+            for (var k = 0; k < advanceCount; k += 1) {
+              var fallback =
+                advanceCount > 1
+                  ? firstAdvance + (k * (lastAdvance - firstAdvance)) / (advanceCount - 1)
+                  : firstAdvance;
+              var cueText = (timesList[k] || "").trim();
+              var cue = Number(cueText);
+              var start = cueText !== "" && Number.isFinite(cue) ? cue : fallback;
+              start = Math.max(0.15, Math.min(start, Math.max(0.15, avail - 0.45)));
+              start = Math.max(start, previous + 0.05);
+              previous = start;
+              advances.push(start);
+            }
+
+            var tl = gsap.timeline({ paused: true });
+
+            // IN: chips cascade into the rail. Explicit both-endpoints state
+            // so any seek is exact. Badges hold at scale 0 until their pop
+            // (they keep their layout slot, so the rail never reflows).
+            chips.forEach(function (chip, index) {
+              gsap.set(chip, { opacity: 0, y: "2.5cqh" });
+              tl.fromTo(
+                chip,
+                { opacity: 0, y: "2.5cqh" },
+                { opacity: 1, y: "0cqh", duration: CHIP, ease: "power3.out" },
+                0.12 + entryGap * index,
+              );
+            });
+
+            // The snap machine: pure attribute flips. GSAP records the prior
+            // value on first render in timeline order, so backward seeks
+            // restore pending / active exactly.
+            advances.forEach(function (start, index) {
+              var stateIndex = index + 1;
+              tl.set(chips[stateIndex], { attr: { "data-state": "active" } }, start);
+              tl.set(chips[stateIndex - 1], { attr: { "data-state": "done" } }, start);
+            });
+
+            // Badges pop beside their state as it activates.
+            if (badgeElements.length > 0) {
+              var popStart = badgeState === 0 ? entryEnd + 0.1 : advances[badgeState - 1] + 0.12;
+              popStart = Math.min(popStart, Math.max(0.2, avail - 0.4));
+              badgeElements.forEach(function (badge, index) {
+                gsap.set(badge, { opacity: 0, scale: 0 });
+                tl.fromTo(
+                  badge,
+                  { opacity: 0, scale: 0 },
+                  { opacity: 1, scale: 1, duration: 0.4, ease: "power3.out" },
+                  popStart + 0.14 * index,
+                );
+              });
+            }
+
+            // HOLD: intentionally still. The resolved machine reads as a frame.
+
+            // OUT: the whole rail leaves together.
+            if (exit !== "none") {
+              var OUT_START = duration - OUT;
+              tl.to(rail, { opacity: 0, duration: OUT, ease: "power2.in" }, OUT_START);
+              if (exit === "up") {
+                tl.to(rail, { y: "-3cqh", duration: OUT, ease: "power2.in" }, OUT_START);
+              }
+            }
+
+            tl.seek(0);
+            window.__timelines = window.__timelines || {};
+            window.__timelines[compositionId] = tl;
+          })();
+        </script>
+      </div>
+    </div>
+    </div>
+
+    <script src="../lib/gsap.min.js"></script>
+    <script>
+      window.__timelines = window.__timelines || {};
+      window.__timelines["state-chip-rail-demo"] = gsap.timeline({ paused: true });
+    </script>
+  </div>
+<script>window.__popostFit();</script>
+</body>
+</html>

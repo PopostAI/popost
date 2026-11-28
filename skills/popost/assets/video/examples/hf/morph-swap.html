@@ -1,0 +1,523 @@
+<!doctype html>
+<!--
+  Adapted from HyperFrames (https://github.com/heygen-com/hyperframes), registry/components/morph-swap, commit a8332860c396e9224d42b7ea2a9cc8f42918c961.
+  Copyright 2026 HeyGen, Inc. Licensed under the Apache License, Version 2.0; the licence text is in the popost
+  Skill's THIRD_PARTY_NOTICES. Changed for the popost Skill (tools/video/port-hyperframes.mjs): its comments removed; the composition it mounts (morph-swap.html) put into the page; GSAP loaded from the project (../lib/gsap.min.js) instead of a CDN; the 1920x1080 composition scaled into the scene's canvas (parameter "fit"); HyperFrames variables declared as parameters; its clips shown and hidden from the scene's time; sound cues derived from its tweens.
+-->
+
+<html data-composition-variables='[
+    { "id": "swap_at", "type": "number", "role": "timing", "label": "Swap start", "description": "Seconds after mount start when the morph begins.", "default": 1.4, "min": 0.1, "max": 8, "step": 0.05, "unit": "s" },
+    { "id": "register", "type": "enum", "role": "style", "label": "Register", "description": "Morph mechanic: condense shrink-fades A into B at center; reshape morphs the silhouette on scaleX/scaleY.", "default": "condense", "options": [{ "value": "condense", "label": "Condense" }, { "value": "reshape", "label": "Reshape" }] },
+    { "id": "accent", "type": "enum", "role": "style", "label": "Accent", "description": "Incoming card accent color.", "default": "green", "options": [{ "value": "green", "label": "Green" }, { "value": "blue", "label": "Blue" }, { "value": "violet", "label": "Violet" }] },
+    { "id": "exit", "type": "enum", "role": "timing", "label": "Exit", "description": "Outgoing transition. None holds the final frame.", "default": "none", "options": [{ "value": "none", "label": "None" }, { "value": "fade", "label": "Fade" }, { "value": "up", "label": "Up" }] }
+  ]' lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>morph-swap Demo</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: var(--bg, #0b0c0e);
+      }
+
+      #root {
+        --bg: #0b0c0e;
+        --fg: #f8fafc;
+        --surface: #14171c;
+        --border: #343a46;
+        --brand: #71f5a7;
+        --accent: #c5a3ff;
+        --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: radial-gradient(
+          ellipse at 50% 44%,
+          var(--bg, #171a20) 0%,
+          var(--bg, #0b0c0e) 72%
+        );
+      }
+
+      .mount-card {
+        width: 52%;
+        height: 66%;
+        left: 24%;
+        top: 17%;
+        container-type: size;
+        overflow: hidden;
+        border: 1px solid color-mix(in srgb, var(--border, #94a3b8) 20%, transparent);
+        border-radius: 30px;
+        background: color-mix(in srgb, var(--surface, #101318) 72%, transparent);
+        box-shadow: 0 40px 100px color-mix(in srgb, var(--bg, #000000) 48%, transparent);
+      }
+    </style>
+  <style id="popost-fit">
+  html, body { margin: 0 !important; width: 1280px; height: 720px; overflow: hidden !important; background: #000000; }
+  #popost-stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden; }
+</style>
+<script type="application/json" id="popost-params">
+{
+ "about": "Two slotted siblings stacked at one shared center: A holds, then condenses or reshapes into B on a shared 50% 50% transform origin. Condense shrink-fades A exactly as B scales up; reshape morphs the silhouette on scaleX/scaleY, never width or height tweens. Token card defaults render when a slot is left empty.",
+ "class": "transition",
+ "tags": [
+  "transition",
+  "morph",
+  "swap",
+  "condense",
+  "reshape",
+  "holdable",
+  "slots"
+ ],
+ "seconds": 1.95,
+ "params": [
+  {
+   "name": "fit",
+   "type": "choice",
+   "default": "contain",
+   "options": [
+    "contain",
+    "cover"
+   ],
+   "what": "how the 1920x1080 composition is fitted into the canvas: whole with bars, or filling it and cropped"
+  },
+  {
+   "name": "swap_at",
+   "type": "number",
+   "default": 1.4,
+   "min": 0.1,
+   "max": 8,
+   "unit": "s",
+   "what": "Seconds after mount start when the morph begins."
+  },
+  {
+   "name": "register",
+   "type": "choice",
+   "default": "condense",
+   "options": [
+    "condense",
+    "reshape"
+   ],
+   "what": "Morph mechanic: condense shrink-fades A into B at center; reshape morphs the silhouette on scaleX/scaleY."
+  },
+  {
+   "name": "accent",
+   "type": "choice",
+   "default": "green",
+   "options": [
+    "green",
+    "blue",
+    "violet"
+   ],
+   "what": "Incoming card accent color."
+  },
+  {
+   "name": "exit",
+   "type": "choice",
+   "default": "none",
+   "options": [
+    "none",
+    "fade",
+    "up"
+   ],
+   "what": "Outgoing transition. None holds the final frame."
+  }
+ ],
+ "values": {}
+}
+</script>
+<script>
+  /* popost: the scene's parameters stand in for HyperFrames variables; random numbers are seeded; the composition is
+     scaled into the canvas; clips are shown and hidden from the scene's time. */
+  (function () {
+    var block = document.getElementById('popost-params');
+    var values = block ? (JSON.parse(block.textContent).values || {}) : {};
+    var vars = {"register":"reshape","swap_at":0.9,"accent":"violet"};
+    Object.keys(values).forEach(function (k) { if (k !== 'fit') vars[k] = values[k] === 'true' ? true : values[k] === 'false' ? false : values[k]; });
+    window.__hyperframes = { getVariables: function () { return vars; } };
+    var seed = 20240229;
+    window.__popostRandom = function () { seed = (seed + 0x6d2b79f5) >>> 0; var t = seed; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+    window.__popostFit = function () {
+      // The canvas, from the size this file declares: a scene of a later shot loads in a layer that is not displayed, where the page measures 0.
+      var size = /width: (\d+)px; height: (\d+)px;/.exec(document.getElementById('popost-fit').textContent);
+      var W = 1920, H = 1080, s = document.getElementById('popost-stage'), cw = Number(size[1]), ch = Number(size[2]);
+      var k = (values.fit === 'cover' ? Math.max : Math.min)(cw / W, ch / H);
+      s.style.transform = 'translate(' + (cw - W * k) / 2 + 'px,' + (ch - H * k) / 2 + 'px) scale(' + k + ')';
+      var clips = Array.prototype.slice.call(s.querySelectorAll('.clip[data-start]')).filter(function (c) { return isFinite(parseFloat(c.getAttribute('data-start'))) && c.parentNode !== s; });
+      // A mounted composition that starts later in its host runs on its own time.
+      [].forEach(function (m) {
+        var tl = window.__timelines && window.__timelines[m.id];
+        if (tl) window.__timelines[m.id] = { pause: function () { tl.pause(); }, seek: function (t) { tl.seek(Math.max(0, t - m.start)); }, duration: function () { return tl.duration() + m.start; } };
+      });
+      var scene = (window.__popostScene = window.__popostScene || {}), before = scene.render;
+      scene.render = function (seconds, fps) {
+        if (before) before(seconds, fps);
+        for (var i = 0; i < clips.length; i++) {
+          var a = parseFloat(clips[i].getAttribute('data-start')), d = parseFloat(clips[i].getAttribute('data-duration'));
+          clips[i].style.visibility = seconds >= a && (!isFinite(d) || seconds < a + d) ? 'visible' : 'hidden';
+        }
+      };
+    };
+  })();
+</script>
+<script type="application/json" id="popost-cues">[{"at":0,"cue":"whoosh","gain":0.5}]</script>
+</head>
+  <body>
+<div id="popost-stage">
+    <div
+      id="root"
+      data-composition-id="morph-swap-demo"
+      data-start="0"
+      data-width="1920"
+      data-height="1080"
+      data-duration="3.5"
+      data-fps="30"
+    >
+      <div
+        id="morph-swap-mount"
+        class="mount-card clip"
+        data-composition-id="morph-swap"
+       
+        data-variable-values='{"register":"reshape","swap_at":0.9,"accent":"violet"}'
+        data-start="0"
+        data-duration="3.5"
+        data-track-index="0"
+        data-width="998"
+        data-height="713"
+      >
+      <div id="root" data-composition-id="morph-swap" data-duration="3.5" data-fps="30">
+        <style>
+          *,
+          *::before,
+          *::after {
+            box-sizing: border-box;
+          }
+
+          /* Root fills the host-owned box. Internal measurements use cqw/cqh
+             and every painted color comes from a contract token. */
+          #root {
+            position: absolute;
+            inset: 0;
+            container-type: size;
+            isolation: isolate;
+            overflow: hidden;
+            background: var(--bg, #07111f);
+            color: var(--fg, #f8fafc);
+            font-family: var(--font-body, Inter, system-ui, sans-serif);
+          }
+
+          .msw-clip,
+          .msw-stage {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+          }
+
+          .msw-clip {
+            overflow: hidden;
+          }
+
+          .msw-stage {
+            opacity: 0;
+          }
+
+          /* Both panels stack full-bleed and center their content, so the two
+             siblings share one center and one transform origin. All morph
+             motion is transforms on the panel; slot content never reflows. */
+          .msw-panel {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            transform-origin: 50% 50%;
+          }
+
+          /* Caller-supplied media keeps a sane footprint at center. */
+          .msw-slot > img,
+          .msw-slot > video {
+            max-width: 84cqw;
+            max-height: 84cqh;
+            border-radius: var(--radius, 2.4cqmin);
+          }
+
+          .msw-slot {
+            display: grid;
+            place-items: center;
+          }
+
+          /* Token-styled default slot content: a muted wireframe card on the
+             outgoing side, a taller brand-tinted card on the incoming side.
+             Callers replacing slot children never see any of this. */
+          .msw-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: var(--space-3, 4cqh) var(--space-3, 4cqw);
+            border: 0.16cqw solid var(--border, #334155);
+            border-radius: var(--radius, 2.4cqmin);
+            background: color-mix(in srgb, var(--surface, #172033) 88%, var(--bg, #07111f));
+            box-shadow: 0 2cqh 5cqw color-mix(in srgb, var(--bg, #07111f) 45%, transparent);
+          }
+
+          .msw-a .msw-card {
+            width: 52cqw;
+            height: 46cqh;
+          }
+
+          .msw-b .msw-card {
+            width: 36cqw;
+            height: 62cqh;
+            border-color: color-mix(
+              in srgb,
+              var(--msw-accent, #22c55e) 52%,
+              var(--border, #334155)
+            );
+            background: color-mix(in srgb, var(--surface, #172033) 86%, var(--msw-accent, #22c55e));
+          }
+
+          .msw-bar {
+            width: 34%;
+            height: 4.4cqh;
+            margin-bottom: var(--space-3, 4cqh);
+            border-radius: 1.2cqh;
+            background: var(--muted, #94a3b8);
+            opacity: 0.5;
+          }
+
+          .msw-b .msw-bar {
+            width: 46%;
+            background: var(--msw-accent, #22c55e);
+            opacity: 0.92;
+          }
+
+          .msw-line {
+            height: 2.4cqh;
+            margin-bottom: var(--space-2, 2.6cqh);
+            border-radius: 1.2cqh;
+            background: var(--muted, #94a3b8);
+            opacity: 0.4;
+          }
+
+          .msw-line:nth-of-type(2) {
+            width: 92%;
+          }
+
+          .msw-line:nth-of-type(3) {
+            width: 68%;
+          }
+
+          .msw-line:nth-of-type(4) {
+            width: 44%;
+          }
+
+          .msw-b .msw-line {
+            background: color-mix(in srgb, var(--msw-accent, #22c55e) 70%, var(--fg, #f8fafc));
+            opacity: 0.7;
+          }
+        </style>
+
+        <div
+          id="morph-swap-clip"
+          class="msw-clip clip"
+          data-start="0"
+          data-duration="3.5"
+          data-track-index="0"
+        >
+          <div class="msw-stage">
+            <section class="msw-panel msw-a" aria-label="Outgoing panel">
+              <div class="msw-slot" data-slot="a">
+                
+                <div class="msw-card" aria-hidden="true">
+                  <div class="msw-bar"></div>
+                  <div class="msw-line"></div>
+                  <div class="msw-line"></div>
+                  <div class="msw-line"></div>
+                </div>
+              </div>
+            </section>
+
+            <section class="msw-panel msw-b" aria-label="Incoming panel">
+              <div class="msw-slot" data-slot="b">
+                
+                <div class="msw-card" aria-hidden="true">
+                  <div class="msw-bar"></div>
+                  <div class="msw-line"></div>
+                  <div class="msw-line"></div>
+                  <div class="msw-line"></div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+
+        <script src="../lib/gsap.min.js"></script>
+        <script>
+          (function () {
+            "use strict";
+
+            var root = document.getElementById("root");
+            // Literal id: mount flattening strips data-composition-id from the
+            // live root before this timeline registers.
+            var compositionId = "morph-swap";
+            var stage = root.querySelector(".msw-stage");
+            var panelA = root.querySelector(".msw-a");
+            var panelB = root.querySelector(".msw-b");
+
+            var vars =
+              window.__hyperframes && window.__hyperframes.getVariables
+                ? window.__hyperframes.getVariables()
+                : {};
+
+            var rawSwapAt = vars.swap_at == null ? 1.4 : Number(vars.swap_at);
+            // INVARIANT: swap_at always clamps into the declared 0.1-8 range.
+            var swapAt = Number.isFinite(rawSwapAt) ? Math.max(0.1, Math.min(8, rawSwapAt)) : 1.4;
+            // INVARIANT: only condense | reshape reaches the timeline.
+            var register = vars.register === "reshape" ? "reshape" : "condense";
+            // Each enum choice routes to a DIFFERENT contract token so the
+            // variable stays meaningful under a theme.
+            var accentColors = {
+              green: "var(--brand, #22c55e)",
+              blue: "var(--accent, #38bdf8)",
+              violet: "var(--accent-2, #c5a3ff)",
+            };
+            var accent = Object.prototype.hasOwnProperty.call(accentColors, vars.accent)
+              ? vars.accent
+              : "green";
+            // INVARIANT: only none | fade | up reaches the timeline.
+            var exit = vars.exit === "fade" || vars.exit === "up" ? vars.exit : "none";
+
+            root.style.setProperty("--msw-accent", accentColors[accent]);
+
+            // RETIME RANGE: fixed IN and OUT scale together only when D is too
+            // short. HOLD is the sole elastic phase. Never use timeScale().
+            var STAGE_IN_BASE = 0.32;
+            var SPAN_BASE = register === "condense" ? 0.75 : 1.05;
+            var IN_BASE = swapAt + SPAN_BASE;
+            var OUT_BASE = exit === "none" ? 0 : 0.5;
+
+            var duration = Math.max(0.001, parseFloat(root.dataset.duration || "3.5"));
+            var totalBase = IN_BASE + OUT_BASE;
+            var scale = duration < totalBase ? duration / totalBase : 1;
+            var IN = IN_BASE * scale;
+            var OUT = OUT_BASE * scale;
+            var STAGE_IN = Math.min(STAGE_IN_BASE * scale, IN);
+            var SWAP = swapAt * scale;
+            var SWAP_END = IN;
+            var HOLD = Math.max(0, duration - (IN + OUT));
+            var OUT_START = IN + HOLD;
+
+            function fireSfx(id, t) {
+              root.dispatchEvent(
+                new CustomEvent("hf:sfx", { detail: { id: id, t: t }, bubbles: true }),
+              );
+            }
+
+            // Explicit both-endpoints state makes tl.seek(0) deterministic:
+            // A fully present, B parked hidden at its pre-morph shape.
+            gsap.set(stage, { opacity: 0, y: 0 });
+            gsap.set(panelA, { scale: 1, scaleX: 1, scaleY: 1, autoAlpha: 1 });
+            gsap.set(panelB, { scale: 1, scaleX: 1, scaleY: 1, autoAlpha: 0 });
+
+            var tl = gsap.timeline({ paused: true });
+
+            // IN part 1: the stage settles and A holds alone.
+            tl.to(stage, { opacity: 1, duration: STAGE_IN, ease: "power2.out" }, 0);
+
+            // IN part 2: the morph, both registers on the shared 50% 50% origin.
+            if (register === "condense") {
+              // A condenses toward center as B scales up through the same
+              // silhouette, 0.15s overlap (flagship close morph).
+              tl.to(
+                panelA,
+                { scale: 0.72, autoAlpha: 0, duration: 0.35 * scale, ease: "power2.in" },
+                SWAP,
+              );
+              tl.fromTo(
+                panelB,
+                { scale: 0.72, autoAlpha: 0 },
+                {
+                  scale: 1,
+                  autoAlpha: 1,
+                  duration: 0.55 * scale,
+                  ease: "back.out(1.6)",
+                  immediateRender: false,
+                },
+                SWAP + 0.2 * scale,
+              );
+            } else {
+              // A reshapes its silhouette on scaleX/scaleY (NEVER width or
+              // height tweens) while fading; B picks up from the same
+              // mid-morph silhouette and relaxes to its natural shape.
+              tl.to(
+                panelA,
+                { scaleX: 0.68, scaleY: 1.34, duration: 0.6 * scale, ease: "power2.inOut" },
+                SWAP,
+              );
+              tl.to(
+                panelA,
+                { autoAlpha: 0, duration: 0.45 * scale, ease: "power1.in" },
+                SWAP + 0.15 * scale,
+              );
+              tl.fromTo(
+                panelB,
+                { scaleX: 0.68, scaleY: 1.34, autoAlpha: 0 },
+                {
+                  scaleX: 1,
+                  scaleY: 1,
+                  autoAlpha: 1,
+                  duration: 0.65 * scale,
+                  ease: "power2.out",
+                  immediateRender: false,
+                },
+                SWAP + 0.4 * scale,
+              );
+            }
+            tl.call(
+              function () {
+                fireSfx("morph-land-soft", SWAP_END);
+              },
+              [],
+              SWAP_END,
+            );
+
+            // HOLD: B dead-still at its natural shape.
+
+            // OUT: only when the exit variable asks for one; exit none holds
+            // the final frame (frame roots own transitions).
+            if (exit !== "none") {
+              tl.to(stage, { opacity: 0, duration: OUT, ease: "power2.in" }, OUT_START);
+              if (exit === "up") {
+                tl.to(stage, { y: "-6cqh", duration: OUT, ease: "power2.in" }, OUT_START);
+              }
+            }
+
+            tl.seek(0);
+
+            window.__timelines = window.__timelines || {};
+            window.__timelines[compositionId] = tl;
+          })();
+        </script>
+      </div>
+    </div>
+    </div>
+
+    <script src="../lib/gsap.min.js"></script>
+    <script>
+      window.__timelines = window.__timelines || {};
+      window.__timelines["morph-swap-demo"] = gsap.timeline({ paused: true });
+    </script>
+  </div>
+<script>window.__popostFit();</script>
+</body>
+</html>

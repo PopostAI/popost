@@ -1,0 +1,148 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Extruded lit shape with a cast shadow (three.js)</title>
+<style>
+  html, body { margin: 0; width: 1280px; height: 720px; overflow: hidden; }
+  canvas { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
+</style></head>
+<body>
+<canvas id="gl"></canvas>
+  <script type="application/json" id="popost-params">
+{
+ "about": "A flat outline pushed into depth with a bevelled edge, lit from the side so that it casts a soft shadow on the floor, and turned a little back and forth: a star, a heart, a bolt, an arrow or a rounded plate.",
+ "class": "3d",
+ "seconds": 4,
+ "tags": [
+  "three",
+  "3d",
+  "extrude",
+  "extruded",
+  "shadow",
+  "lit",
+  "logo",
+  "letters",
+  "bevel",
+  "webgl"
+ ],
+ "params": [
+  {
+   "name": "shape",
+   "type": "choice",
+   "default": "star",
+   "options": [
+    "star",
+    "heart",
+    "bolt",
+    "arrow",
+    "plate"
+   ],
+   "what": "the outline that is pushed into depth"
+  },
+  {
+   "name": "depth",
+   "type": "number",
+   "default": 0.6,
+   "min": 0.05,
+   "max": 3,
+   "what": "how deep it is"
+  },
+  {
+   "name": "bevel",
+   "type": "number",
+   "default": 0.12,
+   "min": 0,
+   "max": 0.5,
+   "what": "how round its edges are"
+  },
+  {
+   "name": "swing",
+   "type": "number",
+   "default": 0.55,
+   "min": 0,
+   "max": 3.14,
+   "what": "how far it turns to each side",
+   "unit": "radians"
+  },
+  {
+   "name": "period",
+   "type": "number",
+   "default": 3,
+   "min": 0.5,
+   "max": 20,
+   "what": "the time of one swing",
+   "unit": "seconds"
+  },
+  {
+   "name": "tilt",
+   "type": "number",
+   "default": 0.25,
+   "min": -1.5,
+   "max": 1.5,
+   "what": "how far the camera looks down on it",
+   "unit": "radians"
+  },
+  {
+   "name": "color",
+   "type": "colour",
+   "default": "#ff5d8f",
+   "what": "the shape"
+  },
+  {
+   "name": "floorColor",
+   "type": "colour",
+   "default": "#ffe5ec",
+   "what": "the floor"
+  },
+  {
+   "name": "ground",
+   "type": "colour",
+   "default": "#ffe5ec",
+   "what": "the background"
+  },
+  {
+   "name": "delay",
+   "type": "number",
+   "default": 0.2,
+   "min": 0,
+   "max": 20,
+   "unit": "seconds",
+   "what": "when the effect starts, from the start of the shot"
+  }
+ ],
+ "values": {}
+}
+  </script>
+  <script src="../lib/three.min.js"></script>
+  <script>
+    // The parameters of this copy: the declared defaults, then what "values" sets.
+    var P = (function () { var b = JSON.parse(document.getElementById('popost-params').textContent), v = {}; b.params.forEach(function (p) { v[p.name] = p['default']; }); for (var k in b.values) v[k] = b.values[k]; return v; })();
+    // The canvas, from the size this file declares for html and body: a scene of a later shot loads in a layer that
+    // is not displayed, where the page itself measures 0 until its first frame.
+    var SIZE = /html, body \{ margin: 0; width: (\d+)px; height: (\d+)px;/.exec(document.querySelector('style').textContent), W = Number(SIZE[1]), H = Number(SIZE[2]), U = Math.min(W, H) / 720;
+    // One renderer, made once; every frame is drawn from render(seconds) alone: no animation loop, no clock.
+    var renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('gl'), antialias: true, preserveDrawingBuffer: true });
+    renderer.setPixelRatio(1); renderer.setSize(W, H, false);
+    var scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(35, W / H, 0.1, 200);
+    renderer.setClearColor(P.ground); renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    camera.position.set(0, 2.2 + 6 * Math.sin(P.tilt), 11 * Math.cos(P.tilt)); camera.lookAt(0, 0.6, 0);
+    var pts = { star: (function () { var a = []; for (var i = 0; i < 10; i++) { var r = i % 2 ? 0.85 : 2, t = (i * Math.PI) / 5 + Math.PI / 2; a.push([Math.cos(t) * r, Math.sin(t) * r]); } return a; })(),
+      bolt: [[0.5, 2], [-1.1, -0.2], [-0.1, -0.2], [-0.6, -2], [1.1, 0.4], [0.1, 0.4]], arrow: [[-2, 0.5], [0.4, 0.5], [0.4, 1.4], [2, 0], [0.4, -1.4], [0.4, -0.5], [-2, -0.5]] };
+    var shape = new THREE.Shape();
+    if (P.shape === 'heart') { shape.moveTo(0, -1.7); shape.bezierCurveTo(-0.7, -1.1, -2, -0.2, -2, 0.7); shape.bezierCurveTo(-2, 1.9, -0.5, 2.1, 0, 1.1); shape.bezierCurveTo(0.5, 2.1, 2, 1.9, 2, 0.7); shape.bezierCurveTo(2, -0.2, 0.7, -1.1, 0, -1.7); }
+    else if (P.shape === 'plate') { shape.absarc(-1.2, -0.7, 0.6, Math.PI, 1.5 * Math.PI); shape.absarc(1.2, -0.7, 0.6, 1.5 * Math.PI, 0); shape.absarc(1.2, 0.7, 0.6, 0, 0.5 * Math.PI); shape.absarc(-1.2, 0.7, 0.6, 0.5 * Math.PI, Math.PI); }
+    else pts[P.shape].forEach(function (p, i) { if (i) shape.lineTo(p[0], p[1]); else shape.moveTo(p[0], p[1]); });
+    var geo = new THREE.ExtrudeGeometry(shape, { depth: P.depth, bevelEnabled: P.bevel > 0, bevelThickness: P.bevel, bevelSize: P.bevel, bevelSegments: 6, curveSegments: 24 });
+    geo.center();
+    var mesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: new THREE.Color(P.color), roughness: 0.45, metalness: 0.05 })); mesh.castShadow = true; mesh.position.y = 1;
+    var floor = new THREE.Mesh(new THREE.PlaneGeometry(60, 60), new THREE.MeshStandardMaterial({ color: new THREE.Color(P.floorColor), roughness: 1 })); floor.rotation.x = -Math.PI / 2; floor.position.y = -1.6; floor.receiveShadow = true;
+    var key = new THREE.DirectionalLight(0xffffff, 1.15); key.position.set(4, 8, 6); key.castShadow = true; key.shadow.mapSize.set(2048, 2048); key.shadow.radius = 6;
+    key.shadow.camera.left = -6; key.shadow.camera.right = 6; key.shadow.camera.top = 6; key.shadow.camera.bottom = -6;
+    scene.add(mesh, floor, key, new THREE.HemisphereLight(0xffffff, new THREE.Color(P.floorColor), 0.75));
+    window.__popostScene = { cues: [{ at: P.delay, cue: 'pop', gain: 0.6, effect: 'three' }], render: function (seconds) {
+      // It rises out of the floor on a spring, then swings for as long as the shot lasts.
+      var u = Math.max(0, seconds - P.delay), k = u <= 0 ? 0 : 1 - Math.exp(-6 * u) * Math.cos(8 * u);
+      mesh.scale.setScalar(Math.max(0.0001, k)); mesh.position.y = -1.6 + 2.6 * Math.min(1.1, k);
+      mesh.rotation.y = Math.sin((u / P.period) * 2 * Math.PI) * P.swing;
+      renderer.render(scene, camera);
+    } };
+  </script>
+</body></html>

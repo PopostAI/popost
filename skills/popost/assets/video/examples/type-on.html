@@ -1,0 +1,128 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Typed text and decode</title>
+<style>
+  html, body { margin: 0; width: 1280px; height: 720px; overflow: hidden; }
+  #line { position: absolute; left: 10%; top: 0; width: 80%; height: 100%; display: flex; align-items: center; }
+  #text { white-space: pre-wrap; line-height: 1.3; }
+</style></head>
+<body>
+<div id="line"><div id="text" data-slot="text"></div></div>
+  <script type="application/json" id="popost-params">
+{
+ "about": "Text that is typed character by character with a cursor, or that settles out of changing characters from left to right. The typing has a cue every third character; the decode one glitch.",
+ "class": "text",
+ "seconds": 2.6,
+ "tags": [
+  "typewriter",
+  "typing",
+  "terminal",
+  "cursor",
+  "decode",
+  "scramble",
+  "code",
+  "text"
+ ],
+ "params": [
+  {
+   "name": "text",
+   "type": "text",
+   "default": "popost video render project",
+   "maxLength": 80,
+   "what": "the text"
+  },
+  {
+   "name": "mode",
+   "type": "choice",
+   "default": "type",
+   "options": [
+    "type",
+    "decode"
+   ],
+   "what": "typed with a cursor, or settling out of changing characters"
+  },
+  {
+   "name": "cps",
+   "type": "number",
+   "default": 16,
+   "min": 2,
+   "max": 80,
+   "what": "characters a second"
+  },
+  {
+   "name": "cursor",
+   "type": "choice",
+   "default": "|",
+   "options": [
+    "|",
+    "_",
+    "█",
+    "none"
+   ],
+   "what": "the cursor"
+  },
+  {
+   "name": "font",
+   "type": "choice",
+   "default": "mono",
+   "options": [
+    "mono",
+    "sans"
+   ],
+   "what": "the typeface"
+  },
+  {
+   "name": "size",
+   "type": "number",
+   "default": 0.075,
+   "min": 0.02,
+   "max": 0.3,
+   "what": "the size of the type",
+   "unit": "fraction of the canvas height"
+  },
+  {
+   "name": "seed",
+   "type": "number",
+   "default": 3,
+   "min": 1,
+   "max": 999,
+   "what": "the changing characters"
+  },
+  {
+   "name": "color",
+   "type": "colour",
+   "default": "#d8f3dc",
+   "what": "the text"
+  },
+  {
+   "name": "ground",
+   "type": "colour",
+   "default": "#081c15",
+   "what": "the background"
+  },
+  {
+   "name": "delay",
+   "type": "number",
+   "default": 0.2,
+   "min": 0,
+   "max": 20,
+   "unit": "seconds",
+   "what": "when the effect starts, from the start of the shot"
+  }
+ ],
+ "values": {}
+}
+  </script>
+  <script src="../lib/popost-motion.js"></script>
+  <script>
+    // The parameters of this copy: the declared defaults, then what "values" sets.
+    var P = (function () { var b = JSON.parse(document.getElementById('popost-params').textContent), v = {}; b.params.forEach(function (p) { v[p.name] = p['default']; }); for (var k in b.values) v[k] = b.values[k]; return v; })();
+    // The canvas, from the size this file declares for html and body: a scene of a later shot loads in a layer that
+    // is not displayed, where the page itself measures 0 until its first frame.
+    var SIZE = /html, body \{ margin: 0; width: (\d+)px; height: (\d+)px;/.exec(document.querySelector('style').textContent), W = Number(SIZE[1]), H = Number(SIZE[2]), U = Math.min(W, H) / 720;
+    var M = popostMotion, el = document.getElementById('text');
+    document.body.style.background = P.ground; el.textContent = P.text; el.style.color = P.color;
+    el.style.font = '600 ' + P.size * H + 'px ' + (P.font === 'mono' ? '"Noto Sans Mono", "DejaVu Sans Mono", monospace' : '"Noto Sans", "Noto Sans CJK SC", sans-serif');
+    if (P.mode === 'type') M.typeOn('#text', { at: P.delay, cps: P.cps, cursor: P.cursor === 'none' ? false : P.cursor });
+    else M.scramble('#text', { at: P.delay, 'for': Array.from(P.text).length / P.cps, seed: P.seed });
+  </script>
+</body></html>

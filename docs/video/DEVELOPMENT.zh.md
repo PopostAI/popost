@@ -162,6 +162,7 @@ npx vite-node skills/popost/src/cli.ts video --help  # 从源码运行 popost vi
 | 一项测量 | `src/measure` 里一个作用于解码缩略图的纯函数；`Measure` 里的一个字段 | 带真值的合成测试；在 `src/measure/README.md` 里加一条并写明准确率 |
 | 一个评分维度 | `DIMENSIONS`；`src/score`（受保护的路径） | 设计方案 13.2 节的验证测试：自比、重新编码、逐级损坏、无关视频 |
 | 一种轨道类型 | `types.ts`；schema、它在 `KeyTable` 里的一项和一个 `src/project/check-*.ts`；`src/timeline/items.ts`（一条轨道可以展开成多个元素，字幕轨道就是这样）；运行时；如果能测量，还有草稿生成器 | schema、时间轴和渲染测试 |
+| 场景用的库、一个效果、一条效果目录 | 库：`src/scene/library.ts` 的 `LIBRARIES`（npm 包里的文件或 Skill 自带的文件）。动效助手里的效果：`assets/video/motion.js`（时间的纯函数，用 `declare(...)` 声明它的音效提示点，只在 `whenShown` 里测量页面）。示例场景：`assets/video/examples/` 下的一个 HTML 文件，带 `popost-params` 块（`about`、`class`、`seconds`、`params`、`values`），然后运行 `node skills/popost/tools/video/port-hyperframes.mjs --catalogue-only` 重新生成 `catalogue.json` 和 `references/video-effects.md`。移植来的条目（`examples/hf/`）不手改：改工具，对着 HyperFrames 的检出重新运行，再跑 `tools/video/verify-examples.ts` | `tests/video/motion-helper.test.ts`、`tests/video/scene-catalogue.test.ts`（每个条目的 lint 和参数、抽样的确定性）；效果带来新规则时同步 `references/video-motion.md` |
 
 ## 7. Git
 

@@ -8,6 +8,7 @@
  * drop at every level, in a few lines per shot at the top levels and one clause lower down; each shot read adds
  * READ_TOKENS to the budget (cardBudget).
  */
+import { oneIn } from '../text/share';
 import { roughTokens } from '../describe/index';
 import { aimText } from '../describe/aim';
 import { insetText } from '../describe/inset';
@@ -192,7 +193,22 @@ const highlightText = (tpl: Template): string => {
   const h = tpl.captions?.look?.highlight;
   if (!h?.color) return '';
   const of = tpl.captions?.look?.samples;
-  return ' The source drew a word or two of ' + h.lines + (of ? ' of ' + of : '') + ' lines in ' + h.color + ': wrap such words in asterisks, "*like this*", for the same.';
+  const share = h.share ?? (of ? h.lines / of : undefined);
+  const lines = slotsLines(tpl);
+  const want = share !== undefined && lines ? ' ' + cap(oneIn(share)) + ' has a highlighted word or two: mark about ' + Math.max(1, Math.round(share * lines)) + ' of your ' + lines + ' lines, not every line and not fewer than half of that.' : '';
+  return ' The source drew a word or two of ' + h.lines + (of ? ' of ' + of : '') + ' lines in ' + h.color + ': wrap such words in asterisks, "*like this*", for the same.' + want;
+};
+
+const cap = (t: string): string => t.charAt(0).toUpperCase() + t.slice(1);
+const slotsLines = (tpl: Template): number => tpl.captions?.beats.length ?? 0;
+
+/** How the source's lines came on screen, when that was measured (text/reveal.ts): what captionReveal a fill gets by default. */
+const revealText = (tpl: Template): string => {
+  const r = tpl.captions?.look?.reveal;
+  if (!r || r.confidence < 0.6) return '';
+  return r.kind === 'whole'
+    ? ' The source showed each line whole at once (' + r.lines + ' of ' + r.of + ' line starts measured): leave "captionReveal" out.'
+    : ' The source built each line ' + (r.kind === 'words' ? 'word by word' : 'character by character') + ' (' + r.lines + ' of ' + r.of + ' line starts measured): with a voice (--speak) the fill does the same by default; "captionReveal": "whole" turns it off.';
 };
 
 const fillPart = (tpl: Template, slots: Slots): string[] => {
@@ -203,7 +219,7 @@ const fillPart = (tpl: Template, slots: Slots): string[] => {
     '- shots[k]: {"footage": "assets/a.mp4", "in": 0, "speed": 1} | {"picture": "assets/b.webp", "zoom": 0.04} | {"color": "#101014"} | {"card": {"title": "...", "lines": ["..."]}} (1 s or more' +
       (slots.card ? '; title at most ' + slots.card.title.cjk + ' full-width or ' + slots.card.title.latin + ' Latin characters, up to ' + slots.card.lines + ' lines of ' + slots.card.line.cjk + ' or ' + slots.card.line.latin : '') + ')' +
       ' | {"scene": "scenes/shot-01.html", "slots": {"title": "..."}}: every shot takes a scene, an HTML page of the project that draws the whole shot.',
-    ...(n ? ['- captions[i]: the line of beat i; "" for none.' + highlightText(tpl)] : []),
+    ...(n ? ['- captions[i]: the line of beat i; "" for none.' + highlightText(tpl) + revealText(tpl)] : []),
     ...(slots.bar ? ['- bar: ["..."], ' + slots.bar.words.length + ' words from the left, drawn through the video; the marked one follows the shots.'] : []),
     ...(slots.shots.some((s) => s.words?.length) ? ['- shots[k].words: ["..."], a line per place in its "words", set as the source\'s.'] : []),
     ...(tpl.shots.some((s) => s.effect) ? ['- custom in: a scene draws the effect (both pictures and the moving object, as its frames show); fill cuts there and lets that scene cover the whole effect.'] : []),

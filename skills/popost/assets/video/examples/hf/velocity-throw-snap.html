@@ -1,0 +1,629 @@
+<!doctype html>
+<!--
+  Adapted from HyperFrames (https://github.com/heygen-com/hyperframes), registry/components/velocity-throw-snap, commit a8332860c396e9224d42b7ea2a9cc8f42918c961.
+  Copyright 2026 HeyGen, Inc. Licensed under the Apache License, Version 2.0; the licence text is in the popost
+  Skill's THIRD_PARTY_NOTICES. Changed for the popost Skill (tools/video/port-hyperframes.mjs): its comments removed; the composition it mounts (velocity-throw-snap.html) put into the page; GSAP loaded from the project (../lib/gsap.min.js) instead of a CDN; the 1920x1080 composition scaled into the scene's canvas (parameter "fit"); HyperFrames variables declared as parameters; its clips shown and hidden from the scene's time; sound cues derived from its tweens.
+-->
+
+<html data-composition-variables='[
+    { "id": "hero_index", "type": "number", "role": "content", "label": "Hero index", "description": "Zero-based index of the shot centered at the settle.", "default": 2, "min": 0, "max": 4, "step": 1 },
+    { "id": "accent", "type": "enum", "role": "style", "label": "Accent", "description": "Highlight color used by the hero shot.", "default": "green", "options": [{ "value": "green", "label": "Green" }, { "value": "blue", "label": "Blue" }, { "value": "violet", "label": "Violet" }] },
+    { "id": "card_label_prefix", "type": "string", "role": "content", "label": "Card label prefix", "description": "Text placed before each shot number.", "default": "Shot" }
+  ]' lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>Velocity Throw Snap Demo</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: var(--bg, #0b0c0e);
+      }
+
+      #root {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: radial-gradient(
+          ellipse at 50% 44%,
+          var(--bg, #1d2130) 0%,
+          var(--bg, #0b0c0e) 72%
+        );
+      }
+
+      .velocity-throw-snap-mount {
+        --bg: #0b0c0e;
+        --fg: #f8fafc;
+        --muted: #a7b0c0;
+        --surface: #182033;
+        --border: #475569;
+        width: 88%;
+        height: 74%;
+        left: 6%;
+        top: 13%;
+        overflow: hidden;
+        border: 1px solid var(--border, #343c4d);
+        border-radius: 34px;
+        background: var(--bg, #0b0c0e);
+        box-shadow: 0 52px 120px color-mix(in srgb, var(--bg, #000000) 50%, transparent);
+      }
+    </style>
+  <style id="popost-fit">
+  html, body { margin: 0 !important; width: 1280px; height: 720px; overflow: hidden !important; background: #000000; }
+  #popost-stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden; }
+</style>
+<script type="application/json" id="popost-params">
+{
+ "about": "A five-shot rail whips past on a fast decaying curve, then overshoots and snaps the selected hero shot exactly to center.",
+ "class": "motion",
+ "tags": [
+  "motion-primitive",
+  "feature-tour",
+  "rail",
+  "velocity",
+  "throw",
+  "snap",
+  "physics"
+ ],
+ "seconds": 4,
+ "params": [
+  {
+   "name": "fit",
+   "type": "choice",
+   "default": "contain",
+   "options": [
+    "contain",
+    "cover"
+   ],
+   "what": "how the 1920x1080 composition is fitted into the canvas: whole with bars, or filling it and cropped"
+  },
+  {
+   "name": "hero_index",
+   "type": "number",
+   "default": 2,
+   "min": 0,
+   "max": 4,
+   "what": "Zero-based index of the shot centered at the settle."
+  },
+  {
+   "name": "accent",
+   "type": "choice",
+   "default": "green",
+   "options": [
+    "green",
+    "blue",
+    "violet"
+   ],
+   "what": "Highlight color used by the hero shot."
+  },
+  {
+   "name": "card_label_prefix",
+   "type": "text",
+   "default": "Shot",
+   "maxLength": 200,
+   "what": "Text placed before each shot number."
+  }
+ ],
+ "values": {}
+}
+</script>
+<script>
+  /* popost: the scene's parameters stand in for HyperFrames variables; random numbers are seeded; the composition is
+     scaled into the canvas; clips are shown and hidden from the scene's time. */
+  (function () {
+    var block = document.getElementById('popost-params');
+    var values = block ? (JSON.parse(block.textContent).values || {}) : {};
+    var vars = {"hero_index":4,"accent":"violet","card_label_prefix":"Frame"};
+    Object.keys(values).forEach(function (k) { if (k !== 'fit') vars[k] = values[k] === 'true' ? true : values[k] === 'false' ? false : values[k]; });
+    window.__hyperframes = { getVariables: function () { return vars; } };
+    var seed = 20240229;
+    window.__popostRandom = function () { seed = (seed + 0x6d2b79f5) >>> 0; var t = seed; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+    window.__popostFit = function () {
+      // The canvas, from the size this file declares: a scene of a later shot loads in a layer that is not displayed, where the page measures 0.
+      var size = /width: (\d+)px; height: (\d+)px;/.exec(document.getElementById('popost-fit').textContent);
+      var W = 1920, H = 1080, s = document.getElementById('popost-stage'), cw = Number(size[1]), ch = Number(size[2]);
+      var k = (values.fit === 'cover' ? Math.max : Math.min)(cw / W, ch / H);
+      s.style.transform = 'translate(' + (cw - W * k) / 2 + 'px,' + (ch - H * k) / 2 + 'px) scale(' + k + ')';
+      var clips = Array.prototype.slice.call(s.querySelectorAll('.clip[data-start]')).filter(function (c) { return isFinite(parseFloat(c.getAttribute('data-start'))) && c.parentNode !== s; });
+      // A mounted composition that starts later in its host runs on its own time.
+      [].forEach(function (m) {
+        var tl = window.__timelines && window.__timelines[m.id];
+        if (tl) window.__timelines[m.id] = { pause: function () { tl.pause(); }, seek: function (t) { tl.seek(Math.max(0, t - m.start)); }, duration: function () { return tl.duration() + m.start; } };
+      });
+      var scene = (window.__popostScene = window.__popostScene || {}), before = scene.render;
+      scene.render = function (seconds, fps) {
+        if (before) before(seconds, fps);
+        for (var i = 0; i < clips.length; i++) {
+          var a = parseFloat(clips[i].getAttribute('data-start')), d = parseFloat(clips[i].getAttribute('data-duration'));
+          clips[i].style.visibility = seconds >= a && (!isFinite(d) || seconds < a + d) ? 'visible' : 'hidden';
+        }
+      };
+    };
+  })();
+</script>
+<script type="application/json" id="popost-cues">[{"at":0.81,"cue":"pop","gain":0.65}]</script>
+</head>
+  <body>
+<div id="popost-stage">
+    <div
+      id="root"
+      data-composition-id="velocity-throw-snap-demo"
+      data-start="0"
+      data-width="1920"
+      data-height="1080"
+      data-duration="4"
+      data-fps="30"
+    >
+      <div
+        id="velocity-throw-snap-mount"
+        class="velocity-throw-snap-mount clip"
+        data-composition-id="velocity-throw-snap"
+       
+        data-variable-values='{"hero_index":4,"accent":"violet","card_label_prefix":"Frame"}'
+        data-start="0"
+        data-duration="4"
+        data-track-index="0"
+        data-width="1690"
+        data-height="799"
+      >
+      <div id="root" data-composition-id="velocity-throw-snap" data-duration="4" data-fps="30">
+        <style>
+          *,
+          *::before,
+          *::after {
+            box-sizing: border-box;
+          }
+
+          #root {
+            --vts-card-width: 48;
+            --vts-card-gap: 4.5;
+            --vts-hero-index: 0;
+            --vts-throw-x: 0;
+            --vts-throw-y: 0;
+            --vts-tilt: 0;
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            container-type: size;
+            isolation: isolate;
+            color: var(--fg, #f8fafc);
+            font-family: var(--font-body, Inter, system-ui, sans-serif);
+            pointer-events: none;
+          }
+
+          .vts-clip {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            background:
+              radial-gradient(
+                circle at 50% 46%,
+                color-mix(in srgb, var(--vts-accent) 13%, var(--bg, #172033)) 0%,
+                var(--bg, #0b0c0e) 72%
+              ),
+              var(--bg, #0b0c0e);
+          }
+
+          .vts-rail {
+            position: absolute;
+            left: 0;
+            top: 18cqh;
+            display: flex;
+            align-items: center;
+            gap: calc(var(--vts-card-gap) * 1cqw);
+            width: max-content;
+            transform: translateX(
+                calc(
+                  (
+                      50 - var(--vts-card-width) / 2 - var(--vts-hero-index) *
+                        (var(--vts-card-width) + var(--vts-card-gap)) + var(--vts-throw-x)
+                    ) *
+                    1cqw
+                )
+              )
+              translateY(calc(var(--vts-throw-y) * 1cqh)) rotate(calc(var(--vts-tilt) * 1deg));
+            transform-origin: 50% 50%;
+            will-change: transform;
+          }
+
+          .vts-card {
+            position: relative;
+            flex: 0 0 calc(var(--vts-card-width) * 1cqw);
+            height: 62cqh;
+            overflow: hidden;
+            border: 0.16cqmin solid color-mix(in srgb, var(--border, #475569) 76%, transparent);
+            border-radius: var(--radius, 3.2cqmin);
+            background: linear-gradient(
+              150deg,
+              var(--surface, #f8fafc) 0%,
+              var(--surface, #dbe5f1) 100%
+            );
+            color: var(--fg, #101827);
+            box-shadow: 0 3.6cqh 8cqh color-mix(in srgb, var(--bg, #000000) 46%, transparent);
+            transform-origin: 50% 50%;
+            will-change: transform, opacity, border-color, box-shadow;
+          }
+
+          .vts-aura {
+            position: absolute;
+            inset: -0.2cqmin;
+            z-index: 2;
+            border: 0.28cqmin solid var(--vts-accent);
+            border-radius: inherit;
+            box-shadow:
+              inset 0 0 3cqmin color-mix(in srgb, var(--vts-accent) 16%, transparent),
+              0 0 4cqmin color-mix(in srgb, var(--vts-accent) 36%, transparent);
+            opacity: 0;
+            pointer-events: none;
+          }
+
+          .vts-card-top {
+            height: 8cqh;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2.6cqw;
+            border-bottom: 0.1cqmin solid var(--border, #c4ceda);
+            background: color-mix(in srgb, var(--surface, #ffffff) 58%, transparent);
+          }
+
+          .vts-dots {
+            display: flex;
+            gap: 0.45cqw;
+          }
+
+          .vts-dots i {
+            width: 0.58cqw;
+            aspect-ratio: 1;
+            border-radius: 50%;
+            background: var(--muted, #91a0b3);
+          }
+
+          .vts-index {
+            color: var(--vts-accent-dark);
+            font-family: var(--font-mono, ui-monospace, "SF Mono", Menlo, Consolas, monospace);
+            font-size: 1.45cqw;
+            font-weight: 760;
+            letter-spacing: 0.12em;
+          }
+
+          .vts-preview {
+            height: 38cqh;
+            display: grid;
+            grid-template-columns: 1.05fr 0.95fr;
+            gap: 1.8cqw;
+            padding: 3cqh 2.6cqw;
+          }
+
+          .vts-panel,
+          .vts-stack {
+            border: 0.1cqmin solid var(--border, #c4ceda);
+            border-radius: 1.5cqmin;
+            background: var(--surface, #edf2f7);
+          }
+
+          .vts-panel {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(
+              145deg,
+              color-mix(in srgb, var(--vts-accent) 30%, var(--surface, #eaf0f6)),
+              var(--surface, #d7e0ea)
+            );
+          }
+
+          .vts-panel::before,
+          .vts-panel::after {
+            content: "";
+            position: absolute;
+            border-radius: 1cqmin;
+            background: color-mix(in srgb, var(--vts-accent) 72%, var(--surface, #ffffff));
+          }
+
+          .vts-panel::before {
+            width: 11cqw;
+            height: 11cqw;
+            left: 3cqw;
+            top: 5cqh;
+          }
+
+          .vts-panel::after {
+            left: 3cqw;
+            right: 3cqw;
+            bottom: 4cqh;
+            height: 1.2cqh;
+          }
+
+          .vts-stack {
+            display: grid;
+            align-content: center;
+            gap: 2.2cqh;
+            padding: 2cqw;
+          }
+
+          .vts-stack i {
+            display: block;
+            height: 1.2cqh;
+            border-radius: 1cqh;
+            background: var(--muted, #bcc8d6);
+          }
+
+          .vts-stack i:first-child {
+            width: 72%;
+            background: var(--vts-accent);
+          }
+
+          .vts-stack i:last-child {
+            width: 56%;
+          }
+
+          .vts-label {
+            display: block;
+            max-width: 100%;
+            padding: 0 2.6cqw;
+            overflow: hidden;
+            color: var(--fg, #101827);
+            font-family: var(--font-display, Inter, system-ui, sans-serif);
+            font-size: 3.4cqw;
+            font-weight: 780;
+            line-height: 1;
+            letter-spacing: -0.04em;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+
+          .vts-card:nth-child(2) .vts-preview,
+          .vts-card:nth-child(5) .vts-preview {
+            grid-template-columns: 0.78fr 1.22fr;
+          }
+
+          .vts-card:nth-child(3) .vts-panel::before {
+            width: 14cqw;
+            border-radius: 50%;
+          }
+
+          .vts-card:nth-child(4) .vts-preview {
+            grid-template-columns: 1fr;
+          }
+
+          .vts-card:nth-child(4) .vts-stack {
+            display: none;
+          }
+        </style>
+
+        <div
+          id="velocity-throw-snap-clip"
+          class="vts-clip clip"
+          data-start="0"
+          data-duration="4"
+          data-track-index="0"
+        >
+          <div class="vts-rail" role="list" aria-label="Feature shots">
+            <article class="vts-card" role="listitem">
+              <span class="vts-aura" aria-hidden="true"></span>
+              <div class="vts-card-top">
+                <span class="vts-dots"><i></i><i></i><i></i></span><span class="vts-index">01</span>
+              </div>
+              <div class="vts-preview">
+                <span class="vts-panel"></span><span class="vts-stack"><i></i><i></i><i></i></span>
+              </div>
+              <span class="vts-label"></span>
+            </article>
+            <article class="vts-card" role="listitem">
+              <span class="vts-aura" aria-hidden="true"></span>
+              <div class="vts-card-top">
+                <span class="vts-dots"><i></i><i></i><i></i></span><span class="vts-index">02</span>
+              </div>
+              <div class="vts-preview">
+                <span class="vts-panel"></span><span class="vts-stack"><i></i><i></i><i></i></span>
+              </div>
+              <span class="vts-label"></span>
+            </article>
+            <article class="vts-card" role="listitem">
+              <span class="vts-aura" aria-hidden="true"></span>
+              <div class="vts-card-top">
+                <span class="vts-dots"><i></i><i></i><i></i></span><span class="vts-index">03</span>
+              </div>
+              <div class="vts-preview">
+                <span class="vts-panel"></span><span class="vts-stack"><i></i><i></i><i></i></span>
+              </div>
+              <span class="vts-label"></span>
+            </article>
+            <article class="vts-card" role="listitem">
+              <span class="vts-aura" aria-hidden="true"></span>
+              <div class="vts-card-top">
+                <span class="vts-dots"><i></i><i></i><i></i></span><span class="vts-index">04</span>
+              </div>
+              <div class="vts-preview">
+                <span class="vts-panel"></span><span class="vts-stack"><i></i><i></i><i></i></span>
+              </div>
+              <span class="vts-label"></span>
+            </article>
+            <article class="vts-card" role="listitem">
+              <span class="vts-aura" aria-hidden="true"></span>
+              <div class="vts-card-top">
+                <span class="vts-dots"><i></i><i></i><i></i></span><span class="vts-index">05</span>
+              </div>
+              <div class="vts-preview">
+                <span class="vts-panel"></span><span class="vts-stack"><i></i><i></i><i></i></span>
+              </div>
+              <span class="vts-label"></span>
+            </article>
+          </div>
+        </div>
+
+        <script src="../lib/gsap.min.js"></script>
+        <script>
+          (function () {
+            "use strict";
+
+            var root = document.getElementById("root");
+            var clip = root.querySelector(".vts-clip");
+            var rail = root.querySelector(".vts-rail");
+            var cards = Array.from(root.querySelectorAll(".vts-card"));
+            var labels = Array.from(root.querySelectorAll(".vts-label"));
+            var vars =
+              window.__hyperframes && window.__hyperframes.getVariables
+                ? window.__hyperframes.getVariables()
+                : {};
+
+            var heroValue = Number(vars.hero_index);
+            var heroIndex = Number.isFinite(heroValue)
+              ? Math.max(0, Math.min(4, Math.round(heroValue)))
+              : 2;
+            var prefix = vars.card_label_prefix == null ? "Shot" : String(vars.card_label_prefix);
+            var accentName =
+              vars.accent === "blue" || vars.accent === "violet" ? vars.accent : "green";
+            var themeStyles = getComputedStyle(root);
+            var palettes = {
+              green: {
+                accent: themeStyles.getPropertyValue("--brand").trim() || "#34d399",
+                dark: themeStyles.getPropertyValue("--brand").trim() || "#08795b",
+                glow: "rgba(52, 211, 153, 0.4)",
+              },
+              blue: {
+                accent: themeStyles.getPropertyValue("--accent").trim() || "#60a5fa",
+                dark: themeStyles.getPropertyValue("--accent").trim() || "#2563a8",
+                glow: "rgba(96, 165, 250, 0.42)",
+              },
+              violet: {
+                accent: themeStyles.getPropertyValue("--accent-2").trim() || "#a78bfa",
+                dark: themeStyles.getPropertyValue("--accent-2").trim() || "#6742b8",
+                glow: "rgba(167, 139, 250, 0.42)",
+              },
+            };
+            var palette = palettes[accentName];
+
+            root.style.setProperty("--vts-hero-index", heroIndex);
+            root.style.setProperty("--vts-accent", palette.accent);
+            root.style.setProperty("--vts-accent-dark", palette.dark);
+
+            labels.forEach(function (label, index) {
+              label.textContent = (prefix.length > 0 ? prefix + " " : "") + String(index + 1);
+            });
+
+            var heroCard = cards[heroIndex];
+            var heroAura = heroCard.querySelector(".vts-aura");
+            var nonHeroCards = cards.filter(function (_, index) {
+              return index !== heroIndex;
+            });
+            heroCard.setAttribute("aria-current", "true");
+
+            var IN_BASE = 1.4;
+            var THROW_BASE = 0.78;
+            var SNAP_BASE = 0.62;
+            var durationValue = parseFloat(root.dataset.duration || "4");
+            var duration = Number.isFinite(durationValue) ? Math.max(0.001, durationValue) : 4;
+            var IN = Math.min(IN_BASE, duration);
+            var HOLD = Math.max(0, duration - IN);
+            var motionScale = IN / IN_BASE;
+            var THROW = THROW_BASE * motionScale;
+            var SNAP = SNAP_BASE * motionScale;
+            var SNAP_AT = THROW;
+
+            gsap.set(clip, { opacity: 0 });
+            gsap.set(rail, {
+              "--vts-throw-x": 140,
+              "--vts-throw-y": 7,
+              "--vts-tilt": 0.8,
+            });
+            gsap.set(cards, { opacity: 0.82, scale: 0.97 });
+            gsap.set(heroAura, { opacity: 0, scale: 0.98 });
+
+            var tl = gsap.timeline({ paused: true });
+
+            tl.to(clip, { opacity: 1, duration: Math.min(0.2, IN), ease: "power2.out" }, 0);
+
+            // Fast travel loses most of its velocity under the whip-out ease.
+            tl.to(
+              rail,
+              {
+                "--vts-throw-x": 16,
+                "--vts-throw-y": -1.4,
+                "--vts-tilt": -0.22,
+                duration: THROW,
+                ease: "power4.out",
+              },
+              0,
+            );
+
+            // The final back curve crosses zero, then returns to the exact center.
+            tl.to(
+              rail,
+              {
+                "--vts-throw-x": 0,
+                "--vts-throw-y": 0,
+                "--vts-tilt": 0,
+                duration: SNAP,
+                ease: "back.out(1.7)",
+              },
+              SNAP_AT,
+            );
+            tl.to(
+              nonHeroCards,
+              { opacity: 0.62, scale: 0.95, duration: SNAP, ease: "power2.out" },
+              SNAP_AT,
+            );
+            tl.to(
+              heroCard,
+              {
+                opacity: 1,
+                scale: 1.04,
+                borderColor: palette.accent,
+                boxShadow: "0 4.2cqh 10cqh " + palette.glow,
+                duration: SNAP,
+                ease: "back.out(1.7)",
+              },
+              SNAP_AT,
+            );
+            tl.to(
+              heroAura,
+              { opacity: 0.58, scale: 1, duration: SNAP * 0.7, ease: "power2.out" },
+              SNAP_AT + SNAP * 0.3,
+            );
+
+            if (HOLD > 0.4) {
+              var breathHalf = Math.min(0.65, HOLD / 2);
+              var breathRepeat = Math.max(0, Math.floor(HOLD / breathHalf) - 1);
+              tl.to(
+                heroAura,
+                {
+                  opacity: 0.78,
+                  scale: 1.015,
+                  duration: breathHalf,
+                  ease: "sine.inOut",
+                  yoyo: true,
+                  repeat: breathRepeat,
+                },
+                IN,
+              );
+            }
+
+            tl.seek(0);
+            window.__timelines = window.__timelines || {};
+            window.__timelines["velocity-throw-snap"] = tl;
+          })();
+        </script>
+      </div>
+    </div>
+    </div>
+
+    <script src="../lib/gsap.min.js"></script>
+    <script>
+      window.__timelines = window.__timelines || {};
+      window.__timelines["velocity-throw-snap-demo"] = gsap.timeline({ paused: true });
+    </script>
+  </div>
+<script>window.__popostFit();</script>
+</body>
+</html>

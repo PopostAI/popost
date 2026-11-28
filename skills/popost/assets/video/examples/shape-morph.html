@@ -1,0 +1,151 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Path morph</title>
+<style>
+  html, body { margin: 0; width: 1280px; height: 720px; overflow: hidden; }
+  svg { position: absolute; left: 0; top: 0; }
+</style></head>
+<body>
+<svg id="stage" viewBox="-200 -200 400 400"><g id="turn"><path id="shape" d="M0 0Z"></path></g></svg>
+  <script type="application/json" id="popost-params">
+{
+ "about": "One shape turns into the next: a circle, a star, a rounded square, a drop and a heart, each held for a moment. Every point of the outline travels; the shape breathes with a slow turn while it holds.",
+ "class": "shape",
+ "seconds": 4.4,
+ "tags": [
+  "morph",
+  "shape",
+  "path",
+  "svg",
+  "blob",
+  "transform"
+ ],
+ "params": [
+  {
+   "name": "from",
+   "type": "choice",
+   "default": "circle",
+   "options": [
+    "circle",
+    "star",
+    "square",
+    "drop",
+    "heart"
+   ],
+   "what": "the first shape"
+  },
+  {
+   "name": "to",
+   "type": "choice",
+   "default": "star",
+   "options": [
+    "circle",
+    "star",
+    "square",
+    "drop",
+    "heart"
+   ],
+   "what": "the second shape"
+  },
+  {
+   "name": "then",
+   "type": "choice",
+   "default": "heart",
+   "options": [
+    "none",
+    "circle",
+    "star",
+    "square",
+    "drop",
+    "heart"
+   ],
+   "what": "a third shape, or none"
+  },
+  {
+   "name": "duration",
+   "type": "number",
+   "default": 0.6,
+   "min": 0.1,
+   "max": 5,
+   "what": "the length of each morph",
+   "unit": "seconds"
+  },
+  {
+   "name": "hold",
+   "type": "number",
+   "default": 0.9,
+   "min": 0,
+   "max": 10,
+   "what": "how long each shape is held",
+   "unit": "seconds"
+  },
+  {
+   "name": "ease",
+   "type": "choice",
+   "default": "power2.inOut",
+   "options": [
+    "power1.inOut",
+    "power2.inOut",
+    "power4.inOut",
+    "back.out(1.7)",
+    "elastic.out(1,0.5)",
+    "spring(0.5,180)"
+   ],
+   "what": "how each point travels"
+  },
+  {
+   "name": "turn",
+   "type": "number",
+   "default": 6,
+   "min": -90,
+   "max": 90,
+   "what": "how fast the shape turns while it holds",
+   "unit": "degrees a second"
+  },
+  {
+   "name": "color",
+   "type": "colour",
+   "default": "#ef476f",
+   "what": "the shape"
+  },
+  {
+   "name": "ground",
+   "type": "colour",
+   "default": "#073b4c",
+   "what": "the background"
+  },
+  {
+   "name": "delay",
+   "type": "number",
+   "default": 0.2,
+   "min": 0,
+   "max": 20,
+   "unit": "seconds",
+   "what": "when the effect starts, from the start of the shot"
+  }
+ ],
+ "values": {}
+}
+  </script>
+  <script src="../lib/popost-motion.js"></script>
+  <script>
+    // The parameters of this copy: the declared defaults, then what "values" sets.
+    var P = (function () { var b = JSON.parse(document.getElementById('popost-params').textContent), v = {}; b.params.forEach(function (p) { v[p.name] = p['default']; }); for (var k in b.values) v[k] = b.values[k]; return v; })();
+    // The canvas, from the size this file declares for html and body: a scene of a later shot loads in a layer that
+    // is not displayed, where the page itself measures 0 until its first frame.
+    var SIZE = /html, body \{ margin: 0; width: (\d+)px; height: (\d+)px;/.exec(document.querySelector('style').textContent), W = Number(SIZE[1]), H = Number(SIZE[2]), U = Math.min(W, H) / 720;
+    var M = popostMotion, svg = document.getElementById('stage'), s = 0.7 * H;
+    document.body.style.background = P.ground; svg.setAttribute('width', s); svg.setAttribute('height', s); svg.style.left = (W - s) / 2 + 'px'; svg.style.top = (H - s) / 2 + 'px';
+    var star = (function () { var d = ''; for (var i = 0; i < 10; i++) { var r = i % 2 ? 70 : 160, a = (i * Math.PI) / 5 - Math.PI / 2; d += (i ? 'L' : 'M') + Math.cos(a) * r + ' ' + Math.sin(a) * r; } return d + 'Z'; })();
+    var D = {
+      circle: 'M0 -150A150 150 0 1 1 0 150A150 150 0 1 1 0 -150Z', star: star,
+      square: 'M-90 -140H90A50 50 0 0 1 140 -90V90A50 50 0 0 1 90 140H-90A50 50 0 0 1 -140 90V-90A50 50 0 0 1 -90 -140Z',
+      drop: 'M0 -170C60 -80 120 -20 120 50A120 120 0 1 1 -120 50C-120 -20 -60 -80 0 -170Z',
+      heart: 'M0 150C-60 100 -160 30 -160 -50A80 80 0 0 1 0 -90A80 80 0 0 1 160 -50C160 30 60 100 0 150Z'
+    };
+    var path = document.getElementById('shape'); path.setAttribute('d', D[P.from]); path.setAttribute('fill', P.color);
+    M.morph('#shape', { at: P.delay + P.hold, 'for': P.duration, from: D[P.from], to: D[P.to], ease: P.ease });
+    if (P.then !== 'none') M.morph('#shape', { at: P.delay + 2 * P.hold + P.duration, 'for': P.duration, from: D[P.to], to: D[P.then], ease: P.ease });
+    // Secondary: a slow turn the whole time, so that a held shape is not a still picture.
+    M.on(function (t) { document.getElementById('turn').setAttribute('transform', 'rotate(' + (P.turn * t).toFixed(3) + ')'); });
+  </script>
+</body></html>

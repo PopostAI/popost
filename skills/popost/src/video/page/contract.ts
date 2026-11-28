@@ -53,7 +53,23 @@ export interface SceneFact {
   elements: number;
   /** Every element with text of its own, and whether it can be seen at this frame. */
   texts: SceneText[];
+  /** The sound cues the scene declares (SceneCue), in seconds of the scene, sorted; [] when it declares none. */
+  cues: SceneCue[];
 }
+
+/**
+ * Where a sound belongs in a scene, declared by the scene itself so that a sound can be placed exactly on an
+ * animation event without looking at the picture. A scene declares its cues in one of two ways, or both:
+ * - at run time: window.__popostScene.cues = [{ at, cue, gain }, ...] (the Skill's motion helper fills it: every
+ *   effect adds its own);
+ * - as data: <script type="application/json" id="popost-cues">[{ "at": 0.4, "cue": "whoosh", "gain": 0.6 }]</script>.
+ * at: seconds from the start of the scene's segment. cue: what kind of sound (CUE_NAMES). gain: 0..1, 1 the loudest
+ * hit of the shot. effect: what declared it (the effect's name), when known.
+ */
+export interface SceneCue { at: number; cue: string; gain: number; effect?: string }
+
+/** The cue names the motion helper and the ported examples use. A scene may use another name; it is kept as written. */
+export const CUE_NAMES = ['whoosh', 'swish', 'pop', 'click', 'tick', 'type', 'impact', 'riser', 'shimmer', 'glitch', 'ding', 'rumble', 'draw', 'sparkle'] as const;
 
 /**
  * A file of a scene that did not load, as prepare() reports it: the scene's page itself, or one of its pictures.

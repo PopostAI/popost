@@ -1,0 +1,443 @@
+<!doctype html>
+<!--
+  Adapted from HyperFrames (https://github.com/heygen-com/hyperframes), registry/components/scramble-reveal, commit a8332860c396e9224d42b7ea2a9cc8f42918c961.
+  Copyright 2026 HeyGen, Inc. Licensed under the Apache License, Version 2.0; the licence text is in the popost
+  Skill's THIRD_PARTY_NOTICES. Changed for the popost Skill (tools/video/port-hyperframes.mjs): its comments removed; the composition it mounts (scramble-reveal.html) put into the page; GSAP loaded from the project (../lib/gsap.min.js) instead of a CDN; the 1920x1080 composition scaled into the scene's canvas (parameter "fit"); HyperFrames variables declared as parameters; its clips shown and hidden from the scene's time; sound cues derived from its tweens.
+-->
+
+<html data-composition-variables='[
+    { "id": "text", "type": "string", "role": "content", "label": "Text", "description": "Target string that resolves from deterministic wrong glyphs.", "default": "HYPERFRAMES" },
+    { "id": "accent", "type": "enum", "role": "style", "label": "Accent", "description": "Color used by the text, prefix, and optional terminal frame.", "default": "green", "options": [{ "value": "green", "label": "Green" }, { "value": "blue", "label": "Blue" }, { "value": "violet", "label": "Violet" }] },
+    { "id": "style", "type": "enum", "role": "style", "label": "Style", "description": "Terminal frame or clean text-only presentation.", "default": "terminal", "options": [{ "value": "terminal", "label": "Terminal" }, { "value": "clean", "label": "Clean" }] },
+    { "id": "exit", "type": "enum", "role": "timing", "label": "Exit", "description": "Optional departure. Default none: the locked string holds until the frame cuts.", "default": "none", "options": [{ "value": "none", "label": "None" }, { "value": "fade", "label": "Fade" }, { "value": "up", "label": "Up" }] }
+  ]' lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>Scramble Reveal Demo</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: var(--bg, #0b0c0e);
+      }
+
+      #root {
+        --bg: #0b0c0e;
+        --fg: #f8fafc;
+        --surface: #14171c;
+        --border: #343a46;
+        --brand: #71f5a7;
+        --accent: #c5a3ff;
+        --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: radial-gradient(
+          ellipse at 50% 44%,
+          var(--bg, #171a20) 0%,
+          var(--bg, #0b0c0e) 72%
+        );
+      }
+
+      .mount-card {
+        width: 76%;
+        height: 40%;
+        left: 12%;
+        top: 30%;
+        container-type: size;
+        overflow: hidden;
+        border: 1px solid color-mix(in srgb, var(--border, #94a3b8) 20%, transparent);
+        border-radius: 30px;
+        background: color-mix(in srgb, var(--surface, #101318) 72%, transparent);
+        box-shadow: 0 40px 100px color-mix(in srgb, var(--bg, #000000) 48%, transparent);
+      }
+    </style>
+  <style id="popost-fit">
+  html, body { margin: 0 !important; width: 1280px; height: 720px; overflow: hidden !important; background: #000000; }
+  #popost-stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden; }
+</style>
+<script type="application/json" id="popost-params">
+{
+ "about": "A deterministic hacker-style text reveal that cycles fixed glyph rows and locks the target string from left to right.",
+ "class": "transition",
+ "tags": [
+  "motion-primitive",
+  "text-effects",
+  "scramble",
+  "reveal",
+  "deterministic"
+ ],
+ "seconds": 2.7,
+ "params": [
+  {
+   "name": "fit",
+   "type": "choice",
+   "default": "contain",
+   "options": [
+    "contain",
+    "cover"
+   ],
+   "what": "how the 1920x1080 composition is fitted into the canvas: whole with bars, or filling it and cropped"
+  },
+  {
+   "name": "text",
+   "type": "text",
+   "default": "HYPERFRAMES",
+   "maxLength": 200,
+   "what": "Target string that resolves from deterministic wrong glyphs."
+  },
+  {
+   "name": "accent",
+   "type": "choice",
+   "default": "green",
+   "options": [
+    "green",
+    "blue",
+    "violet"
+   ],
+   "what": "Color used by the text, prefix, and optional terminal frame."
+  },
+  {
+   "name": "style",
+   "type": "choice",
+   "default": "terminal",
+   "options": [
+    "terminal",
+    "clean"
+   ],
+   "what": "Terminal frame or clean text-only presentation."
+  },
+  {
+   "name": "exit",
+   "type": "choice",
+   "default": "none",
+   "options": [
+    "none",
+    "fade",
+    "up"
+   ],
+   "what": "Optional departure. Default none: the locked string holds until the frame cuts."
+  }
+ ],
+ "values": {}
+}
+</script>
+<script>
+  /* popost: the scene's parameters stand in for HyperFrames variables; random numbers are seeded; the composition is
+     scaled into the canvas; clips are shown and hidden from the scene's time. */
+  (function () {
+    var block = document.getElementById('popost-params');
+    var values = block ? (JSON.parse(block.textContent).values || {}) : {};
+    var vars = {"text":"SEEK SAFE","accent":"violet","style":"clean"};
+    Object.keys(values).forEach(function (k) { if (k !== 'fit') vars[k] = values[k] === 'true' ? true : values[k] === 'false' ? false : values[k]; });
+    window.__hyperframes = { getVariables: function () { return vars; } };
+    var seed = 20240229;
+    window.__popostRandom = function () { seed = (seed + 0x6d2b79f5) >>> 0; var t = seed; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+    window.__popostFit = function () {
+      // The canvas, from the size this file declares: a scene of a later shot loads in a layer that is not displayed, where the page measures 0.
+      var size = /width: (\d+)px; height: (\d+)px;/.exec(document.getElementById('popost-fit').textContent);
+      var W = 1920, H = 1080, s = document.getElementById('popost-stage'), cw = Number(size[1]), ch = Number(size[2]);
+      var k = (values.fit === 'cover' ? Math.max : Math.min)(cw / W, ch / H);
+      s.style.transform = 'translate(' + (cw - W * k) / 2 + 'px,' + (ch - H * k) / 2 + 'px) scale(' + k + ')';
+      var clips = Array.prototype.slice.call(s.querySelectorAll('.clip[data-start]')).filter(function (c) { return isFinite(parseFloat(c.getAttribute('data-start'))) && c.parentNode !== s; });
+      // A mounted composition that starts later in its host runs on its own time.
+      [].forEach(function (m) {
+        var tl = window.__timelines && window.__timelines[m.id];
+        if (tl) window.__timelines[m.id] = { pause: function () { tl.pause(); }, seek: function (t) { tl.seek(Math.max(0, t - m.start)); }, duration: function () { return tl.duration() + m.start; } };
+      });
+      var scene = (window.__popostScene = window.__popostScene || {}), before = scene.render;
+      scene.render = function (seconds, fps) {
+        if (before) before(seconds, fps);
+        for (var i = 0; i < clips.length; i++) {
+          var a = parseFloat(clips[i].getAttribute('data-start')), d = parseFloat(clips[i].getAttribute('data-duration'));
+          clips[i].style.visibility = seconds >= a && (!isFinite(d) || seconds < a + d) ? 'visible' : 'hidden';
+        }
+      };
+    };
+  })();
+</script>
+<script type="application/json" id="popost-cues">[{"at":0,"cue":"glitch","gain":0.6}]</script>
+</head>
+  <body>
+<div id="popost-stage">
+    <div
+      id="root"
+      data-composition-id="scramble-reveal-demo"
+      data-start="0"
+      data-width="1920"
+      data-height="1080"
+      data-duration="3"
+      data-fps="30"
+    >
+      <div
+        id="scramble-reveal-mount"
+        class="mount-card clip"
+        data-composition-id="scramble-reveal"
+       
+        data-variable-values='{"text":"SEEK SAFE","accent":"violet","style":"clean"}'
+        data-start="0"
+        data-duration="3"
+        data-track-index="0"
+        data-width="1459"
+        data-height="432"
+      >
+      <div id="root" data-composition-id="scramble-reveal" data-duration="3" data-fps="30">
+        <style>
+          *,
+          *::before,
+          *::after {
+            box-sizing: border-box;
+          }
+
+          #root {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            container-type: size;
+            isolation: isolate;
+            color: var(--fg, #f8fafc);
+            font-family: var(--font-mono, ui-monospace, "SF Mono", Menlo, Consolas, monospace);
+            pointer-events: none;
+          }
+
+          .sr-clip {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+            background: var(--bg, transparent);
+          }
+
+          .sr-stage {
+            display: block;
+            width: 88cqw;
+            max-width: 88cqw;
+            will-change: transform, opacity;
+          }
+
+          .sr-shell {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            min-height: 34cqh;
+            padding: var(--space-3, 5cqh) var(--space-3, 5cqw);
+            overflow: hidden;
+            border: 0.16cqmin solid color-mix(in srgb, var(--sr-accent) 58%, var(--border, #475569));
+            border-radius: var(--radius, 2.4cqmin);
+            background: color-mix(in srgb, var(--surface, #0b1016) 92%, var(--sr-accent));
+            box-shadow:
+              0 3.5cqh 10cqh color-mix(in srgb, var(--bg, #000000) 42%, transparent),
+              inset 0 0 4cqh color-mix(in srgb, var(--sr-accent) 7%, transparent);
+          }
+
+          .sr-prefix {
+            flex: 0 0 auto;
+            margin-right: var(--space-1, 1.8cqw);
+            color: color-mix(in srgb, var(--sr-accent) 78%, var(--fg, #ffffff));
+            font-size: calc(var(--sr-font-size) * 0.74);
+            font-weight: 700;
+            line-height: 1;
+            opacity: 0.78;
+          }
+
+          .sr-text {
+            display: block;
+            min-width: 0;
+            overflow: hidden;
+            color: var(--sr-accent);
+            font-size: var(--sr-font-size);
+            font-weight: 780;
+            line-height: 1;
+            letter-spacing: 0.055em;
+            text-align: center;
+            text-shadow: 0 0 2.8cqh color-mix(in srgb, var(--sr-accent) 34%, transparent);
+            white-space: pre;
+          }
+
+          .sr-stage.sr-clean .sr-shell {
+            min-height: 26cqh;
+            padding: var(--space-2, 3cqh) var(--space-2, 2cqw);
+            border-color: transparent;
+            background: transparent;
+            box-shadow: none;
+          }
+
+          .sr-stage.sr-clean .sr-prefix {
+            display: none;
+          }
+        </style>
+
+        <div
+          id="scramble-reveal-clip"
+          class="sr-clip clip"
+          data-start="0"
+          data-duration="3"
+          data-track-index="0"
+        >
+          <div class="sr-stage" role="img">
+            <div class="sr-shell">
+              <span class="sr-prefix" aria-hidden="true">&gt;_</span>
+              <span class="sr-text" aria-hidden="true"></span>
+            </div>
+          </div>
+        </div>
+
+        <script src="../lib/gsap.min.js"></script>
+        <script>
+          (function () {
+            "use strict";
+
+            var root = document.getElementById("root");
+            var stage = root.querySelector(".sr-stage");
+            var textElement = root.querySelector(".sr-text");
+            var vars =
+              window.__hyperframes && window.__hyperframes.getVariables
+                ? window.__hyperframes.getVariables()
+                : {};
+
+            var text = vars.text == null ? "HYPERFRAMES" : String(vars.text);
+            // Each enum choice routes to a DIFFERENT contract token so the
+            // variable stays meaningful under a theme (green/blue/violet must
+            // not collapse into one themed accent).
+            var accentColors = {
+              green: "var(--brand, #71f5a7)",
+              blue: "var(--accent, #61a8ff)",
+              violet: "var(--accent-2, #c5a3ff)",
+            };
+            var accent = Object.prototype.hasOwnProperty.call(accentColors, vars.accent)
+              ? vars.accent
+              : "green";
+            var style = vars.style === "clean" ? "clean" : "terminal";
+            var exit = vars.exit === "fade" || vars.exit === "up" ? vars.exit : "none";
+
+            root.style.setProperty("--sr-accent", accentColors[accent]);
+            stage.classList.toggle("sr-clean", style === "clean");
+            stage.setAttribute("aria-label", text);
+
+            var characters = Array.from(text);
+            var fittedCqw = Math.min(11, 118 / Math.max(1, characters.length));
+            root.style.setProperty("--sr-font-size", "min(" + fittedCqw.toFixed(3) + "cqw, 24cqh)");
+
+            var IN_BASE = 1.65;
+            var OUT_BASE = exit === "none" ? 0 : 0.45;
+            var ARRIVAL_BASE = 0.42;
+            var LOCK_TAIL_BASE = 0.15;
+            var STILLNESS = 0.3;
+            var FPS = 30;
+            var duration = Math.max(0.001, parseFloat(root.dataset.duration || "3"));
+            var totalBase = Math.max(0.001, IN_BASE + OUT_BASE);
+            var scale = duration < totalBase ? duration / totalBase : 1;
+            var IN = IN_BASE * scale;
+            var OUT = OUT_BASE * scale;
+            var ARRIVAL = ARRIVAL_BASE * scale;
+            var LOCK_TAIL = LOCK_TAIL_BASE * scale;
+            var HOLD = Math.max(0, duration - (IN + OUT));
+            var HOLD_START = IN;
+            var OUT_START = IN + HOLD;
+            var REVEAL_DURATION = Math.max(0, IN - LOCK_TAIL);
+            var lastFrame = Math.max(1, Math.round(REVEAL_DURATION * FPS));
+
+            // The LCG and all character-state decisions live here. This IIFE
+            // runs once before timeline construction, then only frameTable is
+            // read. Lock frames are monotonic by character index, so the final
+            // target resolves strictly from left to right.
+            var frameTable = (function () {
+              var glyphs = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#$%&*+?<>";
+              var state = 0x27c0ffee;
+              var firstLockFrame = Math.min(lastFrame, Math.max(1, Math.round(0.2 * FPS * scale)));
+              var lockFrames = characters.map(function (character, index) {
+                if (/\s/.test(character)) return 0;
+                var position = characters.length <= 1 ? 1 : index / (characters.length - 1);
+                return Math.round(firstLockFrame + position * (lastFrame - firstLockFrame));
+              });
+              var rows = [];
+
+              for (var frame = 0; frame <= lastFrame; frame += 1) {
+                var row = characters
+                  .map(function (character, index) {
+                    if (/\s/.test(character) || frame >= lockFrames[index]) return character;
+
+                    state = (Math.imul(1664525, state) + 1013904223) >>> 0;
+                    var glyphIndex = state % glyphs.length;
+                    var glyph = glyphs.charAt(glyphIndex);
+                    if (glyph === character)
+                      glyph = glyphs.charAt((glyphIndex + 1) % glyphs.length);
+                    return glyph;
+                  })
+                  .join("");
+                rows.push(row);
+              }
+
+              return rows;
+            })();
+
+            gsap.set(stage, { opacity: 0, x: "-4cqw", y: "2.4cqh" });
+            textElement.textContent = frameTable[0];
+
+            var tl = gsap.timeline({ paused: true });
+
+            // IN: independently eased axes form the arrival arc. The authored
+            // frame rows then lock the target from left to right at 30 fps.
+            tl.to(stage, { opacity: 1, duration: ARRIVAL, ease: "power2.out" }, 0);
+            tl.to(stage, { x: "0cqw", duration: ARRIVAL, ease: "power3.out" }, 0);
+            tl.to(stage, { y: "0cqh", duration: ARRIVAL, ease: "sine.inOut" }, 0);
+            frameTable.forEach(function (row, frame) {
+              tl.set(textElement, { textContent: row }, frame / FPS);
+            });
+
+            // HOLD: finite drift ends with authored stillness before departure.
+            var driftHalf = Math.max(0, HOLD - STILLNESS) / 2;
+            if (driftHalf > 0) {
+              tl.to(
+                stage,
+                {
+                  y: "-0.55cqh",
+                  duration: driftHalf,
+                  ease: "sine.inOut",
+                  yoyo: true,
+                  repeat: 1,
+                },
+                HOLD_START,
+              );
+            }
+
+            // OUT: optional departure; exit none holds until the frame cuts.
+            // The up exit keeps the original curved arc departure.
+            if (exit === "up") {
+              tl.to(stage, { x: "5cqw", duration: OUT, ease: "power2.in" }, OUT_START);
+              tl.to(stage, { y: "-3.5cqh", duration: OUT, ease: "sine.inOut" }, OUT_START);
+              tl.to(stage, { opacity: 0, duration: OUT, ease: "power2.in" }, OUT_START);
+            } else if (exit === "fade") {
+              tl.to(stage, { opacity: 0, duration: OUT, ease: "power2.in" }, OUT_START);
+            }
+
+            tl.seek(0);
+            window.__timelines = window.__timelines || {};
+            window.__timelines["scramble-reveal"] = tl;
+          })();
+        </script>
+      </div>
+    </div>
+    </div>
+
+    <script src="../lib/gsap.min.js"></script>
+    <script>
+      window.__timelines = window.__timelines || {};
+      window.__timelines["scramble-reveal-demo"] = gsap.timeline({ paused: true });
+    </script>
+  </div>
+<script>window.__popostFit();</script>
+</body>
+</html>

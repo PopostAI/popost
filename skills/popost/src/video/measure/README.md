@@ -238,3 +238,16 @@ Run `tests/read-*.test.ts`: each prints its table.
   the composite rises without a better reading.
 - read-render seeds 1-4: the dissolve of seed 4 is missed and the glitch of seed 1 reads as a cut; in the round trip, a shake of
   seed 1 reads as a glitch only when H13 and H14b are both on.
+
+## The curve of one moving element (move.ts, easing.ts)
+
+`curvesOf` follows the thing that differs from the ground inside a region (its box and ink per frame), splits each
+property into moves separated by holds of 0.15 s, and describes the largest: start, length, distance, peak speed,
+overshoot, turns and bounces, settle time, squash and stretch, and the closest named easing by least squares
+(`fitEase`). Ported from HyperFrames' `measure curve` (Apache-2.0; the file headers say what changed).
+
+Measured on a dot drawn into 240x136 frames (`tests/video/measure-curve.test.ts`): every curve of the named set comes
+back from its own samples within 0.01; a slide on power1.out, linear and power2.inOut comes back by name, start
+within 2 frames; power3.out over 30 frames comes back as power2.out over 24 (the tail is under a pixel); back.out(1.7)
+within 0.2 of its amount; a spring by its damping within 0.1; bounce.out by name with its bounces and its squash.
+

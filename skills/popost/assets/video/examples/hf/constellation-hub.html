@@ -1,0 +1,595 @@
+<!doctype html>
+<!--
+  Adapted from HyperFrames (https://github.com/heygen-com/hyperframes), registry/components/constellation-hub, commit a8332860c396e9224d42b7ea2a9cc8f42918c961.
+  Copyright 2026 HeyGen, Inc. Licensed under the Apache License, Version 2.0; the licence text is in the popost
+  Skill's THIRD_PARTY_NOTICES. Changed for the popost Skill (tools/video/port-hyperframes.mjs): its comments removed; the composition it mounts (constellation-hub.html) put into the page; GSAP loaded from the project (../lib/gsap.min.js) instead of a CDN; the 1920x1080 composition scaled into the scene's canvas (parameter "fit"); HyperFrames variables declared as parameters; its clips shown and hidden from the scene's time; sound cues derived from its tweens.
+-->
+
+<html data-composition-variables='[
+    { "id": "hub_label", "type": "string", "role": "content", "label": "Hub label", "description": "Text displayed inside the fixed central hub.", "default": "Product" },
+    { "id": "nodes", "type": "string", "role": "content", "label": "Feature nodes", "description": "Comma-separated feature labels introduced in narration order.", "default": "Capture,Compose,Render,Share" },
+    { "id": "cues", "type": "string", "role": "timing", "label": "Cues", "description": "Comma-separated seconds (from mount start) for each node reveal. Empty keeps the authored even spread.", "default": "" },
+    { "id": "accent", "type": "enum", "role": "style", "label": "Accent", "description": "Highlight color used by the hub, connectors, and active nodes.", "default": "green", "options": [{ "value": "green", "label": "Green" }, { "value": "blue", "label": "Blue" }, { "value": "violet", "label": "Violet" }] },
+    { "id": "exit", "type": "enum", "role": "timing", "label": "Exit", "description": "Optional departure. Default none: the lockup holds until the frame cuts.", "default": "none", "options": [{ "value": "none", "label": "None" }, { "value": "fade", "label": "Fade" }, { "value": "up", "label": "Up" }] }
+  ]' lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>Constellation Hub Demo</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #0b0c0e;
+      }
+
+      #root {
+        --bg: #0b0c0e;
+        --fg: #f8fafc;
+        --muted: #a8b0bf;
+        --surface: #171a20;
+        --border: #3a4250;
+        --brand: #71f5a7;
+        --accent: #61a8ff;
+        --accent-2: #c5a3ff;
+        --font-display: Inter, system-ui, sans-serif;
+        --font-body: Inter, system-ui, sans-serif;
+        --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+        --radius: 2.4cqmin;
+        --space-1: 1.2cqmin;
+        --space-2: 2.4cqmin;
+        --space-3: 4cqmin;
+        --dur-beat: 0.4s;
+        --ease-standard: cubic-bezier(0.215, 0.61, 0.355, 1);
+        --ease-emphasis: cubic-bezier(0.19, 1, 0.22, 1);
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: radial-gradient(
+          ellipse at 50% 46%,
+          color-mix(in srgb, var(--surface, #171a20) 88%, var(--accent-2, #c5a3ff)) 0%,
+          var(--bg, #0b0c0e) 70%
+        );
+      }
+
+      .mount-card {
+        width: 78%;
+        height: 70%;
+        left: 11%;
+        top: 15%;
+        container-type: size;
+        overflow: hidden;
+        border: 1px solid color-mix(in srgb, var(--border, #3a4250) 74%, transparent);
+        border-radius: 32px;
+        background: color-mix(in srgb, var(--surface, #171a20) 76%, transparent);
+        box-shadow: 0 44px 110px color-mix(in srgb, var(--bg, #0b0c0e) 58%, transparent);
+      }
+    </style>
+  <style id="popost-fit">
+  html, body { margin: 0 !important; width: 1280px; height: 720px; overflow: hidden !important; background: #000000; }
+  #popost-stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden; }
+</style>
+<script type="application/json" id="popost-params">
+{
+ "about": "Feature nodes brighten in narration order as real-length SVG connectors draw outward from a fixed central hub, then settle into one lockup.",
+ "class": "transition",
+ "tags": [
+  "motion-primitive",
+  "feature-tour",
+  "hub",
+  "nodes",
+  "connector",
+  "reveal"
+ ],
+ "seconds": 4.26,
+ "params": [
+  {
+   "name": "fit",
+   "type": "choice",
+   "default": "contain",
+   "options": [
+    "contain",
+    "cover"
+   ],
+   "what": "how the 1920x1080 composition is fitted into the canvas: whole with bars, or filling it and cropped"
+  },
+  {
+   "name": "hub_label",
+   "type": "text",
+   "default": "Product",
+   "maxLength": 200,
+   "what": "Text displayed inside the fixed central hub."
+  },
+  {
+   "name": "nodes",
+   "type": "text",
+   "default": "Capture,Compose,Render,Share",
+   "maxLength": 200,
+   "what": "Comma-separated feature labels introduced in narration order."
+  },
+  {
+   "name": "cues",
+   "type": "text",
+   "default": "",
+   "maxLength": 200,
+   "what": "Comma-separated seconds (from mount start) for each node reveal. Empty keeps the authored even spread."
+  },
+  {
+   "name": "accent",
+   "type": "choice",
+   "default": "green",
+   "options": [
+    "green",
+    "blue",
+    "violet"
+   ],
+   "what": "Highlight color used by the hub, connectors, and active nodes."
+  },
+  {
+   "name": "exit",
+   "type": "choice",
+   "default": "none",
+   "options": [
+    "none",
+    "fade",
+    "up"
+   ],
+   "what": "Optional departure. Default none: the lockup holds until the frame cuts."
+  }
+ ],
+ "values": {}
+}
+</script>
+<script>
+  /* popost: the scene's parameters stand in for HyperFrames variables; random numbers are seeded; the composition is
+     scaled into the canvas; clips are shown and hidden from the scene's time. */
+  (function () {
+    var block = document.getElementById('popost-params');
+    var values = block ? (JSON.parse(block.textContent).values || {}) : {};
+    var vars = {"hub_label":"Creator OS","nodes":"Capture,Compose,Animate,Render,Publish","accent":"violet"};
+    Object.keys(values).forEach(function (k) { if (k !== 'fit') vars[k] = values[k] === 'true' ? true : values[k] === 'false' ? false : values[k]; });
+    window.__hyperframes = { getVariables: function () { return vars; } };
+    var seed = 20240229;
+    window.__popostRandom = function () { seed = (seed + 0x6d2b79f5) >>> 0; var t = seed; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+    window.__popostFit = function () {
+      // The canvas, from the size this file declares: a scene of a later shot loads in a layer that is not displayed, where the page measures 0.
+      var size = /width: (\d+)px; height: (\d+)px;/.exec(document.getElementById('popost-fit').textContent);
+      var W = 1920, H = 1080, s = document.getElementById('popost-stage'), cw = Number(size[1]), ch = Number(size[2]);
+      var k = (values.fit === 'cover' ? Math.max : Math.min)(cw / W, ch / H);
+      s.style.transform = 'translate(' + (cw - W * k) / 2 + 'px,' + (ch - H * k) / 2 + 'px) scale(' + k + ')';
+      var clips = Array.prototype.slice.call(s.querySelectorAll('.clip[data-start]')).filter(function (c) { return isFinite(parseFloat(c.getAttribute('data-start'))) && c.parentNode !== s; });
+      // A mounted composition that starts later in its host runs on its own time.
+      [].forEach(function (m) {
+        var tl = window.__timelines && window.__timelines[m.id];
+        if (tl) window.__timelines[m.id] = { pause: function () { tl.pause(); }, seek: function (t) { tl.seek(Math.max(0, t - m.start)); }, duration: function () { return tl.duration() + m.start; } };
+      });
+      var scene = (window.__popostScene = window.__popostScene || {}), before = scene.render;
+      scene.render = function (seconds, fps) {
+        if (before) before(seconds, fps);
+        for (var i = 0; i < clips.length; i++) {
+          var a = parseFloat(clips[i].getAttribute('data-start')), d = parseFloat(clips[i].getAttribute('data-duration'));
+          clips[i].style.visibility = seconds >= a && (!isFinite(d) || seconds < a + d) ? 'visible' : 'hidden';
+        }
+      };
+    };
+  })();
+</script>
+<script type="application/json" id="popost-cues">[{"at":0.34,"cue":"draw","gain":0.45},{"at":0.66,"cue":"draw","gain":0.45},{"at":0.98,"cue":"draw","gain":0.45},{"at":1.3,"cue":"draw","gain":0.45},{"at":1.62,"cue":"draw","gain":0.45}]</script>
+</head>
+  <body>
+<div id="popost-stage">
+    <div
+      id="root"
+      data-composition-id="constellation-hub-demo"
+      data-start="0"
+      data-width="1920"
+      data-height="1080"
+      data-duration="4.5"
+      data-fps="30"
+    >
+      <div
+        id="constellation-hub-mount"
+        class="mount-card clip"
+        data-composition-id="constellation-hub"
+       
+        data-variable-values='{"hub_label":"Creator OS","nodes":"Capture,Compose,Animate,Render,Publish","accent":"violet"}'
+        data-start="0"
+        data-duration="4.5"
+        data-track-index="0"
+        data-width="1498"
+        data-height="756"
+      >
+      <div id="root" data-composition-id="constellation-hub" data-duration="4.5" data-fps="30">
+        <style>
+          *,
+          *::before,
+          *::after {
+            box-sizing: border-box;
+          }
+
+          #root {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            container-type: size;
+            isolation: isolate;
+            color: var(--fg, #f8fafc);
+            font-family: var(--font-body, Inter, system-ui, sans-serif);
+            pointer-events: none;
+          }
+
+          .ch-clip {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+            background: var(--bg, transparent);
+          }
+
+          .ch-lockup {
+            position: relative;
+            width: 100cqw;
+            height: 100cqh;
+            opacity: 0;
+          }
+
+          .ch-orbit {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100cqw;
+            height: 100cqh;
+            transform-origin: 50cqw 50cqh;
+            will-change: transform;
+          }
+
+          .ch-connectors {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100cqw;
+            height: 100cqh;
+            overflow: visible;
+          }
+
+          .ch-connector {
+            fill: none;
+            stroke: var(--ch-accent);
+            stroke-width: 0.72;
+            stroke-linecap: round;
+            opacity: 0.72;
+          }
+
+          .ch-node-position {
+            position: absolute;
+            width: var(--ch-node-width, 21cqw);
+            transform: translate(-50%, -50%);
+          }
+
+          .ch-node {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            min-height: 10cqh;
+            padding: var(--space-1, 1.2cqh) var(--space-2, 2.4cqw);
+            overflow: hidden;
+            border: 0.14cqw solid color-mix(in srgb, var(--ch-accent) 54%, var(--border, #334155));
+            border-radius: var(--radius, 2.4cqw);
+            background: color-mix(in srgb, var(--surface, #151a24) 90%, var(--ch-accent));
+            box-shadow: 0 1.8cqh 4.8cqh color-mix(in srgb, var(--bg, #05070d) 38%, transparent);
+            color: var(--fg, #f8fafc);
+            font-family: var(--font-body, Inter, system-ui, sans-serif);
+            font-size: var(--ch-node-font-size, 2.25cqw);
+            font-weight: 680;
+            line-height: 1.1;
+            letter-spacing: -0.01em;
+            text-align: center;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            will-change: transform, opacity;
+          }
+
+          .ch-hub {
+            position: absolute;
+            left: 50cqw;
+            top: 50cqh;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 21cqw;
+            min-height: 18cqh;
+            padding: var(--space-2, 2.4cqh) var(--space-2, 2.4cqw);
+            overflow: hidden;
+            border: 0.22cqw solid var(--ch-accent);
+            border-radius: var(--radius, 2.4cqw);
+            background: color-mix(in srgb, var(--surface, #151a24) 78%, var(--ch-accent));
+            box-shadow:
+              0 0 7cqh color-mix(in srgb, var(--ch-accent) 24%, transparent),
+              0 2.4cqh 6cqh color-mix(in srgb, var(--bg, #05070d) 46%, transparent);
+            color: var(--fg, #f8fafc);
+            font-family: var(--font-display, Inter, system-ui, sans-serif);
+            font-size: 3.05cqw;
+            font-weight: 760;
+            line-height: 1;
+            letter-spacing: -0.03em;
+            text-align: center;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            transform: translate(-50%, -50%);
+            will-change: transform, opacity;
+          }
+        </style>
+
+        <div
+          id="constellation-hub-clip"
+          class="ch-clip clip"
+          data-start="0"
+          data-duration="4.5"
+          data-track-index="0"
+        >
+          <div class="ch-lockup" role="img">
+            <div class="ch-orbit">
+              <svg
+                class="ch-connectors"
+                viewBox="0 0 100 100"
+                preserveAspectRatio="none"
+                aria-hidden="true"
+              ></svg>
+              <div class="ch-nodes"></div>
+            </div>
+            <div class="ch-hub"></div>
+          </div>
+        </div>
+
+        <script src="../lib/gsap.min.js"></script>
+        <script>
+          (function () {
+            "use strict";
+
+            var root = document.getElementById("root");
+            var lockup = root.querySelector(".ch-lockup");
+            var orbit = root.querySelector(".ch-orbit");
+            var connectorsLayer = root.querySelector(".ch-connectors");
+            var nodesLayer = root.querySelector(".ch-nodes");
+            var hub = root.querySelector(".ch-hub");
+            var vars =
+              window.__hyperframes && window.__hyperframes.getVariables
+                ? window.__hyperframes.getVariables()
+                : {};
+
+            var hubLabel = vars.hub_label == null ? "Product" : String(vars.hub_label).trim();
+            var nodeSource =
+              vars.nodes == null ? "Capture,Compose,Render,Share" : String(vars.nodes);
+            var nodeLabels = nodeSource
+              .split(",")
+              .map(function (label) {
+                return label.trim();
+              })
+              .filter(function (label) {
+                return label.length > 0;
+              });
+
+            if (nodeLabels.length === 0) nodeLabels = ["Feature"];
+
+            var accentColors = {
+              green: "var(--brand, #71f5a7)",
+              blue: "var(--accent, #61a8ff)",
+              violet: "var(--accent-2, #c5a3ff)",
+            };
+            var accent = Object.prototype.hasOwnProperty.call(accentColors, vars.accent)
+              ? vars.accent
+              : "green";
+            var exit = vars.exit === "fade" || vars.exit === "up" ? vars.exit : "none";
+            var cuesValue = vars.cues == null ? "" : String(vars.cues);
+            var cues = cuesValue.split(",").reduce(function (result, token) {
+              var trimmed = token.trim();
+              if (trimmed === "") return result;
+              var seconds = Number(trimmed);
+              if (!Number.isFinite(seconds) || seconds < 0) return result;
+              result.push(seconds);
+              return result;
+            }, []);
+
+            var nodeWidth = Math.max(12, Math.min(21, 78 / Math.max(4, nodeLabels.length) + 2));
+            var nodeFontSize = nodeLabels.length > 6 ? 1.75 : 2.25;
+
+            root.style.setProperty("--ch-accent", accentColors[accent]);
+            root.style.setProperty("--ch-node-width", nodeWidth.toFixed(2) + "cqw");
+            root.style.setProperty("--ch-node-font-size", nodeFontSize.toFixed(2) + "cqw");
+            hub.textContent = hubLabel;
+            lockup.setAttribute(
+              "aria-label",
+              "Hub " + hubLabel + " connected to " + nodeLabels.join(", "),
+            );
+
+            var svgNamespace = "http://www.w3.org/2000/svg";
+            var connectors = [];
+            var nodes = [];
+            var connectorFragment = document.createDocumentFragment();
+            var nodeFragment = document.createDocumentFragment();
+
+            nodeLabels.forEach(function (label, index) {
+              var angle = -Math.PI / 2 + (index / nodeLabels.length) * Math.PI * 2;
+              var x = 50 + Math.cos(angle) * 38;
+              var y = 50 + Math.sin(angle) * 39;
+              var connector = document.createElementNS(svgNamespace, "path");
+              connector.setAttribute("class", "ch-connector");
+              connector.setAttribute("d", "M 50 50 L " + x.toFixed(3) + " " + y.toFixed(3));
+              connectorFragment.appendChild(connector);
+              connectors.push(connector);
+
+              var position = document.createElement("div");
+              position.className = "ch-node-position";
+              position.style.left = x.toFixed(3) + "cqw";
+              position.style.top = y.toFixed(3) + "cqh";
+
+              var node = document.createElement("div");
+              node.className = "ch-node";
+              node.textContent = label;
+              position.appendChild(node);
+              nodeFragment.appendChild(position);
+              nodes.push(node);
+            });
+
+            connectorsLayer.appendChild(connectorFragment);
+            nodesLayer.appendChild(nodeFragment);
+
+            connectors.forEach(function (connector) {
+              var length = connector.getTotalLength();
+              connector.style.strokeDasharray = length + " " + length;
+              connector.style.strokeDashoffset = String(length);
+            });
+
+            var IN_BASE = 2.4;
+            var OUT_BASE = exit === "none" ? 0 : 0.5;
+            var HUB_IN_BASE = 0.46;
+            var SEQUENCE_START_BASE = 0.34;
+            var DRAW_BASE = 0.5;
+            var NODE_UP_BASE = 0.3;
+            var NODE_DOWN_BASE = 0.2;
+            var SETTLE_BASE = 0.28;
+            var STILLNESS = 0.24;
+            var durationValue = Number(root.dataset.duration);
+            var duration =
+              Number.isFinite(durationValue) && durationValue > 0 ? durationValue : 4.5;
+            var phaseBase = Math.max(0.001, IN_BASE + OUT_BASE);
+            var phaseScale = duration < phaseBase ? duration / phaseBase : 1;
+            var IN = IN_BASE * phaseScale;
+            var OUT = OUT_BASE * phaseScale;
+            var HUB_IN = HUB_IN_BASE * phaseScale;
+            var SEQUENCE_START = SEQUENCE_START_BASE * phaseScale;
+            var DRAW = DRAW_BASE * phaseScale;
+            var NODE_UP = NODE_UP_BASE * phaseScale;
+            var NODE_DOWN = NODE_DOWN_BASE * phaseScale;
+            var SETTLE = SETTLE_BASE * phaseScale;
+
+            // Reveal schedule: cues own each connector-and-node start when
+            // provided; the authored even spread otherwise. Reveals beyond
+            // the cue list extrapolate at the cue list's own gap, and every
+            // reveal clamps so the settle finishes before any exit.
+            var starts;
+            var SETTLE_START;
+            if (cues.length > 0) {
+              var lastCue = cues[cues.length - 1];
+              var cueGap =
+                cues.length >= 2 ? Math.max(0.05, (lastCue - cues[0]) / (cues.length - 1)) : DRAW;
+              var latestStart = Math.max(0, duration - OUT - (NODE_UP + NODE_DOWN + SETTLE));
+              starts = nodeLabels.map(function (label, index) {
+                var at =
+                  index < cues.length
+                    ? cues[index]
+                    : lastCue + (index - (cues.length - 1)) * cueGap;
+                return Math.min(latestStart, Math.max(0, at));
+              });
+              SETTLE_START = Math.max.apply(null, starts) + NODE_UP + NODE_DOWN;
+            } else {
+              SETTLE_START = Math.max(SEQUENCE_START, IN - SETTLE);
+              var LAST_DRAW_START = Math.max(SEQUENCE_START, SETTLE_START - DRAW);
+              var STEP =
+                nodeLabels.length > 1
+                  ? (LAST_DRAW_START - SEQUENCE_START) / (nodeLabels.length - 1)
+                  : 0;
+              starts = nodeLabels.map(function (label, index) {
+                return SEQUENCE_START + index * STEP;
+              });
+            }
+            var IN_END = Math.min(Math.max(0, duration - OUT), Math.max(IN, SETTLE_START + SETTLE));
+            var HOLD = Math.max(0, duration - IN_END - OUT);
+            var HOLD_START = IN_END;
+            var OUT_START = IN_END + HOLD;
+
+            gsap.set(lockup, { opacity: 0, scale: 0.985 });
+            gsap.set(hub, { opacity: 0, scale: 0.86 });
+            gsap.set(orbit, { rotation: -4 });
+            gsap.set(nodes, { opacity: 0.24, scale: 0.92 });
+
+            var tl = gsap.timeline({ paused: true });
+
+            tl.to(lockup, { opacity: 1, scale: 1, duration: HUB_IN, ease: "power2.out" }, 0);
+            tl.to(hub, { opacity: 1, scale: 1, duration: HUB_IN, ease: "back.out(1.7)" }, 0);
+            tl.to(orbit, { rotation: 0, duration: IN, ease: "power3.out" }, 0);
+
+            connectors.forEach(function (connector, index) {
+              var start = starts[index];
+              var node = nodes[index];
+
+              tl.to(connector, { strokeDashoffset: 0, duration: DRAW, ease: "power2.out" }, start);
+              tl.to(
+                node,
+                { opacity: 1, scale: 1.055, duration: NODE_UP, ease: "power3.out" },
+                start,
+              );
+              tl.to(
+                node,
+                { opacity: 0.82, scale: 1, duration: NODE_DOWN, ease: "power2.out" },
+                start + NODE_UP,
+              );
+            });
+
+            tl.to(
+              nodes,
+              { opacity: 0.88, scale: 1, duration: SETTLE, ease: "power2.out" },
+              SETTLE_START,
+            );
+            tl.to(
+              connectors,
+              { opacity: 0.62, duration: SETTLE, ease: "power2.out" },
+              SETTLE_START,
+            );
+
+            var driftHalf = Math.max(0, HOLD - STILLNESS) / 2;
+            if (driftHalf > 0) {
+              tl.to(
+                orbit,
+                { rotation: 1.1, duration: driftHalf, ease: "sine.inOut", yoyo: true, repeat: 1 },
+                HOLD_START,
+              );
+            }
+
+            // OUT: optional departure; exit none holds until the frame cuts.
+            if (exit === "fade") {
+              tl.to(
+                lockup,
+                { opacity: 0, scale: 0.97, duration: OUT, ease: "power2.in" },
+                OUT_START,
+              );
+            } else if (exit === "up") {
+              tl.to(
+                lockup,
+                { opacity: 0, y: "-3cqh", duration: OUT, ease: "power2.in" },
+                OUT_START,
+              );
+            }
+
+            tl.seek(0);
+            window.__timelines = window.__timelines || {};
+            window.__timelines["constellation-hub"] = tl;
+          })();
+        </script>
+      </div>
+    </div>
+    </div>
+
+    <script src="../lib/gsap.min.js"></script>
+    <script>
+      var demoTimeline = gsap.timeline({ paused: true });
+      demoTimeline.seek(0);
+      window.__timelines = window.__timelines || {};
+      window.__timelines["constellation-hub-demo"] = demoTimeline;
+    </script>
+  </div>
+<script>window.__popostFit();</script>
+</body>
+</html>

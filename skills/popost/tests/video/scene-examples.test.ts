@@ -35,7 +35,7 @@ describe('example scenes with parameters', () => {
       }
     }
     expect((await readExample(rt, 'object-reveal')).params.map((p) => p.name)).toEqual(expect.arrayContaining(['startX', 'startY', 'endX', 'endY', 'objectSize', 'edge', 'spread', 'travel']));
-    await expect(readExample(rt, 'confetti')).rejects.toThrow('There is no example scene named "confetti". Known: object-reveal, card-flip, folding-doors, streak-wipe.');
+    await expect(readExample(rt, 'no-such-effect')).rejects.toThrow('There is no example scene named "no-such-effect". Known: object-reveal, card-flip, folding-doors, streak-wipe');
   });
 
   it('each keeps the rules of a scene: no clock of its own, no randomness, nothing from the network, drawn shapes only', async () => {

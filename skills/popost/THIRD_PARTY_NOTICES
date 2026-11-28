@@ -18,13 +18,36 @@ THIRD_PARTY NOTICES
   TypeScript with changes. Copyright 2026 JuneYaooo, Apache License 2.0 (text below). rea-video's NOTICE reads:
   "rea-video / Copyright 2026 JuneYaooo / Licensed under the Apache License, Version 2.0."
 
+- dist/ (from src/video/measure/move.ts and easing.ts): the measurement of one moving element's curve is ported
+  from the `measure curve` command of HyperFrames (https://github.com/heygen-com/hyperframes,
+  packages/cli/src/measure/curve.ts, at commit a8332860c396e9224d42b7ea2a9cc8f42918c961). Copyright 2026 HeyGen, Inc.,
+  Apache License 2.0 (text below; HyperFrames ships no NOTICE file). Changes: rewritten on this engine's decoded
+  frames and Runtime; a ground that is not flat is taken per pixel; the move is fitted along its path; turns, settle
+  time, peak speed and squash / stretch are added; bounce, expo.in / inOut and a spring family are added to the eases.
+
+- assets/video/examples/hf/*.html : example scenes ported from the registry of HyperFrames
+  (https://github.com/heygen-com/hyperframes, registry/components, registry/blocks and registry/examples, at commit
+  a8332860c396e9224d42b7ea2a9cc8f42918c961) by tools/video/port-hyperframes.mjs. Copyright 2026 HeyGen, Inc., Apache
+  License 2.0 (text below). Each file names its source item and the changes made to it in its header: GSAP and
+  three.js loaded from the project instead of a CDN, web font links removed, pictures replaced by slots and drawn
+  stand-ins, Math.random replaced by a seeded generator, CSS transitions removed, the composition scaled into the
+  scene's canvas, HyperFrames variables declared as parameters, clips shown and hidden from the scene's time, sound
+  cues derived from its tweens. HyperFrames' bundled sound files, pictures, fonts and third-party libraries are not
+  included. assets/video/examples/catalogue.json lists every ported item and every item that was not ported.
+- references/video-motion.md : rules and numbers adapted from HyperFrames' skills/hyperframes/references/motion.md
+  and sound.md (same commit, Apache License 2.0, rewritten) and from LottieFiles motion-design-skill
+  (https://github.com/LottieFiles/motion-design-skill, MIT License, Copyright (c) 2025 LottieFiles; text below).
+- three : an optional npm dependency (three.js r147), installed with the package and not bundled into dist/.
+  `popost video scene library --name three` copies its unchanged build/three.min.js into a video project.
+  Copyright 2010-2022 Three.js Authors, MIT License (the file carries its notice).
+
 - assets/fonts/<role>/*.woff2 : 41 original Fontsource font families under
   SIL Open Font License 1.1. See each family LICENSE and assets/fonts/NOTICE.txt.
   assets/fonts/palette.json records pinned package versions, file SHA-256,
   license SHA-256 and measured glyph coverage. Font binaries are unmodified.
 
-Apache License 2.0 (applies to the rea-video code above)
--------------------------------------------------------
+Apache License 2.0 (applies to the rea-video and HyperFrames code above)
+----------------------------------------------------------------------
 
                                  Apache License
                            Version 2.0, January 2004
@@ -202,3 +225,28 @@ Apache License 2.0 (applies to the rea-video code above)
       of your accepting any such warranty or additional liability.
 
    END OF TERMS AND CONDITIONS
+
+MIT License (applies to the material adapted from LottieFiles motion-design-skill above)
+--------------------------------------------------------------------------------------
+
+MIT License
+
+Copyright (c) 2025 LottieFiles
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

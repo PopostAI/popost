@@ -1,0 +1,155 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Counting number with a bar</title>
+<style>
+  html, body { margin: 0; width: 1280px; height: 720px; overflow: hidden; }
+  #n { position: absolute; left: 10%; top: 24%; font: 900 190px/1 "Noto Sans", sans-serif; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+  #label { position: absolute; left: 10%; top: 56%; font: 500 44px "Noto Sans", "Noto Sans CJK SC", sans-serif; opacity: 0.85; }
+  #track { position: absolute; left: 10%; top: 72%; width: 80%; height: 3.2%; border-radius: 99px; background: rgba(255, 255, 255, 0.14); overflow: hidden; }
+  #fill { width: 100%; height: 100%; border-radius: 99px; transform-origin: left center; }
+</style></head>
+<body>
+<div id="n" data-slot="value"></div>
+  <div id="label" data-slot="label"></div>
+  <div id="track"><div id="fill"></div></div>
+  <script type="application/json" id="popost-params">
+{
+ "about": "A figure counts up to its value on a long ease-out while a bar grows beside it, ticks while it runs and pops when it lands. The value is a slot: give the number of the new subject.",
+ "class": "chart",
+ "seconds": 2.4,
+ "tags": [
+  "counter",
+  "number",
+  "count up",
+  "stat",
+  "kpi",
+  "progress",
+  "bar",
+  "data"
+ ],
+ "params": [
+  {
+   "name": "value",
+   "type": "text",
+   "default": "12800",
+   "maxLength": 16,
+   "what": "the number it counts to (digits; a slot can replace it)"
+  },
+  {
+   "name": "label",
+   "type": "text",
+   "default": "new users this week",
+   "maxLength": 60,
+   "what": "what the number is"
+  },
+  {
+   "name": "prefix",
+   "type": "text",
+   "default": "",
+   "maxLength": 4,
+   "what": "text before the number"
+  },
+  {
+   "name": "suffix",
+   "type": "text",
+   "default": "",
+   "maxLength": 6,
+   "what": "text after the number"
+  },
+  {
+   "name": "decimals",
+   "type": "number",
+   "default": 0,
+   "min": 0,
+   "max": 4,
+   "what": "decimal places"
+  },
+  {
+   "name": "separator",
+   "type": "choice",
+   "default": ",",
+   "options": [
+    ",",
+    ".",
+    " ",
+    "none"
+   ],
+   "what": "the thousands separator"
+  },
+  {
+   "name": "duration",
+   "type": "number",
+   "default": 1.4,
+   "min": 0.2,
+   "max": 10,
+   "what": "how long the count takes",
+   "unit": "seconds"
+  },
+  {
+   "name": "ease",
+   "type": "choice",
+   "default": "power3.out",
+   "options": [
+    "linear",
+    "power2.out",
+    "power3.out",
+    "expo.out",
+    "steps(12)"
+   ],
+   "what": "how the count runs"
+  },
+  {
+   "name": "bar",
+   "type": "number",
+   "default": 0.72,
+   "min": 0,
+   "max": 1,
+   "what": "how full the bar ends",
+   "unit": "fraction"
+  },
+  {
+   "name": "color",
+   "type": "colour",
+   "default": "#ffffff",
+   "what": "the figure"
+  },
+  {
+   "name": "accent",
+   "type": "colour",
+   "default": "#2a9d8f",
+   "what": "the bar"
+  },
+  {
+   "name": "ground",
+   "type": "colour",
+   "default": "#264653",
+   "what": "the background"
+  },
+  {
+   "name": "delay",
+   "type": "number",
+   "default": 0.2,
+   "min": 0,
+   "max": 20,
+   "unit": "seconds",
+   "what": "when the effect starts, from the start of the shot"
+  }
+ ],
+ "values": {}
+}
+  </script>
+  <script src="../lib/popost-motion.js"></script>
+  <script>
+    // The parameters of this copy: the declared defaults, then what "values" sets.
+    var P = (function () { var b = JSON.parse(document.getElementById('popost-params').textContent), v = {}; b.params.forEach(function (p) { v[p.name] = p['default']; }); for (var k in b.values) v[k] = b.values[k]; return v; })();
+    // The canvas, from the size this file declares for html and body: a scene of a later shot loads in a layer that
+    // is not displayed, where the page itself measures 0 until its first frame.
+    var SIZE = /html, body \{ margin: 0; width: (\d+)px; height: (\d+)px;/.exec(document.querySelector('style').textContent), W = Number(SIZE[1]), H = Number(SIZE[2]), U = Math.min(W, H) / 720;
+    var M = popostMotion, n = document.getElementById('n'), label = document.getElementById('label');
+    document.body.style.background = P.ground; n.style.color = P.color; n.style.fontSize = 0.26 * H + 'px'; n.textContent = P.value;
+    label.textContent = P.label; label.style.color = P.color; label.style.fontSize = 0.06 * H + 'px'; document.getElementById('fill').style.background = P.accent;
+    M.counter('#n', { at: P.delay, 'for': P.duration, from: 0, decimals: P.decimals, separator: P.separator === 'none' ? '' : P.separator, prefix: P.prefix, suffix: P.suffix, ease: P.ease });
+    var e = M.ease(P.ease);
+    M.on(function (t) { document.getElementById('fill').style.transform = 'scaleX(' + (P.bar * e(M.progress(t, P.delay, P.duration))).toFixed(4) + ')'; });
+    M.tween('#label', { at: P.delay + 0.15, 'for': 0.4, ease: 'power2.out', from: { opacity: 0, y: 14 * U }, to: {} });
+  </script>
+</body></html>

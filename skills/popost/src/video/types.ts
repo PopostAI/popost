@@ -772,6 +772,25 @@ export interface Trajectory {
   confidence: number;
 }
 
+/**
+ * One measured move of one thing (measure/move.ts): seconds of the video, positions as fractions of the canvas,
+ * overshoot and anticipation in percent of the move, the closest named easing with the error of its fit.
+ */
+export interface MeasuredMove {
+  prop: 'path' | 'x' | 'y' | 'w' | 'h' | 'ink';
+  start: number; end: number; duration: number; frames: number;
+  from: number[]; to: number[];
+  distance?: number; peakSpeed?: number;
+  overshoot: number; anticipation: number;
+  turns: number; bounces: number; settle: number;
+  squash?: { stretch: number; squash: number };
+  fit: { ease: string; gsap: string; gsapExact: boolean; error: number; next: { ease: string; error: number }[] };
+  curve: number[];
+}
+
+/** The curves of a shot (from 1): its main moving element's moves, or why none could be followed. */
+export interface ShotCurves { shot: number; moves: MeasuredMove[]; note?: string }
+
 export interface Measure {
   version: 1;
   source: Probe;
@@ -785,6 +804,11 @@ export interface Measure {
   known?: Record<string, Status>;
   /** Trajectories of what moves along a way (measure/tracks.ts). Absent in a measurement written before they existed. */
   tracks?: Trajectory[];
+  /**
+   * The measured curve of the main moving element of the shots that move throughout (describe/curves.ts,
+   * measure/move.ts). Absent in a measurement of a render and in one written before it existed.
+   */
+  curves?: ShotCurves[];
   /** How much of the picture changes between sampled frames, 0..1, one value every step frames. */
   rhythm: { step: number; change: number[] };
   /**

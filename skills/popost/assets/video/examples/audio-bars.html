@@ -1,0 +1,125 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Bars that follow a sound</title>
+<style>
+  html, body { margin: 0; width: 1280px; height: 720px; overflow: hidden; }
+  #bars { position: absolute; left: 8%; top: 22%; width: 84%; height: 56%; }
+</style></head>
+<body>
+<div id="bars"></div>
+  <script type="application/json" id="popost-params">
+{
+ "about": "A row of bars driven by a sound's envelope (a list of levels a second): every bar reads it a little apart and is smoothed, so the row moves like a spectrum. Give the envelope of the project's own sound; a pattern stands in for it here.",
+ "class": "audio",
+ "seconds": 4,
+ "tags": [
+  "audio",
+  "bars",
+  "spectrum",
+  "equalizer",
+  "waveform",
+  "music",
+  "beat",
+  "reactive"
+ ],
+ "params": [
+  {
+   "name": "pattern",
+   "type": "choice",
+   "default": "beat",
+   "options": [
+    "beat",
+    "speech",
+    "swell",
+    "steady"
+   ],
+   "what": "the stand-in envelope, until the scene is given a real one"
+  },
+  {
+   "name": "bpm",
+   "type": "number",
+   "default": 120,
+   "min": 40,
+   "max": 220,
+   "what": "the tempo of the stand-in beat"
+  },
+  {
+   "name": "bars",
+   "type": "number",
+   "default": 28,
+   "min": 4,
+   "max": 96,
+   "what": "how many bars"
+  },
+  {
+   "name": "align",
+   "type": "choice",
+   "default": "bottom",
+   "options": [
+    "bottom",
+    "center"
+   ],
+   "what": "whether the bars grow from the floor or from the middle"
+  },
+  {
+   "name": "gap",
+   "type": "number",
+   "default": 6,
+   "min": 0,
+   "max": 40,
+   "what": "the space between bars",
+   "unit": "pixels at 720 high"
+  },
+  {
+   "name": "seed",
+   "type": "number",
+   "default": 4,
+   "min": 1,
+   "max": 999,
+   "what": "how the bars differ"
+  },
+  {
+   "name": "color",
+   "type": "colour",
+   "default": "#80ffdb",
+   "what": "the bars"
+  },
+  {
+   "name": "ground",
+   "type": "colour",
+   "default": "#03071e",
+   "what": "the background"
+  },
+  {
+   "name": "delay",
+   "type": "number",
+   "default": 0.2,
+   "min": 0,
+   "max": 20,
+   "unit": "seconds",
+   "what": "when the effect starts, from the start of the shot"
+  }
+ ],
+ "values": {}
+}
+  </script>
+  <script src="../lib/popost-motion.js"></script>
+  <script>
+    // The parameters of this copy: the declared defaults, then what "values" sets.
+    var P = (function () { var b = JSON.parse(document.getElementById('popost-params').textContent), v = {}; b.params.forEach(function (p) { v[p.name] = p['default']; }); for (var k in b.values) v[k] = b.values[k]; return v; })();
+    // The canvas, from the size this file declares for html and body: a scene of a later shot loads in a layer that
+    // is not displayed, where the page itself measures 0 until its first frame.
+    var SIZE = /html, body \{ margin: 0; width: (\d+)px; height: (\d+)px;/.exec(document.querySelector('style').textContent), W = Number(SIZE[1]), H = Number(SIZE[2]), U = Math.min(W, H) / 720;
+    var M = popostMotion, RATE = 30, env = [], beat = 60 / P.bpm;
+    document.body.style.background = P.ground;
+    // A stand-in envelope at 30 levels a second, 60 seconds long. Replace it by the levels of the project's sound:
+    // window.__popostEnvelope = { rate: 30, levels: [...] } before this script, or edit this list.
+    for (var i = 0; i < 60 * RATE; i++) {
+      var t = i / RATE, u = (t % beat) / beat;
+      env.push(P.pattern === 'beat' ? 0.25 + 0.75 * Math.exp(-5 * u) * (Math.floor(t / beat) % 4 === 0 ? 1 : 0.7)
+        : P.pattern === 'speech' ? Math.max(0, 0.55 + 0.45 * M.noise(t * 6, 3)) * (M.noise(t * 0.9, 9) > -0.35 ? 1 : 0.08)
+        : P.pattern === 'swell' ? 0.5 - 0.5 * Math.cos(t * 0.9) : 0.6);
+    }
+    var given = window.__popostEnvelope;
+    M.bars('#bars', given ? given.levels : env, { rate: given ? given.rate : RATE, count: P.bars, color: P.color, gap: P.gap * U, align: P.align, seed: P.seed });
+  </script>
+</body></html>

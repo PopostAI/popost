@@ -79,8 +79,12 @@ export interface RetargetPlan {
    * colour of the words already spoken). Needs the words of the voice, which "--speak" writes.
    */
   captionSpoken?: true | { color?: string; pastColor?: string };
-  /** With a voice: show each word of a caption when it is spoken, instead of the whole line at once. */
-  captionReveal?: 'words';
+  /**
+   * With a voice: 'words' shows each word of a caption when it is spoken; 'whole' shows every line whole at once.
+   * Default: as the reference's lines came on screen when that was measured (text.json captionLook.reveal: built
+   * word by word or character by character gives 'words'), else whole.
+   */
+  captionReveal?: 'words' | 'whole';
   /**
    * Caption colour and the colour of its outline. Defaults: as the reference's captions looked when that was measured
    * (text.json captionLook: on a plate, outlined, plain), else white on a dark outline.
@@ -203,8 +207,10 @@ const cardItems = (id: string, card: Extract<ShotFill, { card: unknown }>['card'
 export const MAX_ZOOM_RATE = 0.3;
 
 /** Reject malformed caption overrides before a fill writes a project or requests speech. */
-export const captionOptionProblems = (plan: RetargetPlan): Problem[] =>
-  (['captionColor', 'captionOutline'] as const).flatMap((key) => plan[key] === undefined || (typeof plan[key] === 'string' && plan[key].trim()) ? [] : [{ level: 'error' as const, at: key, message: key + ' is a CSS colour string.', fix: 'Write "' + key + '": "#111111", or remove it.' }]);
+export const captionOptionProblems = (plan: RetargetPlan): Problem[] => [
+  ...(['captionColor', 'captionOutline'] as const).flatMap((key) => plan[key] === undefined || (typeof plan[key] === 'string' && plan[key].trim()) ? [] : [{ level: 'error' as const, at: key, message: key + ' is a CSS colour string.', fix: 'Write "' + key + '": "#111111", or remove it.' }]),
+  ...(plan.captionReveal === undefined || plan.captionReveal === 'words' || plan.captionReveal === 'whole' ? [] : [{ level: 'error' as const, at: 'captionReveal', message: 'captionReveal is "words" (each word shows when it is spoken) or "whole" (every line whole at once); it is ' + JSON.stringify(plan.captionReveal) + '.', allowed: ['words', 'whole'], fix: 'Write "captionReveal": "words" or "whole", or remove it to follow the source.' }]),
+];
 
 /** Problems of the values of a footage or picture fill that every caller checks the same way: zoom, fit, ground. */
 export const fillValueProblems = (s: Record<string, unknown>, at: string): Problem[] => {
@@ -419,14 +425,17 @@ export const retarget = (input: RetargetInput): RetargetOutput => {
     });
     // Captions can follow the spoken word only when the sound's words are known.
     const follows = Boolean(input.wordsFile && plan.sound);
+    // As the reference's lines came on screen: built up there, built up here, unless the fill says otherwise.
+    const measured = read.text?.captionLook?.reveal;
+    const built = plan.captionReveal === 'words' || (plan.captionReveal === undefined && measured !== undefined && measured.kind !== 'whole' && measured.confidence >= 0.6);
     tracks.push({
       id: 'captions', type: 'caption', box: layout.box,
       style: {
         ...look,
         ...(follows && plan.captionSpoken ? { spoken: { color: (plan.captionSpoken === true ? undefined : plan.captionSpoken.color) ?? '#ffd84a', ...(plan.captionSpoken !== true && plan.captionSpoken.pastColor ? { past: { color: plan.captionSpoken.pastColor } } : {}) } } : {}),
       },
-      ...(follows && (plan.captionSpoken || plan.captionReveal) ? { words: true as const } : {}),
-      ...(follows && plan.captionReveal ? { reveal: plan.captionReveal } : {}),
+      ...(follows && (plan.captionSpoken || built) ? { words: true as const } : {}),
+      ...(follows && built ? { reveal: 'words' as const } : {}),
       cues,
     });
     notes.push(cues.length + ' caption lines placed on the reference\'s caption beats (band at ' + Math.round((layout.box[1] + layout.box[3] / 2) * 100) + '% of the height).');
@@ -453,7 +462,7 @@ export const retarget = (input: RetargetInput): RetargetOutput => {
   }
   const dialogue = (input.dialogue ?? []).filter((i) => (lines[i] ?? '').trim());
   if (dialogue.length) notes.push(dialogue.length + ' line(s) are said by the person of a clip (' + dialogue.map((i) => 'captions[' + i + ']').join(', ') + '): the voice-over does not read them, and their clips are heard at full level.');
-  if ((plan.captionSpoken || plan.captionReveal) && !input.wordsFile) notes.push('captionSpoken and captionReveal need a voice with words; they were left out. Use --speak.');
+  if ((plan.captionSpoken || plan.captionReveal === 'words') && !input.wordsFile) notes.push('captionSpoken and captionReveal need a voice with words; they were left out. Use --speak.');
   const kept = plan.shots.filter((s) => 'keep' in s).length;
   if (kept) notes.push(kept + ' shot(s) keep the reference\'s own footage; copy the reference to assets/reference.mp4 in the project.');
   const unshown = lines.flatMap((l, i) => (l.trim() && beats[i] && !beats[i]?.shown && !(input.dialogue ?? []).includes(i) ? [i] : []));

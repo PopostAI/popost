@@ -8,6 +8,7 @@ import type { OptionSpec, ParsedArgs, PositionalSpec } from '../../args';
 import { isFile, printJson, readJson } from '../../core/util';
 import type { Runtime } from '../../runtime';
 import { fitsPoorly, joinedShots, transitionFile } from '../describe/frames';
+import { shotCurves } from '../describe/curves';
 import { describeReference } from '../describe/index';
 import { INSET_FILE, insetPlan, insetText } from '../describe/inset';
 import { TRACKS_FILE, tracksFile } from '../describe/paths';
@@ -19,6 +20,7 @@ import { probe } from '../media/ffmpeg';
 import { readReference } from '../describe/parts';
 import { buildDraft } from '../draft/build';
 import { measureVideo } from '../measure/index';
+import { stillProblems } from '../measure/still-shots';
 import { scoreMeasures } from '../score/index';
 import { compareShots, LESS_MOTION, momentsOf, MORE_MOTION, shotTimeMap, type MotionComparison, type ShotDifference } from '../score/shots';
 import { compareTracks, type TrackDifference } from '../score/tracks';
@@ -36,6 +38,7 @@ import { commandTextReader, cuesOf, readSamples, withCaptionLook, type TextReadi
 import { rolesWithSpeech } from '../text/speech';
 import type { Boundary, Measure, ShotMeasure, Unrecovered } from '../types';
 import { unrecoveredIn } from './elements';
+import { measureCommands } from './measure';
 import { command, PROJECT_OPTION, userPath, VideoCommandError, videoTitle, type Commands } from './shared';
 
 const VIDEO: PositionalSpec = { name: 'video', help: 'a video file ffmpeg can read' };
@@ -96,7 +99,7 @@ const shotEntry = (s: ShotMeasure): Record<string, unknown> => ({
 });
 
 const measure = command(
-  'cuts, transitions, camera, motion and colour of a video, measured by programs',
+  'cuts, transitions, camera, motion and colour of a video, measured by programs (measure curve <video> --from S --to S --roi x,y,w,h: the curve of one moving thing, with its closest easing)',
   { positionals: [VIDEO], options: [outFile('measure.json')] },
   async (args, rt) => {
     const video = await inputFile(rt, args.req('video'));
@@ -238,7 +241,10 @@ const describe = command(
       ...(reader ? { reader } : {}), ...(transcriber ? { transcriber } : {}), ...(language ? { language } : {}),
       progress: { write: (line) => rt.stderr(line + '\n'), everyMs: PROGRESS_MS }, pictures: { dir },
     });
-    const m = got.measure, read = got.text, spoken = got.transcript, inset = got.inset;
+    // The curve of the main moving element of the shots that move throughout, for their scenes (describe/curves.ts).
+    const curves = await shotCurves(rt, video, got.measure).catch(() => []);
+    const m: Measure = curves.length ? { ...got.measure, curves } : got.measure;
+    const read = got.text, spoken = got.transcript, inset = got.inset;
     // text.json keeps the roles the speech gives (and why each cue has its role).
     const cues = read ? rolesWithSpeech(read, spoken) : undefined;
     // Why there is, or is not, a transcript: a failed transcription is not a skipped one, and neither is a missing tool.
@@ -346,7 +352,7 @@ const projectWindows = async (rt: Runtime, other: string, shots: number, m: Meas
 };
 
 const compare = command(
-  'two videos, or two measure.json files, scored dimension by dimension (1 is the same); then shots (each shot of the reference against the matching part of the other, with its motion amount in both), motionAmount (how much the picture moves in both videos, and the shots that move much less or more than the reference\'s), paths (each measured path of the reference against the other\'s: path angle, size, duration, edge shape, and what differs), notRecovered (what the reading of the reference did not recover, for the delivery notes) and worst (the shots that differ most, each with the dimension that makes it so, its seconds in both and a look command that shows it); for a render, round (the review rounds so far), stillWorst and next',
+  'two videos, or two measure.json files, scored dimension by dimension (1 is the same); then shots (each shot of the reference against the matching part of the other, with its motion amount in both), motionAmount (how much the picture moves in both videos, and the shots that move much less or more than the reference\'s), paths (each measured path of the reference against the other\'s: path angle, size, duration, edge shape, and what differs), notRecovered (what the reading of the reference did not recover, for the delivery notes) stillShots (the shots that stand still for more than 40% of their length while the reference shot moves throughout: each a named problem with its fix, to be fixed, not noted) and worst (the shots that differ most, each with the dimension that makes it so, its seconds in both and a look command that shows it, and the still shots with their problem); for a render, round (the review rounds so far), stillWorst and next',
   {
     positionals: [{ name: 'reference', help: 'a video, or the measure.json of one' }, { name: 'other', help: 'a video, or the measure.json of one' }],
     options: [
@@ -373,9 +379,13 @@ const compare = command(
     const paths = compareTracks(a, b, shotTimeMap(a, b));
     const lost = await notRecovered(rt, reference, facts);
     const typed = { reference: args.req('reference'), other: args.req('other') };
-    const worst = shots.worst.map((d) => {
+    // A shot that stands still where its reference moves throughout is named with its fix, and is among worst whatever its score.
+    const still = stillProblems(a, b, shots.shots);
+    const listed = [...shots.worst, ...shots.shots.filter((d) => still.some((p) => p.shot === d.shot) && !shots.worst.includes(d))];
+    const worst = listed.map((d) => {
       const look = lookCommand(typed, b, d);
-      return { shot: d.shot, by: d.by, score: d.score, scores: d.scores, reference: { ...d.reference, at: d.at.reference }, other: { ...d.other, at: d.at.other }, ...(look ? { look } : {}) };
+      const problem = still.find((p) => p.shot === d.shot);
+      return { shot: d.shot, by: d.by, score: d.score, scores: d.scores, reference: { ...d.reference, at: d.at.reference }, other: { ...d.other, at: d.at.other }, ...(look ? { look } : {}), ...(problem ? { problem: { name: problem.name, message: problem.message, fix: problem.fix } } : {}) };
     });
     // A render is recorded with its worst shots, and the round it is in is said where the agent reads (render/record.ts).
     const review = other.endsWith('.json') ? undefined : await reviewCompare(rt, {
@@ -386,6 +396,7 @@ const compare = command(
     printJson(rt, {
       ok: true, reference, other, composite: score.composite, dimensions: score.dimensions, shots: shots.shots, worst,
       ...(shots.motion ? { motionAmount: { ...shots.motion, note: motionNote(shots.motion) } } : {}),
+      ...(still.length ? { stillShots: { shots: still, note: still.length + ' shot' + (still.length === 1 ? ' stands' : 's stand') + ' still where the reference moves throughout. Each is a problem to fix before delivery (worst[].problem has the fix), not a difference to note.' } } : {}),
       ...(paths.length ? { paths: { tracks: paths, note: pathsNote(paths) } } : {}),
       ...(lost.length ? { notRecovered: { entries: lost, note: NOT_RECOVERED_NOTE } } : {}),
       ...(scope.omitted ? { scope: { seconds: [0, a.source.frames / a.source.fps], omittedShots: scope.omitted, note: 'Only retained reference content is compared. Declared trailing platform shots are excluded after verifying the full reference visual fingerprint.' } } : {}),
@@ -431,3 +442,6 @@ export const readCommands: Commands = { measure, text, transcript, describe, com
 
 /** Command groups with commands of their own, e.g. `popost video scene check`. */
 export const readGroups: Readonly<Record<string, Commands>> = {};
+
+/** `popost video measure curve ...`: commands under the name of the `measure` command, told from it by their first word. */
+export const measureGroup: Commands = measureCommands;

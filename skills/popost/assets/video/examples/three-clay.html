@@ -1,0 +1,138 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Clay objects with soft shadows (three.js)</title>
+<style>
+  html, body { margin: 0; width: 1280px; height: 720px; overflow: hidden; }
+  canvas { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
+</style></head>
+<body>
+<canvas id="gl"></canvas>
+  <script type="application/json" id="popost-params">
+{
+ "about": "Matte, rounded objects as if made of clay, on a soft floor under one large light: soft shadows, no gloss. They settle in one after another on a spring and then bob gently, each on its own time.",
+ "class": "3d",
+ "seconds": 4,
+ "tags": [
+  "three",
+  "3d",
+  "clay",
+  "soft shadow",
+  "matte",
+  "toy",
+  "objects",
+  "webgl"
+ ],
+ "params": [
+  {
+   "name": "objects",
+   "type": "number",
+   "default": 5,
+   "min": 1,
+   "max": 9,
+   "what": "how many objects"
+  },
+  {
+   "name": "bob",
+   "type": "number",
+   "default": 0.18,
+   "min": 0,
+   "max": 1,
+   "what": "how far each one bobs"
+  },
+  {
+   "name": "each",
+   "type": "number",
+   "default": 0.14,
+   "min": 0,
+   "max": 1,
+   "what": "the time between two arrivals",
+   "unit": "seconds"
+  },
+  {
+   "name": "seed",
+   "type": "number",
+   "default": 6,
+   "min": 1,
+   "max": 999,
+   "what": "which objects and colours"
+  },
+  {
+   "name": "a",
+   "type": "colour",
+   "default": "#ff9f1c",
+   "what": "the first clay"
+  },
+  {
+   "name": "b",
+   "type": "colour",
+   "default": "#2ec4b6",
+   "what": "the second clay"
+  },
+  {
+   "name": "c",
+   "type": "colour",
+   "default": "#e71d36",
+   "what": "the third clay"
+  },
+  {
+   "name": "floorColor",
+   "type": "colour",
+   "default": "#fdfffc",
+   "what": "the floor"
+  },
+  {
+   "name": "ground",
+   "type": "colour",
+   "default": "#fdfffc",
+   "what": "the background"
+  },
+  {
+   "name": "delay",
+   "type": "number",
+   "default": 0.2,
+   "min": 0,
+   "max": 20,
+   "unit": "seconds",
+   "what": "when the effect starts, from the start of the shot"
+  }
+ ],
+ "values": {}
+}
+  </script>
+  <script src="../lib/three.min.js"></script>
+  <script>
+    // The parameters of this copy: the declared defaults, then what "values" sets.
+    var P = (function () { var b = JSON.parse(document.getElementById('popost-params').textContent), v = {}; b.params.forEach(function (p) { v[p.name] = p['default']; }); for (var k in b.values) v[k] = b.values[k]; return v; })();
+    // The canvas, from the size this file declares for html and body: a scene of a later shot loads in a layer that
+    // is not displayed, where the page itself measures 0 until its first frame.
+    var SIZE = /html, body \{ margin: 0; width: (\d+)px; height: (\d+)px;/.exec(document.querySelector('style').textContent), W = Number(SIZE[1]), H = Number(SIZE[2]), U = Math.min(W, H) / 720;
+    // One renderer, made once; every frame is drawn from render(seconds) alone: no animation loop, no clock.
+    var renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('gl'), antialias: true, preserveDrawingBuffer: true });
+    renderer.setPixelRatio(1); renderer.setSize(W, H, false);
+    var scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(35, W / H, 0.1, 200);
+    renderer.setClearColor(P.ground); renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    camera.position.set(0, 5.2, 12); camera.lookAt(0, 0.9, 0);
+    // A seeded generator: the same objects on every render.
+    var seed = P.seed * 9301 + 49297, rnd = function () { seed = (seed * 233280 + 12345) % 2147483647; return (seed % 100000) / 100000; };
+    var G = [new THREE.SphereGeometry(1, 64, 48), new THREE.CapsuleGeometry(0.7, 1.2, 16, 48), new THREE.TorusGeometry(0.8, 0.38, 32, 96), new THREE.CylinderGeometry(0.8, 0.8, 1.4, 64), new THREE.ConeGeometry(0.95, 1.7, 64)];
+    var colours = [P.a, P.b, P.c], things = [], count = Math.round(P.objects);
+    for (var i = 0; i < count; i++) {
+      var mesh = new THREE.Mesh(G[Math.floor(rnd() * G.length)], new THREE.MeshStandardMaterial({ color: new THREE.Color(colours[i % 3]), roughness: 1, metalness: 0 }));
+      mesh.castShadow = true; mesh.receiveShadow = true;
+      var x = (i - (count - 1) / 2) * 2.5, z = (rnd() - 0.5) * 2.4;
+      things.push({ mesh: mesh, x: x, z: z, phase: rnd() * 6.28, turn: (rnd() - 0.5) * 1.2, size: 0.8 + 0.5 * rnd() }); scene.add(mesh);
+    }
+    var floor = new THREE.Mesh(new THREE.PlaneGeometry(80, 80), new THREE.MeshStandardMaterial({ color: new THREE.Color(P.floorColor), roughness: 1 })); floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true;
+    var key = new THREE.DirectionalLight(0xffffff, 0.95); key.position.set(-5, 10, 6); key.castShadow = true; key.shadow.mapSize.set(2048, 2048); key.shadow.radius = 10;
+    key.shadow.camera.left = -12; key.shadow.camera.right = 12; key.shadow.camera.top = 10; key.shadow.camera.bottom = -10;
+    scene.add(floor, key, new THREE.HemisphereLight(0xffffff, new THREE.Color(P.floorColor), 0.85));
+    window.__popostScene = { cues: things.map(function (_t, i) { return { at: Math.round((P.delay + i * P.each) * 1000) / 1000, cue: 'pop', gain: 0.5, effect: 'three' }; }), render: function (seconds) {
+      things.forEach(function (t, i) {
+        var u = Math.max(0, seconds - P.delay - i * P.each), k = u <= 0 ? 0 : 1 - Math.exp(-6 * u) * Math.cos(9 * u);
+        t.mesh.scale.setScalar(Math.max(0.0001, k * t.size));
+        t.mesh.position.set(t.x, 1.1 * t.size + Math.sin(seconds * 1.4 + t.phase) * P.bob, t.z);
+        t.mesh.rotation.set(Math.sin(seconds * 0.7 + t.phase) * 0.25, seconds * t.turn, 0);
+      });
+      renderer.render(scene, camera);
+    } };
+  </script>
+</body></html>

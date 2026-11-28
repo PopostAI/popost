@@ -1,0 +1,119 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Sub-frame motion blur</title>
+<style>
+  html, body { margin: 0; width: 1280px; height: 720px; overflow: hidden; }
+  canvas { position: absolute; left: 0; top: 0; }
+</style></head>
+<body>
+<canvas id="c"></canvas>
+  <script type="application/json" id="popost-params">
+{
+ "about": "A fast mover drawn with motion blur: the moments between two frames are drawn on top of one another on a canvas, so the smear follows the real path and is longest at the fastest frame. A dot crossing on an eased curve.",
+ "class": "motion",
+ "seconds": 1.8,
+ "tags": [
+  "motion blur",
+  "smear",
+  "fast",
+  "streak",
+  "shutter",
+  "canvas"
+ ],
+ "params": [
+  {
+   "name": "samples",
+   "type": "number",
+   "default": 12,
+   "min": 1,
+   "max": 48,
+   "what": "how many moments are drawn for one frame"
+  },
+  {
+   "name": "shutter",
+   "type": "number",
+   "default": 0.6,
+   "min": 0,
+   "max": 2,
+   "what": "the share of a frame's time the shutter is open: 0.5 is a film camera"
+  },
+  {
+   "name": "duration",
+   "type": "number",
+   "default": 0.7,
+   "min": 0.1,
+   "max": 5,
+   "what": "the length of the crossing",
+   "unit": "seconds"
+  },
+  {
+   "name": "ease",
+   "type": "choice",
+   "default": "power4.inOut",
+   "options": [
+    "linear",
+    "power2.inOut",
+    "power4.inOut",
+    "expo.out",
+    "back.out(1.7)"
+   ],
+   "what": "the mover's speed"
+  },
+  {
+   "name": "arc",
+   "type": "number",
+   "default": 0.22,
+   "min": -0.5,
+   "max": 0.5,
+   "what": "how high the path bows",
+   "unit": "fraction of the canvas height"
+  },
+  {
+   "name": "size",
+   "type": "number",
+   "default": 0.09,
+   "min": 0.01,
+   "max": 0.4,
+   "what": "the mover's diameter",
+   "unit": "fraction of the canvas height"
+  },
+  {
+   "name": "color",
+   "type": "colour",
+   "default": "#ffbe0b",
+   "what": "the mover"
+  },
+  {
+   "name": "ground",
+   "type": "colour",
+   "default": "#3a0ca3",
+   "what": "the background"
+  },
+  {
+   "name": "delay",
+   "type": "number",
+   "default": 0.2,
+   "min": 0,
+   "max": 20,
+   "unit": "seconds",
+   "what": "when the effect starts, from the start of the shot"
+  }
+ ],
+ "values": {}
+}
+  </script>
+  <script src="../lib/popost-motion.js"></script>
+  <script>
+    // The parameters of this copy: the declared defaults, then what "values" sets.
+    var P = (function () { var b = JSON.parse(document.getElementById('popost-params').textContent), v = {}; b.params.forEach(function (p) { v[p.name] = p['default']; }); for (var k in b.values) v[k] = b.values[k]; return v; })();
+    // The canvas, from the size this file declares for html and body: a scene of a later shot loads in a layer that
+    // is not displayed, where the page itself measures 0 until its first frame.
+    var SIZE = /html, body \{ margin: 0; width: (\d+)px; height: (\d+)px;/.exec(document.querySelector('style').textContent), W = Number(SIZE[1]), H = Number(SIZE[2]), U = Math.min(W, H) / 720;
+    var M = popostMotion, c = document.getElementById('c'), e = M.ease(P.ease);
+    document.body.style.background = P.ground; c.width = W; c.height = H;
+    M.motionBlur('#c', function (ctx, t) {
+      var p = e(M.progress(t, P.delay, P.duration)), x = M.mix(0.12 * W, 0.88 * W, p), y = 0.6 * H - Math.sin(Math.PI * p) * P.arc * H;
+      ctx.fillStyle = P.color; ctx.beginPath(); ctx.arc(x, y, (P.size * H) / 2, 0, 6.2832); ctx.fill();
+    }, { samples: P.samples, shutter: P.shutter });
+    M.cue(P.delay + P.duration * 0.35, 'whoosh', 0.7, 'motionBlur');
+  </script>
+</body></html>

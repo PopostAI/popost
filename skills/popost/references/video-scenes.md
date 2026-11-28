@@ -65,11 +65,43 @@ popost video scene library project        # writes project/lib/gsap.min.js; a sc
   `immediateRender: false`.
 - Transform origins belong in CSS (`transform-origin: left center`), not inside a tween. An element that GSAP moves or
   scales loses a `rotate`, `scale` or `translate` property written in the stylesheet: give it with `gsap.set` instead.
-- The rules of "The length of the shot" hold: entrances early, then hold; no exit.
+- The rules of "The length of the shot" hold: no exit; on a text or explainer card the entrances come early and then hold, while a motion-graphics shot keeps moving to its last frame.
 - GSAP is a product of Webflow under its own licence (free to use, not open source: https://gsap.com/standard-license).
   The file in the project is its unchanged file; leave it so.
 
 Items in a template fill may specify `span: [0.15, 1]` to appear from fifteen percent of the shot until its end. The interval follows the shot when speech changes its length. `enter` and `exit` use native motions, for example `{ "preset": "fade", "frames": 9 }`; the clip starts at `in` when its visible interval starts. `audio: 0` preserves its source sound; omitted audio is silent.
+
+## The motion helper, three.js and the effects catalogue
+
+Before drawing an effect by hand, look for it. The rules of motion, each effect as a function of time and the cue
+contract are in `video-motion.md`: **read it before writing the scene of any shot that moves throughout** (step 5 of
+`video.md` makes this mandatory), and whenever the reference is motion graphics.
+
+```bash
+popost video scene library project --name motion    # lib/popost-motion.js: easings, springs, seeded randomness, effects, sound cues
+popost video scene library project --name three     # lib/three.min.js: three.js r147 for lit 3D, drawn from render(seconds)
+popost video scene example --search "confetti"      # the effects catalogue (video-effects.md): several hundred ready scenes
+popost video scene cues project                     # every scene's sound cues in the video's time, without rendering
+```
+
+```html
+<script src="../lib/popost-motion.js"></script>
+<script>
+  var M = popostMotion;                                       // every effect is a function of the shot's time
+  var b = M.bounce('#ball', { at: 0.2, for: 1.6, from: [380, 90], to: [900], floor: 590, size: 100, bounces: 3, trail: 4, shadow: true });
+  M.shockwave({ at: b.contacts[0], x: 510, y: 590, radius: 160, flat: 0.22 });
+  M.slam('#title', { at: 1.9 });                              // lands with a flash frame, then stays still
+  M.sunburst({ at: 2.1, speed: 18 });                         // ambient: keeps turning to the end of the shot
+</script>
+```
+
+- The helper adds itself to `window.__popostScene.render`; set your own `__popostScene` first, or draw your own parts
+  with `M.on(function (seconds, fps) { ... })`. A GSAP timeline and the helper can share a scene.
+- Every effect declares its sound cues (`window.__popostScene.cues`); `video-motion.md`, "Sound cues", is the contract.
+- The scene of a later shot loads in a layer that is not displayed, where every size is 0 until its first frame: take
+  the canvas size from the size the file declares, and read sizes of elements inside `M.whenShown(function () { ... })`.
+- A catalogue entry is used like the four examples below (`--set`, `--sheet`, `--out`); an entry ported from another
+  project keeps its motion and has stand-ins where the original loaded pictures or fonts.
 
 ## Example scenes with parameters
 
@@ -240,13 +272,34 @@ What `template fill` writes into `video.json` for it as the second shot (the ids
                 "radius": 0.07, "in": 0, "during": { "segment": "shot-02" } } ] }
 ```
 
-## The length of the shot
+## The length of the shot, and what moves in it
 
 The video's timing comes from its reference and, with a voice, from the spoken lines, so a shot can end up longer or
-shorter than the reference shot it re-creates. Let every entrance finish in the first half of the shot and then hold
-its end state (`both` keeps it), and leave the end of the shot to the transition: an exit animated at the end of
-your shot would play at the wrong time. A move that runs through the whole shot (a slow drift, a bar that grows)
-can last as long as the reference shot and then hold.
+shorter than the reference shot it re-creates. Leave the end of the shot to the transition: an exit animated at the
+end of your shot would play at the wrong time.
+
+What moves, and for how long, depends on the kind of shot. `ref/shots/NN.md` says it in its `Movement:` line, measured
+from the reference's frames, and `timeline.md` marks every shot that `MOVES THROUGHOUT`:
+
+- **A text or explainer card** (`enters then holds`): every entrance finishes in the first half of the shot and then
+  holds its end state (`both` keeps it). A reader needs the text still.
+- **A motion-graphics shot** (`moves throughout`): it keeps moving from its first frame to its last. Before writing
+  its scene, open `ref/shots/NN-frames.jpg` and read `video-motion.md`; a scene whose elements all arrive in the first
+  third of a second and then stand is a still picture, not a re-make of it. Build it in three layers:
+  - the **main move** (a ball that bounces, a shape that morphs, a camera that travels), lasting as long as the
+    reference's does, on the measured curve (`ref/shots/NN.md`, "Motion events"; `popost video measure curve`);
+  - what **follows** it (a trail, a shadow that follows the contact, a settle, a part that arrives a little later);
+  - a **ground that keeps going** (a slow drift or turn, moving light, particles), which can last as long as the shot.
+- **Titles land and then stay still**, in both kinds: the motion goes on in the world behind them. No title wobbles,
+  floats or pulses for the length of the shot; that reads as generated at once.
+- **Never every element the same way**: a shot whose parts all fade and slide up, or all pop on the same overshoot,
+  reads as a template. Give each role its own entrance and its own ease (`video-motion.md`, "Ease by role").
+- When speech makes the shot longer than the reference's, the main move keeps its length and the ground keeps going;
+  do not stretch a bounce or a pop to fill the time.
+
+After the render, `popost video compare` names every shot that stands still for more than 40% of its length while the
+reference shot moves throughout (`stillShots`, and `worst[].problem` with the fix). That is a problem to fix before
+delivery, not a difference to note in the delivery text.
 
 ## What the rest of the video adds
 
