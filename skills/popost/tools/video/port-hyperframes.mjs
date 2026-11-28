@@ -10,7 +10,9 @@
 //   2. rewrites the page into a scene: GSAP and three.js from ../lib/, no web fonts, pictures as slots with a drawn
 //      stand-in, seeded random numbers, no CSS transitions, the composition scaled into any canvas, the HyperFrames
 //      variables as declared parameters, clips shown and hidden from the scene's time;
-//   3. opens it in Chrome, reads the length of its timelines and derives its sound cues from its tweens (CUE RULES);
+//   3. opens it in Chrome, reads the length of its timelines and derives its sound cues from its tweens (CUE RULES),
+//      unless tools/video/check-cues.ts measured that they miss the frame where the picture changes: then the cues it
+//      proposed (hyperframes-cues.json) are written instead, also by --catalogue-only;
 //      leaves out what tools/video/verify-examples.ts found not to draw in the renderer (hyperframes-unverified.json);
 //   4. writes assets/video/examples/hf/<name>.html with a header that names the source, the licence and the changes.
 // Then it reads every example of assets/video/examples (the Skill's own too), writes catalogue.json and
@@ -380,6 +382,10 @@ const main = async () => {
   // What is left out on purpose, with the reason (tools/video/hyperframes-excluded.json).
   const excludedFile = path.join(here, 'hyperframes-excluded.json');
   const excluded = existsSync(excludedFile) ? JSON.parse(await readFile(excludedFile, 'utf8')) : {};
+  // Cues measured against the picture by tools/video/check-cues.ts --propose, by catalogue name: for the entries whose
+  // derived cues missed the frame where the picture changes, they replace the derived ones.
+  const cueFile = path.join(here, 'hyperframes-cues.json');
+  const measuredCues = existsSync(cueFile) ? JSON.parse(await readFile(cueFile, 'utf8')) : {};
   const REASONS = [
     [/^the same picture/, 'draws nothing that moves when it is the scene of a later shot: it measures its layout while it loads, before the page is laid out'],
     [/^not the same picture/, 'a frame is not the same picture when it is drawn again after other frames: it does not follow from its time alone'],
@@ -415,7 +421,7 @@ const main = async () => {
           if (!read.timelines && !/__popostScene/.test(html)) { skip('hands no timeline over (it is driven by the HyperFrames runtime alone)'); continue; }
         }
         const seconds = read.seconds || Number(item.duration) || Number(/data-duration=["']([\d.]+)["']/.exec(html)?.[1]) || 3;
-        const cues = read.cues.length ? read.cues : fallbackCues(name, made.class, read.first ?? 0);
+        const cues = (measuredCues[name] ?? measuredCues['hf-' + name])?.cues ?? (read.cues.length ? read.cues : fallbackCues(name, made.class, read.first ?? 0));
         const out = made.page({ seconds }).replace('</head>', '<script type="application/json" id="popost-cues">' + JSON.stringify(cues) + '</script>\n</head>');
         if (Buffer.byteLength(out) > MAX_BYTES) { skip('is ' + Math.round(Buffer.byteLength(out) / 1024) + ' KB as one page (inlined data or pictures); the limit for an example is ' + MAX_BYTES / 1024 + ' KB'); continue; }
         await writeFile(path.join(outDir, name + '.html'), out);
@@ -438,6 +444,10 @@ const main = async () => {
     const hf = rel.startsWith('hf/'), base = path.basename(rel, '.html'), name = hf && files.includes(base + '.html') ? 'hf-' + base : base;
     let cues = JSON.parse(/<script type="application\/json" id="popost-cues">([\s\S]*?)<\/script>/.exec(html)?.[1] ?? '[]');
     let seconds = params.seconds;
+    if (hf && measuredCues[name] && JSON.stringify(measuredCues[name].cues) !== JSON.stringify(cues)) {
+      cues = measuredCues[name].cues;
+      await writeFile(path.join(examplesDir, rel), html.replace(/(<script type="application\/json" id="popost-cues">)[\s\S]*?(<\/script>)/, (_m, open, close) => open + JSON.stringify(cues) + close));
+    }
     if (!hf && browser) {
       const scene = path.join(scratch, 'scenes', name + '.html');
       await writeFile(scene, html);
@@ -451,7 +461,7 @@ const main = async () => {
     const old = previous.entries.find((e) => e.name === name);
     entries.push({
       name, file: 'assets/video/examples/' + rel, class: params.class ?? old?.class ?? 'transition', about: params.about ?? '', seconds: seconds || old?.seconds || (Number(params.params?.find((p) => p.name === 'delay')?.default ?? 0) + Number(params.params?.find((p) => p.name === 'duration')?.default ?? 1) + 0.5),
-      libraries: librariesOf(html), params: (params.params ?? []).map((p) => p.name), cues: cues.length ? cues : old?.cues ?? [],
+      libraries: librariesOf(html), params: (params.params ?? []).map((p) => p.name), cues: cues.length || measuredCues[name] ? cues : old?.cues ?? [],
       ...(origin ? { source: 'hyperframes:' + origin[1] + '/' + origin[2] } : {}), ...(params.placeholders ? { placeholders: params.placeholders } : stand ? { placeholders: stand } : {}), ...(params.tags ? { tags: params.tags } : {}),
     });
   }
