@@ -61,7 +61,16 @@ export interface CaptionLook {
   plate?: { color: string; opacity: number; padding: number; radius: number; confidence?: number };
   /** Without a colour: there is an outline (or a shadow), but its colour could not be told. */
   outline?: { color?: string; confidence?: number };
+  /** With kind 'outline' too: a shadow under outlined letters (darker below or to the right of the outline on every line). */
   shadow?: { color?: string; confidence?: number };
+  /**
+   * How thick the strokes are: heavy (bold or heavier) or regular, and the stroke's width as a share of the line's
+   * box height (text/core.ts). Absent when it could not be measured (a plate, too few strokes).
+   */
+  weight?: 'heavy' | 'regular';
+  stroke?: number;
+  /** How a line comes on screen: whole at once, or built up word by word or character by character (text/reveal.ts). */
+  reveal?: CaptionReveal;
   /** A second fill colour on a word or two of some lines: a highlighted keyword. */
   highlight?: CaptionHighlight;
   /** How many caption lines it was measured on. */
@@ -77,8 +86,26 @@ export interface CaptionHighlight {
   confidence: number;
   /** How many of the measured lines had highlighted words. */
   lines: number;
+  /** lines / the lines measured: 0.25 is about one line in four. Absent in files written before it was recorded. */
+  share?: number;
   /** Those lines as the reader read them, the highlighted words wrapped in asterisks the way a fill marks them. */
   examples?: string[];
+}
+
+/**
+ * How caption lines come on screen, from the frames around the start of each measured line: 'whole' (the whole line
+ * within a frame or two, a fade or a pop included), 'words' (it builds in steps of a word or more) or 'chars' (in
+ * steps of about a character).
+ */
+export interface CaptionReveal {
+  kind: 'whole' | 'words' | 'chars';
+  /** The lines that came on this way, of the lines whose start could be seen. */
+  lines: number;
+  of: number;
+  /** lines / of. The kind is given only from 0.6 up. */
+  confidence: number;
+  /** For 'words' and 'chars': the median time a line takes to be complete, in seconds. */
+  seconds?: number;
 }
 
 export interface TextTrack {

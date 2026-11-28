@@ -20,14 +20,16 @@ import { probe, runFfmpegOk } from '../media/ffmpeg';
 import { deltaE, toLab } from '../measure/colour';
 import { toHex } from '../measure/pixels';
 import { CHANNELS, area, clamp, grow, inside, labMedian, labOf, median, medianRgb, r2, rgbMedian, rgbOf, ring, spreadOf, type Channel, type Frame, type Lab, type Rect, type Rgb } from './frame';
+import { coreOf, farEnd, weightOf } from './core';
 import { highlightOf } from './highlight';
-import { candidatesOf, lettersOf, pictureAround, SURE } from './letters';
-import type { CaptionLook, TextCue, TextTrack } from './types';
+import { candidatesOf, lettersOf, pictureAround, SURE, type Letters } from './letters';
+import { measureReveal } from './reveal';
+import type { CaptionHighlight, CaptionLook, TextCue, TextTrack } from './types';
 
 export type { Frame, Rect } from './frame';
 
 /** Lines measured at most: one frame each, the longest-lived first. */
-export const MAX_SAMPLES = 12;
+export const MAX_SAMPLES = 20;
 /** Fewer caption lines than this are not enough to tell a plate from the picture. */
 export const MIN_SAMPLES = 3;
 /** Share of the samples that must show a plate. */
@@ -177,6 +179,30 @@ const plateLook = (n: number, plates: PlateReading[]): CaptionLook => {
 };
 
 /**
+ * Letters without a plate, as small or soft video shows them (core.ts): the fill is the core of the strokes, not the
+ * blend at their edges; the outline's colour is its far end from the fill; the weight is the stroke's width; and a
+ * shadow under an outline is kept beside it.
+ */
+const refined = (frames: Frame[], boxes: Rect[], { look, fill, part }: Letters): CaptionLook => {
+  if (!fill || look.kind === 'plate') return look;
+  const core = look.color ? coreOf(frames, boxes, fill.group.at, fill.around) : undefined;
+  const coreLab = core && core.share >= SURE ? core.lab : fill.group.lab;
+  const edge = part?.edge ?? [...fill.edges.up, ...fill.edges.down, ...fill.edges.left, ...fill.edges.right];
+  const far = look.kind === 'outline' && look.outline?.color ? farEnd(edge, coreLab) : undefined;
+  const weight = weightOf(frames, boxes, coreLab, far?.lab ?? fill.around, part?.lines);
+  const under = look.kind === 'outline' && fill.shadowBeyond ? { shadow: { confidence: r2(fill.group.lines / frames.length) } } : {};
+  return {
+    ...look,
+    ...(core && core.share >= SURE && look.color ? { color: toHex(core.rgb) } : {}),
+    ...(far && look.outline ? { outline: { ...look.outline, color: toHex(far.rgb) } } : {}),
+    ...under,
+    ...(weight ?? {}),
+  };
+};
+
+const shared = (h: CaptionHighlight | undefined, n: number): CaptionHighlight | undefined => (h ? { ...h, share: r2(h.lines / Math.max(1, n)) } : undefined);
+
+/**
  * The look of the captions from frames already taken out, one per caption line, with each line's box in pixels and
  * what the reader read on it (for the words a highlight covers).
  */
@@ -185,17 +211,20 @@ export const lookOf = (frames: Frame[], boxes: Rect[], texts: string[] = []): Ca
   const readings = frames.map((f, k) => plateOf(f, boxes[k] as Rect));
   const plates = readings.filter((r) => r.plate);
   const around = pictureAround(frames, boxes);
-  const candidates = candidatesOf(frames, boxes, Math.max(2, Math.ceil(0.25 * frames.length)));
+  // A colour on a sixth of the lines can still be a highlight (one line in four or five has one in many videos).
+  const candidates = candidatesOf(frames, boxes, Math.max(2, Math.ceil(frames.length / 6)));
   if (plates.length >= PLATE_SHARE * readings.length) {
     const look = plateLook(frames.length, plates);
     const fill = readings.map((r) => (r.plate && r.letters ? toLab(r.letters) : undefined));
     // The plate as it is seen, the picture showing through it, is what surrounds the letters.
-    const highlight = highlightOf(frames, boxes, texts, { fill, around: labMedian(plates.map((p) => toLab(p.colour))) }, candidates, around);
+    const highlight = shared(highlightOf(frames, boxes, texts, { fill, around: labMedian(plates.map((p) => toLab(p.colour))) }, candidates, around), frames.length);
     return highlight ? { ...look, highlight } : look;
   }
-  const { look, fill } = lettersOf(frames, boxes, candidates, around);
+  const letters = lettersOf(frames, boxes, candidates, around);
+  const { fill } = letters;
+  const look = refined(frames, boxes, letters);
   const ctx = fill ? { fill: fill.group.at, px: fill.px, ...(look.kind === 'outline' || look.kind === 'plate' ? { around: fill.around } : {}) } : undefined;
-  const highlight = ctx ? highlightOf(frames, boxes, texts, ctx, candidates, around) : undefined;
+  const highlight = shared(ctx ? highlightOf(frames, boxes, texts, ctx, candidates, around) : undefined, frames.length);
   return highlight ? { ...look, highlight } : look;
 };
 
@@ -243,5 +272,8 @@ export const captionFrames = async (rt: Runtime, video: string, track: TextTrack
  */
 export const measureCaptionLook = async (rt: Runtime, video: string, track: TextTrack): Promise<CaptionLook | undefined> => {
   const { frames, boxes, texts } = await captionFrames(rt, video, track);
-  return lookOf(frames, boxes, texts);
+  const look = lookOf(frames, boxes, texts);
+  if (!look) return undefined;
+  const reveal = await measureReveal(rt, video, track, look);
+  return reveal ? { ...look, reveal } : look;
 };

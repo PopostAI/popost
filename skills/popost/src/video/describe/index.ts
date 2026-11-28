@@ -13,6 +13,7 @@ import { looksText, shotLooks, shownIn, type ShotLooks } from './kind';
 import { AROUND, fitsPoorly, joinedShots, LEAD_IN, OPENING_FILE, OPENING_PER_SECOND, OPENING_SECONDS, SHOT_FRAMES, shotSheetFile, transitionFile } from './frames';
 import type { Phrase, Transcript } from '../speech/types';
 import { barsOf, markedText } from '../text/bar';
+import { oneIn } from '../text/share';
 import type { CaptionLook, TextCue, TextTrack } from '../text/types';
 import { shotAmount, videoAmount } from '../measure/amount';
 import { ANGLES, ownEffect, trackBrief, trackText, TRACKS_FILE } from './paths';
@@ -185,10 +186,14 @@ const shotFile = (s: ShotMeasure, into: Boundary | undefined, out: Boundary | un
  */
 const lookText = (l: CaptionLook): string => {
   const plate = l.plate;
-  const letters = (l.color ?? 'unsure-coloured') + ' letters';
-  const lit = l.highlight?.color ? '; a word or two of ' + l.highlight.lines + ' of ' + l.samples + ' lines in ' + l.highlight.color : '';
+  const letters = (l.color ?? 'unsure-coloured') + (l.weight ? ' ' + l.weight : '') + ' letters';
+  const share = l.highlight?.share ?? (l.highlight ? l.highlight.lines / Math.max(1, l.samples) : 0);
+  const reveal = l.reveal && l.reveal.confidence >= 0.6
+    ? '; each line ' + (l.reveal.kind === 'whole' ? 'appears whole at once' : 'builds up ' + (l.reveal.kind === 'words' ? 'word by word' : 'character by character') + (l.reveal.seconds ? ' over ' + l.reveal.seconds + ' s' : '')) + ' (' + l.reveal.lines + ' of ' + l.reveal.of + ' line starts measured)'
+    : '';
+  const lit = (l.highlight?.color ? '; a word or two of ' + l.highlight.lines + ' of ' + l.samples + ' lines in ' + l.highlight.color + ' (' + oneIn(share) + ')' : '') + reveal;
   if (l.kind === 'plate' && plate) return letters + ' on a plate ' + plate.color + (plate.opacity < 1 ? ' at ' + pct(plate.opacity) : '') + ', padding ' + plate.padding + ', radius ' + plate.radius + ' of the font size' + lit;
-  if (l.kind === 'outline') return letters + ' with ' + (l.outline?.color ? 'a ' + l.outline.color : 'an unsure-coloured') + ' outline' + lit;
+  if (l.kind === 'outline') return letters + ' with ' + (l.outline?.color ? 'a ' + l.outline.color : 'an unsure-coloured') + ' outline' + (l.shadow ? ' and a shadow under it' : '') + lit;
   if (l.kind === 'shadow') return letters + ' with ' + (l.shadow?.color ? 'a ' + l.shadow.color : 'an unsure-coloured') + ' shadow' + lit;
   return 'plain ' + letters + ' (no plate, outline or shadow)' + lit;
 };

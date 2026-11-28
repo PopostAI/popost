@@ -20,6 +20,7 @@ import { fitProblems, itemFitProblems } from './fit';
 import { itemSpan, shotItemProblems } from '../retarget/items';
 import { barProblems, wordProblems } from '../retarget/titles';
 import { unmark } from '../retarget/marks';
+import { captionLookProblems } from './check-captions';
 import { fillLengths, footageNeed } from './structure';
 import type { Capacity, FillKind, TemplatePackage } from './types';
 import { fillReadingProblems, hasReading, readingOfTemplate, sceneSources } from '../elements/findings';
@@ -375,7 +376,7 @@ export const checkFill = async (rt: Runtime, pkg: TemplatePackage, fill: Retarge
   if (shape.some((p) => p.level === 'error')) return shape;
   // Lengths are those of what is drawn and spoken: the *marks* of highlighted words are neither (retarget/marks.ts).
   const counted: RetargetPlan = fill.captions ? { ...fill, captions: fill.captions.map((l) => (typeof l === 'string' ? unmark(l).text : l)) } : fill;
-  const out = [...shape, ...countProblems(pkg, fill), ...fill.shots.flatMap((s, k) => [...shotProblems(pkg, s, k), ...(isObject(s) ? [...shotItemProblems(s, 'shots[' + k + ']'), ...wordSlotProblems(pkg, s, k)] : [])]), ...colourProblems(fill), ...barSlotProblems(pkg, fill), ...captionProblems(pkg, counted), ...fragmentProblems(pkg, counted)];
+  const out = [...shape, ...countProblems(pkg, fill), ...fill.shots.flatMap((s, k) => [...shotProblems(pkg, s, k), ...(isObject(s) ? [...shotItemProblems(s, 'shots[' + k + ']'), ...wordSlotProblems(pkg, s, k)] : [])]), ...colourProblems(fill), ...barSlotProblems(pkg, fill), ...captionProblems(pkg, counted), ...fragmentProblems(pkg, counted), ...captionLookProblems(pkg.template.captions?.look, fill)];
   // What the reading of the frames says: an effect a scene must draw, the layout kept, the platform's words never shown.
   const reading = readingOfTemplate(pkg, (p) => (pkg.dir ? rt.path.relative(rt.cwd, rt.path.resolve(pkg.dir, p)) : p));
   const scenes = o.dir && hasReading(reading) ? await sceneSources(rt, o.dir, fill.shots.flatMap((s: unknown) => (isObject(s) && typeof s.scene === 'string' && !isOutside(s.scene) ? [s.scene] : []))) : new Map<string, string>();

@@ -22,7 +22,8 @@ const plateStyle = (p: NonNullable<CaptionLook['plate']>): NonNullable<TextStyle
 const outlined = (color: string): Pick<TextStyle, 'stroke' | 'shadow'> => ({ stroke: { color, width: 0.16 }, shadow: { color, blur: 0.3, x: 0, y: 0.05 } });
 
 export const captionStyle = (look: CaptionLook | undefined, plan: { captionColor?: string; captionOutline?: string }, size: number): TextStyle => {
-  const base: TextStyle = { size, weight: 800, color: plan.captionColor ?? look?.color ?? '#ffffff', align: 'center' };
+  // Regular strokes when the reference's were measured as regular; heavy otherwise, which stays legible on any picture.
+  const base: TextStyle = { size, weight: look?.weight === 'regular' ? 500 : 800, color: plan.captionColor ?? look?.color ?? '#ffffff', align: 'center' };
   const plate = look?.kind === 'plate' && look.plate ? { background: plateStyle(look.plate) } : {};
   // An outline the plan asks for is drawn whatever the reference had (on its plate, when it had one).
   if (plan.captionOutline) return { ...base, ...outlined(plan.captionOutline), ...plate };

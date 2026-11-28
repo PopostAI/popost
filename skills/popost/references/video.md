@@ -560,7 +560,7 @@ paid again) and
 re-flows each beat to its spoken line; `--keep-length` keeps each beat at least as long as in the reference, so the
 cuts keep its rhythm; `--fit-tempo 1.12` speeds a line that would run over its beat up as far as it needs, at most
 12% (hardly heard; the pitch stays), and only the rest makes the beat longer. Its `notes` say which lines were sped
-up and give the new length. When the reading says the words appear one by one, add `"captionReveal": "words"` to the fill (`template check` warns when it is missing). From now on run `template fill` only with these options, or the voice is dropped.
+up and give the new length. How a caption line comes on screen is measured (`text.json`, `captionLook.reveal`; REFERENCE.md and TEMPLATE.md say it): a source whose lines appear whole at once gets whole lines, and `template check` warns about a `"captionReveal": "words"` it did not have; a source whose lines build word by word gets that by default with a voice. Only where nothing was measured and the reading says the words appear one by one, add `"captionReveal": "words"` to the fill (`template check` warns when it is missing). From now on run `template fill` only with these options, or the voice is dropped.
 Without a speaker, or for a video without a voice (step 4: no narration in the reference), leave out `--speak --keep-length --fit-tempo 1.12 --pace <budgets.pace> --confirm --max-credits <left>`; `template fill` refuses them there. The last command
 looks at the files of the fill and at `project/video.json`: run it again after every hand edit of `video.json`; it
 warns when the captions are much smaller or larger than the reference's, with both sizes in pixels (`video check` does
