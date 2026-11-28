@@ -137,6 +137,11 @@ export interface RetargetInput {
    * them, their time is the reference's, and a note says so. Their captions are drawn as the beat's "shown" says.
    */
   dialogue?: readonly number[];
+  /**
+   * How far the beats a clip says were really said from their asked slots, in seconds (template/speech-rules.ts,
+   * heardShifts: the clips' measured speech): the caption of such a beat follows what was said.
+   */
+  heard?: Readonly<Record<number, { start: number; end: number }>>;
   /** How fast the reference's speaker spoke (default: from the transcript), for the warning about lines too long to say. */
   pace?: Pace;
   plan: RetargetPlan;
@@ -417,9 +422,14 @@ export const retarget = (input: RetargetInput): RetargetOutput => {
     const cues = beats.flatMap((b, i) => {
       const text = (lines[i] ?? '').trim();
       if (!text || !b.shown) return [];
-      // The next line may start where this one ends; a cue never runs into the next one.
-      const from = flow ? (flow.starts[i] ?? 0) : b.start;
-      const to = Math.min(flow ? (flow.ends[i] ?? from) : b.end, flow ? (flow.starts[i + 1] ?? total) : total, total);
+      // The next line may start where this one ends; a cue never runs into the next one. A line a clip says follows
+      // the time it was measured at (input.heard), by the same offset from its slot.
+      const shift = input.heard?.[i];
+      const asked = flow ? (flow.starts[i] ?? 0) : b.start;
+      const from = shift ? Math.max(0, asked + Math.round(shift.start * fps)) : asked;
+      const end = (flow ? (flow.ends[i] ?? from) : b.end) + (shift ? Math.round(shift.end * fps) : 0);
+      const next = flow ? (flow.starts[i + 1] ?? total) : shift ? (beats[i + 1]?.start ?? total) : total;
+      const to = Math.min(end, next, total);
       const marks = marked[i]?.marks ?? [];
       return to > from ? [{ text, during: { segment: first, from, to }, ...(marks.length ? { spans: markSpans(marks, lit) } : {}) }] : [];
     });

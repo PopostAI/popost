@@ -3,16 +3,24 @@
  * integrated loudness ffmpeg's EBU R 128 meter reads, and PCM written as a WAV file (tests and cut effects).
  */
 import type { Runtime } from '../../runtime';
-import { runFfmpeg, runFfmpegOk } from '../media/ffmpeg';
+import { FfmpegError, runFfmpeg } from '../media/ffmpeg';
 import { ANALYSIS_RATE } from './measure';
 
 /** The longest sound measured: a reference longer than this is read to here (20 min is 106 MB of samples). */
 export const MAX_MEASURED_SECONDS = 20 * 60;
 
-/** One channel of a file's sound (a video's first audio stream, or a sound file) at `rate`, samples in -1..1; from/length in seconds. */
+/** What ffmpeg says of a file without an audio stream (a clip made without sound) when its sound is asked for. */
+export const NO_AUDIO_STREAM = /matches no streams|does not contain any stream/;
+
+/**
+ * One channel of a file's sound (a video's first audio stream, or a sound file) at `rate`, samples in -1..1; from/length
+ * in seconds. A video without an audio stream is silence: no samples.
+ */
 export const decodeMono = async (rt: Runtime, file: string, rate = ANALYSIS_RATE, span: { from?: number; seconds?: number } = {}): Promise<Float32Array> => {
   const seek = span.from !== undefined && span.from > 0 ? ['-ss', span.from.toFixed(3)] : [];
-  const r = await runFfmpegOk(rt, ['-loglevel', 'error', ...seek, '-i', file, '-vn', '-map', '0:a:0', '-t', String(Math.min(MAX_MEASURED_SECONDS, span.seconds ?? MAX_MEASURED_SECONDS)), '-ac', '1', '-ar', String(rate), '-f', 'f32le', '-']);
+  const r = await runFfmpeg(rt, ['-loglevel', 'error', ...seek, '-i', file, '-vn', '-map', '0:a:0', '-t', String(Math.min(MAX_MEASURED_SECONDS, span.seconds ?? MAX_MEASURED_SECONDS)), '-ac', '1', '-ar', String(rate), '-f', 'f32le', '-']);
+  if (r.code !== 0 && NO_AUDIO_STREAM.test(r.stderr)) return new Float32Array(0);
+  if (r.code !== 0) throw new FfmpegError('ffmpeg exited with ' + r.code + ': ' + r.stderr.trim().split('\n').slice(-3).join(' | '), r.stderr);
   // A copy at offset 0: the bytes ffmpeg gave need not start on a 4-byte boundary.
   const bytes = r.stdout.slice(0, r.stdout.length - (r.stdout.length % 4));
   return new Float32Array(bytes.buffer, bytes.byteOffset, bytes.length / 4);

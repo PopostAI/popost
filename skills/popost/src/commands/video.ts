@@ -20,11 +20,12 @@ import { speechKindCommands } from '../video/commands/speech-kind';
 import { measureGroup, readCommands, readGroups } from '../video/commands/read';
 import { sourceCommands } from '../video/commands/source';
 import { replicationCommands } from '../video/commands/replication';
+import { speechCheck } from '../video/commands/speech-check';
 import type { Commands } from '../video/commands/shared';
 import { runSubcommand, type Subcommand } from '../workflow/subcommands';
 
 const PROG = 'popost video';
-const COMMANDS: Commands = { ...mediaCommands, ...makeCommands, ...readCommands, ...loopCommands, ...generateCommands, ...sourceCommands, ...clipCommands, ...speechCommands };
+const COMMANDS: Commands = { ...mediaCommands, ...makeCommands, ...readCommands, ...loopCommands, ...generateCommands, ...sourceCommands, ...clipCommands, ...speechCommands, 'speech-check': speechCheck };
 const GROUPS: Readonly<Record<string, Commands>> = { ...makeGroups, ...readGroups, ...loopGroups, elements: elementsCommands, cast: castCommands, voice: voiceProfileCommands, music: musicCommands, 'speech-kind': speechKindCommands, replication: replicationCommands };
 
 /** The groups appear in the command list (help, usage errors) as commands that take a command of their own. */

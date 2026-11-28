@@ -12,6 +12,7 @@ import { error } from '../project/check-common';
 import { itemFile } from '../retarget/items';
 import type { RetargetPlan } from '../retarget/index';
 import type { Problem } from '../types';
+import { keptMeasurement } from '../sound/speech-check';
 import { fillStarts } from './structure';
 import type { TemplatePackage } from './types';
 
@@ -133,4 +134,24 @@ export const dialogueFillProblems = async (rt: Runtime, pkg: TemplatePackage, fi
       'Make the clip of that shot with the line in its request: "speech": {"mode": "native", "language": "...", "lines": [{"speaker": "...", "text": "...", "beat": ' + open[0] + '}]} (popost video materials --template; video-performers.md), and fill the shot with it. '
       + 'Never replace a person who speaks with silent footage and a voice-over. When the clips cost more than is left of the budget, stop and tell the user the price. Only when the user asked for a narration instead, add --voice-asked "<their words>".')] : []),
   ];
+};
+
+/**
+ * How far each beat a clip of the fill says was really said from the slot its line was asked for, in seconds (start and
+ * end): from the clips' measured speech (popost video speech-check wrote it into their receipts, for the clip as it is
+ * now). The captions of those beats follow what was said (retarget). A beat without a measurement is not in the map.
+ */
+export const heardShifts = async (rt: Runtime, fill: RetargetPlan, dir: string): Promise<Record<number, { start: number; end: number }>> => {
+  const out: Record<number, { start: number; end: number }> = {};
+  for (const file of clipsOf(fill)) {
+    const m = await keptMeasurement(rt, dir, file).catch(() => undefined);
+    if (!m?.lines) continue;
+    const receipt = await rt.fs.readText(rt.path.resolve(dir, file) + '.speech.json').then((t) => JSON.parse(t) as { lines?: { beat?: unknown; at?: unknown; to?: unknown }[] }, () => undefined);
+    (receipt?.lines ?? []).forEach((l, j) => {
+      const heard = m.lines?.[j];
+      if (!heard || typeof l.beat !== 'number' || typeof l.at !== 'number' || typeof l.to !== 'number') return;
+      out[l.beat] = { start: Math.round((heard.at - l.at) * 1000) / 1000, end: Math.round((heard.to - l.to) * 1000) / 1000 };
+    });
+  }
+  return out;
 };

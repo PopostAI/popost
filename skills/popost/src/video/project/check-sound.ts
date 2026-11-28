@@ -7,8 +7,7 @@
  */
 import { sha256 } from '../../core/util';
 import type { Runtime } from '../../runtime';
-import { clipMusicBases, SOUND_FIX, soundSource } from '../music/provenance';
-import type { ClipMusicBasis } from '../sound/modes';
+import { clipMusicExceptions, effectRecorded, SOUND_FIX, soundSource } from '../music/provenance';
 import { overlapOf } from '../timeline/mix';
 import type { Problem, Project, Resolved } from '../types';
 import { error } from './check-common';
@@ -77,17 +76,21 @@ export const musicOverlap = (r: Resolved): Problem[] => {
 
 /**
  * Music inside a clip rests on a recorded basis (R4): every clip made with music names an exception the project's
- * music plan records, and the exception "per-segment" (each segment its own music) goes with no music track at all.
+ * music plan records for it (or for the whole video). Music that changes by segment (b) lets the bed give way under
+ * those clips (the mix does it); recorded for the whole video, like one continuous clip (a), it leaves no room for a
+ * bed at all.
  */
 export const clipMusicRecords = async (rt: Runtime, dir: string, r: Resolved): Promise<Problem[]> => {
+  const recorded = await clipMusicExceptions(rt, dir);
+  const name = (id: string): string => id.replace(/\.audio$/, '');
   const carrying = (r.music?.clips ?? []).filter((c) => !c.exhibit && c.basis);
-  if (!carrying.length) return [];
-  const recorded = await clipMusicBases(rt, dir);
-  const out = carrying.filter((c) => !recorded.includes(c.basis as ClipMusicBasis)).map((c) =>
-    error('tracks.' + c.id.replace(/\.audio$/, ''), 'The clip of "' + c.id.replace(/\.audio$/, '') + '" was made with music of its own ("' + c.basis + '"), and the project\'s music plan records no such exception.',
-      'Record what it rests on and show it to the user with the plan: popost video music plan --project <dir> --clip-music ' + c.basis + ' --basis "<the reference reading, or the user\'s words>". Or use the clip without its sound ("sound": "silent").'));
-  if (carrying.some((c) => c.basis === 'per-segment') && r.music?.tracks.length)
-    out.push(error('tracks.' + (r.music.tracks[0]?.id ?? 'music'), 'The clips bring their own music segment by segment ("per-segment"), and the video has a music track as well.', 'Remove the music track: a video whose music changes with its segments has no bed.'));
+  const out = carrying.filter((c) => !recorded.some((e) => e.basis === c.basis && (e.clip === c.file || e.clip === 'all'))).map((c) =>
+    error('tracks.' + name(c.id), 'The clip of "' + name(c.id) + '" (' + c.file + ') was made with music of its own ("' + c.basis + '"), and the project\'s music plan records no such exception for it.',
+      'Record what it rests on and show it to the user with the plan: popost video music plan --project <dir> --clip-music ' + c.file + ' --basis ' + c.basis + ' --why "<the reference reading, or the user\'s words>". Or use the clip without its sound ("soundMode": "silent").'));
+  const whole = recorded.find((e) => e.clip === 'all' && (e.basis === 'single-clip' || e.basis === 'per-segment'));
+  const bed = r.music?.tracks[0];
+  if (whole && bed)
+    out.push(error('tracks.' + bed.id, 'The music plan records "' + whole.basis + '" for the whole video (' + (whole.basis === 'single-clip' ? 'one continuous clip keeps its own soundtrack' : 'the music changes with its segments') + '), and the video has a music track as well.', 'Remove the music track: such a video has no bed. Or drop the exception (popost video music plan --project <dir> --drop-clip-music all) when the plan changed.'));
   return out;
 };
 
@@ -119,8 +122,12 @@ export const soundRecords = async (rt: Runtime, dir: string, project: Project): 
     const full = rt.path.resolve(dir, file);
     // A missing file is the project check's to report.
     if (!(await rt.fs.stat(full)) || (await voiceMixed(rt, full)) || (await soundSource(rt, full, dir))) continue;
+    // An effect (role "sfx") plays a file with the record of the command that brought it in (music/provenance.ts).
+    if (t.role === 'sfx' && await effectRecorded(rt, full)) continue;
     if (t.role === 'voice' && t.lines?.length && await replicationSoundSource(rt, dir, file) === 'registered-voice') continue;
-    out.push(error('tracks.' + t.id, 'The audio track "' + t.id + '" plays "' + file + '", which has no record of where it came from: it is neither the voice template fill --speak mixed, nor generated music, nor a sound file the user gave.', SOUND_FIX));
+    out.push(t.role === 'sfx'
+      ? error('tracks.' + t.id, 'The effect "' + t.id + '" plays "' + file + '", which has no record of where it came from (' + rt.path.basename(file) + '.sfx.json, or the file changed after it was written).', 'Bring the effect in from the effects catalogue (popost video sfx get), which writes its record; or use a sound file the user gave (popost video music own).')
+      : error('tracks.' + t.id, 'The audio track "' + t.id + '" plays "' + file + '", which has no record of where it came from: it is neither the voice template fill --speak mixed, nor generated music, nor a sound file the user gave.', SOUND_FIX));
   }
   return out;
 };

@@ -14,7 +14,7 @@ import { hasErrors, isOutside } from '../project/check';
 import { commandSpeaker, type Speaker } from '../voice/index';
 import type { Wallet } from '../wallet';
 import { checkFill, slotPictures } from './check';
-import { clipsOf, dialogueOf } from './speech-rules';
+import { clipsOf, dialogueOf, heardShifts } from './speech-rules';
 import { writeFacts } from './facts';
 import { jsonText, loadTemplate } from './save';
 import { retargetInputs, structureMeasure } from './structure';
@@ -139,7 +139,9 @@ export const fillPackage = async (rt: Runtime, pkg: TemplatePackage, o: Omit<Fil
   const pace = pkg.slots.voice.pace;
   // The beats a person of a clip says: the voice never reads them (speech-rules.ts).
   const dialogue = await dialogueOf(rt, pkg, o.fill, o.outDir, o.voiceAsked);
-  const input = { measure: inputs.measure, ...(inputs.text ? { text: inputs.text } : {}), ...(inputs.beats ? { beats: inputs.beats } : {}), ...(pace ? { pace } : {}), plan: o.fill, ...(dialogue.length ? { dialogue } : {}) };
+  // What the clips really said, when speech-check measured it: their lines' captions follow it.
+  const heard = dialogue.length ? await heardShifts(rt, o.fill, o.outDir) : {};
+  const input = { measure: inputs.measure, ...(inputs.text ? { text: inputs.text } : {}), ...(inputs.beats ? { beats: inputs.beats } : {}), ...(pace ? { pace } : {}), plan: o.fill, ...(dialogue.length ? { dialogue } : {}), ...(Object.keys(heard).length ? { heard } : {}) };
   const transcriber = commandTranscriber(rt, o.wallet);
   const spoken = pre.speaker ? await speakRetarget(rt, { input, outDir: o.outDir, speaker: pre.speaker, ...(transcriber ? { transcriber } : {}), ...(o.hold ? { hold: true } : {}), ...(o.fitTempo ? { fitTempo: o.fitTempo } : {}) }) : undefined;
   const r = spoken ? spoken.result : retarget(input);

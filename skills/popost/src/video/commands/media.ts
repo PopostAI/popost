@@ -31,7 +31,7 @@ const HOSTED = 'popost.ai';
 const HOSTED_NOTE = {
   speak: 'popost: voices (popost:default-male, popost:default-female, popost:<id> from popost video voice list), with word times; recommended',
   transcribe: 'popost.ai transcribes the speech' + ' (a transcriber of your own in POPOST_ASR_CMD goes first when it is set)',
-  music: 'popost video music make: background music generated from a description, priced by its length (popost video music quote); switched on by POPOST_VIDEO_MUSIC, and made only as the user agreed',
+  music: 'popost video music make: background music generated from a description, priced by its length (popost video music quote); planned from the reading of the reference (popost video music plan) and made only as the user agreed. When the generator is not available the quote says so and the plan has no generated bed',
   paid: 'in credits, at least 1 a call: each paid command prints its price without --confirm (exit code 3) and charges only with --confirm --max-credits N',
 };
 const CONNECT = 'Connect a popost.ai account with popost auth login (recommended): voice-over and transcription then work without local tools. Or set POPOST_TTS_CMD / POPOST_ASR_CMD to tools of your own (skills/popost/tools/video/ has examples).';
@@ -45,11 +45,10 @@ const doctor = command(
   async (_args, rt) => {
     const [version, browser] = await Promise.all([rt.programs ? ffmpegVersion(rt) : null, canDraw(rt)]);
     const named = Object.fromEntries(Object.entries(TOOLS).map(([name, variable]) => [name, toolCommand(rt, variable) ? variable : null]));
-    // A connected account speaks and transcribes with popost.ai (the user's own tool goes first where it is set); music only when switched on.
+    // A connected account speaks, transcribes and makes music with popost.ai (the user's own tool goes first where it is set).
     const account = connected(rt);
     const tools = { ...named, transcribe: named.transcribe ?? (account ? HOSTED : null), speak: named.speak ?? (account ? HOSTED : null), music: musicEnabled(rt) ? HOSTED : null };
-    const { music, ...hostedNote } = HOSTED_NOTE;
-    const offers = account ? { hosted: musicEnabled(rt) ? { ...hostedNote, music } : hostedNote } : { connect: CONNECT };
+    const offers = account ? { hosted: HOSTED_NOTE } : { connect: CONNECT };
     const missing = [
       ...(rt.programs ? [] : ['this host cannot run local programs, so no video command works here']),
       ...(rt.programs && version === null ? ['ffmpeg was not found: install it or set POPOST_FFMPEG (asked for "' + ffmpegPath(rt) + '")'] : []),

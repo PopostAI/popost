@@ -95,6 +95,9 @@ const trackSounds = (ctx: Ctx): TrackSound[] =>
     if (t.type !== 'audio') return [];
     const span = t.during ? spanFrames(ctx.tl, t.during) : wholeVideo(ctx.tl);
     if (!span) throw new Error('resolve: audio "' + t.id + '" is placed in a segment that does not exist.');
+    // A video file without an audio stream (a clip made without sound) is silence: there is nothing to play or mix.
+    const facts = material(ctx, t.material)?.kind === 'video' ? ctx.footage[t.material] : undefined;
+    if (facts && !('error' in facts) && !facts.hasAudio) return [];
     const from = t.bed ? { from: { frame: t.in ?? 0, fps: factsOf(ctx, t.material).fps } } : t.in ? {from:{frame:t.in,fps:ctx.fps}} : {};
     // An effect is placed by the frame its file starts on ("at") and plays to its own end.
     const sound: ResolvedAudio = { id: t.id, src: materialSrc(material(ctx, t.material)), start: t.at ?? span.start, ...(t.during ? { end: span.end } : {}), gain: t.gain ?? 0, ...from, ...(t.fadeOut ? { fadeOut: t.fadeOut } : {}) };
@@ -192,7 +195,7 @@ const mixedAudio = (ctx: Ctx, segments: readonly ResolvedSegment[], items: reado
   };
   const saidBy = (not?: string): [number, number][] => dialogue.filter((d) => d.id !== not).flatMap((d) => d.spans);
   // Clips that bring music of their own (an exhibit; a clip made with music on a recorded basis): the music track gives way for them.
-  const clipMusic = clips.filter((c) => c.music && !c.carried).map((c) => ({ id: c.sound.id, span: [c.sound.start, c.sound.end ?? ctx.tl.total] as [number, number], exhibit: c.music?.exhibit === true, ...(c.music?.basis ? { basis: c.music.basis } : {}) }));
+  const clipMusic = clips.filter((c) => c.music && !c.carried).map((c) => ({ id: c.sound.id, file: c.sound.src, span: [c.sound.start, c.sound.end ?? ctx.tl.total] as [number, number], exhibit: c.music?.exhibit === true, ...(c.music?.basis ? { basis: c.music.basis } : {}) }));
   const fromTracks = tracks.map((t) => {
     const speaks = t.bed && (factsOf(ctx, t.material).speech?.length ?? 0) > 0;
     if (t.role === 'sfx') {

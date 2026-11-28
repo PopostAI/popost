@@ -18,9 +18,11 @@ import { CONFIRM_EXIT, Wallet } from '../wallet';
 import { CREDIT_OPTIONS, ceilingOf } from './credits';
 import { platform } from './generate';
 import { command, userPath, VideoCommandError } from './shared';
-import { hasMusicTrack } from '../music/provenance';
+import { clipMusicExceptions, hasMusicTrack } from '../music/provenance';
 import { loadTemplate } from '../template/save';
 import { beatTimesOf } from '../template/speech-rules';
+import { modeContextOf } from '../sound/modes';
+import type { ClipMusicUse } from '../generate/clip-sound';
 
 const errorsIn = (problems: readonly Problem[]): number => problems.filter((p) => p.level === 'error').length;
 
@@ -69,8 +71,8 @@ const UNPLANNED_NEXT =
 const PRICE_NEXT =
   'Nothing was charged for these files. When the credits fit what is left of the budget the user agreed to for this video, run the same command again with --confirm --max-credits <what is left>; otherwise show the user the credits (and the balance) and run it so once they agree.';
 
-/** What the user has to agree to before the files that wait are made: unplanned clips first, then prices. */
-const toAgree = (materials: readonly MadeMaterial[]): { confirm: Record<string, unknown>; next: string } | undefined => {
+/** What the user has to agree to before the files that wait are made: unplanned clips first, then prices. clipMusic: the exceptions the clips use (R4), shown with the price. */
+const toAgree = (materials: readonly MadeMaterial[], clipMusic: readonly ClipMusicUse[] = []): { confirm: Record<string, unknown>; next: string } | undefined => {
   const asked = materials.filter((m) => m.confirm);
   if (!asked.length) return undefined;
   const sum = (list: readonly MadeMaterial[]): number => list.reduce((n, m) => n + (m.confirm?.credits ?? 0), 0);
@@ -78,9 +80,10 @@ const toAgree = (materials: readonly MadeMaterial[]): { confirm: Record<string, 
   const items = asked.map((m) => ({ kind: m.kind, what: m.file, credits: m.confirm?.credits ?? 0, ...(m.confirm?.seconds !== undefined ? { seconds: m.confirm.seconds } : {}) }));
   const unplanned = asked.filter((m) => m.confirm?.reason === 'unplanned');
   const clips = unplanned.map((m) => ({ ...m.confirm?.clip, credits: m.confirm?.credits ?? 0 }));
+  const music = clipMusic.length ? { clipMusic } : {};
   return unplanned.length
-    ? { confirm: { credits: sum(unplanned), ...(balance !== undefined ? { balance } : {}), reason: 'unplanned', clip: clips[0], clips, items }, next: UNPLANNED_NEXT }
-    : { confirm: { credits: sum(asked), ...(balance !== undefined ? { balance } : {}), items }, next: PRICE_NEXT };
+    ? { confirm: { credits: sum(unplanned), ...(balance !== undefined ? { balance } : {}), reason: 'unplanned', clip: clips[0], clips, items, ...music }, next: UNPLANNED_NEXT }
+    : { confirm: { credits: sum(asked), ...(balance !== undefined ? { balance } : {}), items, ...music }, next: PRICE_NEXT };
 };
 
 export const materials = command(
@@ -103,9 +106,12 @@ export const materials = command(
     const requests = (await readUserJson(rt, args.req('requests'))) as MaterialRequest[];
     const dir = userPath(rt, args.req('out'));
     const template = args.string('template');
-    const times = template === undefined ? undefined : beatTimesOf(await loadTemplate(rt, userPath(rt, template)));
+    const pkg = template === undefined ? undefined : await loadTemplate(rt, userPath(rt, template));
+    const times = pkg ? beatTimesOf(pkg) : undefined;
+    // What the reading says of the reference's speech and places: a clip under a narrator whose places are not heard is silent by default.
+    const modes = pkg ? modeContextOf(pkg.template) : undefined;
     if (args.flag('check')) {
-      const wrong = await checkRequests(rt, requests, dir, {selectedIdentity:!!(args.string('character')||args.string('anchor-image')), ...(times ? { times } : {})});
+      const wrong = await checkRequests(rt, requests, dir, {selectedIdentity:!!(args.string('character')||args.string('anchor-image')), ...(times ? { times } : {}), clipMusic: await clipMusicExceptions(rt, dir)});
       // Advice on how the list is cut into calls is a warning: the list can be made as it is.
       printJson(rt, { ok: wrong.length === 0, requests: Array.isArray(requests) ? requests.length : 0, problems: [...wrong, ...groupingAdvice(requests)] });
       return wrong.length ? 2 : 0;
@@ -120,18 +126,18 @@ export const materials = command(
     const r = await makeMaterials(rt, {
       requests, dir, generator: budgeted(generator, wallet, args.list('approve-unplanned')), plan: wallet !== undefined,
       // The template's beats give spoken lines their times; a video with a music track of its own gets clips without music.
-      ...(times ? { times } : {}), music: await hasMusicTrack(rt, dir),
+      ...(times ? { times } : {}), ...(modes ? { modes } : {}), music: await hasMusicTrack(rt, dir),
       ...(off ? { anchor: false } : args.flag('anchor') ? { anchor: true } : {}), ...(picture ? { picture } : {}),
       // A clip takes minutes: a person watching sees which one, on stderr; stdout keeps the one JSON document.
       onStep: (file, done, total) => rt.stderr(file + ' (' + (done + 1) + '/' + total + ')\n'),
     });
-    const agree = toAgree(r.materials);
+    const agree = toAgree(r.materials, r.clipMusic);
     printJson(rt, {
       ok: errorsIn(r.problems) === 0, dir, notes: rt.path.join(dir, NOTES),
       made: r.materials.filter((m) => m.made).length, kept: r.materials.filter((m) => !m.made && !m.error && !m.waiting).length, failed: r.materials.filter((m) => m.error && !m.confirm).length,
       ...(r.materials.some((m) => m.waiting) ? { waiting: r.materials.filter((m) => m.waiting).length } : {}),
       credits: r.credits, chargedCredits: r.chargedCredits, ...(r.anchor ? { anchor: r.anchor } : {}), ...(r.toConfirm ? { toConfirm: r.toConfirm } : {}), ...(agree ?? {}),
-      materials: r.materials, ...(r.notes?.length ? { notes: r.notes } : {}), problems: [...r.problems, ...groupingAdvice(requests)],
+      materials: r.materials, ...(r.notes?.length ? { notes: r.notes } : {}), ...(r.clipMusic?.length ? { clipMusic: r.clipMusic } : {}), problems: [...r.problems, ...groupingAdvice(requests)],
     });
     return agree ? CONFIRM_EXIT : errorsIn(r.problems) ? 2 : 0;
   },

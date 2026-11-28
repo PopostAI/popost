@@ -8,6 +8,7 @@ import { completeVoice, registerVoice, speakProfile } from '../voice/profile';
 import { CONSENT, createHostedVoice } from '../voice/create';
 import { PopostApiError } from '../../providers/errors';
 import { command, PROJECT_OPTION, userPath, VideoCommandError, type Commands } from './shared';
+import { voiceSampleCommand } from './voice-sample';
 
 const add=command('register an uploaded voice reference shared by every spoken shot and voice-over in a project',{
  positionals:[{name:'project',help:'project directory'}],options:[
@@ -74,4 +75,4 @@ const quote=command('quote speech for a selected platform voice without charging
 const use=command('select a platform voice for a project speaker and download its real preview; never clones it again',{
  positionals:[{name:'project',help:'project directory'}],options:[{flag:'--speaker',required:true,help:'stable project speaker id'},{flag:'--voice',required:true,help:'platform voice id, default-male or default-female'}],
 },async(args,rt)=>{const voice=await selectHostedVoice(rt,args.req('voice'));await withTempDir(rt,'popost-selected-voice-',async dir=>{const sample=rt.path.join(dir,'sample.wav');await downloadVoiceAudio(rt,voice.sampleUrl,sample);const profile=await registerVoice(rt,userPath(rt,args.req('project')),args.req('speaker'),sample,'audio-first','popost:'+voice.id);printJson(rt,{ok:true,voice:voice.id,name:voice.name,profile});});},(args)=>args.string('project'));
-export const voiceProfileCommands:Commands={list,create,use,quote,add,speak,complete};
+export const voiceProfileCommands:Commands={list,create,use,quote,add,speak,complete,sample:voiceSampleCommand};

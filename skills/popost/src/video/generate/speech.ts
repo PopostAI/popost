@@ -47,7 +47,8 @@ export const finalizeSpeech = async (rt: Runtime, clip: string, speech: SentSpee
   } else if (speech.mode !== 'native') throw new Error('Visible speech mode must be native or lip-sync.');
   const p = await probe(rt, clip);
   const audioFile = clip + '.speech.wav';
-  // Also fails for a model that silently ignored the request for native spoken audio.
+  // A model that ignored the request for native spoken audio returns a clip without an audio stream: it says nothing.
+  if (!p.hasAudio) throw new Error('The clip ' + rt.path.basename(clip) + ' came back without sound, so it does not say its lines. Show the user, with the price of making it again; nothing is made again by itself.');
   await runFfmpegOk(rt, ['-y','-loglevel','error','-i',clip,'-map','0:a:0','-vn','-ac','1','-ar','48000','-c:a','pcm_s16le',audioFile]);
   // With timed lines the receipt keeps the language and each line's slot in the clip (seconds): the mix reads them.
   const receipt = { version: 1, mode: speech.mode, speaker: said.speaker, text: said.text, ...('lines' in speech ? { language: speech.language, lines: speech.lines } : {}),

@@ -57,6 +57,8 @@ export interface CloudSettings {
   readonly yes: boolean;
   /** Where the agreement of the clip is looked for (approved.ts); project undefined: the folders above the output file. */
   readonly gate: Omit<ClipGate, 'project'> & { readonly project?: string };
+  /** POPOST_GEN_WHAT: the clip in its request's own words (materials), for the agreed list; else the prompt as sent. */
+  readonly what?: string;
 }
 
 /** What the command line adds to the environment: --confirm --max-credits N, --yes, --approve-unplanned, --project. */
@@ -94,11 +96,12 @@ const keysOf = (raw: string | undefined): string[] => (raw ?? '').split(/[\s,]+/
 /**
  * The settings of the environment and the command line; the request has no say in them. materials passes its part
  * through the environment: POPOST_GEN_MAX_CREDITS (what is left of its budget), POPOST_GEN_PROJECT, POPOST_GEN_FILE
- * and POPOST_GEN_REQUEST (the clip in the project and the hash of its request as written), POPOST_GEN_APPROVE.
+ * and POPOST_GEN_REQUEST (the clip in the project and the hash of its request as written), POPOST_GEN_WHAT (the clip
+ * in its request's own words, without the sentences materials adds), POPOST_GEN_APPROVE.
  */
 export const cloudSettings = (rt: Runtime, flags: CloudFlags): CloudSettings => {
   const project = flags.project ?? setting(rt, 'POPOST_GEN_PROJECT');
-  const [file, planned] = [setting(rt, 'POPOST_GEN_FILE'), setting(rt, 'POPOST_GEN_REQUEST')];
+  const [file, planned, what] = [setting(rt, 'POPOST_GEN_FILE'), setting(rt, 'POPOST_GEN_REQUEST'), setting(rt, 'POPOST_GEN_WHAT')];
   return {
     videoModel: setting(rt, 'POPOST_VIDEO_MODEL'),
     resolution: setting(rt, 'POPOST_VIDEO_RESOLUTION'),
@@ -107,6 +110,7 @@ export const cloudSettings = (rt: Runtime, flags: CloudFlags): CloudSettings => 
     waitMinutes: numberSetting(rt, 'POPOST_GEN_WAIT_MIN', '30') || DEFAULT_WAIT_MIN,
     yes: flags.yes,
     gate: { ...(project ? { project } : {}), ...(file ? { file } : {}), ...(planned ? { planned } : {}), approve: [...(flags.approve ?? []), ...keysOf(setting(rt, 'POPOST_GEN_APPROVE'))] },
+    ...(what?.trim() ? { what: what.trim() } : {}),
   };
 };
 
@@ -497,7 +501,7 @@ const checkReferenceSounds = (refs: readonly Reference[], facts: ModelFacts | un
       : 'This video model takes at most ' + facts.maxReferenceAudios + ' reference sound' + (facts.maxReferenceAudios === 1 ? '' : 's') + ', and the request has ' + sounds.length + '. Nothing was sent.', 2);
   const total = sounds.reduce((n, r) => n + (wavSeconds(r.bytes) ?? 0), 0);
   if (facts.maxReferenceAudioSeconds !== undefined && facts.maxReferenceAudioSeconds > 0 && total > facts.maxReferenceAudioSeconds + 0.05)
-    throw new GenerateError('The reference sounds of this request are ' + total.toFixed(1) + ' s together; this video model takes ' + facts.maxReferenceAudioSeconds + ' s in all. Cut each to a shorter sample (popost video voice sample --seconds N). Nothing was sent.', 2);
+    throw new GenerateError('The reference sounds of this request are ' + total.toFixed(1) + ' s together; this video model takes ' + facts.maxReferenceAudioSeconds + ' s in all. Cut each speaker\'s sample shorter (popost video voice sample <project> --speaker <id> --start S --end E), or choose a model that takes more (popost video generate --models). Nothing was sent.', 2);
 };
 
 /** What a made clip says: what it cost, what this call charged (0 when it was paid before) and its request key. */
@@ -529,7 +533,7 @@ export const makeClip = async (rt: Runtime, client: PopostClient, s: CloudSettin
     // A new task is paid for: within a project's agreement only when the clip is one of the agreed clips.
     const gate = request.priceOnly ? undefined : await gateOf(rt, s, out);
     const standing = gate ? await clipStanding(rt, gate, key) : undefined;
-    const what = shortWhat(request.prompt);
+    const what = shortWhat(s.what ?? request.prompt);
     const unplanned = standing === 'unplanned' ? { key, ...(gate?.file ? { file: gate.file } : {}), what, seconds, ...(request.aspect ? { aspect: request.aspect } : {}) } : undefined;
     const onPaid = async (credits: number): Promise<void> => {
       charged = credits;

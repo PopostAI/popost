@@ -6,6 +6,10 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { anchorIndex, anchorSentence, checkRequests, commandGenerator, ConfirmNeeded, lastFrameFile, makeMaterials, type Generator, type GenerateRequest } from '../../src/video/generate/index';
 import { createDiskRuntime } from '../../src/testing/disk';
 import { hasFfmpeg, runFfmpegOk } from '../../src/video/media/ffmpeg';
+import { soundTail } from '../../src/video/sound/modes';
+
+/** The end of the prompt of a clip nobody speaks in: its sound mode is "ambience" (video-sound.md). */
+const AMB = soundTail('ambience');
 
 const rt = await createDiskRuntime();
 const ffmpeg = await hasFfmpeg(rt);
@@ -59,7 +63,7 @@ describe('generate: making materials', () => {
     expect(first.problems).toEqual([]);
     expect(first.materials.map((m) => [m.file, m.kind, m.made, m.credits])).toEqual([['assets/desk.mp4', 'video', true, 45], ['assets/logo.png', 'image', true, 20]]);
     expect(first.credits).toBe(65);
-    expect(generator.asked[0]?.request).toEqual({ prompt: 'a tidy desk, slow push-in', seconds: 5, aspect: '16:9' });
+    expect(generator.asked[0]?.request).toEqual({ prompt: 'a tidy desk, slow push-in' + AMB, seconds: 5, aspect: '16:9' });
     expect(JSON.parse(await readFile(path.join(dir, 'materials.json'), 'utf8'))).toEqual({ 'assets/desk.mp4': 'a desk with a laptop', 'assets/logo.png': 'a red logo on white' });
     // Asking again costs nothing: both files are there.
     const again = await makeMaterials(rt, { requests: [...requests, { file: 'assets/new.png', prompt: 'a blue square' }], dir, generator });
@@ -142,9 +146,9 @@ describe('generate: shared product continuity', () => {
     expect(r.materials.map((m) => [m.file, m.anchor === true])).toEqual([['assets/gen-02.mp4', true], ['assets/gen-01.mp4', false], ['assets/gen-03.mp4', false], ['assets/logo.png', false]]);
     expect(existsSync(path.join(dir, 'assets', 'anchor.jpg'))).toBe(true);
     const sent = (file: string): GenerateRequest | undefined => asked[r.materials.findIndex((m) => m.file === file)]?.request;
-    expect(sent('assets/gen-02.mp4')).toEqual({ prompt: 'A jacket is displayed beside @image1', images: [path.join(dir, 'assets', 'product.png')] });
-    expect(sent('assets/gen-01.mp4')).toEqual({ prompt: 'Close-up of a hand on the fabric of @image1 ' + anchorSentence(2, 'clip'), images: [path.join(dir, 'assets', 'product.png'), path.join(dir, 'assets', 'anchor.jpg')] });
-    expect(sent('assets/gen-03.mp4')).toEqual({ prompt: 'The jacket turns to show its fit ' + anchorSentence(1, 'clip'), images: [path.join(dir, 'assets', 'anchor.jpg')] });
+    expect(sent('assets/gen-02.mp4')).toEqual({ prompt: 'A jacket is displayed beside @image1' + AMB, images: [path.join(dir, 'assets', 'product.png')] });
+    expect(sent('assets/gen-01.mp4')).toEqual({ prompt: 'Close-up of a hand on the fabric of @image1 ' + anchorSentence(2, 'clip') + AMB, images: [path.join(dir, 'assets', 'product.png'), path.join(dir, 'assets', 'anchor.jpg')] });
+    expect(sent('assets/gen-03.mp4')).toEqual({ prompt: 'The jacket turns to show its fit ' + anchorSentence(1, 'clip') + AMB, images: [path.join(dir, 'assets', 'anchor.jpg')] });
     expect(sent('assets/logo.png')).toEqual({ prompt: 'a red logo' });
     // The notes are the prompts as they were written, not as they were sent.
     expect((JSON.parse(await readFile(path.join(dir, 'materials.json'), 'utf8')) as Record<string, string>)['assets/gen-03.mp4']).toBe('The jacket turns to show its fit');
@@ -154,7 +158,7 @@ describe('generate: shared product continuity', () => {
     await writeFile(path.join(off, 'assets', 'product.png'), 'p');
     const none = await makeMaterials(rt, { requests: requests.slice(0, 3), dir: off, anchor: false, generator: { make: async (_k, request, out) => { plain.push(request); await writeFile(out, 'x'); return {}; } } });
     expect([none.problems, none.anchor]).toEqual([[], undefined]);
-    expect(plain.map((q) => q.prompt)).toEqual(requests.slice(0, 3).map((q) => q.prompt));
+    expect(plain.map((q) => q.prompt)).toEqual(requests.slice(0, 3).map((q) => q.prompt + AMB));
     expect(existsSync(path.join(off, 'assets', 'anchor.jpg'))).toBe(false);
   });
 
@@ -180,9 +184,9 @@ describe('generate: shared product continuity', () => {
     expect(r.anchor).toEqual({ picture: 'assets/mia.png', from: 'character' });
     expect(r.materials.map((m) => [m.file, m.anchor === true])).toEqual(list.map((q) => [q.file, false]));
     expect(generator.asked.map((a) => a.request)).toEqual([
-      { prompt: requests[0]!.prompt + ' ' + anchorSentence(2, 'character', { name: 'Mia' }), images: [path.join(dir, 'assets', 'product.png'), path.join(dir, 'assets', 'mia.png')] },
-      { prompt: requests[1]!.prompt + ' ' + anchorSentence(2, 'character', { name: 'Mia' }), images: [path.join(dir, 'assets', 'product.png'), path.join(dir, 'assets', 'mia.png')] },
-      { prompt: 'The jacket turns to show its fit' },
+      { prompt: requests[0]!.prompt + ' ' + anchorSentence(2, 'character', { name: 'Mia' }) + AMB, images: [path.join(dir, 'assets', 'product.png'), path.join(dir, 'assets', 'mia.png')] },
+      { prompt: requests[1]!.prompt + ' ' + anchorSentence(2, 'character', { name: 'Mia' }) + AMB, images: [path.join(dir, 'assets', 'product.png'), path.join(dir, 'assets', 'mia.png')] },
+      { prompt: 'The jacket turns to show its fit' + AMB },
       { prompt: 'a red logo' },
     ]);
     expect(existsSync(path.join(dir, 'assets', 'anchor.jpg'))).toBe(false);
@@ -206,9 +210,9 @@ describe('generate: shared product continuity', () => {
     // The anchor clip's price waits for the user: the other clips are asked for their price only, so the total is whole.
     const product = path.join(dir, 'assets', 'product.png');
     expect(sent).toEqual([
-      { prompt: 'A jacket is displayed beside @image1', images: [product] },
-      { prompt: 'Close-up of a hand on the fabric of @image1', images: [product], priceOnly: true },
-      { prompt: 'The jacket turns to show its fit', priceOnly: true },
+      { prompt: 'A jacket is displayed beside @image1' + AMB, images: [product] },
+      { prompt: 'Close-up of a hand on the fabric of @image1' + AMB, images: [product], priceOnly: true },
+      { prompt: 'The jacket turns to show its fit' + AMB, priceOnly: true },
       { prompt: 'a red logo' },
     ]);
     expect(r.materials.map((m) => [m.file, m.made, m.waiting === true, m.confirm?.credits])).toEqual([['assets/gen-02.mp4', false, false, 25], ['assets/gen-01.mp4', false, true, 25], ['assets/gen-03.mp4', false, true, 25], ['assets/logo.png', true, false, undefined]]);
@@ -217,7 +221,7 @@ describe('generate: shared product continuity', () => {
     // The anchor clip fails for good: the others are not sent at all, and one problem says why.
     const failed: GenerateRequest[] = [];
     const broken = await makeMaterials(rt, { requests: requests.slice(0, 3), dir: path.join(root, 'waiting'), generator: { make: async (_k, request) => { failed.push(request); throw new Error('the content was rejected'); } } });
-    expect(failed.map((q) => q.prompt)).toEqual(['A jacket is displayed beside @image1']);
+    expect(failed.map((q) => q.prompt)).toEqual(['A jacket is displayed beside @image1' + AMB]);
     expect(broken.materials.map((m) => [m.file, m.waiting === true])).toEqual([['assets/gen-02.mp4', false], ['assets/gen-01.mp4', true], ['assets/gen-03.mp4', true]]);
     expect(broken.problems.map((p) => p.at)).toEqual(['assets/gen-02.mp4', 'assets/gen-01.mp4', 'assets/gen-03.mp4']);
     expect(broken.problems[1]?.message).toContain('It was not sent: it waits for assets/gen-02.mp4 (a frame of it goes to this clip as a reference picture');
@@ -283,16 +287,16 @@ describe('generate: frames', () => {
     expect(last).toBe(path.join(dir, 'assets', 'part-1.last.png'));
     expect(existsSync(last)).toBe(true);
     expect(asked).toEqual([
-      { prompt: 'a toy rolls down the hall' },
-      { prompt: 'the toy rolls on to the door', firstFrame: last },
-      { prompt: 'the box opens', firstFrame: path.join(dir, 'assets', 'start.png') },
-      { prompt: 'the street outside ' + anchorSentence(1, 'clip'), images: [path.join(dir, 'assets', 'anchor.jpg')] },
+      { prompt: 'a toy rolls down the hall' + AMB },
+      { prompt: 'the toy rolls on to the door' + AMB, firstFrame: last },
+      { prompt: 'the box opens' + AMB, firstFrame: path.join(dir, 'assets', 'start.png') },
+      { prompt: 'the street outside ' + anchorSentence(1, 'clip') + AMB, images: [path.join(dir, 'assets', 'anchor.jpg')] },
     ]);
     // The clip it continues fails: the one that goes on from it is not sent.
     const failing = await makeMaterials(rt, { requests: [{ file: 'assets/x-2.mp4', prompt: 'on', continues: 'assets/x-1.mp4' }, { file: 'assets/x-1.mp4', prompt: 'refuse this', anchor: false }], dir, generator });
     expect(failing.materials.map((m) => [m.file, m.waiting === true, m.waitsFor])).toEqual([['assets/x-1.mp4', false, undefined], ['assets/x-2.mp4', true, 'assets/x-1.mp4']]);
     expect(failing.problems[1]?.message).toContain('it waits for assets/x-1.mp4 (this clip starts from its last frame)');
-    expect(asked.at(-1)?.prompt).toBe('refuse this');
+    expect(asked.at(-1)?.prompt).toBe('refuse this' + AMB);
   });
 });
 

@@ -630,7 +630,7 @@ export interface Resolved {
    * and the clips that bring music of their own (an exhibit, or a clip made with music on a recorded basis). Written
    * only when there is any; the check holds them to one source at a time (project/check-sound.ts).
    */
-  music?: { tracks: { id: string; span: [number, number]; fixed: boolean }[]; clips: { id: string; span: [number, number]; exhibit: boolean; basis?: string }[] };
+  music?: { tracks: { id: string; span: [number, number]; fixed: boolean }[]; clips: { id: string; file: string; span: [number, number]; exhibit: boolean; basis?: string }[] };
 }
 
 // ---------------------------------------------------------------------------------------------------------------------

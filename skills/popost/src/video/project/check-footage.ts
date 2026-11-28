@@ -36,6 +36,12 @@ const soundProblems = (spec: FootageSpec, f: FootageFacts, id: string, at: strin
   return [];
 };
 
+/** A bed whose clip has no audio stream (made without sound) plays nothing: a warning, the mix treats it as silence. */
+export const silentBedProblems = (ctx: CheckContext, id: string, at: string, track: string): Problem[] =>
+  factsOf(ctx, id)?.hasAudio === false
+    ? [warning(at, 'The bed "' + track + '" plays the sound of "' + id + '", which has no sound track (a clip made without sound), so it adds nothing to the mix.', 'Remove the bed, or use a clip with sound.')]
+    : [];
+
 /** Footage slower than this plays visibly slowed down. */
 export const SLOWED = 0.9;
 

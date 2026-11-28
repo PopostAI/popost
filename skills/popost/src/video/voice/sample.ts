@@ -36,11 +36,9 @@ export const sampleSecondsFor = (speakers: number, total = REFERENCE_TOTAL): num
 export const sampleStart = (silences: readonly (readonly [number, number])[], seconds: number, want: number): { at: number; seconds: number } => {
   const long = silences.filter(([a, b]) => b - a >= 0.5);
   const edges = [0, ...long.flatMap(([a, b]) => [a, b]), seconds];
-  let best: [number, number] = [0, Math.min(seconds, want)];
-  for (let i = 0; i < edges.length; i += 2) {
-    const a = edges[i] ?? 0, b = edges[i + 1] ?? seconds;
-    if (b - a > best[1] - best[0] && best[1] - best[0] < want) best = [a, b];
-  }
+  const runs: [number, number][] = [];
+  for (let i = 0; i + 1 < edges.length; i += 2) runs.push([edges[i] ?? 0, edges[i + 1] ?? seconds]);
+  const best = runs.reduce((x, y) => (y[1] - y[0] > x[1] - x[0] ? y : x), runs[0] ?? [0, seconds]);
   const length = Math.min(want, best[1] - best[0]);
   return { at: Math.round(best[0] * 100) / 100, seconds: Math.round(length * 100) / 100 };
 };
@@ -57,6 +55,7 @@ const readRecord = (rt: Runtime, file: string): Promise<VoiceSample | undefined>
 export const cutSample = async (rt: Runtime, dir: string, profile: VoiceProfile, o: { file: string; from: VoiceSample['from']; at?: number; seconds?: number }): Promise<VoiceSample> => {
   const out = rt.path.join(dir, sampleFile(profile.id));
   const pcm = await decodeMono(rt, o.file, RATE);
+  if (!pcm.length) throw new Error(rt.path.basename(o.file) + ' has no sound (a clip made without sound has no audio stream): cut the sample from a recording or a clip in which the speaker speaks.');
   const total = pcm.length / RATE;
   const cut = o.at !== undefined ? { at: o.at, seconds: Math.min(o.seconds ?? SAMPLE_SECONDS.most, total - o.at) } : sampleStart(silencesOf(pcm, RATE, -45, 0.5), total, o.seconds ?? SAMPLE_SECONDS.most);
   if (!(cut.seconds >= SAMPLE_FLOOR)) throw new Error('A voice sample needs at least ' + SAMPLE_FLOOR + ' s of speech; ' + rt.path.basename(o.file) + ' has ' + Math.max(0, cut.seconds).toFixed(1) + ' s from ' + cut.at.toFixed(1) + ' s. Give a longer recording of the one speaker (' + SAMPLE_SECONDS.least + ' to ' + SAMPLE_SECONDS.most + ' s is best).');
