@@ -235,6 +235,7 @@ export const AudioTrackSchema = z.object({
   note: z.string().optional(),
   bed: z.literal(true).optional(),
   in: z.number().int().min(0).optional(),
+  fadeOut: z.number().min(0).max(10).optional(),
 });
 /** Empty cue text parses; check reports it with the cue's place. */
 export const CueSchema = z.object({ text: z.string(), during: SpanSchema, spans: textSpans.optional(), note: z.string().optional() });

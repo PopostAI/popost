@@ -1,6 +1,6 @@
 /**
  * --confirm --max-credits N of the `popost video` commands that may pay popost.ai (transcript, describe, readback,
- * retarget --speak, template fill --speak, plan --voice, voice speak; materials and generate for clips and pictures),
+ * retarget --speak, template fill --speak, plan --voice, voice speak, music make; materials and generate for clips and pictures),
  * as images are paid: the price first (free quotes), then the user's agreement, then the work within N. N is what is
  * left of the one budget the user agreed to for the whole video; every paid command prints chargedCredits.
  */
@@ -18,7 +18,7 @@ export const CREDIT_OPTIONS: readonly OptionSpec[] = [
 const NEXT =
   'Nothing was charged. When these credits fit what is left of the budget the user agreed to for this video, run the same command again with --confirm --max-credits <what is left>; otherwise show the user the credits (and the balance) and run it so once they agree.';
 
-const OVER =
+export const OVER =
   'This costs more than --max-credits, what is left of the agreed budget; nothing was charged. Show the user the credits (and the balance), and run the same command again with --confirm --max-credits N (N at least the credits) only once they agree to more.';
 
 /** The ceiling of a command: --max-credits after --confirm; undefined without --confirm. Checks the two go together. */

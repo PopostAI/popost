@@ -1,7 +1,7 @@
 /**
- * An in-memory popost.ai Open API for the hosted voice and transcription tests: the voice catalog, speech with word
- * times, new voices and transcription jobs, with the signed upload addresses they hand out, and the account's balance
- * (GET /me), which every charge takes from. It records every request. Nothing leaves the process.
+ * An in-memory popost.ai Open API for the hosted voice, transcription and music tests: the voice catalog, speech with
+ * word times, new voices, transcription jobs and music jobs, with the signed addresses they hand out, and the account's
+ * balance (GET /me), which every charge takes from. It records every request. Nothing leaves the process.
  */
 import { expect } from 'vitest';
 
@@ -24,7 +24,14 @@ export const wav = (o: { rate?: number; channels?: number; bits?: number; second
   return bytes;
 };
 
-export interface Sent { method: string; path: string; body: Record<string, unknown> | null; authorization: string | null }
+export interface Sent { method: string; path: string; body: Record<string, unknown> | null; authorization: string | null; task: string | null }
+
+/** A file that starts as an MP3 does (an ID3 tag), `size` bytes long. */
+export const mp3 = (size = 512): Uint8Array => {
+  const bytes = new Uint8Array(size).fill(7);
+  bytes.set([0x49, 0x44, 0x33, 4, 0]);
+  return bytes;
+};
 export interface Put { url: string; bytes: Uint8Array; contentType: string | null; authorization: string | null }
 
 export const voice = (id: string, extra: Record<string, unknown> = {}) => ({
@@ -61,6 +68,18 @@ export interface FakeOptions {
   balance?: number;
   /** Credits one line of speech costs. Default 1. */
   speechPrice?: number;
+  /** Credits a music track of `seconds` costs. Default: 1.8 a second, rounded up. */
+  musicPrice?: (seconds: number) => number;
+  /** A new music job answers `running`, and is done after this many reads. */
+  musicReads?: number;
+  /** How each new music job ends, in order (the first for the first job): null or absent, ready. */
+  musicFailures?: ('rejected' | 'unavailable' | null)[];
+  /** The rewritten prompt a rejected job carries. */
+  musicSuggestion?: string;
+  /** POST /music refuses with this code, before any job is made. */
+  musicRefusal?: string;
+  /** Bytes served for a music address. */
+  music?: Uint8Array;
 }
 
 export const fakePlatform = (o: FakeOptions = {}) => {
@@ -75,6 +94,21 @@ export const fakePlatform = (o: FakeOptions = {}) => {
   const price = o.price ?? ((s: number) => Math.ceil(s / 10));
   const speechPrice = o.speechPrice ?? 1;
   const spoken = new Set<string>();
+  type Track = { id: string; key: string; seconds: number; state: 'running' | 'ready' | 'failed'; reads: number; charged: number; failure: 'rejected' | 'unavailable' | null };
+  const tracks = new Map<string, Track>();
+  const musicPrice = o.musicPrice ?? ((s: number) => Math.ceil(s * 1.8));
+  /** A track is charged when it is asked for; one that fails gives the credits back. */
+  const settle = (t: Track): void => {
+    t.state = t.failure ? 'failed' : 'ready';
+    if (t.failure) void (charge(-t.charged), (t.charged = 0));
+  };
+  /** A failed job is final for its key: asking again with the key gets the same refusal, and nothing is made or charged. */
+  const failedTrack = (t: Track): Response =>
+    Response.json({ success: false, data: null, error: { code: t.failure === 'rejected' ? 'CONTENT_REJECTED' : 'UPSTREAM_ERROR', message: 'Failed.', details: t.failure === 'rejected' && o.musicSuggestion ? { suggestion: o.musicSuggestion } : {} } }, { status: t.failure === 'rejected' ? 422 : 502 });
+  const track = (t: Track) => ({
+    id: t.id, state: t.state, seconds: t.seconds, chargedCredits: t.charged, audioUrl: t.state === 'ready' ? AUDIO + '/music/' + t.id + '.mp3' : null,
+    failure: t.state === 'failed' ? t.failure : null, suggestion: t.state === 'failed' && t.failure === 'rejected' ? (o.musicSuggestion ?? null) : null,
+  });
   const ok = (data: unknown) => Response.json({ success: true, data, error: null });
   const refuse = (code: string, message: string, status = 400) => Response.json({ success: false, data: null, error: { code, message } }, { status });
   const secondsOf = (j: Job): number => ((j.uploaded?.length ?? 44) - 44) / 32000;
@@ -103,13 +137,14 @@ export const fakePlatform = (o: FakeOptions = {}) => {
     }
     if (url.origin === AUDIO) {
       expect(request.headers.get('authorization')).toBeNull();
+      if (url.pathname.endsWith('.mp3')) return new Response((o.music ?? mp3()) as Uint8Array<ArrayBuffer>, { headers: { 'content-type': 'audio/mpeg' } });
       return new Response((o.audio ?? wav({ rate: 24000 })) as Uint8Array<ArrayBuffer>, { headers: { 'content-type': 'audio/wav' } });
     }
     const path = url.pathname.replace(new URL(BASE).pathname, '');
     // The balance is read apart from the work: it is not in `sent`. Unset, the account answers without one.
     if (path === '/me' && request.method === 'GET') return o.balance === undefined ? refuse('NOT_FOUND', 'No balance here.', 404) : ok({ credits: { balance: account.balance } });
     const body = request.method === 'GET' ? null : ((await request.text().then((t) => (t ? JSON.parse(t) : null))) as Record<string, unknown> | null);
-    sent.push({ method: request.method, path, body, authorization: request.headers.get('authorization') });
+    sent.push({ method: request.method, path, body, authorization: request.headers.get('authorization'), task: request.headers.get('x-popost-task') });
     if (path === '/voices' && request.method === 'GET') {
       const scope = url.searchParams.get('scope');
       const items = voices.filter((v) => scope === 'all' || (scope === 'official') === v.official);
@@ -142,6 +177,29 @@ export const fakePlatform = (o: FakeOptions = {}) => {
       const item = voice(entry.id, { name: 'Made ' + entry.id });
       if (!voices.some((v) => v.id === item.id)) voices.push(item);
       return ok(item);
+    }
+    if (path === '/music/quote') return ok({ credits: musicPrice(Number(body?.seconds)) });
+    if (path === '/music' && request.method === 'POST') {
+      // One operation key is one job: asked for again, it is answered as it is and never charged again.
+      const key = String(body?.operationKey);
+      const known = [...tracks.values()].find((t) => t.key === key);
+      if (known) return known.state === 'failed' ? failedTrack(known) : ok(track(known));
+      if (o.musicRefusal) return Response.json({ success: false, data: null, error: { code: o.musicRefusal, message: 'Refused.', details: o.musicSuggestion ? { suggestion: o.musicSuggestion } : {} } }, { status: 422 });
+      const seconds = Number(body?.seconds), credits = musicPrice(seconds);
+      if (credits > Number(body?.maxCredits))
+        return Response.json({ success: false, data: null, error: { code: 'CREDIT_LIMIT_EXCEEDED', message: 'The price is above maxCredits.', details: { required: credits, maxCredits: Number(body?.maxCredits) } } }, { status: 402 });
+      const made: Track = { id: 'm-' + (tracks.size + 1), key, seconds, state: 'running', reads: o.musicReads ?? 0, charged: credits, failure: o.musicFailures?.[tracks.size] ?? null };
+      tracks.set(made.id, made);
+      charge(credits);
+      if (!made.reads) settle(made);
+      return made.state === 'failed' ? failedTrack(made) : ok(track(made));
+    }
+    const song = /^\/music\/([^/]+)$/.exec(path);
+    if (song && request.method === 'GET') {
+      const t = tracks.get(song[1] ?? '');
+      if (!t) return refuse('NOT_FOUND', 'No such music.', 404);
+      if (t.state === 'running' && --t.reads <= 0) settle(t);
+      return ok(track(t));
     }
     if (path === '/transcriptions/quote') return ok({ credits: price(Number(body?.seconds)) });
     if (path === '/transcriptions' && request.method === 'POST') {
@@ -186,5 +244,5 @@ export const fakePlatform = (o: FakeOptions = {}) => {
     }
     throw new Error('Unexpected test request ' + request.method + ' ' + path);
   };
-  return { handler, sent, puts, voices, jobs, made, account, paths: () => sent.map((s) => s.method + ' ' + s.path) };
+  return { handler, sent, puts, voices, jobs, made, tracks, account, paths: () => sent.map((s) => s.method + ' ' + s.path) };
 };

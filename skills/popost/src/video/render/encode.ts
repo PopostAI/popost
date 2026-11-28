@@ -40,7 +40,13 @@ export const tempoChain = (rate: number): string => {
   return steps.map((r) => ',atempo=' + s6(r)).join('');
 };
 
-/** One filter chain per audio item that sounds inside the range: trimmed, played at its rate, delayed to its start, gain applied. */
+/** Seconds of sound an item plays in the whole video, at the timeline's clock: from its start to its end, or the video's. */
+export const heardSeconds = (a: ResolvedAudio, frames: number, fps: number): number => Math.max(0, ((a.end ?? frames) - a.start) / fps);
+
+/**
+ * One filter chain per audio item that sounds inside the range: trimmed, played at its rate, delayed to its start, gain
+ * applied; an item with fadeOut fades to silence over its last seconds (at most half of what is heard of it).
+ */
 const audioInputs = (job: EncodeJob): AudioInput[] => {
   const duration = (job.to - job.from) / job.fps;
   return job.audio.flatMap((a) => {
@@ -55,7 +61,10 @@ const audioInputs = (job: EncodeJob): AudioInput[] => {
     const length = end - Math.max(0, start);
     const chain = 'aresample=' + RATE + ',aformat=sample_fmts=fltp:channel_layouts=stereo,atrim=start=' + s6(skip) + ':duration=' + s6(length * rate) +
       ',asetpts=PTS-STARTPTS' + tempoChain(rate) + ',adelay=delays=' + delay + 'S:all=1,volume=' + s6(a.gain) + 'dB';
-    return [{ file: a.src, chain }];
+    // The fade ends where the item ends in the video, which a part of the video being rendered may not reach.
+    const whole = a.end === undefined ? end : (a.end - job.from) / job.fps;
+    const fade = Math.min(a.fadeOut ?? 0, (a.end === undefined ? length : (a.end - a.start) / job.fps) / 2);
+    return [{ file: a.src, chain: fade > 0 ? chain + ',afade=t=out:st=' + s6(Math.max(0, whole - fade)) + ':d=' + s6(fade) : chain }];
   });
 };
 

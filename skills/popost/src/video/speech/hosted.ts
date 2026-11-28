@@ -59,7 +59,7 @@ const pricedSeconds = (seconds: number): number => Math.round(seconds * 1000) / 
 export const MAX_SECONDS = 30 * 60;
 export const MAX_BYTES = 64 * 1024 * 1024;
 
-const POLL_MS = 3000;
+export const POLL_MS = 3000;
 const WAIT_LIMIT_MS = 30 * 60_000;
 const PROGRESS_MS = 30_000;
 /** A rate-limited read waits as long as the platform asks (else RATE_WAIT_MS), never more than RATE_WAIT_MAX_MS. */
@@ -69,7 +69,7 @@ const READ_FAILURES = 5;
 const PASSING = new Set(['NETWORK', 'TIMEOUT', 'SERVICE_UNAVAILABLE', 'INTERNAL_ERROR', 'BAD_RESPONSE']);
 
 /** How long to wait before the next read after a failed one, or undefined when the failure is final. */
-const waitAfter = (e: unknown, failures: number): number | undefined => {
+export const waitAfter = (e: unknown, failures: number): number | undefined => {
   if (!(e instanceof PopostApiError)) return undefined;
   if (e.code === 'RATE_LIMITED') {
     const asked = Number(e.details.retryAfterSeconds);

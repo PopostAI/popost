@@ -1,5 +1,5 @@
 /**
- * The video engine's calls to the popost.ai Open API for spoken word times, new voices and transcription, in one place:
+ * The video engine's calls to the popost.ai Open API for spoken word times, new voices, transcription and music, in one place:
  * the paths, the request bodies and the fields read from the answers. A change of the platform's field names is made
  * here and nowhere else.
  *
@@ -13,9 +13,17 @@
  *   POST /transcriptions/{id}/run   { maxCredits } -> { id, state: 'ready', language, seconds, chargedCredits, words },
  *                                   or { id, state: 'running' } when it takes longer than the platform waits (~45 s)
  *   GET  /transcriptions/{id}       the same as run, with 'running', 'ready' or 'failed'; free
+ *   POST /music/quote               { seconds } -> { credits } (free)
+ *   POST /music                     { operationKey, prompt, seconds, instrumental, maxCredits } -> the music job (the same
+ *                                   key again: the same job, never a second charge); answers `ready`, or `running`
+ *                                   when it takes longer than the platform waits (~80 s)
+ *   GET  /music/{id}                { id, state: 'running' | 'ready' | 'failed', seconds, chargedCredits, audioUrl | null,
+ *                                   failure: 'rejected' | 'unavailable' | null, suggestion | null }; free. audioUrl is a
+ *                                   signed address of an MP3, valid about an hour; a failed job is refunded in full
  *   GET  /me                        { credits: { balance } }: the balance a price is held against; free
  * Refusals: INVALID_REQUEST (bad or incomplete audio), CREDIT_LIMIT_EXCEEDED (price above maxCredits), UPSTREAM_ERROR
- * (a failed job), RATE_LIMITED (with Retry-After).
+ * (a failed job), RATE_LIMITED (with Retry-After), CONTENT_REJECTED (a music prompt that names an artist or a song,
+ * quotes lyrics or asks for harm).
  *
  * The bytes go to the signed uploadUrl with PUT and Content-Type audio/wav, without the platform's headers.
  */
@@ -24,7 +32,7 @@ import { PopostClient } from '../providers/api';
 import { isRecord } from '../providers/base';
 import type { Runtime } from '../runtime';
 
-/** A run waits up to about 45 s and answers `running` after that; a proxy on the way ends any answer at 100 s. */
+/** A run waits up to about 45 s (music: 80 s) and answers `running` after that; a proxy on the way ends any answer at 100 s. */
 const LONG_SECONDS = 120;
 export const platform = (rt: Runtime, timeoutSec = 180): PopostClient => new PopostClient(rt, { timeoutSec });
 
@@ -138,3 +146,40 @@ export const readTranscription = async (rt: Runtime, id: string): Promise<Transc
 /** Uploads a WAV to the signed address of a new voice or a transcription. */
 export const uploadWav = (rt: Runtime, url: string, bytes: Uint8Array, what: string): Promise<void> =>
   platform(rt).putSigned(url, bytes, 'audio/wav', what, 'run the same command again');
+
+// ---------- music ----------
+
+/** Credits a generated track of this many seconds costs. Free. */
+export const quoteMusic = async (rt: Runtime, seconds: number): Promise<number> => {
+  const data = await platform(rt).request('POST', '/music/quote', { body: { seconds } });
+  if (!isRecord(data) || !isCount(data.credits)) throw new Error('Invalid music quote.');
+  return data.credits;
+};
+
+export interface Music {
+  id: string; state: string; seconds: number; chargedCredits: number; audioUrl: string | null;
+  /** Of a failed job: 'rejected' (the prompt was refused) or 'unavailable' (the generator failed). */
+  failure: string | null;
+  /** With 'rejected': the prompt rewritten so that it passes, when the platform has one. */
+  suggestion: string | null;
+}
+
+const musicOf = (data: unknown): Music => {
+  if (!isRecord(data) || typeof data.id !== 'string' || !data.id || typeof data.state !== 'string') throw new Error('Invalid music response.');
+  if (data.state === 'ready' && (typeof data.audioUrl !== 'string' || !isCount(data.chargedCredits))) throw new Error('Invalid music response.');
+  const text = (v: unknown): string | null => (typeof v === 'string' && v ? v : null);
+  return {
+    id: data.id, state: data.state, seconds: isTime(data.seconds) ? data.seconds : 0, chargedCredits: isCount(data.chargedCredits) ? data.chargedCredits : 0,
+    audioUrl: text(data.audioUrl), failure: text(data.failure), suggestion: text(data.suggestion),
+  };
+};
+
+export interface MusicRequest { operationKey: string; prompt: string; seconds: number; instrumental: boolean; maxCredits: number }
+
+/** Asks for a track, charging at most maxCredits. A request that may charge: an unknown outcome throws AmbiguousSubmitError. */
+export const startMusic = async (rt: Runtime, o: MusicRequest, hint: string): Promise<Music> =>
+  musicOf(await platform(rt, LONG_SECONDS).request('POST', '/music', { body: { ...o }, ambiguous: true, hint }));
+
+/** A music job as it is now; reading it never charges. */
+export const readMusic = async (rt: Runtime, id: string): Promise<Music> =>
+  musicOf(await platform(rt).request('GET', '/music/' + encodeURIComponent(id)));

@@ -54,7 +54,7 @@ A shot is exactly one of:
 
 The sound a clip came with (a footage shot, a `"video"` item) is kept or dropped by itself when the fill says no
 `"audio"`: a video with no voice (`--speak`) and no `"sound"` keeps every clip's sound at its own level; a video with
-one keeps the clips silent, so that nothing sounds under the voice. `"audio": 0` keeps a clip's sound in any case, a
+one keeps the clips silent, so that nothing sounds under the voice or the music. `"audio": 0` keeps a clip's sound in any case, a
 negative number keeps it lower (`-18` sits under a voice), `false` mutes it. The sound plays at the clip's `speed`.
 
 `"beds": [{ "footage": "assets/film.mp4", "shots": [1, 7] }]` lets the sound of one clip run on, in one piece, under
@@ -95,7 +95,10 @@ source's colours are not measured). More words than the source's bar has is refu
 Other keys: `captions` (one line per beat; `""` for none), `voice` and `speed` (passed to the speaker), `say`
 (`[{"text": "SaaS", "as": "sass"}]`: how a word is spoken), `captionColor`, `captionOutline`, `captionSpoken`
 (`true`: light up the spoken word), `captionReveal` (`"words"`: show each word when it is spoken), `sound` (an
-audio file for the whole video, relative to the project), `beds` (above), `note`. File paths are relative to the project. Lists are
+audio file for the whole video, relative to the project: the user's own file, or the music `popost video music make`
+wrote, `"assets/music.mp3"`; it starts with the video at its own level, lies 18 dB under the voice of a spoken fill,
+fades out over the last second when it is longer than the video and is not repeated when it is shorter), `beds`
+(above), `note`. File paths are relative to the project. Lists are
 matched by position; no times, no frames except `in`. The captions look as the reference's did when `describe` could
 measure it: the colour that fills its letters (inside the outline, not the outline) on its plate (colour, opacity,
 padding, corners), with its outline, or plain; a part it was not sure of has no colour in `text.json` and gets the

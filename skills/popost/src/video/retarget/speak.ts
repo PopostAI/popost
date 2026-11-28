@@ -78,7 +78,7 @@ export const speakRetarget = async (rt: Runtime, o: SpeakOptions): Promise<Spoke
     lines: spokenLinesOf(plan), dir: rt.path.join(o.outDir, 'assets', 'voice'), speaker: o.speaker, fps,
     ...(plan.voice ? { voice: plan.voice } : {}), ...(plan.speed ? { speed: plan.speed } : {}),
   });
-  const flow = (ls: VoiceLine[]): RetargetOutput => retarget({ ...o.input, plan: { ...plan, sound: VOICE_FILE }, spoken: { frames: ls.map((l) => l.frames), ...(o.hold ? { hold: true } : {}) }, wordsFile: WORDS_FILE });
+  const flow = (ls: VoiceLine[]): RetargetOutput => retarget({ ...o.input, plan: { ...plan, sound: VOICE_FILE }, ...(plan.sound ? { music: plan.sound } : {}), spoken: { frames: ls.map((l) => l.frames), ...(o.hold ? { hold: true } : {}) }, wordsFile: WORDS_FILE });
   const first = flow(said);
   // The beats' lengths do not depend on the voice: the first re-flow gives them, and a line sped up re-flows again.
   const fit = o.fitTempo && first.timing ? await fitTempo(rt, { lines: said, captions, slots: first.timing.slots, max: o.fitTempo, fps }) : undefined;

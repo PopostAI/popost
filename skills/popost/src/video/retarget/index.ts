@@ -55,7 +55,11 @@ export interface RetargetPlan {
   captions?: string[];
   /** One entry per shot of the reference, in order. */
   shots: ShotFill[];
-  /** An audio file for the whole video (a voice-over, music), relative to the project directory. */
+  /**
+   * An audio file for the whole video (music, a recording), relative to the project directory: from the start, at its
+   * own level, cut at the video's end with a fade-out when it is longer, not repeated when it is shorter. With a
+   * spoken voice (--speak) it lies under the voice, UNDER_VOICE_DB lower.
+   */
   sound?: string;
   /**
    * The sound of a clip running on under the shots cut from it, instead of being cut and re-timed with each shot:
@@ -139,7 +143,17 @@ export interface RetargetInput {
   };
   /** The words file of the plan's sound, relative to the project: the sound material names it and captions may follow it. */
   wordsFile?: string;
+  /**
+   * The plan's own sound file when a voice took its place as the plan's sound (--speak): music. It lies under the
+   * voice for the whole video, UNDER_VOICE_DB lower, and fades out like any sound of a plan.
+   */
+  music?: string;
 }
+
+/** How far music lies under a voice-over, in dB; without a voice a plan's sound plays at its own level. */
+export const UNDER_VOICE_DB = -18;
+/** Seconds over which a plan's sound fades out when it is longer than the video (AudioTrack.fadeOut). */
+export const SOUND_FADE_SECONDS = 1;
 /**
  * Where the spoken lines start in the re-flowed video, for laying the voice clips on a track. slots: each beat's length
  * in the reference (project frames); reference: the reference's length.
@@ -419,7 +433,12 @@ export const retarget = (input: RetargetInput): RetargetOutput => {
     const id = use(plan.sound, 'audio');
     const material = materials.find((x) => x.id === id);
     if (material && input.wordsFile) material.words = input.wordsFile;
-    tracks.push({ id: 'sound', type: 'audio', material: id });
+    // The voice the engine mixed is as long as the video; a file of the plan's own may be longer and then ends softly.
+    tracks.push({ id: 'sound', type: 'audio', material: id, ...(input.wordsFile ? {} : { fadeOut: SOUND_FADE_SECONDS }) });
+  }
+  if (input.music && input.music !== plan.sound) {
+    tracks.push({ id: 'music', type: 'audio', material: use(input.music, 'audio'), gain: UNDER_VOICE_DB, fadeOut: SOUND_FADE_SECONDS });
+    notes.push('The fill\'s sound (' + input.music + ') lies under the voice, ' + -UNDER_VOICE_DB + ' dB lower.');
   }
   if ((plan.captionSpoken || plan.captionReveal) && !input.wordsFile) notes.push('captionSpoken and captionReveal need a voice with words; they were left out. Use --speak.');
   const kept = plan.shots.filter((s) => 'keep' in s).length;

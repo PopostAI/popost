@@ -5,7 +5,9 @@
 import type { Runtime } from '../../runtime';
 import { cpuBudgetOf } from '../host';
 import { FfmpegError, runFfmpeg } from '../media/ffmpeg';
-import { encodeArgs } from './encode';
+import type { ResolvedAudio } from '../types';
+import { audioSeconds } from '../voice/index';
+import { encodeArgs, heardSeconds } from './encode';
 import { verifyVideo } from './verify';
 import { openSession, type ImageFormat, type Session } from './session';
 
@@ -107,6 +109,21 @@ async function* screenshots(sessions: Session[], from: number, to: number, image
   }
 }
 
+/**
+ * A fade-out is for a sound the video cuts off (music longer than the video): an item whose file ends by itself before
+ * the end of what is heard of it loses its fadeOut. A file whose length cannot be read keeps it.
+ */
+const cutSounds = (rt: Runtime, audio: readonly ResolvedAudio[], frames: number, fps: number): Promise<ResolvedAudio[]> =>
+  Promise.all(audio.map(async (a): Promise<ResolvedAudio> => {
+    if (!a.fadeOut) return a;
+    const length = await audioSeconds(rt, a.src).catch(() => Infinity);
+    const left = length - (a.from ? a.from.frame / a.from.fps : 0);
+    // The end is written out, so that a render of a part of the video fades at the same place.
+    if (left > heardSeconds(a, frames, fps) * (a.speed ?? 1)) return { ...a, end: a.end ?? frames };
+    const { fadeOut: _none, ...plain } = a;
+    return plain;
+  }));
+
 export const renderVideo = async (rt: Runtime, opts: RenderVideoOptions): Promise<RenderVideoResult> => {
   const t0 = performance.now();
   const sessionOptions = { scale: opts.scale, source: opts.source, ...(opts.reuse === false ? { reuse: false } : {}) };
@@ -126,7 +143,7 @@ export const renderVideo = async (rt: Runtime, opts: RenderVideoOptions): Promis
     const image = opts.image ?? 'png';
     await rt.fs.mkdir(rt.path.dirname(out));
     const root = rt.path.resolve(rt.cwd, opts.projectDir);
-    const audio = r.audio.map((a) => ({ ...a, src: rt.path.resolve(root, a.src) }));
+    const audio = await cutSounds(rt, r.audio.map((a) => ({ ...a, src: rt.path.resolve(root, a.src) })), r.frames, r.canvas.fps);
     const args = encodeArgs({ out: partial, fps: r.canvas.fps, from, to, image, crf: opts.crf ?? 18, audio, outputFps: opts.outputFps, bitrate: opts.bitrate, audioEnabled: opts.audioEnabled, ...(opts.encoderThreads === undefined ? {} : { threads: opts.encoderThreads }) });
     const box: { error?: unknown } = {};
     // At Chrome's priority: the encoder drains the pages (runFfmpeg).

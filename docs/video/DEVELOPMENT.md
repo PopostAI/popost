@@ -156,7 +156,8 @@ npx vite-node skills/popost/src/cli.ts video --help  # popost video, run from th
 On a machine shared with other work, run heavy commands one at a time and at low priority, for example
 `flock <a lock file> nice -n 10 npm run test:skill`.
 
-With a connected popost.ai account (`popost auth login`), voice-over and transcription run there by default, paid in
+With a connected popost.ai account (`popost auth login`), voice-over and transcription run there by default, and
+background music can be generated there (`popost video music`, `src/video/music/`), paid in
 credits like images: a paid command prices its work and stops with exit code 3 unless it gets `--confirm --max-credits N`
 (the rest of the video's one budget), and prints `chargedCredits`; generated clips outside the agreed list need
 `--approve-unplanned <key>` (`production/approved-clips.json`). Every Open API request made in a project carries the

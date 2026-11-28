@@ -92,7 +92,7 @@ const resolveAudio = (ctx: Ctx, items: readonly ResolvedItem[]): ResolvedAudio[]
     const span = t.during ? spanFrames(ctx.tl, t.during) : wholeVideo(ctx.tl);
     if (!span) throw new Error('resolve: audio "' + t.id + '" is placed in a segment that does not exist.');
     const from = t.bed ? { from: { frame: t.in ?? 0, fps: factsOf(ctx, t.material).fps } } : t.in ? {from:{frame:t.in,fps:ctx.fps}} : {};
-    return [{ id: t.id, src: materialSrc(material(ctx, t.material)), start: span.start, ...(t.during ? { end: span.end } : {}), gain: t.gain ?? 0, ...from }];
+    return [{ id: t.id, src: materialSrc(material(ctx, t.material)), start: span.start, ...(t.during ? { end: span.end } : {}), gain: t.gain ?? 0, ...from, ...(t.fadeOut ? { fadeOut: t.fadeOut } : {}) }];
   });
   const byId = new Map(items.map((it) => [it.id, it] as const));
   const sounds = ctx.project.tracks.flatMap((t): ResolvedAudio[] => {

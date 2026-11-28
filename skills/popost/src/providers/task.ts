@@ -1,7 +1,7 @@
 /**
  * The popost.ai task of a project. Every Open API request made in a project's context (`rt.project`) carries three
  * headers, and the platform groups the charges of the project under one line of the user's account page
- * ("Task: <title>"), item by item (clips, image tasks, voice-over, transcription, link parsing):
+ * ("Task: <title>"), item by item (clips, image tasks, voice-over, transcription, music, link parsing):
  *
  * - `x-popost-task`: the task id, `^[A-Za-z0-9_-]{8,64}$`;
  * - `x-popost-task-title`: the title, URI-encoded UTF-8, at most 100 characters, without control characters;

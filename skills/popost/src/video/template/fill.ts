@@ -27,7 +27,7 @@ export const STRUCTURE_FILE = 'reference.measure.json';
 /**
  * The steps of "retarget --speak" in one place: every caption line is spoken (with its "say" forms) into its own clip
  * under assets/voice/, time is re-flowed to the clips' lengths, and the clips are laid on one track (VOICE_FILE).
- * The plan's own "sound" is replaced by the voice.
+ * The plan's own "sound" (music) stays, under the voice (RetargetInput.music).
  */
 export { speakRetarget };
 

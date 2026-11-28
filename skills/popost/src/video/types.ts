@@ -350,8 +350,12 @@ export interface VideoTrack extends ItemCommon, FootageSpec { type: 'video'; mat
  * material, 'in' is the source frame the sound starts at, and footage that starts inside its span is silent unless it
  * says "audio". A bed is not a sound of the video's own: footage outside its span keeps its automatic sound.
  */
-/** For ordinary audio, in is an offset in project frames; for a bed it uses the video material's source rate. */
-export interface AudioTrack { id: string; type: 'audio'; material: string; gain?: number; during?: Span; note?: string; bed?: true; in?: number }
+/**
+ * For ordinary audio, in is an offset in project frames; for a bed it uses the video material's source rate.
+ * fadeOut: seconds over which the sound fades out where the video (or its span) cuts it off; a sound that has ended by
+ * itself before that is left as it is. A fill's "sound" has one (retarget), so music longer than the video ends softly.
+ */
+export interface AudioTrack { id: string; type: 'audio'; material: string; gain?: number; during?: Span; note?: string; bed?: true; in?: number; fadeOut?: number }
 
 /** One caption: shown on its span (which may run past its segment), in the track's box, style, entrance and exit. */
 export interface CaptionCue { text: string; during: Span; spans?: TextSpanStyle[]; note?: string }
@@ -547,6 +551,8 @@ export interface ResolvedAudio {
   from?: { frame: number; fps: number };
   /** Footage played faster or slower: its sound at the same rate (tempo changed, pitch kept). Default 1. */
   speed?: number;
+  /** Seconds of fade-out before the place the video cuts the sound off (AudioTrack.fadeOut); the render drops it for a sound that ends before. */
+  fadeOut?: number;
 }
 
 export interface Resolved {

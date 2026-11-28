@@ -1,5 +1,5 @@
 /**
- * What a `popost video` command may spend on popost.ai speech and transcription, as images are paid: the command first
+ * What a `popost video` command may spend on popost.ai speech, transcription and music, as images are paid: the command first
  * prices everything it will ask for (quotes are free); without --confirm it charges nothing and stops with exit code 3
  * and the price (PriceNotAgreed); with --confirm --max-credits N it goes on, and a call whose quote is above what is
  * left of N is refused before anything is made. The wallet is that N, counted down call by call.
@@ -8,11 +8,11 @@ import { ToolError } from './tool';
 
 /** One thing a command will pay for. */
 export interface PriceItem {
-  kind: 'speech' | 'transcription';
-  /** What it is, for the user: the line spoken, or the sound transcribed. */
+  kind: 'speech' | 'transcription' | 'music';
+  /** What it is, for the user: the line spoken, the sound transcribed, or the music described. */
   what: string;
   credits: number;
-  /** Seconds of sound, for a transcription. */
+  /** Seconds of sound, for a transcription or a music track. */
   seconds?: number;
 }
 

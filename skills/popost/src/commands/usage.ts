@@ -23,8 +23,8 @@ import { readClipRecord } from '../video/generate/approved';
 const spec = (): CommandSpec => ({
   prog: 'popost usage',
   description: msg(
-    'What a project has cost on popost.ai so far (charges nothing): the credits of its task, refunds subtracted, item by item (clips, image tasks, voice-over, transcription, link parsing), as the account page shows them in one line "Task: <title>". With --budget N it prints what is left of the budget the user agreed; pass that as --max-credits to the next paid command.',
-    '查看一个工程在 popost.ai 上已经花了多少积分（不扣积分）：它的任务的净积分（已扣除退款），按项目列出（视频片段、图片任务、配音、转写、链接解析），与账户页上的一行「任务：<标题>」一致。加 --budget N 时输出用户同意的预算还剩多少；把它作为下一个付费命令的 --max-credits。',
+    'What a project has cost on popost.ai so far (charges nothing): the credits of its task, refunds subtracted, item by item (clips, image tasks, voice-over, transcription, music, link parsing), as the account page shows them in one line "Task: <title>". With --budget N it prints what is left of the budget the user agreed; pass that as --max-credits to the next paid command.',
+    '查看一个工程在 popost.ai 上已经花了多少积分（不扣积分）：它的任务的净积分（已扣除退款），按项目列出（视频片段、图片任务、配音、转写、音乐、链接解析），与账户页上的一行「任务：<标题>」一致。加 --budget N 时输出用户同意的预算还剩多少；把它作为下一个付费命令的 --max-credits。',
   ),
   options: [
     { flag: '--dir', required: true, help: msg('the project: an image project, or a video project (the folder of video.json)', '工程目录：图文工程，或视频工程（video.json 所在目录）') },
@@ -41,12 +41,12 @@ const spec = (): CommandSpec => ({
   ],
 });
 
-const KINDS = ['video', 'image', 'voice', 'transcription', 'link', 'search', 'other'];
+/** The kinds known today: video, image, voice, transcription, music, link, search, other. A kind added later is listed like them. */
 const count = (value: unknown): number | undefined => (typeof value === 'number' && Number.isFinite(value) && value >= 0 ? value : undefined);
 
 /** The items of the answer as they are, without anything that is not one. */
 const itemsOf = (value: unknown): JsonRecord[] =>
-  (Array.isArray(value) ? value : []).filter((i): i is JsonRecord => isRecord(i) && KINDS.includes(String(i.kind)) && count(i.credits) !== undefined);
+  (Array.isArray(value) ? value : []).filter((i): i is JsonRecord => isRecord(i) && typeof i.kind === 'string' && i.kind !== '' && count(i.credits) !== undefined);
 
 /** The budget part: what is left of --budget, and the agreed clips of a video project. */
 const budgetOf = async (rt: Runtime, dir: string, agreed: number | undefined, spent: number): Promise<JsonRecord> => {

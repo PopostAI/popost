@@ -50,7 +50,7 @@ export const command = (
       const title = project && titleOf ? await Promise.resolve().then(() => titleOf(args, rt)).catch(() => undefined) : undefined;
       return (await body(args, project ? inProject(rt, project, 'video', title) : rt)) ?? 0;
     } catch (error) {
-      // The price of popost.ai speech or transcription, for the user's agreement: nothing was charged.
+      // The price of popost.ai speech, transcription or music, for the user's agreement: nothing was charged.
       if (error instanceof PriceNotAgreed) {
         printJson(rt, { ok: false, confirm: error.confirm, next: error.next });
         return CONFIRM_EXIT;

@@ -170,7 +170,7 @@ describe('popost usage --dir', () => {
     const s = await newScene();
     const project = await Project.create(s.rt, 'poster', 'Autumn sale', 'original');
     const id = project.manifest.projectId;
-    const answer = { id, title: 'Autumn sale', credits: 37, items: [{ kind: 'image', credits: 24, count: 2, model: 'stub-model-a' }, { kind: 'link', credits: 13, count: 1 }, { kind: 'nonsense', credits: 1 }] };
+    const answer = { id, title: 'Autumn sale', credits: 37, items: [{ kind: 'image', credits: 24, count: 2, model: 'stub-model-a' }, { kind: 'link', credits: 13, count: 1 }, { kind: 'link' }, { credits: 1 }, 'nonsense'] };
     s.stub.set('GET', '/usage/tasks/' + id, () => ok(answer));
     return { ...s, id };
   };
@@ -184,6 +184,18 @@ describe('popost usage --dir', () => {
     const left = await cli(rt, 'usage', '--dir', 'poster', '--budget', '50');
     expect(left.data.budget).toMatchObject({ agreed: 50, spent: 37, left: 13 });
     expect((await cli(rt, 'usage', '--dir', 'poster', '--budget', '20')).data.budget).toMatchObject({ left: 0 });
+  });
+
+  it('lists a generated music track as an item of kind music, with its seconds', async () => {
+    const { rt, stub, id } = await usageScene();
+    stub.set('GET', '/usage/tasks/' + id, () => ok({ id, credits: 78, items: [{ kind: 'image', credits: 24, count: 2 }, { kind: 'music', credits: 54, count: 1, seconds: 30 }] }));
+    const r = await cli(rt, 'usage', '--dir', 'poster', '--budget', '100');
+    expect(r.data.items).toEqual([{ kind: 'image', credits: 24, count: 2 }, { kind: 'music', credits: 54, count: 1, seconds: 30 }]);
+    expect(r.data.budget).toMatchObject({ spent: 78, left: 22 });
+    // A kind this version does not know yet is listed as it is, not dropped and not an error.
+    stub.set('GET', '/usage/tasks/' + id, () => ok({ id, credits: 5, items: [{ kind: 'later', credits: 5 }] }));
+    expect((await cli(rt, 'usage', '--dir', 'poster')).data.items).toEqual([{ kind: 'later', credits: 5 }]);
+    expect((await cli(rt, 'usage', '--help')).stdout).toContain('music');
   });
 
   it('says clearly when the connected popost.ai does not report task usage (404)', async () => {
