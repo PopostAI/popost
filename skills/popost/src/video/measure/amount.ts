@@ -54,3 +54,50 @@ export const shotAmount = (m: Pick<Measure, 'motion' | 'boundaries' | 'shots'>, 
 
 /** The amount of the whole video, the changes of shot left out. */
 export const videoAmount = (m: Pick<Measure, 'motion' | 'boundaries' | 'source'>): number | undefined => amountIn(m, 0, m.source.frames);
+
+/**
+ * A pair of frames whose amount is at or above this moves; below it the picture reads as still (an encoder alone
+ * moves a still picture by a few tenths of a level).
+ */
+export const MOVING_FLOOR = 0.4;
+/** A shot moves throughout when this share of its frame pairs moves. */
+export const THROUGHOUT_SHARE = 0.6;
+/** Under this share a shot is still. */
+export const STILL_SHARE = 0.1;
+
+export type ActivityKind = 'moves throughout' | 'enters then holds' | 'moves in parts' | 'still';
+
+/**
+ * When a stretch of a video moves: the share of its frame pairs above MOVING_FLOOR, and how that is spread.
+ * - moves throughout: THROUGHOUT_SHARE of the pairs or more move;
+ * - enters then holds: three quarters or more of the moving pairs lie in the first 40% of the stretch (things come in,
+ *   then the picture stands);
+ * - still: under STILL_SHARE; moves in parts: all else.
+ * stillFrom: seconds from the start of the stretch after which no pair moves (absent when the last pair moves).
+ */
+export interface Activity { kind: ActivityKind; moving: number; pairs: number; stillFrom?: number }
+
+export const activityIn = (m: Pick<Measure, 'motion' | 'boundaries' | 'source'>, from: number, to: number): Activity | undefined => {
+  const c = m.motion;
+  if (!c) return undefined;
+  const values: { at: number; v: number }[] = [];
+  c.amount.forEach((v, k) => {
+    const a = k * c.step, b = a + c.step;
+    if (a < from || b > to - 1 || m.boundaries.some((x) => a < x.end && b > x.start)) return;
+    values.push({ at: a, v });
+  });
+  if (values.length < 3) return undefined;
+  const moving = values.filter((x) => x.v >= MOVING_FLOOR);
+  const share = moving.length / values.length;
+  const early = moving.filter((x) => x.at - from < 0.4 * (to - from)).length;
+  const kind: ActivityKind = share >= THROUGHOUT_SHARE ? 'moves throughout' : share < STILL_SHARE ? 'still' : early >= 0.75 * moving.length ? 'enters then holds' : 'moves in parts';
+  const last = moving[moving.length - 1];
+  const holds = last !== undefined && last !== values[values.length - 1];
+  return { kind, moving: round(share, 2), pairs: values.length, ...(holds || !last ? { stillFrom: round(((last ? last.at + c.step : from) - from) / m.source.fps, 2) } : {}) };
+};
+
+/** The activity of shot i (from 0), clear of the changes into and out of it. */
+export const shotActivity = (m: Pick<Measure, 'motion' | 'boundaries' | 'shots' | 'source'>, i: number): Activity | undefined => {
+  const s = m.shots[i];
+  return s ? activityIn(m, s.start, s.end) : undefined;
+};

@@ -65,7 +65,7 @@ popost video scene library project        # writes project/lib/gsap.min.js; a sc
   `immediateRender: false`.
 - Transform origins belong in CSS (`transform-origin: left center`), not inside a tween. An element that GSAP moves or
   scales loses a `rotate`, `scale` or `translate` property written in the stylesheet: give it with `gsap.set` instead.
-- The rules of "The length of the shot" hold: entrances early, then hold; no exit.
+- The rules of "The length of the shot" hold: no exit; on a text or explainer card the entrances come early and then hold, while a motion-graphics shot keeps moving to its last frame.
 - GSAP is a product of Webflow under its own licence (free to use, not open source: https://gsap.com/standard-license).
   The file in the project is its unchanged file; leave it so.
 
@@ -240,13 +240,34 @@ What `template fill` writes into `video.json` for it as the second shot (the ids
                 "radius": 0.07, "in": 0, "during": { "segment": "shot-02" } } ] }
 ```
 
-## The length of the shot
+## The length of the shot, and what moves in it
 
 The video's timing comes from its reference and, with a voice, from the spoken lines, so a shot can end up longer or
-shorter than the reference shot it re-creates. Let every entrance finish in the first half of the shot and then hold
-its end state (`both` keeps it), and leave the end of the shot to the transition: an exit animated at the end of
-your shot would play at the wrong time. A move that runs through the whole shot (a slow drift, a bar that grows)
-can last as long as the reference shot and then hold.
+shorter than the reference shot it re-creates. Leave the end of the shot to the transition: an exit animated at the
+end of your shot would play at the wrong time.
+
+What moves, and for how long, depends on the kind of shot. `ref/shots/NN.md` says it in its `Movement:` line, measured
+from the reference's frames, and `timeline.md` marks every shot that `MOVES THROUGHOUT`:
+
+- **A text or explainer card** (`enters then holds`): every entrance finishes in the first half of the shot and then
+  holds its end state (`both` keeps it). A reader needs the text still.
+- **A motion-graphics shot** (`moves throughout`): it keeps moving from its first frame to its last. Before writing
+  its scene, open `ref/shots/NN-frames.jpg` and read `video-motion.md`; a scene whose elements all arrive in the first
+  third of a second and then stand is a still picture, not a re-make of it. Build it in three layers:
+  - the **main move** (a ball that bounces, a shape that morphs, a camera that travels), lasting as long as the
+    reference's does, on the measured curve (`ref/shots/NN.md`, "Motion events"; `popost video measure curve`);
+  - what **follows** it (a trail, a shadow that follows the contact, a settle, a part that arrives a little later);
+  - a **ground that keeps going** (a slow drift or turn, moving light, particles), which can last as long as the shot.
+- **Titles land and then stay still**, in both kinds: the motion goes on in the world behind them. No title wobbles,
+  floats or pulses for the length of the shot; that reads as generated at once.
+- **Never every element the same way**: a shot whose parts all fade and slide up, or all pop on the same overshoot,
+  reads as a template. Give each role its own entrance and its own ease (`video-motion.md`, "Ease by role").
+- When speech makes the shot longer than the reference's, the main move keeps its length and the ground keeps going;
+  do not stretch a bounce or a pop to fill the time.
+
+After the render, `popost video compare` names every shot that stands still for more than 40% of its length while the
+reference shot moves throughout (`stillShots`, and `worst[].problem` with the fix). That is a problem to fix before
+delivery, not a difference to note in the delivery text.
 
 ## What the rest of the video adds
 

@@ -15,7 +15,8 @@ import type { Phrase, Transcript } from '../speech/types';
 import { barsOf, markedText } from '../text/bar';
 import { oneIn } from '../text/share';
 import type { CaptionLook, TextCue, TextTrack } from '../text/types';
-import { shotAmount, videoAmount } from '../measure/amount';
+import { shotAmount, videoAmount, type Activity } from '../measure/amount';
+import { activities, movementBrief, movementCardLine, movementLine } from './movement';
 import { ANGLES, ownEffect, trackBrief, trackText, TRACKS_FILE } from './paths';
 import { amountKnown, cameraKnown, kindKnown, LEGEND, NO_PATH, tag } from './known';
 import type { Status, Unrecovered } from '../types';
@@ -47,7 +48,7 @@ const where = (box: [number, number, number, number]): string => {
 const boxText = (b: [number, number, number, number]): string => 'x ' + pct(b[0]) + '-' + pct(b[0] + b[2]) + ', y ' + pct(b[1]) + '-' + pct(b[1] + b[3]);
 
 /** What the description says of the pictures: whether they were written, and which shots go with the change after them. */
-interface Pictures { written: boolean; joined: ReadonlySet<number>; amounts: readonly (number | undefined)[]; amount: number | undefined; tracks: readonly Trajectory[]; measure: Measure }
+interface Pictures { written: boolean; joined: ReadonlySet<number>; amounts: readonly (number | undefined)[]; activity: readonly (Activity | undefined)[]; amount: number | undefined; tracks: readonly Trajectory[]; measure: Measure }
 
 const MEASURED: Status = { status: 'measured', basis: '' };
 
@@ -118,6 +119,8 @@ const timelineLine = (s: ShotMeasure, into: Boundary | undefined, out: Boundary 
   const written = cues.filter((c) => c.role === 'in-picture' && inShot(c, s)).length;
   if (written >= 8) parts.push('footage with ' + written + ' lines of its own text');
   if (s.events.length) parts.push('motion ' + s.events.length + ' event' + (s.events.length === 1 ? '' : 's'));
+  const act = p.activity[k];
+  if (act) parts.push(movementBrief(act));
   if (s.background) parts.push('ground ' + s.background);
   return parts.join(' | ');
 };
@@ -143,6 +146,8 @@ const shotFile = (s: ShotMeasure, into: Boundary | undefined, out: Boundary | un
   if (aim) L.push('- The camera ' + aimText(aim) + ' ([x, y, width, height] of the canvas)');
   const amount = p.amounts[k];
   if (amount !== undefined) L.push('- Motion amount: ' + amount + (p.amount !== undefined ? ' (the whole video: ' + p.amount + ')' : '') + '. The mean change of the picture between frames 1/15 s apart, in levels of 255; 0 is a still picture.' + tag(amountKnown(p.measure, k)));
+  const act = p.activity[k];
+  if (act) L.push(movementLine(act, k + 1, p.written) + tag(amountKnown(p.measure, k)));
   if (s.background) L.push('- Ground colour: ' + s.background + (s.palette.length ? '; palette ' + s.palette.slice(0, 5).map((p) => p.hex + ' ' + pct(p.share)).join(', ') : '') + tag(MEASURED));
   // A hint, not a finding: said only when the measured facts agree (kind.ts), for the pictures to confirm or correct. A
   // shot that is part of an effect is not a picture of its own kind.
@@ -266,6 +271,8 @@ const card = (m: Measure, text: TextTrack | undefined, transcript: Transcript | 
   const moved = p.amounts.flatMap((a, k) => (a === undefined ? [] : [{ a, k }])).sort((x, y) => x.a - y.a);
   if (p.amount !== undefined && moved.length)
     L.push('- Motion amount: ' + p.amount + ' over the video, by shot from ' + moved[0]?.a + ' (#' + two((moved[0]?.k ?? 0) + 1) + ') to ' + moved[moved.length - 1]?.a + ' (#' + two((moved[moved.length - 1]?.k ?? 0) + 1) + '): the mean change of the picture between frames 1/15 s apart, in levels of 255 (0 is a still picture); shots/NN.md has each shot\'s');
+  const movement = movementCardLine(p.activity, p.written);
+  if (movement) L.push(movement);
   if (inset) L.push('- ' + insetText(inset, m.shots.length));
   if (text) {
     const captions = text.cues.filter((c) => c.role === 'caption');
@@ -327,7 +334,7 @@ const timeline = (m: Measure, cues: TextCue[], beats: Beat[], step: number, p: P
     'What is said or shown as a caption, once each, in time order (seconds). The plan\'s "captions" follow this list: captions[i] is the new line of beat i. "spoken only": said with no caption on screen; its new line is spoken, not drawn. "on camera": a visible person says it; its new line is said by the person of a generated clip, never by a voice-over. "(unsure)": the reader or the recogniser was not sure.', '',
     ...(beats.length ? beats.map((b, i) => beatText(b, i, fps)) : ['None: no caption was read and no speech was heard.']), '',
     '## Shots', '',
-    'One shot per line: #number start-end (seconds) @first-last frame | in: how the shot begins | camera | the beats in it | other text | motion.'
+    'One shot per line: #number start-end (seconds) @first-last frame | in: how the shot begins | camera | the beats in it | other text | motion | movement (moves throughout, enters then holds, moves in parts, still: a shot that MOVES THROUGHOUT has its frames opened before its scene is written).'
       + (p.written ? ' The frames of shot NN are in shots/NN-frames.jpg, those of a change into it in transitions/NN.jpg: what they show wins over these labels.' : ''), '',
     ...shots,
   ].join('\n') + '\n';
@@ -339,7 +346,7 @@ const timeline = (m: Measure, cues: TextCue[], beats: Beat[], step: number, p: P
  * o.speech: the record of the speech's kind (speech-kind.ts): the card says it, and confirmed kinds shape the beats.
  */
 export const describeReference = (m: Measure, text: TextTrack | undefined, name: string, transcript?: Transcript, inset?: Inset, o: { pictures?: boolean; speech?: SpeechFile } = {}): Description => {
-  const p: Pictures = { written: o.pictures === true, joined: joinedShots(m), amounts: m.shots.map((_s, k) => shotAmount(m, k)), amount: videoAmount(m), tracks: m.tracks ?? [], measure: m };
+  const p: Pictures = { written: o.pictures === true, joined: joinedShots(m), amounts: m.shots.map((_s, k) => shotAmount(m, k)), activity: activities(m), amount: videoAmount(m), tracks: m.tracks ?? [], measure: m };
   const fps = m.source.fps;
   const boundaries = m.boundaries.map((b) => b.frame);
   const kinds = kindRanges(o.speech);
