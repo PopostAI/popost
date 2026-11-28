@@ -2,13 +2,14 @@
 import { z } from 'zod';
 import type { Runtime } from '../../runtime';
 import { sha256File } from '../../core/util';
-import type { Problem, Resolved } from '../types';
+import type { Problem, Project, Resolved } from '../types';
 import { error } from '../project/check-common';
 import { isOutside } from '../project/check';
 import type { MaterialRequest } from '../generate/index';
 import { evidenceSchema, effectiveTargetSpeech, explicitSpeechOverride, type ReplicationContract, type ReplicationAudioUse } from './contract';
 import { checkReplicationAudio, checkReplicationReadiness } from './check';
 import { evidenceProblems, readReplication, replicationWithIntent } from './io';
+import { voiceSpanProblems } from './voice-spans';
 
 export const AUDIO_FILE = 'replication.audio.json';
 export const PLAN_FILE = 'replication.plan.json';
@@ -91,6 +92,8 @@ export const speechReplicationProblems = async (rt: Runtime, dir: string): Promi
 export const outputAudioProblems = async (rt: Runtime, dir: string, c: ReplicationContract, resolved: Resolved): Promise<Problem[]> => {
   const read = await readAudio(rt, dir);
   const problems = [...read.problems];
+  if (await rt.fs.stat(rt.path.join(dir, 'video.json')))
+    problems.push(...voiceSpanProblems(await json(rt, dir, 'video.json') as Project, resolved));
   const used = [...new Set(resolved.audio.map(a => a.src))];
   for (const file of used) {
     if (!read.audio?.items.some(a => a.file === file)) problems.push(error(AUDIO_FILE, 'An actual resolved audio route is missing from the inventory: ' + file, 'Review this sound/native clip and bind its exact file and role.'));

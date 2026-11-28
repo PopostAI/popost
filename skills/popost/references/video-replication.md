@@ -54,6 +54,14 @@ Prefer `template fill --speak` for narration. A real registered-voice asset used
 it cannot be passed as a music `sound`. Native dialogue uses timed `speech.lines` and template beats. Keep the source
 presenter's full/bubble/off intervals independent of the durations of generated takes.
 
+For a direct voice track, `during.from/to` are counted from its named segment, while `lines` are counted from the
+audio track's own start. A track beginning at timeline frame90 with20 frames of speech has `lines: [[0, 20]]`,
+not `[[90, 110]]`. Export the resolved timeline and check that every intended speech interval remains in
+`speech.voice`. Strict final validation rejects wholly unheard intervals rather than silently losing their ducking.
+Existing completed takes from the selected voice service may be imported through the registered-voice workflow;
+retain their actual generation receipts and derivative timing evidence. This does not authorize relabelling an
+extracted source narrator or unrelated audio as newly generated speech.
+
 Contract event `span` is a half-open interval `[start, end)` in **reference frames**. Plan event `span` is in **target frames**. Pair trims use the named side's source clock, with `unit: "frames"` or `"seconds"`; they do not silently inherit the project's FPS. Evidence `at` values, when used, are seconds on the named evidence file. Keep these units explicit.
 
 Evidence has a kind (`observed`, `measured`, `user`, or `unknown`) and a concrete description. Local file evidence should include its project-relative path, actual SHA-256, media kind, and relevant frame or time interval. Unknown evidence does not establish a pass. Do not put placeholder hashes, future file paths, or a prose claim of success into a completed review.

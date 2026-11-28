@@ -184,6 +184,12 @@ describe('actual media evidence and portable sidecars', () => {
     await rt.fs.writeFile('/work/project/assets/native.mp4', 'native bytes');
     expect(errors(await outputAudioProblems(rt, '/work/project', c, r)).some(p => p.message.includes('missing from the inventory'))).toBe(true);
   });
+  it('rejects stale global voice intervals through the final audio gate', async () => {
+    const rt = createTestRuntime();
+    await rt.fs.writeFile('/work/project/video.json', JSON.stringify({ tracks: [{ id: 'voice', type: 'audio', role: 'voice', material: 'speech', lines: [[40, 60]] }] }));
+    const result = await outputAudioProblems(rt, '/work/project', contract(), resolved([{ id: 'voice', src: 'assets/voice.wav', start: 40, end: 60, gain: 0 }]));
+    expect(errors(result).some(p => p.at === 'tracks.voice.lines[0]' && p.fix?.includes('relative to this audio track'))).toBe(true);
+  });
   it('uses actual compiled segment intervals rather than merely trusting author-supplied event times', async () => {
     const rt = createTestRuntime(), c = contract();
     c.events = [{ id: 'reveal', kind: 'typing', mechanism: 'characters', objects: ['heading'], span: [0, 30], description: 'Letters arrive individually.', evidence: [sourceEvidence()] }];
